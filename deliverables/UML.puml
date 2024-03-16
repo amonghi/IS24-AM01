@@ -208,7 +208,7 @@ package objective {
 package choice {
     class Choice<T> {
         - Set<T> options
-        - OptionalInt selection
+        - T selection
 
         + Choice(Iterable<T> choices)
         + getOptions() Set<T>
@@ -217,7 +217,8 @@ package choice {
         + getSelected() T
     }
     note left of Choice::getSelected
-        throws NoSuchElementException if isResolved() == false
+        throws NoSuchElementException
+        if hasSelected() == false
     end note
 
     class MultichooserChoiceArbiter<T, I> {

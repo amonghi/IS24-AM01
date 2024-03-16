@@ -1,30 +1,68 @@
 package it.polimi.ingsw.am01.model.choice;
 
 
-import java.util.OptionalInt;
-import java.util.Set;
+import java.util.*;
 
+/**
+ * A choice between multiple options.
+ * After the choice has been made (that is, an option has been selected) it cannot be changed.
+ *
+ * @param <T> the type of options that this choice offers
+ */
 public class Choice<T> {
-    private Set<T> options;
-    private OptionalInt selection;
+    private final Set<T> options;
+    private T selection;
 
-    public Choice(Iterable<T> choices) {
-        throw new UnsupportedOperationException("TODO");
+    /**
+     * Constructs a new choice, given the available options.
+     *
+     * @param options the options that will be available for this choice
+     */
+    public Choice(Set<T> options) {
+        this.options = Collections.unmodifiableSet(options);
+        this.selection = null;
     }
 
+    /**
+     * @return all the options that are available in this {@code Choice}
+     */
     public Set<T> getOptions() {
-        throw new UnsupportedOperationException("TODO");
+        return this.options;
     }
 
+    /**
+     * Selects one of the options from this {@code Choice}
+     *
+     * @param selection the selected option. Must be one of the options from {@code Choice.getOptions()}
+     */
     public void select(T selection) {
-        throw new UnsupportedOperationException("TODO");
+        if (this.selection != null) {
+            throw new DoubleChoiceException();
+        }
+
+        if (!this.options.contains(selection)) {
+            throw new NoSuchElementException("No such option in this choice");
+        }
+
+        this.selection = selection;
     }
 
+    /**
+     * @return whether the element for this choice has been selected
+     */
     public boolean hasSelected() {
-        throw new UnsupportedOperationException("TODO");
+        return this.selection != null;
     }
 
+    /**
+     * @return the selected element
+     * @throws NoSuchElementException if an element hasn't been selected yet
+     */
     public T getSelected() {
-        throw new UnsupportedOperationException("TODO");
+        if (this.selection == null) {
+            throw new NoSuchElementException();
+        }
+
+        return this.selection;
     }
 }
