@@ -1,4 +1,7 @@
 @startuml
+'this collapses nested packages if there are no in-between classes
+!pragma useIntermediatePackages false
+
 /'
 CONVENTIONS FOR ARROW DECLARATION:
 - if possible, use `implements` and `extends`
