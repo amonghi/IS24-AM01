@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am01.model.card.face;
 
-import it.polimi.ingsw.am01.model.card.corner.Corner;
-import it.polimi.ingsw.am01.model.card.corner.CornerPosition;
-import it.polimi.ingsw.am01.model.panel.placement.PlacementConstraint;
+import it.polimi.ingsw.am01.model.card.face.corner.Corner;
+import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
+import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.collectible.Resource;
-import it.polimi.ingsw.am01.model.panel.points.PointsPanel;
+import it.polimi.ingsw.am01.model.card.face.points.Points;
 
 import java.util.Map;
 import java.util.Optional;
@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface CardFace {
     Corner corner(CornerPosition cornerPosition);
 
-    Optional<PointsPanel> getPointsPanel();
+    Optional<Points> getPoints();
 
     Optional<PlacementConstraint> getPlacementConstraint();
 

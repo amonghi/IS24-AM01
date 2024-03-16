@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.model.panel.placement;
+package it.polimi.ingsw.am01.model.card.face.placement;
 
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import it.polimi.ingsw.am01.model.game.PlayArea;

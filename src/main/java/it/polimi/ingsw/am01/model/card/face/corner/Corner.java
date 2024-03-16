@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.model.card.corner;
+package it.polimi.ingsw.am01.model.card.face.corner;
 
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 

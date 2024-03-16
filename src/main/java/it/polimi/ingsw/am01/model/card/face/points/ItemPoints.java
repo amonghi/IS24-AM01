@@ -1,11 +1,13 @@
-package it.polimi.ingsw.am01.model.panel.points;
+package it.polimi.ingsw.am01.model.card.face.points;
 
 import it.polimi.ingsw.am01.model.card.CardPlacement;
+import it.polimi.ingsw.am01.model.collectible.Item;
 
-public class CornerCoverPointsPanel implements PointsPanel {
-    private int pointsPerCorner;
+public class ItemPoints implements Points {
+    private Item item;
+    private int pointsPerItem;
 
-    public CornerCoverPointsPanel(int pointsPerCorner) {
+    public ItemPoints(Item item, int pointsPerItem) {
         throw new UnsupportedOperationException("TODO");
     }
 

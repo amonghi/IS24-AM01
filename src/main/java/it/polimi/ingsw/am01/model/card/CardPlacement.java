@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.model.card;
 
-import it.polimi.ingsw.am01.model.card.corner.CornerPosition;
+import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.game.PlayArea;

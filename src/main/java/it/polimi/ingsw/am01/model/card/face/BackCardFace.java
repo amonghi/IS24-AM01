@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.model.card.face;
 
-import it.polimi.ingsw.am01.model.card.corner.Corner;
+import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 
 import java.util.Map;
