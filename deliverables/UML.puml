@@ -1,0 +1,467 @@
+@startuml
+/'
+CONVENTIONS FOR ARROW DECLARATION:
+- if possible, use `implements` and `extends`
+- declare arrow before class: if class extends other class or implements interface
+    (declare arrow near the child class not the parent class)
+- declare arrow after class: if class uses or is in some other way related to another class
+    (do not declare arrow near the used class, declare it near the user)
+'/
+
+package java.lang {
+    'TODO: add methods
+    interface Iterator<T> {}
+    interface Iterable<T> {}
+    interface Comparable<T> {}
+}
+
+package collectible {
+    interface Collectible <<sealed>> {}
+
+    enum Resource implements Collectible {
+        <:seedling:> PLANT
+        <:mushroom:> FUNGI
+        <:fox_face:> ANIMAL
+        <:butterfly:> INSECT
+
+        + getAssociatedColor() CardColor
+    }
+
+    enum Item implements Collectible {
+        <:feather:> QUILL
+        <:jar:> INKWELL
+        <:scroll:> MANUSCRIPT
+    }
+} /' end package collectible '/
+
+package card {
+    package face {
+        package corner {
+            class Corner {
+                - socket boolean
+                - Optional<Collectible> collectible
+
+                - Corner(boolean isSocket, Optional<Collectible>)
+                + {static} missing() Corner
+                + {static} empty() Corner
+                + {static} filled(Collectible collectible) Corner
+                + isSocket() boolean
+                + getCollectible() Optional<Collectible>
+            }
+            Collectible .. Corner
+            note top of Corner : !isSocket() ==> getCollectible().isEmpty()
+
+            enum CornerPosition {
+                TOP_RIGHT
+                TOP_LEFT
+                BOTTOM_LEFT
+                BOTTOM_RIGHT
+            }
+        } /' end package corner '/
+
+        package placement {
+            class PlacementConstraint {
+                - Map<Resource, Integer> requiredResources
+
+                + PlacementConstraint(Map<Resource, Integer> requiredResources)
+                + isSatisfied(PlayArea playArea) boolean
+            }
+        } /' end package placement '/
+
+        package points {
+            interface Points {
+                + calculateScoredPoints(CardPlacement cp) int
+            }
+
+            class SimplePoints implements Points {
+                - int points
+                + SimplePoints(int points)
+                + calculateScoredPoints(CardPlacement cp) int
+            }
+
+            class CornerCoverPoints implements Points {
+                - int pointsPerCorner
+                + CornerCoverPoints(int pointsPerCorner)
+                + calculateScoredPoints(CardPlacement cp) int
+            }
+
+            class ItemPoints implements Points {
+                - Item item
+                - int pointsPerItem
+                + ItemPoints(Item item, int pointsPerItem)
+                + calculateScoredPoints(CardPlacement cp) int
+            }
+        } /' end package points '/
+
+        interface CardFace {
+            + corner(CornerPosition cp) Corner
+            + getPoints() Optional<Points>
+            + getPlacementConstraint() Optional<PlacementConstraint>
+            + getCenterResources() Map<Resource, Integer>
+        }
+
+        abstract class BaseCardFace implements CardFace {
+            - Corner tl
+            - Corner tr
+            - Corner br
+            - Corner bl
+
+            + BaseCardFace(Corner tl, Corner tr, Corner br, Corner bl)
+            + corner(CornerPosition cp) Corner
+            + getPoints() Optional<Points>
+            + getPlacementConstraint() Optional<PlacementConstraint>
+            + getCenterResources() Map<Resource, Integer>
+        }
+        Corner <--* BaseCardFace
+        CornerPosition .. BaseCardFace
+        note left of BaseCardFace::getPoints
+            Default implementation. Returns Optional.empty().
+        end note
+        note left of BaseCardFace::getPlacementConstraint
+            Default implementation. Returns Optional.empty().
+        end note
+        note left of BaseCardFace::getCenterResources
+            Default implementation. Returns empty list.
+        end note
+
+        class BackCardFace extends BaseCardFace {
+            - Map<Resource, Integer> resources
+
+            + BackCardFace(Corner tl, Corner tr, Corner br, Corner bl, Iterable<Resource> resources)
+            + getCenterResources() Map<Resource, Integer>
+        }
+        PlacementConstraint <--* FrontCardFace
+        Points <--* FrontCardFace
+
+        class FrontCardFace extends BaseCardFace {
+           - PlacementConstraint placementConstraint
+            - Optional<Points> points
+
+            + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, placementConstraint placementConstraint,  Optional<Points> points)
+            + getPoints() Optional<Points>
+            + getPlacementConstraint() Optional<PlacementConstraint>
+        }
+    } /' end package face '/
+
+    class Card {
+        - CardColor baseColor
+        - boolean isStarter
+        - boolean isGold
+        - FrontCardFace front
+        - BackCardFace back
+
+        + color() CardColor
+        + isStarter() boolean
+        + isGold() boolean
+        + getFace(Side s) CardFace
+    }
+    FrontCardFace <--* Card
+    BackCardFace <--* Card
+    Side .. Card
+    CardColor .. Card
+
+    enum CardColor {
+        <:red_circle:> RED
+        <:green_circle:> GREEN
+        <:blue_circle:> BLUE
+        <:purple_circle:> PURPLE
+        <:white_circle:> NEUTRAL
+    }
+
+    enum Side {
+        FRONT
+        BACK
+    }
+} /' end package card '/
+
+package objective {
+    abstract class Objective {
+        - int points
+
+        + Objective(int points)
+        + getPointsPerMatch() int
+        + test(PlayArea pa) Set<Set<CardPlacement>>
+    }
+    note left of Objective::test
+        Returns a set containing all the sets of cards that satisfy the objective.
+    end note
+
+    class CollectibleObjective extends Objective {
+        - Map<Collectible, Integer> requiredCollectibles
+        + CollectibleObjective(int points, Map<Collectible, Integer> requiredCollectibles)
+        + test(PlayArea pa) Set<Set<CardPlacement>>
+    }
+
+    class PatternObjective extends Objective {
+        - CardColor[][] pattern
+        + PatternObjective(int points, CardColor[][] pattern)
+        + test(PlayArea pa) Set<Set<CardPlacement>>
+    }
+    CardColor .. PatternObjective
+    note left of PatternObjective::pattern
+        A 3x3 matrix representing the pattern with colors` and nulls.
+    end note
+} /' end package objective '/
+
+package choice {
+    class Choice<T> {
+        - Set<T> options
+        - OptionalInt selection
+
+        + Choice(Iterable<T> choices)
+        + getOptions() Set<T>
+        + select(T selection) void
+        + hasSelected() boolean
+        + getSelected() T
+    }
+    note left of Choice::getSelected
+        throws NoSuchElementException if isResolved() == false
+    end note
+
+    class MultichooserChoiceArbiter<T, I> {
+        - Set<T> options
+        - Map<I, T> selections
+        - boolean settled
+
+        - List<MultichooserChoice<T>> choosers
+
+        + MultichooserChoiceArbiter(Iterable<T> choices, int choosers)
+        + getChoice(I identity) MultichooserChoice<T>
+    }
+    MultichooserChoiceArbiter -- MultichooserChoice : > has many
+
+    class MultichooserChoice<T, I> {
+        - MultichooserChoiceArbiter parent
+        - I identity
+
+        - MultichooserChoice(MultichooserChoiceArbiter parent, I identity)
+        + getOptions() List<T>
+        + select(T choice) SelectionResult
+        + hasSelected() boolean
+        + getSelected() T
+        + getContenders(T choice) Set<I>
+        + isSettled() boolean
+    }
+    SelectionResult .. MultichooserChoice
+
+    enum SelectionResult {
+        OK
+        CONTENDED
+    }
+} /' end package choice '/
+
+package player {
+    class PlayerProfile {
+        - String name
+
+        + PlayerProfile(String name)
+        + isConnected() boolean
+    }
+
+    class PlayerData {
+        - List<Card> hand
+        - Choice<Side> startingCardSideChoice
+        - Choice<Objective> objectiveChoice
+        - MultichooserChoice<PlayerColor, PlayerProfile> colorChoice
+
+        + PlayerData(Card starterCard, Choice<Side> startingCardSideChoice, Choice<Objective> objectiveChoice, MultichooserChoice<PlayerColor, PlayerProfile> colorChoice)
+        + getHand() List<Card>
+        + getObjectiveChoice() Choice<Objective>
+        + getColorChoice() MultichooserChoice<PlayerColor, PlayerProfile>
+    }
+    MultichooserChoice <-- PlayerData
+    Choice <-- PlayerData
+    Card <-- PlayerData
+    PlayerColor .. PlayerData
+
+    enum PlayerColor {
+        <:red_circle:> RED
+        <:green_circle:> GREEN
+        <:blue_circle:> BLUE
+        <:yellow_circle:> YELLOW
+    }
+} /' end package player '/
+
+package game {
+    package window {
+        java.lang.Iterator <|.. WindowIterator : <<bind>> \n Window
+        class WindowIterator {
+            - PlayArea playArea
+            - int offsetI
+            - int offsetJ
+            - int maxI
+            - int maxJ
+            - int w
+            - int h
+
+            + hasNext() boolean
+            + next() Window
+        }
+        Window -- WindowIterator
+
+        class Window {
+            - PlayArea playArea
+            - int offsetI
+            - int offsetJ
+            - int width
+            - int height
+
+            + width() int
+            + height() int
+            + getAt(int i, int j) Optional<CardPlacement>
+        }
+        game.PlayArea <-- Window
+    } /' end package window '/
+
+    class Game {
+        - String id
+        - GameStatus status
+        - List<PlayerProfile> playerProfiles
+        - Map<PlayerProfile, PlayerData> playersData
+        - Map<PlayerProfile, PlayArea> playAreas
+        - Set<Objective> commonObjectives
+        - int currentPlayer
+        - Board board
+
+        + Game(Iterable<PlayerProfiles> playerProfiles)
+        + getId() String
+        + getPlayerProfiles() List<PlayerProfile>
+        + getPlayerData(PlayerProfile pp) PlayerData
+        + getPlayArea(PlayerProfile pp) PlayArea
+        + getCurrentPlayer() PlayerProfile
+        + getCommonObjectives() Set<Objective>
+        + getStatus() GameStatus
+        + startGame() void
+        + pausedGame() void
+        + resumeGame() void
+        + join(PlayerProfile pp) PlayerData
+        + selectStartingCardSide(PlayerProfile pp, Side s) void
+        + selectColor(PlayerProfile pp, PlayerColor pc) SelectionResult
+        + selectObjective(PlayerProfile pp, Objective o) void
+        + drawCard(PlayerProfile pp, DrawSource ds) DrawResult
+        + placeCard(PlayerProfile pp, Card c, Side s, int i, int j) void
+    }
+    'Board and PlayAreas exists only in a Game
+    Board <--* Game
+    PlayArea <--* Game
+    Objective <-- Game
+    PlayerData <-- Game
+    PlayerProfile <-- Game
+    Game .. GameStatus
+    note left of Game::players
+        The players are stored in the order in which they play.
+        players.get(0) is the first one to play.
+    end note
+    note left of Game::currentPlayer
+        The index of the player currently playing
+    end note
+
+    enum GameStatus {
+        AWAITING_PLAYERS
+        SETUP_STARTING_CARD_SIDE
+        SETUP_COLOR
+        SETUP_OBJECTIVE
+        PLAY_PLACING
+        PLAY_DRAWING
+        FINISHED
+        SUSPENDED
+    }
+
+    class Board {
+        - Set<FaceUpCard> faceUpResourceCards
+        - Set<FaceUpCard> faceUpGoldenCards
+        - Deck resourceCardDeck
+        - Deck goldenCardDeck
+
+        + Board()
+        + getFaceUpResourceCards() Set<Card>
+        + getFaceUpGoldenCards() Set<Card>
+        + getResourceCardDeck() Deck
+        + getGoldenCardDeck() Deck
+    }
+    Deck <--* Board
+    FaceUpCard <--* Board
+
+    interface DrawSource {
+        + Optional<Card> draw()
+    }
+
+    class FaceUpCard implements DrawSource {
+        - Optional<Card> card
+        - Deck source
+
+        + FaceUpCard()
+        + draw() Optional<Card>
+        + getCard() Optional<Card>
+    }
+    'FaceUpCards have a reference to a Deck
+    Deck <-- FaceUpCard
+
+    class Deck implements DrawSource {
+        - List<Card> cards
+
+        + Deck(Iterable<Card> cards)
+        + shuffle() void
+        + isEmpty() boolean
+        + draw() Optional<Card>
+    }
+    'Decks are aggregations of Cards
+    Card --o Deck
+
+    class Position {
+        - int i
+        - int j
+
+        + Position(int i, int j)
+        + getI()
+        + getJ()
+    }
+
+    java.lang.Iterable <|.. PlayArea : <<bind>> \n CardPlacement
+    class PlayArea {
+        - Map<Position, CardPlacement> cards
+        - int score
+        - int seq
+        - Map<Collectible, Integer> collectibleCount
+
+        + PlayArea(Card starterCard, Side side)
+        + placeAt(int i, int j, Card c, Side side) CardPlacement
+        + getAt(int i, int j) Optional<CardPlacement>
+        + getCollectibleCount() Map<Collectible, Integer>
+        + getScore() int
+        + iterator() Iterator<CardPlacement>
+        + windows(int width, int height) WindowIterator
+    }
+    CardPlacement <--* PlayArea : < has many
+    Position <-- PlayArea
+
+    'FIXME: find out what is the correct formalism for this
+
+    Comparable <|.. CardPlacement : <<bind>> \n CardPlacement
+    class CardPlacement {
+        - PlayArea playArea
+        - int i
+        - int j
+        - Card card
+        - Side side
+        - int seq
+        - int points
+
+        - CardPlacement(PlayArea playArea, int i, int j, Card card, Side side, int seq);
+        - calculatePoints() int
+        + getPlayArea() PlayArea
+        + getI() int
+        + getJ() int
+        + getCard() Card
+        + getSide() Side
+        + getVisibleFace() CardFace
+        + getPoints() int
+        + getCollectibleAtCorner(CornerPosition cp) Optional<Collectible>
+        + getRelative(CornerPosition cp) Optional<CardPlacement>
+        + getCovered() Map<CornerPosition, CardPlacement>
+        + compareTo(CardPlacement other) int
+    }
+    Card <-- CardPlacement
+} /' end package game '/
+
+@enduml
