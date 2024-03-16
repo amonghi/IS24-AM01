@@ -19,7 +19,7 @@ public class Choice<T> {
      * @param options the options that will be available for this choice
      */
     public Choice(Set<T> options) {
-        this.options = Collections.unmodifiableSet(options);
+        this.options = new HashSet<>(options);
         this.selection = null;
     }
 
@@ -27,7 +27,7 @@ public class Choice<T> {
      * @return all the options that are available in this {@code Choice}
      */
     public Set<T> getOptions() {
-        return this.options;
+        return Collections.unmodifiableSet(this.options);
     }
 
     /**
