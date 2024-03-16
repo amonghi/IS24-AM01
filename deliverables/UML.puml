@@ -9,7 +9,6 @@ CONVENTIONS FOR ARROW DECLARATION:
 '/
 
 package java.lang {
-    'TODO: add methods
     interface Iterator<T> {}
     interface Iterable<T> {}
     interface Comparable<T> {}
@@ -434,8 +433,6 @@ package game {
     }
     CardPlacement <--* PlayArea : < has many
     Position <-- PlayArea
-
-    'FIXME: find out what is the correct formalism for this
 
     Comparable <|.. CardPlacement : <<bind>> \n CardPlacement
     class CardPlacement {
