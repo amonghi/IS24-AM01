@@ -34,6 +34,8 @@ public class Choice<T> {
      * Selects one of the options from this {@code Choice}
      *
      * @param selection the selected option. Must be one of the options from {@code Choice.getOptions()}
+     * @throws DoubleChoiceException  if the user tries to choose more than once
+     * @throws NoSuchElementException if the selected option is not one of those returned by {@code getOptions()}
      */
     public void select(T selection) {
         if (this.selection != null) {
@@ -48,21 +50,9 @@ public class Choice<T> {
     }
 
     /**
-     * @return whether the element for this choice has been selected
+     * @return the selected item, or empty a selection has not been made yet.
      */
-    public boolean hasSelected() {
-        return this.selection != null;
-    }
-
-    /**
-     * @return the selected element
-     * @throws NoSuchElementException if an element hasn't been selected yet
-     */
-    public T getSelected() {
-        if (this.selection == null) {
-            throw new NoSuchElementException();
-        }
-
-        return this.selection;
+    public Optional<T> getSelected() {
+        return Optional.ofNullable(this.selection);
     }
 }
