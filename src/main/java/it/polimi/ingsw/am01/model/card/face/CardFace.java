@@ -9,6 +9,13 @@ import it.polimi.ingsw.am01.model.card.face.points.Points;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * This interface defines all the methods for {@code BaseCardFace}.
+ * The default implementation of each method is defined in {@code BaseCardFace}
+ *
+ * @see it.polimi.ingsw.am01.model.card.face.BaseCardFace
+ */
+
 public interface CardFace {
     Corner corner(CornerPosition cornerPosition);
 
