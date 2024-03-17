@@ -207,7 +207,6 @@ package objective {
     end note
 } /' end package objective '/
 
-'TODO: update choice classes to match implementation
 package choice {
     class Choice<T> {
         - Set<T> options
@@ -216,31 +215,26 @@ package choice {
         + Choice(Iterable<T> choices)
         + getOptions() Set<T>
         + select(T selection) void
-        + hasSelected() boolean
-        + getSelected() T
+        + getSelected() Optional<T>
     }
-    note left of Choice::getSelected
-        throws NoSuchElementException
-        if hasSelected() == false
-    end note
 
-    class MultichooserChoiceArbiter<T, I> {
+    class MultiChoice<T, I> {
         - Set<T> options
         - Map<I, T> selections
         - boolean settled
 
-        - List<MultichooserChoice<T>> choosers
+        - List<MultiChoiceChoice<T, I>> choosers
 
-        + MultichooserChoiceArbiter(Iterable<T> choices, int choosers)
-        + getChoice(I identity) MultichooserChoice<T>
+        + MultiChoice(Iterable<T> choices, int choosers)
+        + getChoice(I identity) MultiChoiceChoice<T, I>
     }
-    MultichooserChoiceArbiter -- MultichooserChoice : > has many
+    MultiChoice -- MultiChoiceChoice : > has many
 
-    class MultichooserChoice<T, I> {
-        - MultichooserChoiceArbiter parent
+    class MultiChoiceChoice<T, I> {
+        - MultiChoiceChoiceArbiter parent
         - I identity
 
-        - MultichooserChoice(MultichooserChoiceArbiter parent, I identity)
+        - MultiChoiceChoice(MultiChoice parent, I identity)
         + getOptions() List<T>
         + select(T choice) SelectionResult
         + hasSelected() boolean
@@ -248,7 +242,11 @@ package choice {
         + getContenders(T choice) Set<I>
         + isSettled() boolean
     }
-    SelectionResult .. MultichooserChoice
+    SelectionResult .. MultiChoiceChoice
+    note right of MultiChoiceChoice
+        This is a nested class, the actual
+        name is MultiChoice<T, I>.Choice
+    end note
 
     enum SelectionResult {
         OK
@@ -268,14 +266,14 @@ package player {
         - List<Card> hand
         - Choice<Side> startingCardSideChoice
         - Choice<Objective> objectiveChoice
-        - MultichooserChoice<PlayerColor, PlayerProfile> colorChoice
+        - MultiChoiceChoice<PlayerColor, PlayerProfile> colorChoice
 
-        + PlayerData(Card starterCard, Choice<Side> startingCardSideChoice, Choice<Objective> objectiveChoice, MultichooserChoice<PlayerColor, PlayerProfile> colorChoice)
+        + PlayerData(Card starterCard, Choice<Side> startingCardSideChoice, Choice<Objective> objectiveChoice, MultiChoiceChoice<PlayerColor, PlayerProfile> colorChoice)
         + getHand() List<Card>
         + getObjectiveChoice() Choice<Objective>
-        + getColorChoice() MultichooserChoice<PlayerColor, PlayerProfile>
+        + getColorChoice() MultiChoiceChoice<PlayerColor, PlayerProfile>
     }
-    MultichooserChoice <-- PlayerData
+    MultiChoiceChoice <-- PlayerData
     Choice <-- PlayerData
     Card <-- PlayerData
     PlayerColor .. PlayerData
