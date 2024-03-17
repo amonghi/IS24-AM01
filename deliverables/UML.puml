@@ -140,7 +140,8 @@ package card {
             - PlacementConstraint placementConstraint
             - Optional<Points> points
 
-            + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, placementConstraint placementConstraint,  Points points)
+            + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, placementConstraint placementConstraint,
+                Points points)
             + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, Points points)
             + getPoints() Optional<Points>
             + getPlacementConstraint() Optional<PlacementConstraint>
@@ -268,7 +269,8 @@ package player {
         - Choice<Objective> objectiveChoice
         - MultiChoiceChoice<PlayerColor, PlayerProfile> colorChoice
 
-        + PlayerData(Card starterCard, Choice<Side> startingCardSideChoice, Choice<Objective> objectiveChoice, MultiChoiceChoice<PlayerColor, PlayerProfile> colorChoice)
+        + PlayerData(Card starterCard, Choice<Side> startingCardSideChoice, Choice<Objective> objectiveChoice,
+            MultiChoiceChoice<PlayerColor, PlayerProfile> colorChoice)
         + getHand() List<Card>
         + getObjectiveChoice() Choice<Objective>
         + getColorChoice() MultiChoiceChoice<PlayerColor, PlayerProfile>
