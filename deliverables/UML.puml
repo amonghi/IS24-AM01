@@ -41,9 +41,10 @@ package card {
         package corner {
             class Corner {
                 - socket boolean
-                - Optional<Collectible> collectible
+                - Collectible collectible
 
-                - Corner(boolean isSocket, Optional<Collectible>)
+                - Corner(Collectible collectible, boolean socket)
+                - Corner(boolean socket)
                 + {static} missing() Corner
                 + {static} empty() Corner
                 + {static} filled(Collectible collectible) Corner
@@ -129,17 +130,18 @@ package card {
         class BackCardFace extends BaseCardFace {
             - Map<Resource, Integer> resources
 
-            + BackCardFace(Corner tl, Corner tr, Corner br, Corner bl, Iterable<Resource> resources)
+            + BackCardFace(Corner tl, Corner tr, Corner br, Corner bl, Map<Resource, Integer> resources)
             + getCenterResources() Map<Resource, Integer>
         }
         PlacementConstraint <--* FrontCardFace
         Points <--* FrontCardFace
 
         class FrontCardFace extends BaseCardFace {
-           - PlacementConstraint placementConstraint
+            - PlacementConstraint placementConstraint
             - Optional<Points> points
 
-            + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, placementConstraint placementConstraint,  Optional<Points> points)
+            + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, placementConstraint placementConstraint,  Points points)
+            + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, Points points)
             + getPoints() Optional<Points>
             + getPlacementConstraint() Optional<PlacementConstraint>
         }

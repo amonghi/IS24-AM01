@@ -20,8 +20,10 @@ public class Corner {
     private final Collectible collectible;
 
     /**
-     * Constructs a new corner to be returned by one of the three methods:
-     * {@code Corner.missing()}, {@code Corner.empty()}, {@code Corner.filled(Collectible)}
+     * Constructs a new corner, with a collectible in it, to be returned by {@code Corner.filled(Collectible)}
+     *
+     * @param socket a boolean value which specify if a corner can be used as a link or not
+     * @param collectible either a {@code Resource} or an {@code Item} contained in the corner
      */
     private Corner(Collectible collectible, boolean socket) {
         this.collectible = collectible;
@@ -29,11 +31,23 @@ public class Corner {
     }
 
     /**
+     * Construct a new corner, either empty or missing, to be returned by one of the two methods:
+     * {@code Corner.missing()}, {@code Corner.empty()}
+     *
+     * @param socket a boolean value which specify if a corner can be used as a link or not
+     *
+     */
+    private Corner(boolean socket) {
+        this.socket = socket;
+        this.collectible = null;
+    }
+
+    /**
      *
      * @return a new missing corner, i.e. a corner for which {@code Corner.socket} is false
      */
     public static Corner missing() {
-        return new Corner(null, false);
+        return new Corner(false);
     }
 
     /**
@@ -41,7 +55,7 @@ public class Corner {
      * @return a new empty corner, i.e. a corner with no {@code Collectible}
      */
     public static Corner empty() {
-        return new Corner(null, true);
+        return new Corner(true);
     }
 
     /**
@@ -66,6 +80,6 @@ public class Corner {
      * @return the collectible, if any, contained in the corner
      */
     public Optional<Collectible> getCollectible() {
-        return collectible == null ? Optional.empty() : Optional.of(collectible);
+        return Optional.ofNullable(collectible);
     }
 }

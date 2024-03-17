@@ -24,7 +24,7 @@ public class FrontCardFace extends BaseCardFace {
     private final Points points;
 
     /**
-     * Constructs a new {@code FrontCardFace}
+     * Constructs a new {@code FrontCardFace} with a {@code PlacementConstraint}
      *
      * @param tl the top-left corner
      * @param tr the top-right corner
@@ -34,12 +34,29 @@ public class FrontCardFace extends BaseCardFace {
      * @param points an object which define how the card allows you to earn points, if any
      *
      */
-        //Decide how to manage Optionals as param of a method
+
+    //FIX: Decide how to manage Optionals as param of a method
     //public FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, PlacementConstraint placementConstraint, Optional<Points> points) {
     public FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, PlacementConstraint placementConstraint, Points points) {
         super(tl, tr, br, bl);
         this.placementConstraint = placementConstraint;
         this.points = points;
+    }
+
+    /**
+     * Constructs a new {@code FrontCardFace} with no {@code PlacementConstraint}
+     *
+     * @param tl the top-left corner
+     * @param tr the top-right corner
+     * @param bl the bottom-left corner
+     * @param br the bottom-right corner
+     * @param points an object which define how the card allows you to earn points, if any
+     *
+     */
+    public FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, Points points) {
+        super(tl, tr, br, bl);
+        this.points = points;
+        this.placementConstraint = null;
     }
 
     /**
@@ -63,6 +80,6 @@ public class FrontCardFace extends BaseCardFace {
      */
     @Override
     public Optional<PlacementConstraint> getPlacementConstraint() {
-        return Optional.of(placementConstraint);
+        return Optional.ofNullable(placementConstraint);
     }
 }
