@@ -207,6 +207,7 @@ package objective {
     end note
 } /' end package objective '/
 
+'TODO: update choice classes to match implementation
 package choice {
     class Choice<T> {
         - Set<T> options
