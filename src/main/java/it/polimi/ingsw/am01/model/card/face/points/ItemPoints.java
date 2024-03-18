@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am01.model.card.face.points;
 
-import it.polimi.ingsw.am01.model.card.CardPlacement;
 import it.polimi.ingsw.am01.model.collectible.Item;
+import it.polimi.ingsw.am01.model.game.PlayArea;
+
 /**
  * ItemPoints is type of Points that gives a score for a card placement based on the amount of a specific item
  */
@@ -25,7 +26,7 @@ public class ItemPoints implements Points {
      * @return Returns the calculated score
      */
     @Override
-    public int calculateScoredPoints(CardPlacement cp) {
+    public int calculateScoredPoints(PlayArea.CardPlacement cp) {
         int countedItems = cp.getPlayArea().getCollectibleCount().get(item);
         return countedItems * pointsPerItem;
     }

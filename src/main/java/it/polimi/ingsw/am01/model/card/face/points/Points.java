@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.model.card.face.points;
 
-import it.polimi.ingsw.am01.model.card.CardPlacement;
+import it.polimi.ingsw.am01.model.game.PlayArea;
 
 /**
  * Points represents the score given to the player after placing a card
@@ -11,5 +11,5 @@ public interface Points {
      * @param cp A reference to the card placement
      * @return Returns the calculated score
      */
-    int calculateScoredPoints(CardPlacement cp);
+    int calculateScoredPoints(PlayArea.CardPlacement cp);
 }

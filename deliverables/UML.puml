@@ -2,6 +2,8 @@
 'this collapses nested packages if there are no in-between classes
 !pragma useIntermediatePackages false
 
+'TODO: align UML with implementation
+
 /'
 CONVENTIONS FOR ARROW DECLARATION:
 - if possible, use `implements` and `extends`

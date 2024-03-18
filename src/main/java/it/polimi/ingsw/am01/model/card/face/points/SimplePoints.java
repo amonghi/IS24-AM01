@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.model.card.face.points;
 
-import it.polimi.ingsw.am01.model.card.CardPlacement;
+import it.polimi.ingsw.am01.model.game.PlayArea;
 
 /**
  * SimplePoints is type of Points that gives a constant score for a card placement
@@ -21,7 +21,7 @@ public class SimplePoints implements Points {
      * @return Returns the constant points value associated to the card
      */
     @Override
-    public int calculateScoredPoints(CardPlacement cp) {
+    public int calculateScoredPoints(PlayArea.CardPlacement cp) {
         return points;
     }
 }

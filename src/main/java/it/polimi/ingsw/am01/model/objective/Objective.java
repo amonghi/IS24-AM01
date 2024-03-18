@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am01.model.objective;
 
 import it.polimi.ingsw.am01.model.game.PlayArea;
-import it.polimi.ingsw.am01.model.card.CardPlacement;
 
 import java.util.Set;
 
@@ -16,5 +15,5 @@ public abstract class Objective {
         throw new UnsupportedOperationException("TODO");
     }
 
-    public abstract Set<Set<CardPlacement>> test(PlayArea pa);
+    public abstract Set<Set<PlayArea.CardPlacement>> test(PlayArea pa);
 }
