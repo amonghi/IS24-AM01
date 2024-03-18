@@ -1,12 +1,31 @@
 package it.polimi.ingsw.am01.model.player;
-
+//TODO: javadoc
+/**
+ * ...
+ */
 public class PlayerProfile {
-    private String name;
+    private final String name;
 
+    /**
+     * ...
+     * @param name
+     */
     public PlayerProfile(String name) {
-        throw new UnsupportedOperationException("TODO");
+        this.name = name;
     }
 
+    /**
+     * ...
+     * @return
+     */
+    public String getName(){
+        return name;
+    }
+
+    /**
+     * ...
+     * @return
+     */
     public boolean isConnected() {
         throw new UnsupportedOperationException("TODO");
     }

@@ -261,6 +261,7 @@ package player {
         - String name
 
         + PlayerProfile(String name)
+        + getName() String
         + isConnected() boolean
     }
 
