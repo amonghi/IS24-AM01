@@ -362,7 +362,7 @@ package game {
     }
 
     class FaceUpCard implements DrawSource {
-        - Optional<Card> card
+        - Card card
         - Deck source
 
         + FaceUpCard()
