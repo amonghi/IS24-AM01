@@ -12,7 +12,6 @@ CONVENTIONS FOR ARROW DECLARATION:
 '/
 
 package java.lang {
-    interface Iterator<T> {}
     interface Iterable<T> {}
     interface Comparable<T> {}
 }
