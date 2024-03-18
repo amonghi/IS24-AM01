@@ -28,29 +28,8 @@ public class BackCardFace extends BaseCardFace {
      * @param resources the map with the permanent resources of this face
      */
 
-    //FIX: Iterable<Resource> should be changed in Map<Resource, Integer>?
-    //This is the implementation with Iterable<Resource>
-    /*
-    public BackCardFace(Corner tl, Corner tr, Corner br, Corner bl, Iterable<Resource> resources) {
-        super(tl, tr, br, bl);
-        this.resources = new HashMap<>();
-        fillResources(resources);
-    }
-
-    private void fillResources(Iterable<Resource> resources) {
-        for (Resource res : resources) {
-            if(!this.resources.containsKey(res)) {
-                this.resources.put(res, 0);
-            }
-            else {
-                this.resources.replace(res, this.resources.get(res), this.resources.get(res)+1);
-            }
-        }
-    }
-    */
-
-    public BackCardFace(Corner tl, Corner tr, Corner br, Corner bl, Map<Resource, Integer> resources) {
-        super(tl, tr, br, bl);
+    public BackCardFace(Corner tr, Corner tl, Corner br, Corner bl, Map<Resource, Integer> resources) {
+        super(tr, tl, br, bl);
         this.resources = new HashMap<>(resources);
     }
 

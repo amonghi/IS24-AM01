@@ -19,8 +19,6 @@ import java.util.Optional;
 public class FrontCardFace extends BaseCardFace {
     private final PlacementConstraint placementConstraint;
 
-    //FIX: Decide how to manage Optionals
-    //private Optional<Points> points;
     private final Points points;
 
     /**
@@ -35,10 +33,8 @@ public class FrontCardFace extends BaseCardFace {
      *
      */
 
-    //FIX: Decide how to manage Optionals as param of a method
-    //public FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, PlacementConstraint placementConstraint, Optional<Points> points) {
-    public FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, PlacementConstraint placementConstraint, Points points) {
-        super(tl, tr, br, bl);
+    public FrontCardFace(Corner tr, Corner tl, Corner br, Corner bl, PlacementConstraint placementConstraint, Points points) {
+        super(tr, tl, br, bl);
         this.placementConstraint = placementConstraint;
         this.points = points;
     }
@@ -53,9 +49,24 @@ public class FrontCardFace extends BaseCardFace {
      * @param points an object which define how the card allows you to earn points, if any
      *
      */
-    public FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, Points points) {
-        super(tl, tr, br, bl);
+    public FrontCardFace(Corner tr, Corner tl, Corner br, Corner bl, Points points) {
+        super(tr, tl, br, bl);
         this.points = points;
+        this.placementConstraint = null;
+    }
+
+    /**
+     * Constructs a new {@code FrontCardFace} with no {@code PlacementConstraint} and no {@code Point}
+     *
+     * @param tl the top-left corner
+     * @param tr the top-right corner
+     * @param bl the bottom-left corner
+     * @param br the bottom-right corner
+     *
+     */
+    public FrontCardFace(Corner tr, Corner tl, Corner br, Corner bl) {
+        super(tr, tl, br, bl);
+        this.points = null;
         this.placementConstraint = null;
     }
 
@@ -65,11 +76,11 @@ public class FrontCardFace extends BaseCardFace {
      *
      * @return an object which define how the card allows you to earn points, if any.
      * If the card doesn't earn any points, it returns {@code Optional.empty()}
-     *
+     *+
      */
     @Override
     public Optional<Points> getPoints() {
-        return points == null ? Optional.empty() : Optional.of(points);
+        return Optional.ofNullable(points);
     }
 
     /**

@@ -15,8 +15,6 @@ import java.util.Optional;
 public class Corner {
     private final boolean socket;
 
-    //FIX: Decide how to manage Optionals
-    //private Optional<Collectible> collectible;
     private final Collectible collectible;
 
     /**

@@ -1,0 +1,60 @@
+package it.polimi.ingsw.am01.model.card.face;
+
+import it.polimi.ingsw.am01.model.card.face.corner.Corner;
+import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
+import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
+import it.polimi.ingsw.am01.model.card.face.points.CornerCoverPoints;
+import it.polimi.ingsw.am01.model.card.face.points.Points;
+import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
+import it.polimi.ingsw.am01.model.collectible.Item;
+import it.polimi.ingsw.am01.model.collectible.Resource;
+import org.junit.jupiter.api.Test;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class BackCardFaceTest {
+    @Test
+    void createBackStarterCardFace() {
+        Map<Resource, Integer> resources = new HashMap<>();
+        resources.put(Resource.ANIMAL, 1);
+        resources.put(Resource.PLANT, 1);
+        resources.put(Resource.INSECT, 1);
+        Corner tr = Corner.filled(Resource.INSECT);
+        Corner tl = Corner.empty();
+        Corner br = Corner.empty();
+        Corner bl = Corner.filled(Resource.FUNGI);
+
+        BaseCardFace back = new BackCardFace(tr, tl, br, bl, resources);
+
+        assertEquals(back.corner(CornerPosition.TOP_RIGHT), tr);
+        assertEquals(back.corner(CornerPosition.TOP_LEFT), tl);
+        assertEquals(back.corner(CornerPosition.BOTTOM_RIGHT), br);
+        assertEquals(back.corner(CornerPosition.BOTTOM_LEFT), bl);
+        assertEquals(back.getCenterResources(), resources);
+        assertEquals(back.getPoints(), Optional.empty());
+        assertEquals(back.getPlacementConstraint(), Optional.empty());
+    }
+
+    @Test
+    void createBackResourceOrGoldenCardFace() {
+        Map<Resource, Integer> resources = new HashMap<>();
+        resources.put(Resource.ANIMAL, 1);
+        Corner tr = Corner.empty();
+        Corner tl = Corner.empty();
+        Corner br = Corner.empty();
+        Corner bl = Corner.empty();
+
+        BaseCardFace back = new BackCardFace(tr, tl, br, bl, resources);
+
+        assertEquals(back.corner(CornerPosition.TOP_RIGHT), tr);
+        assertEquals(back.corner(CornerPosition.TOP_LEFT), tl);
+        assertEquals(back.corner(CornerPosition.BOTTOM_RIGHT), br);
+        assertEquals(back.corner(CornerPosition.BOTTOM_LEFT), bl);
+        assertEquals(back.getCenterResources(), resources);
+        assertEquals(back.getPoints(), Optional.empty());
+        assertEquals(back.getPlacementConstraint(), Optional.empty());
+    }
+
+}

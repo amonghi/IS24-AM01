@@ -35,7 +35,7 @@ public abstract class BaseCardFace implements CardFace {
      * @param br the bottom-right corner
      *
      */
-    public BaseCardFace(Corner tl, Corner tr, Corner br, Corner bl) {
+    public BaseCardFace(Corner tr, Corner tl, Corner br, Corner bl) {
         this.tl = tl;
         this.tr = tr;
         this.bl = bl;

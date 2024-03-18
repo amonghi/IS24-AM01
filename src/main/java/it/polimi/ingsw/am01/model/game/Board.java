@@ -1,33 +1,68 @@
 package it.polimi.ingsw.am01.model.game;
 
+/**
+ *
+ * The board game, shared among all players.
+ * It contains {@code Deck} and {@code FaceUpCard}.
+ *
+ * @see it.polimi.ingsw.am01.model.game.Deck
+ * @see it.polimi.ingsw.am01.model.game.FaceUpCard
+ *
+ */
 
-import it.polimi.ingsw.am01.model.card.Card;
-
+import java.util.HashSet;
 import java.util.Set;
 
 public class Board {
-    private Set<FaceUpCard> faceUpResourceCards;
-    private Set<FaceUpCard> faceUpGoldenCards;
-    private Deck resourceCardDeck;
-    private Deck goldenCardDeck;
+    private final Set<FaceUpCard> faceUpResourceCards;
+    private final Set<FaceUpCard> faceUpGoldenCards;
+    private final Deck resourceCardDeck;
+    private final Deck goldenCardDeck;
 
-    public Board() {
-        throw new UnsupportedOperationException("TODO");
+    /**
+     * Constructs a new board with two Decks and four FaceUpCard.
+     * @param faceUpResourceCards A set of two visible resource cards
+     * @param faceUpGoldenCards A set of two visible golden cards
+     * @param resourceCardDeck The resource card's deck
+     * @param goldenCardDeck The golden card's deck
+     *
+     */
+    public Board(Set<FaceUpCard> faceUpResourceCards, Set<FaceUpCard> faceUpGoldenCards, Deck resourceCardDeck, Deck goldenCardDeck) {
+        this.faceUpResourceCards = new HashSet<>(faceUpResourceCards);
+        this.faceUpGoldenCards = new HashSet<>(faceUpGoldenCards);
+        this.resourceCardDeck = resourceCardDeck;
+        this.goldenCardDeck = goldenCardDeck;
     }
 
-    public Set<Card> getFaceUpResourceCards() {
-        throw new UnsupportedOperationException("TODO");
+    /**
+     *
+     * @return the reference of the set of the two visible resource cards on the board
+     */
+    public Set<FaceUpCard> getFaceUpResourceCards() {
+        return faceUpResourceCards;
     }
 
-    public Set<Card> getFaceUpGoldenCards() {
-        throw new UnsupportedOperationException("TODO");
+    /**
+     *
+     * @return reference of the set of the two golden cards on the board
+     */
+    public Set<FaceUpCard> getFaceUpGoldenCards() {
+        return faceUpGoldenCards;
     }
 
+    /**
+     *
+     * @return the reference of the resource card's deck
+     */
     public Deck getResourceCardDeck() {
-        throw new UnsupportedOperationException("TODO");
+        return resourceCardDeck;
     }
 
+    /**
+     *
+     * @return the reference of the golden card's deck
+     */
     public Deck getGoldenCardDeck() {
-        throw new UnsupportedOperationException("TODO");
+        return goldenCardDeck;
     }
 }
