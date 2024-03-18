@@ -4,7 +4,6 @@ import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.CardPlacement;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.game.window.WindowIterator;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -41,7 +40,4 @@ public class PlayArea implements Iterable<CardPlacement> {
         throw new UnsupportedOperationException("TODO");
     }
 
-    public WindowIterator windows(int width, int height) {
-        throw new UnsupportedOperationException("TODO");
-    }
 }

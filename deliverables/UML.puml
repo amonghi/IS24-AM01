@@ -289,36 +289,6 @@ package player {
 } /' end package player '/
 
 package game {
-    package window {
-        java.lang.Iterator <|.. WindowIterator : <<bind>> \n Window
-        class WindowIterator {
-            - PlayArea playArea
-            - int offsetI
-            - int offsetJ
-            - int maxI
-            - int maxJ
-            - int w
-            - int h
-
-            + hasNext() boolean
-            + next() Window
-        }
-        Window -- WindowIterator
-
-        class Window {
-            - PlayArea playArea
-            - int offsetI
-            - int offsetJ
-            - int width
-            - int height
-
-            + width() int
-            + height() int
-            + getAt(int i, int j) Optional<CardPlacement>
-        }
-        game.PlayArea <-- Window
-    } /' end package window '/
-
     class Game {
         - String id
         - GameStatus status
@@ -436,7 +406,6 @@ package game {
         + getCollectibleCount() Map<Collectible, Integer>
         + getScore() int
         + iterator() Iterator<CardPlacement>
-        + windows(int width, int height) WindowIterator
     }
     CardPlacement <--* PlayArea : < has many
     Position <-- PlayArea
