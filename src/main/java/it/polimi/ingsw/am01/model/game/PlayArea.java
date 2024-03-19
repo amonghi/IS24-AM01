@@ -302,7 +302,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
             }
 
             CardPlacement relative = optionalRelative.get();
-            return this.compareTo(relative) <= 0 ? this : relative;
+            return this.compareTo(relative) > 0 ? this : relative;
         }
 
         /**
@@ -312,7 +312,12 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
          * @return An Optional of Collectible with collectible at corner "cp"
          */
         public Optional<Collectible> getVisibleCollectibleAtCorner(CornerPosition cp) {
-            return getTopPlacementAtCorner(cp).getVisibleFace().corner(cp).getCollectible();
+            CardPlacement topPlacement = getTopPlacementAtCorner(cp);
+
+            // the adjacent CardPlacement covers this corner with its corner that is in the opposite position
+            CornerPosition targetCorner = topPlacement == this ? cp : cp.getOpposite();
+
+            return topPlacement.getVisibleFace().corner(targetCorner).getCollectible();
         }
 
         /**
