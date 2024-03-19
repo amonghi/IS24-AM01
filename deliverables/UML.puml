@@ -2,7 +2,6 @@
 'this collapses nested packages if there are no in-between classes
 !pragma useIntermediatePackages false
 
-'TODO: align UML with implementation
 
 /'
 CONVENTIONS FOR ARROW DECLARATION:
@@ -186,7 +185,7 @@ package objective {
 
         + Objective(int points)
         + getPointsPerMatch() int
-        + test(PlayArea pa) Set<Set<PlayArea.CardPlacement>>
+        + getEarnedPoints(PlayArea pa) int
     }
     note left of Objective::test
         Returns a set containing all the sets of cards that satisfy the objective.
@@ -195,13 +194,13 @@ package objective {
     class CollectibleObjective extends Objective {
         - Map<Collectible, Integer> requiredCollectibles
         + CollectibleObjective(int points, Map<Collectible, Integer> requiredCollectibles)
-        + test(PlayArea pa) Set<Set<PlayArea.CardPlacement>>
+        + getEarnedPoints(PlayArea pa) int
     }
 
     class PatternObjective extends Objective {
         - CardColor[][] pattern
         + PatternObjective(int points, CardColor[][] pattern)
-        + test(PlayArea pa) Set<Set<PlayArea.CardPlacement>>
+        + getEarnedPoints(PlayArea pa) int
     }
     CardColor .. PatternObjective
     note left of PatternObjective::pattern
