@@ -385,13 +385,12 @@ package game {
     'Decks are aggregations of Cards
     Card --o Deck
 
-    class Position {
-        - int i
-        - int j
+    class Position <<record>> {
+        + {static} Position ORIGIN
+        + int i
+        + int j
 
-        + Position(int i, int j)
-        + getI()
-        + getJ()
+        + getRelative(CornerPosition cp) Position
     }
     note top of Position
         this is a nested class
@@ -406,7 +405,9 @@ package game {
         - Map<Collectible, Integer> collectibleCount
 
         + PlayArea(Card starterCard, Side side)
+        + placeAt(Position pos, Card c, Side side) PlayArea.CardPlacement
         + placeAt(int i, int j, Card c, Side side) PlayArea.CardPlacement
+        + getAt(Position pos) Optional<PlayArea.CardPlacement>
         + getAt(int i, int j) Optional<PlayArea.CardPlacement>
         + getCollectibleCount() Map<Collectible, Integer>
         + getScore() int
@@ -421,25 +422,23 @@ package game {
 
     Comparable <|.. CardPlacement : <<bind>> \n PlayArea.CardPlacement
     class CardPlacement {
-        - PlayArea playArea
-        - int i
-        - int j
+        - Position position
         - Card card
         - Side side
         - int seq
         - int points
 
-        - CardPlacement(PlayArea playArea, int i, int j, Card card, Side side, int seq);
+        - CardPlacement(Position position, Card card, Side side, int seq);
         - calculatePoints() int
         + getPlayArea() PlayArea
-        + getI() int
-        + getJ() int
+        + getPosition() PlayArea.Position
         + getCard() Card
         + getSide() Side
         + getVisibleFace() CardFace
         + getPoints() int
-        + getCollectibleAtCorner(CornerPosition cp) Optional<Collectible>
         + getRelative(CornerPosition cp) Optional<CardPlacement>
+        + getTopPlacementAtCorner(CornerPosition cp) CardPlacement
+        + getVisibleCollectibleAtCorner(CornerPosition cp) Optional<Collectible>
         + getCovered() Map<CornerPosition, CardPlacement>
         + compareTo(CardPlacement other) int
     }
