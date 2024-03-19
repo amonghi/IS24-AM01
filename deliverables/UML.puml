@@ -74,26 +74,26 @@ package card {
 
         package points {
             interface Points {
-                + calculateScoredPoints(CardPlacement cp) int
+                + calculateScoredPoints(PlayArea.CardPlacement cp) int
             }
 
             class SimplePoints implements Points {
                 - int points
                 + SimplePoints(int points)
-                + calculateScoredPoints(CardPlacement cp) int
+                + calculateScoredPoints(PlayArea.CardPlacement cp) int
             }
 
             class CornerCoverPoints implements Points {
                 - int pointsPerCorner
                 + CornerCoverPoints(int pointsPerCorner)
-                + calculateScoredPoints(CardPlacement cp) int
+                + calculateScoredPoints(PlayArea.CardPlacement cp) int
             }
 
             class ItemPoints implements Points {
                 - Item item
                 - int pointsPerItem
                 + ItemPoints(Item item, int pointsPerItem)
-                + calculateScoredPoints(CardPlacement cp) int
+                + calculateScoredPoints(PlayArea.CardPlacement cp) int
             }
         } /' end package points '/
 
@@ -186,7 +186,7 @@ package objective {
 
         + Objective(int points)
         + getPointsPerMatch() int
-        + test(PlayArea pa) Set<Set<CardPlacement>>
+        + test(PlayArea pa) Set<Set<PlayArea.CardPlacement>>
     }
     note left of Objective::test
         Returns a set containing all the sets of cards that satisfy the objective.
@@ -195,13 +195,13 @@ package objective {
     class CollectibleObjective extends Objective {
         - Map<Collectible, Integer> requiredCollectibles
         + CollectibleObjective(int points, Map<Collectible, Integer> requiredCollectibles)
-        + test(PlayArea pa) Set<Set<CardPlacement>>
+        + test(PlayArea pa) Set<Set<PlayArea.CardPlacement>>
     }
 
     class PatternObjective extends Objective {
         - CardColor[][] pattern
         + PatternObjective(int points, CardColor[][] pattern)
-        + test(PlayArea pa) Set<Set<CardPlacement>>
+        + test(PlayArea pa) Set<Set<PlayArea.CardPlacement>>
     }
     CardColor .. PatternObjective
     note left of PatternObjective::pattern
@@ -230,7 +230,7 @@ package choice {
         + MultiChoice(Iterable<T> choices, int choosers)
         + getChoice(I identity) MultiChoiceChoice<T, I>
     }
-    MultiChoice -- MultiChoiceChoice : > has many
+    MultiChoice -- MultiChoiceChoice : > has many \n <<nested>>
 
     class MultiChoiceChoice<T, I> {
         - MultiChoiceChoiceArbiter parent
@@ -279,7 +279,7 @@ package player {
     }
     MultiChoiceChoice <-- PlayerData
     Choice <-- PlayerData
-    Card <-- PlayerData
+    Card <-- PlayerData : < has many \n in hand
     PlayerColor .. PlayerData
 
     enum PlayerColor {
@@ -372,8 +372,7 @@ package game {
         + draw() Optional<Card>
         + getCard() Optional<Card>
     }
-    'FaceUpCards have a reference to a Deck
-    Deck <-- FaceUpCard
+    Deck <-- FaceUpCard : draws from
 
     class Deck implements DrawSource {
         - List<Card> cards
@@ -395,7 +394,7 @@ package game {
         + getJ()
     }
 
-    java.lang.Iterable <|.. PlayArea : <<bind>> \n CardPlacement
+    java.lang.Iterable <|.. PlayArea : <<bind>> \n PlayArea.CardPlacement
     class PlayArea {
         - Map<Position, CardPlacement> cards
         - int score
@@ -403,16 +402,20 @@ package game {
         - Map<Collectible, Integer> collectibleCount
 
         + PlayArea(Card starterCard, Side side)
-        + placeAt(int i, int j, Card c, Side side) CardPlacement
-        + getAt(int i, int j) Optional<CardPlacement>
+        + placeAt(int i, int j, Card c, Side side) PlayArea.CardPlacement
+        + getAt(int i, int j) Optional<PlayArea.CardPlacement>
         + getCollectibleCount() Map<Collectible, Integer>
         + getScore() int
         + iterator() Iterator<CardPlacement>
     }
-    CardPlacement <--* PlayArea : < has many
+    CardPlacement <--* PlayArea : < has many \n <<nested>>
     Position <-- PlayArea
+    note top of CardPlacement
+        this is a nested class
+        the actual name is PlayArea.CardPlacement
+    end note
 
-    Comparable <|.. CardPlacement : <<bind>> \n CardPlacement
+    Comparable <|.. CardPlacement : <<bind>> \n PlayArea.CardPlacement
     class CardPlacement {
         - PlayArea playArea
         - int i
