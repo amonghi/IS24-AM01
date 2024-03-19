@@ -28,13 +28,13 @@ class BackCardFaceTest {
 
         BaseCardFace back = new BackCardFace(tr, tl, br, bl, resources);
 
-        assertEquals(back.corner(CornerPosition.TOP_RIGHT), tr);
-        assertEquals(back.corner(CornerPosition.TOP_LEFT), tl);
-        assertEquals(back.corner(CornerPosition.BOTTOM_RIGHT), br);
-        assertEquals(back.corner(CornerPosition.BOTTOM_LEFT), bl);
-        assertEquals(back.getCenterResources(), resources);
-        assertEquals(back.getPoints(), Optional.empty());
-        assertEquals(back.getPlacementConstraint(), Optional.empty());
+        assertEquals(tr, back.corner(CornerPosition.TOP_RIGHT));
+        assertEquals(tl, back.corner(CornerPosition.TOP_LEFT));
+        assertEquals(br, back.corner(CornerPosition.BOTTOM_RIGHT));
+        assertEquals(bl, back.corner(CornerPosition.BOTTOM_LEFT));
+        assertEquals(resources, back.getCenterResources());
+        assertEquals(Optional.empty(), back.getPoints());
+        assertEquals(Optional.empty(), back.getPlacementConstraint());
     }
 
     @Test
@@ -48,13 +48,13 @@ class BackCardFaceTest {
 
         BaseCardFace back = new BackCardFace(tr, tl, br, bl, resources);
 
-        assertEquals(back.corner(CornerPosition.TOP_RIGHT), tr);
-        assertEquals(back.corner(CornerPosition.TOP_LEFT), tl);
-        assertEquals(back.corner(CornerPosition.BOTTOM_RIGHT), br);
-        assertEquals(back.corner(CornerPosition.BOTTOM_LEFT), bl);
-        assertEquals(back.getCenterResources(), resources);
-        assertEquals(back.getPoints(), Optional.empty());
-        assertEquals(back.getPlacementConstraint(), Optional.empty());
+        assertEquals(tr, back.corner(CornerPosition.TOP_RIGHT));
+        assertEquals(tl, back.corner(CornerPosition.TOP_LEFT));
+        assertEquals(br, back.corner(CornerPosition.BOTTOM_RIGHT));
+        assertEquals(bl, back.corner(CornerPosition.BOTTOM_LEFT));
+        assertEquals(resources, back.getCenterResources());
+        assertEquals(Optional.empty(), back.getPoints());
+        assertEquals(Optional.empty(), back.getPlacementConstraint());
     }
 
 }

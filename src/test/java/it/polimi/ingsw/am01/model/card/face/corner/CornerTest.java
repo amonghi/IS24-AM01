@@ -14,14 +14,14 @@ class CornerTest {
         Corner corner = Corner.missing();
 
         assertFalse(corner.isSocket());
-        assertEquals(corner.getCollectible(), Optional.empty());
+        assertEquals(Optional.empty(), corner.getCollectible());
     }
     @Test
     void createEmptyCorner() {
         Corner corner = Corner.empty();
 
         assertTrue(corner.isSocket());
-        assertEquals(corner.getCollectible(), Optional.empty());
+        assertEquals(Optional.empty(), corner.getCollectible());
 
     }
     @Test
@@ -29,14 +29,14 @@ class CornerTest {
         Corner corner = Corner.filled(Resource.FUNGI);
 
         assertTrue(corner.isSocket());
-        assertEquals(corner.getCollectible(), Optional.of(Resource.FUNGI));
+        assertEquals(Optional.of(Resource.FUNGI), corner.getCollectible());
     }
     @Test
     void createFilledWithItemCorner() {
         Corner corner = Corner.filled(Item.QUILL);
 
         assertTrue(corner.isSocket());
-        assertEquals(corner.getCollectible(), Optional.of(Item.QUILL));
+        assertEquals(Optional.of(Item.QUILL), corner.getCollectible());
     }
 
 }

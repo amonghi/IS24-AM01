@@ -26,13 +26,13 @@ class FrontCardFaceTest {
         Corner bl = Corner.empty();
         BaseCardFace front = new FrontCardFace(tr, tl, br, bl, placementConstraint, simplePoints);
 
-        assertEquals(front.corner(CornerPosition.TOP_RIGHT), tr);
-        assertEquals(front.corner(CornerPosition.TOP_LEFT), tl);
-        assertEquals(front.corner(CornerPosition.BOTTOM_RIGHT), br);
-        assertEquals(front.corner(CornerPosition.BOTTOM_LEFT), bl);
-        assertEquals(front.getCenterResources(), Collections.emptyMap());
-        assertEquals(front.getPoints(), Optional.of(simplePoints));
-        assertEquals(front.getPlacementConstraint(), Optional.of(placementConstraint));
+        assertEquals(tr, front.corner(CornerPosition.TOP_RIGHT));
+        assertEquals(tl, front.corner(CornerPosition.TOP_LEFT));
+        assertEquals(br, front.corner(CornerPosition.BOTTOM_RIGHT));
+        assertEquals(bl, front.corner(CornerPosition.BOTTOM_LEFT));
+        assertEquals(Collections.emptyMap(), front.getCenterResources());
+        assertEquals(Optional.of(simplePoints), front.getPoints());
+        assertEquals(Optional.of(placementConstraint), front.getPlacementConstraint());
     }
 
     @Test
@@ -44,13 +44,13 @@ class FrontCardFaceTest {
         Corner bl = Corner.empty();
         BaseCardFace front = new FrontCardFace(tr, tl, br, bl, cornerCoverPoints);
 
-        assertEquals(front.corner(CornerPosition.TOP_RIGHT), tr);
-        assertEquals(front.corner(CornerPosition.TOP_LEFT), tl);
-        assertEquals(front.corner(CornerPosition.BOTTOM_RIGHT), br);
-        assertEquals(front.corner(CornerPosition.BOTTOM_LEFT), bl);
-        assertEquals(front.getCenterResources(), Collections.emptyMap());
-        assertEquals(front.getPoints(), Optional.of(cornerCoverPoints));
-        assertEquals(front.getPlacementConstraint(), Optional.empty());
+        assertEquals(tr, front.corner(CornerPosition.TOP_RIGHT));
+        assertEquals(tl, front.corner(CornerPosition.TOP_LEFT));
+        assertEquals(br, front.corner(CornerPosition.BOTTOM_RIGHT));
+        assertEquals(bl, front.corner(CornerPosition.BOTTOM_LEFT));
+        assertEquals(Collections.emptyMap(), front.getCenterResources());
+        assertEquals(Optional.of(cornerCoverPoints), front.getPoints());
+        assertEquals(Optional.empty(), front.getPlacementConstraint());
     }
 
     @Test
@@ -61,12 +61,12 @@ class FrontCardFaceTest {
         Corner bl = Corner.empty();
         BaseCardFace front = new FrontCardFace(tr, tl, br, bl);
 
-        assertEquals(front.corner(CornerPosition.TOP_RIGHT), tr);
-        assertEquals(front.corner(CornerPosition.TOP_LEFT), tl);
-        assertEquals(front.corner(CornerPosition.BOTTOM_RIGHT), br);
-        assertEquals(front.corner(CornerPosition.BOTTOM_LEFT), bl);
-        assertEquals(front.getCenterResources(), Collections.emptyMap());
-        assertEquals(front.getPoints(), Optional.empty());
-        assertEquals(front.getPlacementConstraint(), Optional.empty());
+        assertEquals(tr, front.corner(CornerPosition.TOP_RIGHT));
+        assertEquals(tl, front.corner(CornerPosition.TOP_LEFT));
+        assertEquals(br, front.corner(CornerPosition.BOTTOM_RIGHT));
+        assertEquals(bl, front.corner(CornerPosition.BOTTOM_LEFT));
+        assertEquals(Collections.emptyMap(), front.getCenterResources());
+        assertEquals(Optional.empty(), front.getPoints());
+        assertEquals(Optional.empty(), front.getPlacementConstraint());
     }
 }
