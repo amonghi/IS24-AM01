@@ -46,7 +46,7 @@ public class Deck implements DrawSource {
     public Optional<Card> draw() {
         Card element = null;
         if (!cards.isEmpty()) {
-            element = cards.removeLast();
+            element = cards.remove(cards.size() - 1);
         }
         return Optional.ofNullable(element);
     }
