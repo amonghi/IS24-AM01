@@ -393,6 +393,10 @@ package game {
         + getI()
         + getJ()
     }
+    note top of Position
+        this is a nested class
+        the actual name is PlayArea.Position
+    end note
 
     java.lang.Iterable <|.. PlayArea : <<bind>> \n PlayArea.CardPlacement
     class PlayArea {
@@ -409,7 +413,7 @@ package game {
         + iterator() Iterator<CardPlacement>
     }
     CardPlacement <--* PlayArea : < has many \n <<nested>>
-    Position <-- PlayArea
+    Position .. PlayArea : <<nested>>
     note top of CardPlacement
         this is a nested class
         the actual name is PlayArea.CardPlacement
