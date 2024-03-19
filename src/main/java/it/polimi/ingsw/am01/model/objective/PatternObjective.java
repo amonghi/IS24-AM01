@@ -12,9 +12,8 @@ public class PatternObjective extends Objective {
         super(points);
         throw new UnsupportedOperationException("TODO");
     }
-
     @Override
-    public Set<Set<PlayArea.CardPlacement>> test(PlayArea pa) {
+    public int getEarnedPoints(PlayArea pa) {
         throw new UnsupportedOperationException("TODO");
     }
 }
