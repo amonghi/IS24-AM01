@@ -1,29 +1,30 @@
 package it.polimi.ingsw.am01.model.player;
-//TODO: javadoc
+
 /**
- * ...
+ * PlayerProfile represents a player entity
  */
 public class PlayerProfile {
     private final String name;
 
     /**
-     * ...
-     * @param name
+     * Constructs a PlayerProfile and sets name
+     * @param name The name of the player
      */
     public PlayerProfile(String name) {
         this.name = name;
     }
 
     /**
-     * ...
-     * @return
+     * Provides the name of player
+     * @return The name of player
      */
     public String getName(){
         return name;
     }
 
+    //TODO: implement isConnected()
     /**
-     * ...
+     *
      * @return
      */
     public boolean isConnected() {
