@@ -66,6 +66,6 @@ class ItemPointsTest {
     void canCalculateScoredPoints() {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         PlayArea.CardPlacement cardPlacement = playArea.placeAt(1, 0, aCard, Side.BACK);
-        assertEquals(points.calculateScoredPoints(cardPlacement), 4);
+        assertEquals(4, points.calculateScoredPoints(cardPlacement));
     }
 }

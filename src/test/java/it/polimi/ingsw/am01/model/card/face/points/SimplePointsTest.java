@@ -64,6 +64,6 @@ class SimplePointsTest {
     void canCalculateScoredPoints() {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         PlayArea.CardPlacement cardPlacement = playArea.placeAt(1, 0, aCard, Side.BACK);
-        assertEquals(points.calculateScoredPoints(cardPlacement), 3);
+        assertEquals(3, points.calculateScoredPoints(cardPlacement));
     }
 }

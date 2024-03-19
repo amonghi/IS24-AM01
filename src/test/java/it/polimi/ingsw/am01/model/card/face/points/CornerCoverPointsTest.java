@@ -64,6 +64,6 @@ class CornerCoverPointsTest {
     void canCalculateScoredPoints() {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         PlayArea.CardPlacement cardPlacement = playArea.placeAt(1, 0, aCard, Side.BACK);
-        assertEquals(points.calculateScoredPoints(cardPlacement), 2);
+        assertEquals(2, points.calculateScoredPoints(cardPlacement));
     }
 }
