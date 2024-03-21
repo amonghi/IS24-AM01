@@ -1,0 +1,20 @@
+package it.polimi.ingsw.am01.model.game;
+
+import java.nio.file.Path;
+import java.util.List;
+
+public class GameManager {
+    private List<Game> games;
+
+    public GameManager(Path dataDir) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    public List<Game> getGames() {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    public Game createGame() {
+        throw new UnsupportedOperationException("TODO");
+    }
+}

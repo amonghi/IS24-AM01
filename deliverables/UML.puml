@@ -290,6 +290,14 @@ package player {
 } /' end package player '/
 
 package game {
+    class GameManager {
+        - List<Game> games
+
+        + Game(Path dataDir)
+        + getGame() List<Game>
+        + createGame() Game
+    }
+
     class Game {
         - String id
         - GameStatus status
@@ -300,7 +308,7 @@ package game {
         - int currentPlayer
         - Board board
 
-        + Game(Iterable<PlayerProfiles> playerProfiles)
+        + Game(String id)
         + getId() String
         + getPlayerProfiles() List<PlayerProfile>
         + getPlayerData(PlayerProfile pp) PlayerData
@@ -311,7 +319,7 @@ package game {
         + startGame() void
         + pausedGame() void
         + resumeGame() void
-        + join(PlayerProfile pp) PlayerData
+        + join(PlayerProfile pp)
         + selectStartingCardSide(PlayerProfile pp, Side s) void
         + selectColor(PlayerProfile pp, PlayerColor pc) SelectionResult
         + selectObjective(PlayerProfile pp, Objective o) void
@@ -324,6 +332,7 @@ package game {
     Objective <-- Game
     PlayerData <-- Game
     PlayerProfile <-- Game
+    Game <-- GameManager
     Game .. GameStatus
     note left of Game::players
         The players are stored in the order in which they play.
