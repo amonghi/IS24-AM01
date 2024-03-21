@@ -17,6 +17,27 @@ package java.lang {
     interface Comparable<T> {}
 }
 
+package observable {
+    interface Observer<T> {
+        + onChange(T changed) void
+    }
+
+    'TODO: add usage of this class
+    class Observable<T> {
+        - List<Observer<T>> observers
+        + ObservableHelper()
+        + addObserver(Observer<T> observer) void
+        + notifyAll(T data)
+    }
+    note top of Observable
+        This class can be used by other classes to help implement the observable pattern.
+    end note
+}
+note top of observable
+    Observer pattern.
+    Used to notify the controller of data changes.
+end note
+
 package collectible {
     interface Collectible <<sealed>> {}
 
@@ -289,6 +310,36 @@ package player {
     }
 } /' end package player '/
 
+package chat {
+    abstract class Message {
+        - PlayerProfile sender
+        - String content
+        + getSender() PlayerProfile
+        + getContent() String
+        + {abstract} isRecipient(PlayerProfile pp) boolean
+    }
+
+    class BroadcastMessage extends Message {
+        + isRecipient(PlayerProfile pp) boolean
+    }
+    note right of BroadcastMessage::isRecipient
+        Always returns true.
+    end note
+
+    class DirectMessage extends Message {
+        - PlayerProfile recipient
+        + isRecipient(PlayerProfile pp) boolean
+    }
+
+    class Chat {
+        - List<Message> messages
+        + Chat()
+        + send(Message message) void
+        + getMailbox(PlayerProfile pp) List<Message>
+    }
+    Message <--* Chat
+}
+
 package game {
     class GameManager {
         - List<Game> games
@@ -296,7 +347,14 @@ package game {
         + Game(Path dataDir)
         + getGame() List<Game>
         + createGame() Game
+        - loadSavedGamesIds() List<String>
+        - loadGame(String id) Game
+        + saveGame(Game game) void
     }
+    Game <--* GameManager
+    note left of GameManager::loadSavedGamesIds()
+        Returns list of saved game IDs by reading filelames in the data directory.
+    end note
 
     class Game {
         - String id
@@ -307,6 +365,7 @@ package game {
         - Set<Objective> commonObjectives
         - int currentPlayer
         - Board board
+        - Chat chat
 
         + Game(String id)
         + getId() String
@@ -325,14 +384,15 @@ package game {
         + selectObjective(PlayerProfile pp, Objective o) void
         + drawCard(PlayerProfile pp, DrawSource ds) DrawResult
         + placeCard(PlayerProfile pp, Card c, Side s, int i, int j) void
+        + getChat() Chat
     }
     'Board and PlayAreas exists only in a Game
     Board <--* Game
     PlayArea <--* Game
+    Chat <--* Game
     Objective <-- Game
     PlayerData <-- Game
     PlayerProfile <-- Game
-    Game <-- GameManager
     Game .. GameStatus
     note left of Game::players
         The players are stored in the order in which they play.

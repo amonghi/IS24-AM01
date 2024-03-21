@@ -13,16 +13,11 @@ public class Chat {
     }
 
 
-    public void sendDirectMessage(PlayerProfile sender, PlayerProfile recipient, String content){
-        messages.add(new DirectMessage(sender, recipient, content));
+    public void send(Message message) {
+        messages.add(message);
     }
 
-    public void sendBroadcastMessage(PlayerProfile sender, String content){
-        messages.add(new BroadcastMessage(sender, content));
-    }
-
-
-    public List<Message> getMailbox(PlayerProfile pp){
+    public List<Message> getMailbox(PlayerProfile pp) {
         return messages.stream()
                 .filter(m -> m.isRecipient(pp))
                 .toList();
