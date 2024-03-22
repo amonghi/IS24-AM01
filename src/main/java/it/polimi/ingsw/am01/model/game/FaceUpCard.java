@@ -1,30 +1,33 @@
 package it.polimi.ingsw.am01.model.game;
 
 import it.polimi.ingsw.am01.model.card.Card;
-import it.polimi.ingsw.am01.model.game.Deck;
-import it.polimi.ingsw.am01.model.game.DrawSource;
 
 import java.util.Optional;
 
 /**
- * Represents a slot that contains a completely visible Card and that replenish itself from a Deck when drawn
+ * Represents a slot that contains a completely visible Card and that replenish itself from source "mainSource" when drawn. In case mainSource is empty, the card will be taken from "auxiliarySource"
  */
 public class FaceUpCard implements DrawSource {
     private Card card;
-    private final Deck source;
+    private final Deck mainSource;
+
+    private final Deck auxiliarySource;
 
     /**
      * Constructs a new FaceUpCard
      *
-     * @param source The deck where from where the cards are drawn to replenish the slot
+     * @param mainSource The main deck where from where the cards are drawn to replenish the slot
+     * @param auxiliarySource The auxiliary deck where from where the cards are drawn to replenish the slot (when main deck is empty)
      */
-    public FaceUpCard(Deck source) {
-        this.source = source;
-        this.card = source.draw().orElse(null);
+    public FaceUpCard(Deck mainSource, Deck auxiliarySource) {
+        this.mainSource= mainSource;
+        this.auxiliarySource= auxiliarySource;
+        //FIX: it's really necessary to look on auxiliary deck on FaceUpCard creation?
+        this.card = mainSource.draw().orElse(auxiliarySource.draw().orElse(null));
     }
 
     /**
-     * Draws the card from the slot and replenish it with a new drawn card from the Deck, if present
+     * Draws the card from the slot and replenish it with a new drawn card from main Deck, if present, or auxiliary Deck if not
      *
      * @return Returns the drawn card
      * If the card slot is empty, it returns {@code Optional.empty()}
@@ -32,7 +35,7 @@ public class FaceUpCard implements DrawSource {
     @Override
     public Optional<Card> draw() {
         Optional<Card> drawnCard = Optional.ofNullable(card);
-        card = source.draw().orElse(null);
+        card = mainSource.draw().orElse(auxiliarySource.draw().orElse(null));
         return drawnCard;
     }
 
