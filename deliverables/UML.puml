@@ -440,6 +440,7 @@ package game {
         + FaceUpCard(Deck mainSource, Deck auxiliarySource)
         + draw() Optional<Card>
         + getCard() Optional<Card>
+        - Card drawFromDecks()
     }
     Deck <-- FaceUpCard : draws from
 

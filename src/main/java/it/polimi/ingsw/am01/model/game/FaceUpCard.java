@@ -22,8 +22,7 @@ public class FaceUpCard implements DrawSource {
     public FaceUpCard(Deck mainSource, Deck auxiliarySource) {
         this.mainSource= mainSource;
         this.auxiliarySource= auxiliarySource;
-        //FIX: it's really necessary to look on auxiliary deck on FaceUpCard creation?
-        this.card = mainSource.draw().orElse(auxiliarySource.draw().orElse(null));
+        this.card = drawFromDecks();
     }
 
     /**
@@ -35,7 +34,7 @@ public class FaceUpCard implements DrawSource {
     @Override
     public Optional<Card> draw() {
         Optional<Card> drawnCard = Optional.ofNullable(card);
-        card = mainSource.draw().orElse(auxiliarySource.draw().orElse(null));
+        card = drawFromDecks();
         return drawnCard;
     }
 
@@ -47,5 +46,13 @@ public class FaceUpCard implements DrawSource {
      */
     public Optional<Card> getCard() {
         return Optional.ofNullable(card);
+    }
+
+    /**
+     * Draws a card from no-empty source (starting from mainSource)
+     * @return A card drawn from mainSource or auxiliarySource if the first one is empty. If both source are empty it returns null
+     */
+    private Card drawFromDecks(){
+        return mainSource.draw().orElse(auxiliarySource.draw().orElse(null));
     }
 }
