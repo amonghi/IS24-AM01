@@ -151,7 +151,7 @@ class PlayAreaTest {
         assertEquals(
                 Map.of(
                         Resource.PLANT, 0,
-                        Resource.FUNGI, 1,
+                        Resource.FUNGI, 2,
                         Resource.ANIMAL, 1,
                         Resource.INSECT, 1
                 ),
