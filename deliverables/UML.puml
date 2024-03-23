@@ -212,9 +212,17 @@ package objective {
         Returns a set containing all the sets of cards that satisfy the objective.
     end note
 
-    class CollectibleObjective extends Objective {
-        - Map<Collectible, Integer> requiredCollectibles
-        + CollectibleObjective(int points, Map<Collectible, Integer> requiredCollectibles)
+    class SameCollectibleObjective extends Objective {
+        - Collectible requiredCollectible
+        - int requiredNumber
+        + SameCollectibleObjective(int points, Collectible requiredCollectibles,
+            int requiredNumber)
+        + getEarnedPoints(PlayArea pa) int
+    }
+
+    class DifferentCollectibleObjective extends Objective {
+        - Set<Item> requiredItems
+        + DifferentCollectibleObjective(int points, Set<Item> requiredItems)
         + getEarnedPoints(PlayArea pa) int
     }
 
