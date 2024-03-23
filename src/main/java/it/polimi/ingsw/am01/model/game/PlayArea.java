@@ -147,6 +147,10 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
                 .flatMap(cornerPos -> placement.getVisibleFace().corner(cornerPos).getCollectible().stream())
                 .forEach(collectible -> collectibleCount.merge(collectible, 1, Integer::sum));
 
+        // we also add all the center resources, if present
+        card.getFace(side).getCenterResources()
+                .forEach((resource, amount) -> collectibleCount.merge(resource, amount, Integer::sum));
+
         return placement;
     }
 
