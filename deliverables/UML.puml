@@ -258,7 +258,7 @@ package choice {
         + MultiChoice(Iterable<T> choices, int choosers)
         + getChoice(I identity) MultiChoiceChoice<T, I>
     }
-    MultiChoice -- MultiChoiceChoice : > has many \n <<nested>>
+    MultiChoiceChoice <-- MultiChoice : < has many \n <<nested>>
 
     class MultiChoiceChoice<T, I> {
         - MultiChoiceChoiceArbiter parent
@@ -401,7 +401,7 @@ package game {
     Objective <-- Game
     PlayerData <-- Game
     PlayerProfile <-- Game
-    Game .. GameStatus
+    GameStatus .. Game
     note left of Game::players
         The players are stored in the order in which they play.
         players.get(0) is the first one to play.
