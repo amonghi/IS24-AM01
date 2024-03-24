@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
  * Card represents placeable card of the game (which are allocated into PlayArea). In particular: resource, gold and starter card
  */
 public class Card {
+    private final int id;
     private final CardColor baseColor;
     private final boolean isStarter;
     private final boolean isGold;
@@ -16,18 +17,27 @@ public class Card {
 
     /**
      * Constructs a new Card and sets all parameters specified
+     * @param id The id of card
      * @param baseColor The color of card
      * @param isStarter A boolean that specified if card is starter or not
      * @param isGold A boolean that specified if card is golden or not
      * @param front The front face of card
      * @param back The back face of card
      */
-    public Card(CardColor baseColor, boolean isStarter, boolean isGold, FrontCardFace front, BackCardFace back) {
+    public Card(int id, CardColor baseColor, boolean isStarter, boolean isGold, FrontCardFace front, BackCardFace back) {
+        this.id = id;
         this.baseColor = baseColor;
         this.isStarter = isStarter;
         this.isGold = isGold;
         this.front = front;
         this.back = back;
+    }
+    /**
+     * Provides id of the card
+     * @return Returns the id of the card
+     */
+    public int id() {
+        return id;
     }
 
     /**

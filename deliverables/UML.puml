@@ -171,12 +171,14 @@ package card {
     } /' end package face '/
 
     class Card {
+        - int id
         - CardColor baseColor
         - boolean isStarter
         - boolean isGold
         - FrontCardFace front
         - BackCardFace back
 
+        + Card(int id, CardColor baseColor, boolean isStarter, boolean isGold, FrontCardFace front, BackCardFace back)
         + color() CardColor
         + isStarter() boolean
         + isGold() boolean
