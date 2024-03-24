@@ -1,0 +1,2178 @@
+[
+  {
+    "id": "1",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "FUNGI",
+      "tr": "EMPTY",
+      "bl": "FUNGI",
+      "br": "NONE"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "2",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "FUNGI",
+      "tr": "FUNGI",
+      "bl": "NONE",
+      "br": "EMPTY"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "3",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "FUNGI",
+      "br": "FUNGI"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "4",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "FUNGI",
+      "bl": "EMPTY",
+      "br": "FUNGI"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "5",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "QUILL",
+      "bl": "PLANT",
+      "br": "FUNGI"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "6",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "INKWELL",
+      "tr": "FUNGI",
+      "bl": "NONE",
+      "br": "ANIMAL"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "7",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "FUNGI",
+      "tr": "INSECT",
+      "bl": "MANUSCRIPT",
+      "br": "EMPTY"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "8",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "FUNGI",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "9",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "FUNGI",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "10",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "FUNGI",
+      "br": "EMPTY",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "11",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "PLANT",
+      "tr": "EMPTY",
+      "bl": "PLANT",
+      "br": "NONE"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "12",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "PLANT",
+      "tr": "PLANT",
+      "bl": "NONE",
+      "br": "EMPTY"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "13",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "PLANT",
+      "br": "PLANT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "14",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "PLANT",
+      "bl": "EMPTY",
+      "br": "PLANT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "15",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "INSECT",
+      "bl": "QUILL",
+      "br": "PLANT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "16",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "FUNGI",
+      "tr": "PLANT",
+      "bl": "NONE",
+      "br": "INKWELL"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "17",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "MANUSCRIPT",
+      "tr": "NONE",
+      "bl": "PLANT",
+      "br": "ANIMAL"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "18",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "PLANT",
+      "br": "NONE",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "19",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "PLANT",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "20",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "PLANT",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "21",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "ANIMAL",
+      "tr": "ANIMAL",
+      "bl": "EMPTY",
+      "br": "NONE"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "22",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "ANIMAL",
+      "br": "ANIMAL"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "23",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "ANIMAL",
+      "tr": "NONE",
+      "bl": "ANIMAL",
+      "br": "EMPTY"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "24",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "ANIMAL",
+      "bl": "NONE",
+      "br": "ANIMAL"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "25",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "INSECT",
+      "bl": "INKWELL",
+      "br": "ANIMAL"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "26",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "PLANT",
+      "tr": "ANIMAL",
+      "bl": "NONE",
+      "br": "MANUSCRIPT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "27",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "QUILL",
+      "tr": "NONE",
+      "bl": "ANIMAL",
+      "br": "FUNGI"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "28",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "ANIMAL",
+      "br": "EMPTY",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "29",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "ANIMAL",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "30",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "ANIMAL",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "31",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "INSECT",
+      "tr": "INSECT",
+      "bl": "EMPTY",
+      "br": "NONE"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "32",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "INSECT",
+      "br": "INSECT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "33",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "INSECT",
+      "tr": "NONE",
+      "bl": "INSECT",
+      "br": "EMPTY"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "34",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "INSECT",
+      "bl": "NONE",
+      "br": "INSECT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "35",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "QUILL",
+      "bl": "ANIMAL",
+      "br": "INSECT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "36",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "MANUSCRIPT",
+      "tr": "INSECT",
+      "bl": "NONE",
+      "br": "FUNGI"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "37",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "INSECT",
+      "tr": "PLANT",
+      "bl": "INKWELL",
+      "br": "NONE"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "38",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "INSECT",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "39",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "INSECT",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "40",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": false,
+    "front": {
+      "tl": "NONE",
+      "tr": "INSECT",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "points": {
+        "type": "simple",
+        "number": 1
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "41",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "QUILL",
+      "constraint": {
+        "ANIMAL": 1,
+        "FUNGI": 2
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "QUILL"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "42",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "INKWELL",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "PLANT": 1,
+        "FUNGI": 2
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "INKWELL"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "43",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "MANUSCRIPT",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "constraint": {
+        "INSECT": 1,
+        "FUNGI": 2
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "MANUSCRIPT"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "44",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "ANIMAL": 1,
+        "FUNGI": 3
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "45",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "constraint": {
+        "PLANT": 1,
+        "FUNGI": 3
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "46",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "constraint": {
+        "INSECT": 1,
+        "FUNGI": 3
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "47",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "INKWELL",
+      "br": "NONE",
+      "constraint": {
+        "FUNGI": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "48",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "QUILL",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "NONE",
+      "constraint": {
+        "FUNGI": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "49",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "MANUSCRIPT",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "FUNGI": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "50",
+    "baseColor": "RED",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "constraint": {
+        "FUNGI": 5
+      },
+      "points": {
+        "type": "simple",
+        "number": 5
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "51",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "QUILL",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "constraint": {
+        "PLANT": 2,
+        "INSECT": 1
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "QUILL"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "52",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "MANUSCRIPT",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "PLANT": 2,
+        "FUNGI": 1
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "MANUSCRIPT"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "53",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "INKWELL",
+      "br": "EMPTY",
+      "constraint": {
+        "PLANT": 2,
+        "ANIMAL": 1
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "INKWELL"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "54",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "constraint": {
+        "PLANT": 3,
+        "INSECT": 1
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "55",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "constraint": {
+        "PLANT": 3,
+        "ANIMAL": 1
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "56",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "constraint": {
+        "PLANT": 3,
+        "FUNGI": 1
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "57",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "QUILL",
+      "br": "NONE",
+      "constraint": {
+        "PLANT": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "58",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "MANUSCRIPT",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "NONE",
+      "constraint": {
+        "PLANT": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "59",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "INKWELL",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "PLANT": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "60",
+    "baseColor": "GREEN",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "NONE",
+      "constraint": {
+        "PLANT": 5
+      },
+      "points": {
+        "type": "simple",
+        "number": 5
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1"
+      }
+    }
+  },
+  {
+    "id": "61",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "INKWELL",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "constraint": {
+        "ANIMAL": 2,
+        "INSECT": 1
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "INKWELL"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "62",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "MANUSCRIPT",
+      "constraint": {
+        "PLANT": 1,
+        "ANIMAL": 2
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "MANUSCRIPT"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "63",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "QUILL",
+      "br": "EMPTY",
+      "constraint": {
+        "ANIMAL": 2,
+        "FUNGI": 1
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "QUILL"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "64",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "ANIMAL": 3,
+        "INSECT": 1
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "65",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "constraint": {
+        "ANIMAL": 3,
+        "FUNGI": 1
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "66",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "constraint": {
+        "PLANT": 1,
+        "ANIMAL": 3
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "67",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "MANUSCRIPT",
+      "br": "NONE",
+      "constraint": {
+        "ANIMAL": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "68",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "INKWELL",
+      "bl": "NONE",
+      "br": "NONE",
+      "constraint": {
+        "ANIMAL": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "69",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "QUILL",
+      "constraint": {
+        "ANIMAL": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "70",
+    "baseColor": "BLUE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "ANIMAL": 5
+      },
+      "points": {
+        "type": "simple",
+        "number": 5
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1"
+      }
+    }
+  },
+  {
+    "id": "71",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "QUILL",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "PLANT": 1,
+        "INSECT": 2
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "QUILL"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "72",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "MANUSCRIPT",
+      "br": "EMPTY",
+      "constraint": {
+        "ANIMAL": 1,
+        "INSECT": 2
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "MANUSCRIPT"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "73",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "INKWELL",
+      "constraint": {
+        "INSECT": 2,
+        "FUNGI": 1
+      },
+      "points": {
+        "type": "item",
+        "number": 1,
+        "item": "INKWELL"
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "74",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "EMPTY",
+      "constraint": {
+        "ANIMAL": 1,
+        "INSECT": 3
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "75",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "constraint": {
+        "PLANT": 1,
+        "INSECT": 3
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "76",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "constraint": {
+        "INSECT": 3,
+        "FUNGI": 1
+      },
+      "points": {
+        "type": "corner",
+        "number": 2
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "77",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "INKWELL",
+      "tr": "NONE",
+      "bl": "EMPTY",
+      "br": "NONE",
+      "constraint": {
+        "INSECT": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "78",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "MANUSCRIPT",
+      "bl": "NONE",
+      "br": "NONE",
+      "constraint": {
+        "INSECT": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "79",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "NONE",
+      "tr": "NONE",
+      "bl": "QUILL",
+      "br": "EMPTY",
+      "constraint": {
+        "INSECT": 3
+      },
+      "points": {
+        "type": "simple",
+        "number": 3
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "80",
+    "baseColor": "PURPLE",
+    "isStarter": false,
+    "isGold": true,
+    "front": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "NONE",
+      "constraint": {
+        "INSECT": 5
+      },
+      "points": {
+        "type": "simple",
+        "number": 5
+      }
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "81",
+    "baseColor": "NEUTRAL",
+    "isStarter": true,
+    "isGold": false,
+    "front": {
+      "tl": "FUNGI",
+      "tr": "PLANT",
+      "bl": "INSECT",
+      "br": "ANIMAL"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "PLANT",
+      "bl": "INSECT",
+      "br": "EMPTY",
+      "center": {
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "82",
+    "baseColor": "NEUTRAL",
+    "isStarter": true,
+    "isGold": false,
+    "front": {
+      "tl": "PLANT",
+      "tr": "ANIMAL",
+      "bl": "FUNGI",
+      "br": "INSECT"
+    },
+    "back": {
+      "tl": "ANIMAL",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "FUNGI",
+      "center": {
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "83",
+    "baseColor": "NEUTRAL",
+    "isStarter": true,
+    "isGold": false,
+    "front": {
+      "tl": "INSECT",
+      "tr": "ANIMAL",
+      "bl": "FUNGI",
+      "br": "PLANT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "PLANT": "1",
+        "FUNGI": "1"
+      }
+    }
+  },
+  {
+    "id": "84",
+    "baseColor": "NEUTRAL",
+    "isStarter": true,
+    "isGold": false,
+    "front": {
+      "tl": "PLANT",
+      "tr": "INSECT",
+      "bl": "ANIMAL",
+      "br": "FUNGI"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "EMPTY",
+      "br": "EMPTY",
+      "center": {
+        "ANIMAL": "1",
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "85",
+    "baseColor": "NEUTRAL",
+    "isStarter": true,
+    "isGold": false,
+    "front": {
+      "tl": "INSECT",
+      "tr": "FUNGI",
+      "bl": "PLANT",
+      "br": "ANIMAL"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "NONE",
+      "center": {
+        "PLANT": "1",
+        "ANIMAL": "1",
+        "INSECT": "1"
+      }
+    }
+  },
+  {
+    "id": "86",
+    "baseColor": "NEUTRAL",
+    "isStarter": true,
+    "isGold": false,
+    "front": {
+      "tl": "FUNGI",
+      "tr": "ANIMAL",
+      "bl": "PLANT",
+      "br": "INSECT"
+    },
+    "back": {
+      "tl": "EMPTY",
+      "tr": "EMPTY",
+      "bl": "NONE",
+      "br": "NONE",
+      "center": {
+        "PLANT": "1",
+        "ANIMAL": "1",
+        "FUNGI": "1"
+      }
+    }
+  }
+]
