@@ -27,6 +27,7 @@ class CardTest {
             Map.of(Resource.FUNGI, 1)
     );
     final Card aCard = new Card(
+            1,
             CardColor.RED,
             true,
             false,

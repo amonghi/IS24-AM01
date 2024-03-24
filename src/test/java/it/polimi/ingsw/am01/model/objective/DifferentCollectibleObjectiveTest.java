@@ -37,7 +37,7 @@ class DifferentCollectibleObjectiveTest {
                             Resource.FUNGI, 1)
             )
     );
-    Card card83 = new Card(CardColor.NEUTRAL, true, false, frontCard83, backCard83);
+    Card card83 = new Card(83, CardColor.NEUTRAL, true, false, frontCard83, backCard83);
 
     //Card 5: 1 QUILL
     FrontCardFace frontCard5 = new FrontCardFace(
@@ -53,7 +53,7 @@ class DifferentCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.FUNGI, 1))
     );
-    Card card5 = new Card(CardColor.RED, false, false, frontCard5, backCard5);
+    Card card5 = new Card(5, CardColor.RED, false, false, frontCard5, backCard5);
 
     //Card 6: 1 INKWELL
     FrontCardFace frontCard6 = new FrontCardFace(
@@ -69,7 +69,7 @@ class DifferentCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.FUNGI, 1))
     );
-    Card card6 = new Card(CardColor.RED, false, false, frontCard6, backCard6);
+    Card card6 = new Card(6, CardColor.RED, false, false, frontCard6, backCard6);
 
     //Card 7: 1 MANUSCRIPT
     FrontCardFace frontCard7 = new FrontCardFace(
@@ -85,7 +85,7 @@ class DifferentCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.FUNGI, 1))
     );
-    Card card7 = new Card(CardColor.RED, false, false, frontCard7, backCard7);
+    Card card7 = new Card(7, CardColor.RED, false, false, frontCard7, backCard7);
 
     //Card 15: 1 QUILL
     FrontCardFace frontCard15 = new FrontCardFace(
@@ -101,7 +101,7 @@ class DifferentCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.PLANT, 1))
     );
-    Card card15 = new Card(CardColor.GREEN, false, false, frontCard15, backCard15);
+    Card card15 = new Card(15, CardColor.GREEN, false, false, frontCard15, backCard15);
 
     //Card 16: 1 INKWELL
     FrontCardFace frontCard16 = new FrontCardFace(
@@ -117,7 +117,7 @@ class DifferentCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.PLANT, 1))
     );
-    Card card16 = new Card(CardColor.GREEN, false, false, frontCard16, backCard16);
+    Card card16 = new Card(16, CardColor.GREEN, false, false, frontCard16, backCard16);
 
     //Card 17: 1 MANUSCRIPT
     FrontCardFace frontCard17 = new FrontCardFace(
@@ -133,7 +133,7 @@ class DifferentCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.PLANT, 1))
     );
-    Card card17 = new Card(CardColor.GREEN, false, false, frontCard17, backCard17);
+    Card card17 = new Card(17, CardColor.GREEN, false, false, frontCard17, backCard17);
 
     //Card 25: 1 INKWELL
     FrontCardFace frontCard25 = new FrontCardFace(
@@ -149,7 +149,7 @@ class DifferentCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.ANIMAL, 1))
     );
-    Card card25 = new Card(CardColor.BLUE, false, false, frontCard25, backCard25);
+    Card card25 = new Card(25, CardColor.BLUE, false, false, frontCard25, backCard25);
 
     PlayArea pa = new PlayArea(card83, Side.BACK);
     Set<Item> requiredItems = new HashSet(Set.of(Item.INKWELL, Item.QUILL, Item.MANUSCRIPT));

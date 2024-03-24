@@ -35,7 +35,7 @@ class SameCollectibleObjectiveTest {
                  Resource.FUNGI, 1)
             )
     );
-    Card card83 = new Card(CardColor.NEUTRAL, true, false, frontCard83, backCard83);
+    Card card83 = new Card(83, CardColor.NEUTRAL, true, false, frontCard83, backCard83);
 
     //Card 15
     FrontCardFace frontCard15 = new FrontCardFace(
@@ -51,7 +51,7 @@ class SameCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.PLANT, 1))
     );
-    Card card15 = new Card(CardColor.GREEN, false, false, frontCard15, backCard15);
+    Card card15 = new Card(15, CardColor.GREEN, false, false, frontCard15, backCard15);
 
     //Card 31
     FrontCardFace frontCard31 = new FrontCardFace(
@@ -67,7 +67,7 @@ class SameCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.INSECT, 1))
     );
-    Card card31 = new Card(CardColor.PURPLE, false, false, frontCard31, backCard31);
+    Card card31 = new Card(31, CardColor.PURPLE, false, false, frontCard31, backCard31);
 
     //Card 32
     FrontCardFace frontCard32 = new FrontCardFace(
@@ -83,7 +83,7 @@ class SameCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.INSECT, 1))
     );
-    Card card32 = new Card(CardColor.PURPLE, false, false, frontCard32, backCard32);
+    Card card32 = new Card(32, CardColor.PURPLE, false, false, frontCard32, backCard32);
 
     //Card 33
     FrontCardFace frontCard33 = new FrontCardFace(
@@ -99,7 +99,7 @@ class SameCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.INSECT, 1))
     );
-    Card card33 = new Card(CardColor.PURPLE, false, false, frontCard33, backCard33);
+    Card card33 = new Card(33, CardColor.PURPLE, false, false, frontCard33, backCard33);
 
     //Card 34
     FrontCardFace frontCard34 = new FrontCardFace(
@@ -115,7 +115,7 @@ class SameCollectibleObjectiveTest {
             Corner.empty(),
             new HashMap<Resource, Integer>(Map.of(Resource.INSECT, 1))
     );
-    Card card34 = new Card(CardColor.PURPLE, false, false, frontCard34, backCard34);
+    Card card34 = new Card(34, CardColor.PURPLE, false, false, frontCard34, backCard34);
 
     //Define the playarea with the same starting card
     PlayArea pa = new PlayArea(card83, Side.FRONT);

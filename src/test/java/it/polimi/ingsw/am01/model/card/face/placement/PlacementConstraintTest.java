@@ -36,6 +36,7 @@ class PlacementConstraintTest {
             Map.of(Resource.INSECT, 1)
     );
     final Card starterCard = new Card(
+            1,
             CardColor.NEUTRAL,
             true,
             false,
@@ -58,6 +59,7 @@ class PlacementConstraintTest {
             Map.of(Resource.FUNGI, 1)
     );
     final Card aCard = new Card(
+            1,
             CardColor.RED,
             true,
             false,

@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DeckTest {
     Card aCard = new Card(
+            1,
             CardColor.RED,
             true,
             false,
@@ -35,6 +36,7 @@ class DeckTest {
     );
     List<Card> cardList = List.of(
             new Card(
+                    2,
                     CardColor.RED,
                     true,
                     false,
@@ -53,6 +55,7 @@ class DeckTest {
                     )
             ),
             new Card(
+                    3,
                     CardColor.BLUE,
                     true,
                     false,
@@ -71,6 +74,7 @@ class DeckTest {
                     )
             ),
             new Card(
+                    4,
                     CardColor.PURPLE,
                     true,
                     false,
@@ -89,6 +93,7 @@ class DeckTest {
                     )
             ),
             new Card(
+                    5,
                     CardColor.GREEN,
                     true,
                     false,

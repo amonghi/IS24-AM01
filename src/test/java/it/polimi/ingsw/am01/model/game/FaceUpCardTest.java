@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FaceUpCardTest {
     List<Card> shortList = List.of(new Card(
+            1,
             CardColor.RED,
             true,
             false,
@@ -36,6 +37,7 @@ class FaceUpCardTest {
     ));
 
     List<Card> longList = List.of(new Card(
+            2,
                     CardColor.BLUE,
                     true,
                     false,
@@ -54,6 +56,7 @@ class FaceUpCardTest {
                     )
             ),
             new Card(
+                    3,
                     CardColor.PURPLE,
                     true,
                     false,

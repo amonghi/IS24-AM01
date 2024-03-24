@@ -33,6 +33,7 @@ class ItemPointsTest {
             Map.of(Resource.INSECT, 1)
     );
     final Card starterCard = new Card(
+            1,
             CardColor.NEUTRAL,
             true,
             false,
@@ -56,6 +57,7 @@ class ItemPointsTest {
             Map.of(Resource.FUNGI, 1)
     );
     final Card aCard = new Card(
+            2,
             CardColor.RED,
             true,
             false,
