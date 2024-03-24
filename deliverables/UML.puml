@@ -39,7 +39,8 @@ note top of observable
 end note
 
 package collectible {
-    interface Collectible <<sealed>> {}
+    interface Collectible {}
+    note top of Collectible : sealed interface
 
     enum Resource implements Collectible {
         <:seedling:> PLANT
@@ -258,7 +259,7 @@ package choice {
         + MultiChoice(Iterable<T> choices, int choosers)
         + getChoice(I identity) MultiChoiceChoice<T, I>
     }
-    MultiChoiceChoice <-- MultiChoice : < has many \n <<nested>>
+    MultiChoiceChoice <-- MultiChoice : < has many
 
     class MultiChoiceChoice<T, I> {
         - MultiChoiceChoiceArbiter parent
@@ -274,8 +275,8 @@ package choice {
     }
     SelectionResult .. MultiChoiceChoice
     note right of MultiChoiceChoice
-        This is a nested class, the actual
-        name is MultiChoice<T, I>.Choice
+        This is an inner class
+        the actual name is MultiChoice<T, I>.Choice
     end note
 
     enum SelectionResult {
@@ -463,7 +464,7 @@ package game {
     'Decks are aggregations of Cards
     Card --o Deck
 
-    class Position <<record>> {
+    class Position {
         + {static} Position ORIGIN
         + int i
         + int j
@@ -471,7 +472,7 @@ package game {
         + getRelative(CornerPosition cp) Position
     }
     note top of Position
-        this is a nested class
+        this is an inner record class
         the actual name is PlayArea.Position
     end note
 
@@ -491,12 +492,8 @@ package game {
         + getScore() int
         + iterator() Iterator<CardPlacement>
     }
-    CardPlacement <--* PlayArea : < has many \n <<nested>>
-    Position .. PlayArea : <<nested>>
-    note top of CardPlacement
-        this is a nested class
-        the actual name is PlayArea.CardPlacement
-    end note
+    CardPlacement <--* PlayArea : < has many
+    Position -- PlayArea
 
     Comparable <|.. CardPlacement : <<bind>> \n PlayArea.CardPlacement
     class CardPlacement {
@@ -521,6 +518,10 @@ package game {
         + compareTo(CardPlacement other) int
     }
     Card <-- CardPlacement
+    note top of CardPlacement
+        this is an inner class
+        the actual name is PlayArea.CardPlacement
+    end note
 } /' end package game '/
 
 @enduml
