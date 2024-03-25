@@ -25,12 +25,7 @@ public class GameAssets {
     public static List<Card> getResourceCards() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Corner.class, new CornerDeserializer());
-        gsonBuilder.registerTypeAdapter(Item.class, new ItemDeserializer());
-        gsonBuilder.registerTypeAdapter(Resource.class, new ResourceDeserializer());
         gsonBuilder.registerTypeAdapter(Points.class, new PointsDeserializer());
-        gsonBuilder.registerTypeAdapter(Card.class, new CardDeserializer());
-        gsonBuilder.registerTypeAdapter(BackCardFace.class, new BackCardFaceDeserializer());
-        gsonBuilder.registerTypeAdapter(FrontCardFace.class, new FrontCardFaceDeserializer());
         gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer());
         Gson gson = gsonBuilder.create();
 

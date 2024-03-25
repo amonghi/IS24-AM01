@@ -16,17 +16,15 @@ public class PointsDeserializer implements JsonDeserializer<Points> {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String pointsType = jsonObject.get("type").getAsString();
         int pointsAmount = jsonObject.get("number").getAsInt();
-        switch (pointsType) {
-            case "corner":
-                return new CornerCoverPoints(pointsAmount);
-            case "item":
+        return switch (pointsType) {
+            case "corner" -> new CornerCoverPoints(pointsAmount);
+            case "item" -> {
                 Item item = context.deserialize(jsonObject.get("item"), Item.class);
-                return new ItemPoints(item, pointsAmount);
-            case "simple":
-                return new SimplePoints(pointsAmount);
-            default:
-                throw new JsonParseException("Unknown Points type: " + type);
-        }
+                yield new ItemPoints(item, pointsAmount);
+            }
+            case "simple" -> new SimplePoints(pointsAmount);
+            default -> throw new JsonParseException("Unknown Points type: " + type);
+        };
 
     }
 }
