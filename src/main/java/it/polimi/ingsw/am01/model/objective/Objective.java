@@ -1,15 +1,17 @@
 package it.polimi.ingsw.am01.model.objective;
 
 import it.polimi.ingsw.am01.model.game.PlayArea;
+import it.polimi.ingsw.am01.model.collectible.Collectible;
 
-import java.util.Set;
 
 /**
  * The common structure of an Objective card.
- * Objectives can give you points if you have a specific pattern o a certain amount of collectible.
+ * Objectives can give you points if you have a specific pattern or a
+ * certain number of {@link Collectible}
  *
  * @see it.polimi.ingsw.am01.model.objective.PatternObjective
- * @see it.polimi.ingsw.am01.model.objective.CollectibleObjective
+ * @see it.polimi.ingsw.am01.model.objective.SameCollectibleObjective
+ * @see it.polimi.ingsw.am01.model.objective.DifferentCollectibleObjective
  *
  */
 
@@ -18,7 +20,7 @@ public abstract class Objective {
 
     /**
      * Constructs a new Objective
-     * @param points The number of points for each match
+     * @param points The number of points a player earns for each match
      */
     public Objective(int points) {
         this.points = points;
@@ -26,7 +28,7 @@ public abstract class Objective {
 
     /**
      *
-     * @return The points for a specific match
+     * @return The points earned for each match
      */
     public int getPointsPerMatch() {
         return points;
@@ -34,8 +36,8 @@ public abstract class Objective {
 
     /**
      *
-     * @param pa The {@link PlayArea} on which calculate matches
-     * @return the amount of points earned
+     * @param pa The {@link PlayArea} on which find matches
+     * @return the number of points earned by the player, considering all the matches
      */
     public abstract int getEarnedPoints(PlayArea pa);
 }
