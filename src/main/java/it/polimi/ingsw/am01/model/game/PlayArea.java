@@ -242,7 +242,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         /**
          * @return the position of this {@link CardPlacement}
          */
-        Position getPosition() {
+        public Position getPosition() {
             return this.position;
         }
 

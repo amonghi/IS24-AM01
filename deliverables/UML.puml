@@ -230,14 +230,12 @@ package objective {
     }
 
     class PatternObjective extends Objective {
-        - CardColor[][] pattern
-        + PatternObjective(int points, CardColor[][] pattern)
+        - Map<Position, CardColor> pattern
+        - Set<Set<CardPlacement>> matches
+        + PatternObjective(int points, Map<Position, CardColor>)
         + getEarnedPoints(PlayArea pa) int
     }
     CardColor .. PatternObjective
-    note left of PatternObjective::pattern
-        A 3x3 matrix representing the pattern with colors` and nulls.
-    end note
 } /' end package objective '/
 
 package choice {
