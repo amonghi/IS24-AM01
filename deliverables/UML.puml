@@ -17,27 +17,6 @@ package java.lang {
     interface Comparable<T> {}
 }
 
-package observable {
-    interface Observer<T> {
-        + onChange(T changed) void
-    }
-
-    'TODO: add usage of this class
-    class Observable<T> {
-        - List<Observer<T>> observers
-        + ObservableHelper()
-        + addObserver(Observer<T> observer) void
-        + notifyAll(T data)
-    }
-    note top of Observable
-        This class can be used by other classes to help implement the observable pattern.
-    end note
-}
-note top of observable
-    Observer pattern.
-    Used to notify the controller of data changes.
-end note
-
 package collectible {
     interface Collectible {}
     note top of Collectible : sealed interface
@@ -81,6 +60,8 @@ package card {
                 TOP_LEFT
                 BOTTOM_LEFT
                 BOTTOM_RIGHT
+
+                + getOppisite() CornerPosition
             }
         } /' end package corner '/
 
@@ -155,19 +136,20 @@ package card {
             + BackCardFace(Corner tl, Corner tr, Corner br, Corner bl, Map<Resource, Integer> resources)
             + getCenterResources() Map<Resource, Integer>
         }
-        PlacementConstraint <--* FrontCardFace
-        Points <--* FrontCardFace
 
         class FrontCardFace extends BaseCardFace {
             - PlacementConstraint placementConstraint
-            - Optional<Points> points
+            - Points points
 
             + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, placementConstraint placementConstraint,
                 Points points)
             + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl, Points points)
+            + FrontCardFace(Corner tl, Corner tr, Corner br, Corner bl)
             + getPoints() Optional<Points>
             + getPlacementConstraint() Optional<PlacementConstraint>
         }
+        PlacementConstraint <--* FrontCardFace
+        Points <--* FrontCardFace
     } /' end package face '/
 
     class Card {
@@ -179,6 +161,7 @@ package card {
         - BackCardFace back
 
         + Card(int id, CardColor baseColor, boolean isStarter, boolean isGold, FrontCardFace front, BackCardFace back)
+        + id() int
         + color() CardColor
         + isStarter() boolean
         + isGold() boolean
@@ -196,6 +179,9 @@ package card {
         <:purple_circle:> PURPLE
         <:white_circle:> NEUTRAL
     }
+    note left of CardColor::NEUTRAL
+        Starter cards have neutral color.
+    end note
 
     enum Side {
         FRONT
@@ -211,23 +197,21 @@ package objective {
         + getPointsPerMatch() int
         + getEarnedPoints(PlayArea pa) int
     }
-    note left of Objective::test
-        Returns a set containing all the sets of cards that satisfy the objective.
-    end note
 
     class SameCollectibleObjective extends Objective {
         - Collectible requiredCollectible
         - int requiredNumber
-        + SameCollectibleObjective(int points, Collectible requiredCollectibles,
-            int requiredNumber)
+        + SameCollectibleObjective(int points, Collectible requiredCollectible, int requiredNumber)
         + getEarnedPoints(PlayArea pa) int
     }
+    Collectible ... SameCollectibleObjective
 
     class DifferentCollectibleObjective extends Objective {
         - Set<Item> requiredItems
         + DifferentCollectibleObjective(int points, Set<Item> requiredItems)
         + getEarnedPoints(PlayArea pa) int
     }
+    Collectible ... DifferentCollectibleObjective
 
     class PatternObjective extends Objective {
         - Map<Position, CardColor> pattern
@@ -235,7 +219,7 @@ package objective {
         + PatternObjective(int points, Map<Position, CardColor>)
         + getEarnedPoints(PlayArea pa) int
     }
-    CardColor .. PatternObjective
+    CardColor ... PatternObjective
 } /' end package objective '/
 
 package choice {
@@ -243,7 +227,7 @@ package choice {
         - Set<T> options
         - T selection
 
-        + Choice(Iterable<T> choices)
+        + Choice(Set<T> choices)
         + getOptions() Set<T>
         + select(T selection) void
         + getSelected() Optional<T>
@@ -251,25 +235,23 @@ package choice {
 
     class MultiChoice<T, I> {
         - Set<T> options
-        - Map<I, T> selections
+        - Map<I, MultiChoiceChoice> choices
         - boolean settled
 
-        - List<MultiChoiceChoice<T, I>> choosers
-
-        + MultiChoice(Iterable<T> choices, int choosers)
-        + getChoice(I identity) MultiChoiceChoice<T, I>
+        + MultiChoice(Set<T> choices, Set<I> chooserIdentities)
+        - getContendersPerOption() Map<T, Set<I>>
+        - everyoneHasChosen() boolean
+        + getChoices() Map<I, MultiChoiceChoice>
     }
     MultiChoiceChoice <-- MultiChoice : < has many
 
     class MultiChoiceChoice<T, I> {
-        - MultiChoiceChoiceArbiter parent
-        - I identity
+        - T selection
 
-        - MultiChoiceChoice(MultiChoice parent, I identity)
-        + getOptions() List<T>
+        - MultiChoiceChoice(I identity)
+        + getOptions() Set<T>
         + select(T choice) SelectionResult
-        + hasSelected() boolean
-        + getSelected() T
+        + getSelected() Optional<T>
         + getContenders(T choice) Set<I>
         + isSettled() boolean
     }
@@ -296,18 +278,14 @@ package player {
 
     class PlayerData {
         - List<Card> hand
-        - Choice<Side> startingCardSideChoice
-        - Choice<Objective> objectiveChoice
-        - MultiChoiceChoice<PlayerColor, PlayerProfile> colorChoice
+        - Objective objective
+        - PlayerColor color
 
-        + PlayerData(Card starterCard, Choice<Side> startingCardSideChoice, Choice<Objective> objectiveChoice,
-            MultiChoiceChoice<PlayerColor, PlayerProfile> colorChoice)
+        + PlayerData(Card starterCard, Objective objectiveChoice, PlayerColor colorChoice)
         + getHand() List<Card>
-        + getObjectiveChoice() Choice<Objective>
-        + getColorChoice() MultiChoiceChoice<PlayerColor, PlayerProfile>
+        + getObjectiveChoice() Objective
+        + getColorChoice() PlayerColor
     }
-    MultiChoiceChoice <-- PlayerData
-    Choice <-- PlayerData
     Card <-- PlayerData : < has many \n in hand
     PlayerColor .. PlayerData
 
@@ -323,37 +301,42 @@ package chat {
     abstract class Message {
         - PlayerProfile sender
         - String content
+        
         + getSender() PlayerProfile
         + getContent() String
         + {abstract} isRecipient(PlayerProfile pp) boolean
     }
 
     class BroadcastMessage extends Message {
+        + BroadcastMessage(PlayerProfile sender, String content)
         + isRecipient(PlayerProfile pp) boolean
     }
-    note right of BroadcastMessage::isRecipient
+    note left of BroadcastMessage::isRecipient
         Always returns true.
     end note
 
     class DirectMessage extends Message {
         - PlayerProfile recipient
+
+        + DirectMessage(PlayerProfile sender, PlayerProfile recipient, String content)
         + isRecipient(PlayerProfile pp) boolean
     }
 
-    class Chat {
+    class ChatManager {
         - List<Message> messages
-        + Chat()
+        
+        + ChatManager()
         + send(Message message) void
         + getMailbox(PlayerProfile pp) List<Message>
     }
-    Message <--* Chat
+    Message <--* ChatManager
 }
 
 package game {
     class GameManager {
         - List<Game> games
 
-        + Game(Path dataDir)
+        + GameManager(Path dataDir)
         + getGame() List<Game>
         + createGame() Game
         - loadSavedGamesIds() List<String>
@@ -362,21 +345,29 @@ package game {
     }
     Game <--* GameManager
     note left of GameManager::loadSavedGamesIds()
-        Returns list of saved game IDs by reading filelames in the data directory.
+        Returns list of saved game IDs by reading filenames in the data directory.
     end note
 
     class Game {
         - String id
         - GameStatus status
         - List<PlayerProfile> playerProfiles
+        - ChatManager chatManager
+
+        'initial choices
+        - Map<PlayerProfile, Choice<Side>> startingCardSideChoices
+        - Map<PlayerProfile, MultiChoiceChoice<PlayerColor, PlayerProfile>> colorChoices
+        - Map<PlayerProfile, Choice<Objective>> objectiveChoices
+
+        'game data
         - Map<PlayerProfile, PlayerData> playersData
         - Map<PlayerProfile, PlayArea> playAreas
         - Set<Objective> commonObjectives
         - int currentPlayer
         - Board board
-        - Chat chat
 
         + Game(String id)
+        
         + getId() String
         + getPlayerProfiles() List<PlayerProfile>
         + getPlayerData(PlayerProfile pp) PlayerData
@@ -384,26 +375,41 @@ package game {
         + getCurrentPlayer() PlayerProfile
         + getCommonObjectives() Set<Objective>
         + getStatus() GameStatus
+        + getChatManager() ChatManager
+
         + startGame() void
         + pausedGame() void
         + resumeGame() void
+        
         + join(PlayerProfile pp)
         + selectStartingCardSide(PlayerProfile pp, Side s) void
         + selectColor(PlayerProfile pp, PlayerColor pc) SelectionResult
         + selectObjective(PlayerProfile pp, Objective o) void
         + drawCard(PlayerProfile pp, DrawSource ds) DrawResult
         + placeCard(PlayerProfile pp, Card c, Side s, int i, int j) void
-        + getChat() Chat
     }
     'Board and PlayAreas exists only in a Game
+    PlayerProfile <-- Game
+    Choice <-- Game
+    MultiChoiceChoice <-- Game
+    Objective <-- Game
+    ChatManager <--* Game
     Board <--* Game
     PlayArea <--* Game
-    Chat <--* Game
-    Objective <-- Game
-    PlayerData <-- Game
-    PlayerProfile <-- Game
+    PlayerData <--* Game
     GameStatus .. Game
-    note left of Game::players
+    note right of Game::startingCardSideChoices
+        This gruop of fields are used during the setup phases of the game:
+        * SETUP_STARTING_CARD_SIDE
+        * SETUP_COLOR
+        * SETUP_OBJECTIVE
+    end note
+    note right of Game::playersData
+        This gruop of fields are used during the play phases of the game:
+        * PLAY_PLACING
+        * PLAY_DRAWING
+    end note
+    note left of Game::playerProfiles
         The players are stored in the order in which they play.
         players.get(0) is the first one to play.
     end note
@@ -428,9 +434,9 @@ package game {
         - Deck resourceCardDeck
         - Deck goldenCardDeck
 
-        + Board()
-        + getFaceUpResourceCards() Set<Card>
-        + getFaceUpGoldenCards() Set<Card>
+        + Board(Set<FaceUpCard> faceUpResourceCards, Set<FaceUpCard> faceUpGoldenCards, Deck resourceCardDeck, Deck goldenCardDeck)
+        + getFaceUpResourceCards() Set<FaceUpCard>
+        + getFaceUpGoldenCards() Set<FaceUpCard>
         + getResourceCardDeck() Deck
         + getGoldenCardDeck() Deck
     }
@@ -476,7 +482,7 @@ package game {
         the actual name is PlayArea.Position
     end note
 
-    java.lang.Iterable <|.. PlayArea : <<bind>> \n PlayArea.CardPlacement
+    Iterable <|.. PlayArea : <<bind>> \n PlayArea.CardPlacement
     class PlayArea {
         - Map<Position, CardPlacement> cards
         - int score
@@ -486,6 +492,7 @@ package game {
         + PlayArea(Card starterCard, Side side)
         + placeAt(Position pos, Card c, Side side) PlayArea.CardPlacement
         + placeAt(int i, int j, Card c, Side side) PlayArea.CardPlacement
+        - placeAt(Position position, Card card, Side side, boolean isFirst) PlayArea.CardPlacement
         + getAt(Position pos) Optional<PlayArea.CardPlacement>
         + getAt(int i, int j) Optional<PlayArea.CardPlacement>
         + getCollectibleCount() Map<Collectible, Integer>
