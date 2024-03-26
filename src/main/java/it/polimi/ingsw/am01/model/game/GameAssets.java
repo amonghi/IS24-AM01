@@ -21,6 +21,7 @@ public class GameAssets {
 
     private static GameAssets instance = null;
     private final List<Card> cards;
+    private final List<Objective> objectives;
 
 
     private GameAssets() {
@@ -29,11 +30,16 @@ public class GameAssets {
         gsonBuilder.registerTypeAdapter(Points.class, new PointsDeserializer());
         gsonBuilder.registerTypeAdapter(Collectible.class, new CollectibleDeserializer());
         gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer());
+        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveDeserializer());
+        gsonBuilder.registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer());
         Gson gson = gsonBuilder.create();
 
         String json;
 
         Card[] cardArray = new Card[0];
+        Objective[] objectiveArray = new Objective[0];
+
+        // Read and parse cards.json
         try (InputStream inputStream = GameAssets.class.getResourceAsStream("/it/polimi/ingsw/am01/cards.json")) {
             if (inputStream != null) {
                 InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
@@ -46,7 +52,22 @@ public class GameAssets {
             e.printStackTrace();
         }
 
+        // Read and parse objectives.json
+        try (InputStream inputStream = GameAssets.class.getResourceAsStream("/it/polimi/ingsw/am01/objectives.json")) {
+            if (inputStream != null) {
+                InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                objectiveArray = gson.fromJson(reader, Objective[].class);
+
+            } else {
+                System.err.println("File not found: objectives.json");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         cards = List.of(cardArray);
+        objectives = List.of(objectiveArray);
     }
 
     public static GameAssets getInstance() {
@@ -68,29 +89,8 @@ public class GameAssets {
         return cards.stream().filter(Card::isStarter).toList();
     }
 
-    public static List<Objective> getObjectives() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Collectible.class, new CollectibleDeserializer());
-        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveDeserializer());
-        gsonBuilder.registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer());
-        Gson gson = gsonBuilder.create();
-
-        String json;
-
-        Objective[] objectives = new Objective[0];
-        try (InputStream inputStream = GameAssets.class.getResourceAsStream("/it/polimi/ingsw/am01/objectives.json")) {
-            if (inputStream != null) {
-                InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                objectives = gson.fromJson(reader, Objective[].class);
-
-            } else {
-                System.err.println("File not found: objectives.json");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return List.of(objectives);
+    public List<Objective> getObjectives() {
+        return objectives;
     }
 
 }

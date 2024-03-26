@@ -30,7 +30,7 @@ class GameAssetsTest {
 
     @Test
     void getObjectives() {
-        List<Objective> objectives = GameAssets.getObjectives();
+        List<Objective> objectives = GameAssets.getInstance().getObjectives();
         assertFalse(objectives.isEmpty());
     }
 }
