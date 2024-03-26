@@ -17,10 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PatternObjectiveTest {
 
+    //Ref card 90
     Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
+            new PlayArea.Position(0,-1), CardColor.PURPLE,
             new PlayArea.Position(0,0), CardColor.PURPLE,
-            new PlayArea.Position(0,1), CardColor.PURPLE,
-            new PlayArea.Position(0,2), CardColor.PURPLE
+            new PlayArea.Position(0,1), CardColor.PURPLE
     ));
     Objective objective = new PatternObjective(2, map);
 
@@ -137,9 +138,9 @@ class PatternObjectiveTest {
 
     //TESTS FOR "L PATTERN", ref card 93
     Map<PlayArea.Position, CardColor> map2 = new HashMap<>(Map.of(
-            new PlayArea.Position(0,0), CardColor.RED,
-            new PlayArea.Position(-1,0), CardColor.BLUE,
-            new PlayArea.Position(-2,-1), CardColor.BLUE
+            new PlayArea.Position(1,0), CardColor.RED,
+            new PlayArea.Position(0,0), CardColor.BLUE,
+            new PlayArea.Position(-1,-1), CardColor.BLUE
     ));
     Objective objective2 = new PatternObjective(3, map2);
 
@@ -216,9 +217,9 @@ class PatternObjectiveTest {
     @Test
     void pattern87() {
         Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
+                new PlayArea.Position(-1,0), CardColor.RED,
                 new PlayArea.Position(0,0), CardColor.RED,
-                new PlayArea.Position(1,0), CardColor.RED,
-                new PlayArea.Position(2,0), CardColor.RED
+                new PlayArea.Position(1,0), CardColor.RED
         ));
         Objective objective = new PatternObjective(2, map);
 
@@ -235,9 +236,9 @@ class PatternObjectiveTest {
     @Test
     void pattern91() {
         Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
-                new PlayArea.Position(0,0), CardColor.GREEN,
-                new PlayArea.Position(0,1), CardColor.RED,
-                new PlayArea.Position(1,2), CardColor.RED
+                new PlayArea.Position(0,-1), CardColor.GREEN,
+                new PlayArea.Position(0,0), CardColor.RED,
+                new PlayArea.Position(1,1), CardColor.RED
         ));
         Objective objective = new PatternObjective(3, map);
 
@@ -254,9 +255,9 @@ class PatternObjectiveTest {
     @Test
     void pattern92() {
         Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
-                new PlayArea.Position(0,0), CardColor.PURPLE,
-                new PlayArea.Position(1,0), CardColor.GREEN,
-                new PlayArea.Position(2,1), CardColor.GREEN
+                new PlayArea.Position(-1,0), CardColor.PURPLE,
+                new PlayArea.Position(0,0), CardColor.GREEN,
+                new PlayArea.Position(1,1), CardColor.GREEN
         ));
         Objective objective = new PatternObjective(3, map);
 
@@ -273,18 +274,18 @@ class PatternObjectiveTest {
     @Test
     void pattern94() {
         Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
-                new PlayArea.Position(0,0), CardColor.RED,
-                new PlayArea.Position(-1,0), CardColor.BLUE,
-                new PlayArea.Position(-2,-1), CardColor.BLUE
+                new PlayArea.Position(0,1), CardColor.BLUE,
+                new PlayArea.Position(0,0), CardColor.PURPLE,
+                new PlayArea.Position(-1,-1), CardColor.PURPLE
         ));
         Objective objective = new PatternObjective(3, map);
 
         PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, animalCard, Side.FRONT);
-        pa.placeAt(1,1, fungiCard, Side.FRONT);
-        pa.placeAt(-1,0, animalCard, Side.BACK);
-        pa.placeAt(-1,-1, fungiCard, Side.FRONT);
-        pa.placeAt(-2,-1, animalCard, Side.FRONT);
+        pa.placeAt(0,1, insectCard, Side.FRONT);
+        pa.placeAt(-1,0, insectCard, Side.FRONT);
+        pa.placeAt(0,2, animalCard, Side.FRONT);
+        pa.placeAt(-1,1, animalCard, Side.FRONT);
+        pa.placeAt(-2,0, fungiCard, Side.FRONT);
         assertEquals(3, objective.getEarnedPoints(pa));
     }
 }
