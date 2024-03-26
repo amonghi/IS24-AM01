@@ -11,16 +11,20 @@ class GameAssetsTest {
 
     @Test
     void getResourceCards() {
-        List<Card> cards = GameAssets.getResourceCards();
+        List<Card> cards = GameAssets.getInstance().getResourceCards();
         assertFalse(cards.isEmpty());
     }
 
     @Test
     void getGoldenCards() {
+        List<Card> cards = GameAssets.getInstance().getGoldenCards();
+        assertFalse(cards.isEmpty());
     }
 
     @Test
     void getStarterCards() {
+        List<Card> cards = GameAssets.getInstance().getStarterCards();
+        assertFalse(cards.isEmpty());
     }
 
     @Test

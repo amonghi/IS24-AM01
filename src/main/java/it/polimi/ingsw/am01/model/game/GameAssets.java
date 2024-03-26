@@ -21,8 +21,11 @@ import java.util.List;
 
 public class GameAssets {
 
-    // TODO: divide into three json and three lists
-    public static List<Card> getResourceCards() {
+    private static GameAssets instance = null;
+    private final List<Card> cards;
+
+
+    private GameAssets() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Corner.class, new CornerDeserializer());
         gsonBuilder.registerTypeAdapter(Points.class, new PointsDeserializer());
@@ -31,11 +34,11 @@ public class GameAssets {
 
         String json;
 
-        Card[] cards = new Card[0];
+        Card[] cardArray = new Card[0];
         try (InputStream inputStream = GameAssets.class.getResourceAsStream("/it/polimi/ingsw/am01/cards.json")) {
             if (inputStream != null) {
                 InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                cards = gson.fromJson(reader, Card[].class);
+                cardArray = gson.fromJson(reader, Card[].class);
 
             } else {
                 System.err.println("File not found: cards.json");
@@ -44,22 +47,30 @@ public class GameAssets {
             e.printStackTrace();
         }
 
-        return List.of(cards);
+        cards = List.of(cardArray);
     }
 
-    public static List<Card> getGoldenCards() {
-        throw new UnsupportedOperationException("TODO");
+    public static GameAssets getInstance() {
+        if (instance == null)
+            instance = new GameAssets();
+        return instance;
     }
 
-    public static List<Card> getStarterCards() {
-        throw new UnsupportedOperationException("TODO");
+
+    public List<Card> getResourceCards() {
+        return cards.stream().filter(card -> !card.isStarter() && !card.isGold()).toList();
+    }
+
+    public List<Card> getGoldenCards() {
+        return cards.stream().filter(Card::isGold).toList();
+    }
+
+    public List<Card> getStarterCards() {
+        return cards.stream().filter(Card::isStarter).toList();
     }
 
     public static List<Objective> getObjectives() {
         throw new UnsupportedOperationException("TODO");
     }
 
-    private GameAssets() {
-        throw new UnsupportedOperationException("TODO");
-    }
 }
