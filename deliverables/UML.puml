@@ -381,7 +381,7 @@ package game {
         + pausedGame() void
         + resumeGame() void
         
-        + join(PlayerProfile pp)
+        + join(PlayerProfile pp) void
         + selectStartingCardSide(PlayerProfile pp, Side s) void
         + selectColor(PlayerProfile pp, PlayerColor pc) SelectionResult
         + selectObjective(PlayerProfile pp, Objective o) void
