@@ -3,15 +3,13 @@ package it.polimi.ingsw.am01.model.game;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.polimi.ingsw.am01.model.card.Card;
-import it.polimi.ingsw.am01.model.card.face.BackCardFace;
-import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
-import it.polimi.ingsw.am01.model.collectible.Item;
-import it.polimi.ingsw.am01.model.collectible.Resource;
+import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.deserializers.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
+import it.polimi.ingsw.am01.model.objective.PatternObjective;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +27,7 @@ public class GameAssets {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Corner.class, new CornerDeserializer());
         gsonBuilder.registerTypeAdapter(Points.class, new PointsDeserializer());
+        gsonBuilder.registerTypeAdapter(Collectible.class, new CollectibleDeserializer());
         gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer());
         Gson gson = gsonBuilder.create();
 
@@ -70,7 +69,28 @@ public class GameAssets {
     }
 
     public static List<Objective> getObjectives() {
-        throw new UnsupportedOperationException("TODO");
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Collectible.class, new CollectibleDeserializer());
+        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveDeserializer());
+        gsonBuilder.registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer());
+        Gson gson = gsonBuilder.create();
+
+        String json;
+
+        Objective[] objectives = new Objective[0];
+        try (InputStream inputStream = GameAssets.class.getResourceAsStream("/it/polimi/ingsw/am01/objectives.json")) {
+            if (inputStream != null) {
+                InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                objectives = gson.fromJson(reader, Objective[].class);
+
+            } else {
+                System.err.println("File not found: objectives.json");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return List.of(objectives);
     }
 
 }

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.model.game;
 
 import it.polimi.ingsw.am01.model.card.Card;
+import it.polimi.ingsw.am01.model.objective.Objective;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -29,5 +30,7 @@ class GameAssetsTest {
 
     @Test
     void getObjectives() {
+        List<Objective> objectives = GameAssets.getObjectives();
+        assertFalse(objectives.isEmpty());
     }
 }

@@ -19,18 +19,9 @@ public class CornerDeserializer implements JsonDeserializer<Corner>{
             return Corner.empty();
         } else if ("NONE".equals(value)) {
             return Corner.missing();
-        }
-
-        Collectible collectible;
-        if(Arrays.stream(Resource.values()).map(Enum::name).anyMatch(value::equals)){
-            collectible = context.deserialize(jsonElement, Resource.class);
-        }
-        else if(Arrays.stream(Item.values()).map(Enum::name).anyMatch(value::equals)){
-            collectible = context.deserialize(jsonElement, Item.class);
         } else {
-            throw new JsonParseException("Illegal collectible name");
+            Collectible collectible = context.deserialize(jsonElement, Collectible.class);
+            return Corner.filled(collectible);
         }
-        return Corner.filled(collectible);
-
     }
 }
