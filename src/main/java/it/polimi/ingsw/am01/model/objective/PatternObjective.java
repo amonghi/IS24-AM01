@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
  *
  */
 public class PatternObjective extends Objective {
-    private Map<PlayArea.Position, CardColor> pattern;
-    private Set<Set<PlayArea.CardPlacement>> matches;
+    private final Map<PlayArea.Position, CardColor> pattern;
+    private final Set<Set<PlayArea.CardPlacement>> matches;
 
     /**
      * Constructs a new PatternObjective with a specified pattern of {@link Card}s
@@ -41,7 +41,7 @@ public class PatternObjective extends Objective {
      */
     @Override
     public int getEarnedPoints(PlayArea pa) {
-        int count = 0;
+        int count;
         PlayArea.Position origin = new PlayArea.Position(0,0);
 
         for(PlayArea.CardPlacement cp : pa) {

@@ -6,7 +6,6 @@ import it.polimi.ingsw.am01.model.game.PlayArea;
 import it.polimi.ingsw.am01.model.objective.PatternObjective;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am01.model.objective;
 
-import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.collectible.Item;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 
@@ -13,7 +12,7 @@ import java.util.Set;
  *
  */
 public class DifferentCollectibleObjective extends Objective {
-    Set<Item> requiredItems;
+    private final Set<Item> requiredItems;
     /**
      * Constructs a new DifferentCollectibleObjective
      *

@@ -3,7 +3,6 @@ package it.polimi.ingsw.am01.model.card.face;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 

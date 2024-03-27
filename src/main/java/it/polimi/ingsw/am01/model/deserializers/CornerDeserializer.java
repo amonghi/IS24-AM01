@@ -3,11 +3,8 @@ package it.polimi.ingsw.am01.model.deserializers;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import com.google.gson.*;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.collectible.Item;
-import it.polimi.ingsw.am01.model.collectible.Resource;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 
 
 public class CornerDeserializer implements JsonDeserializer<Corner>{

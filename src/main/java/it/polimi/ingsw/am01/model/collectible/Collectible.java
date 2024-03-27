@@ -8,7 +8,8 @@ package it.polimi.ingsw.am01.model.collectible;
  * @see it.polimi.ingsw.am01.model.card.Card
  * @see it.polimi.ingsw.am01.model.card.face.corner.Corner
  * @see it.polimi.ingsw.am01.model.game.PlayArea
- * @see it.polimi.ingsw.am01.model.objective.CollectibleObjective
+ * @see it.polimi.ingsw.am01.model.objective.SameCollectibleObjective
+ * @see it.polimi.ingsw.am01.model.objective.DifferentCollectibleObjective
  */
 public sealed interface Collectible permits Item, Resource {
 }

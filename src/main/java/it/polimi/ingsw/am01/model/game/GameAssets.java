@@ -34,8 +34,6 @@ public class GameAssets {
         gsonBuilder.registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer());
         Gson gson = gsonBuilder.create();
 
-        String json;
-
         Card[] cardArray = new Card[0];
         Objective[] objectiveArray = new Objective[0];
 

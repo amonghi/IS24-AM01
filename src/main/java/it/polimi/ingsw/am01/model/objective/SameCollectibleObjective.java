@@ -3,7 +3,6 @@ package it.polimi.ingsw.am01.model.objective;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 
-import java.util.Map;
 
 /**
  * An objective whose requirements are to have a minimum number
@@ -12,8 +11,8 @@ import java.util.Map;
  */
 
 public class SameCollectibleObjective extends Objective {
-    Collectible requiredCollectible;
-    int requiredNumber;
+    private final Collectible requiredCollectible;
+    private final int requiredNumber;
     /**
      * Constructs a new SameCollectibleObjective
      *

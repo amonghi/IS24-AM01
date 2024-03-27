@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am01.model.game;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * The board game, shared among all players.
@@ -9,9 +12,6 @@ package it.polimi.ingsw.am01.model.game;
  * @see it.polimi.ingsw.am01.model.game.FaceUpCard
  *
  */
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class Board {
     private final Set<FaceUpCard> faceUpResourceCards;

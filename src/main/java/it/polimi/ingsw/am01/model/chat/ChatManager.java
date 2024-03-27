@@ -5,10 +5,10 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Chat {
+public class ChatManager {
     private final List<Message> messages;
 
-    public Chat() {
+    public ChatManager() {
         messages = new ArrayList<>();
     }
 
