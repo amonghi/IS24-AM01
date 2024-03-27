@@ -473,7 +473,7 @@ package game {
     class Deck implements DrawSource {
         - List<Card> cards
 
-        + Deck(Iterable<Card> cards)
+        + Deck(List<Card> cards)
         + shuffle() void
         + isEmpty() boolean
         + draw() Optional<Card>
