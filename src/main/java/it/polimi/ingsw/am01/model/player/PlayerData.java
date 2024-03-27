@@ -1,20 +1,16 @@
 package it.polimi.ingsw.am01.model.player;
 
-import it.polimi.ingsw.am01.model.choice.MultiChoice;
 import it.polimi.ingsw.am01.model.objective.Objective;
-import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.card.Card;
-import it.polimi.ingsw.am01.model.choice.Choice;
 
 import java.util.List;
 
 public class PlayerData {
-    private List<Card> hand;
-    private Choice<Side> startingCardSideChoice;
-    private Choice<Objective> objectiveChoice;
-    private MultiChoice<PlayerColor, PlayerProfile> colorChoice;
+    private final List<Card> hand;
+    private final Objective objective;
+    private final PlayerColor color;
 
-    public PlayerData(Card starterCard, Choice<Side> startingCardSideChoice, Choice<Objective> objectiveChoice, MultiChoice<PlayerColor, PlayerProfile> colorChoice) {
+    public PlayerData(Card starterCard, Objective objectiveChoice, PlayerColor colorChoice) {
         throw new UnsupportedOperationException("TODO");
     }
 
@@ -22,11 +18,11 @@ public class PlayerData {
         throw new UnsupportedOperationException("TODO");
     }
 
-    public Choice<Objective> getObjectiveChoice() {
+    public Objective getObjectiveChoice() {
         throw new UnsupportedOperationException("TODO");
     }
 
-    public MultiChoice<PlayerColor, PlayerProfile> getColorChoice() {
+    public PlayerColor getColorChoice() {
         throw new UnsupportedOperationException("TODO");
     }
 }

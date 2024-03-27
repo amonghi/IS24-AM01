@@ -3,6 +3,9 @@ package it.polimi.ingsw.am01.model.game;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.chat.ChatManager;
+import it.polimi.ingsw.am01.model.choice.Choice;
+import it.polimi.ingsw.am01.model.choice.MultiChoice;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -14,16 +17,20 @@ import java.util.Map;
 import java.util.Set;
 
 public class Game {
-    private String id;
-    private GameStatus status;
-    private List<PlayerProfile> playerProfiles;
-    private Map<PlayerProfile, PlayerData> playersData;
-    private Map<PlayerProfile, PlayArea> playAreas;
-    private Set<Objective> commonObjectives;
+    private final String id;
+    private final GameStatus status;
+    private final List<PlayerProfile> playerProfiles;
+    private final ChatManager chatManager;
+    private final Map<PlayerProfile, Choice<Side>> startingCardSideChoices;
+    private final Map<PlayerProfile, MultiChoice<PlayerColor, PlayerProfile>.Choice> colorChoices;
+    private final Map<PlayerProfile, Choice<Objective>> objectiveChoices;
+    private final Map<PlayerProfile, PlayerData> playersData;
+    private final Map<PlayerProfile, PlayArea> playAreas;
+    private final Set<Objective> commonObjectives;
     private int currentPlayer;
-    private Board board;
+    private final Board board;
 
-    public Game(Iterable<PlayerProfile> playerProfiles) {
+    public Game(String id) {
         throw new UnsupportedOperationException("TODO");
     }
 
@@ -55,6 +62,8 @@ public class Game {
         throw new UnsupportedOperationException("TODO");
     }
 
+    public ChatManager getChatManager(){throw new UnsupportedOperationException("TODO");}
+
     public void startGame() {
         throw new UnsupportedOperationException("TODO");
     }
@@ -67,7 +76,7 @@ public class Game {
         throw new UnsupportedOperationException("TODO");
     }
 
-    public PlayerData join(PlayerProfile pp) {
+    public void join(PlayerProfile pp) {
         throw new UnsupportedOperationException("TODO");
     }
 

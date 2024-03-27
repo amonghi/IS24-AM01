@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class GameManager {
-    private List<Game> games;
+    private final List<Game> games;
 
     public GameManager(Path dataDir) {
         throw new UnsupportedOperationException("TODO");
@@ -17,4 +17,10 @@ public class GameManager {
     public Game createGame() {
         throw new UnsupportedOperationException("TODO");
     }
+
+    private List<String> loadSavedGamesIds() {throw new UnsupportedOperationException("TODO");}
+
+    private Game loadGame(String id){throw new UnsupportedOperationException("TODO");}
+
+    public void saveGame(Game game){throw new UnsupportedOperationException("TODO");}
 }
