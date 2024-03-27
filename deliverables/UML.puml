@@ -35,6 +35,8 @@ package collectible {
         <$wolf*0.65> ANIMAL
         <$butterfly*0.65> INSECT
 
+        - color CardColor
+        + Resource(CardColor color)
         + getAssociatedColor() CardColor
     }
 
@@ -224,7 +226,7 @@ package objective {
     class PatternObjective extends Objective {
         - Map<Position, CardColor> pattern
         - Set<Set<CardPlacement>> matches
-        + PatternObjective(int points, Map<Position, CardColor>)
+        + PatternObjective(int points, Map<Position, CardColor> pattern)
         + getEarnedPoints(PlayArea pa) int
     }
     CardColor ... PatternObjective
@@ -309,7 +311,8 @@ package chat {
     abstract class Message {
         - PlayerProfile sender
         - String content
-        
+
+        + Message(PlayerProfile sender, String content)
         + getSender() PlayerProfile
         + getContent() String
         + {abstract} isRecipient(PlayerProfile pp) boolean
@@ -345,7 +348,7 @@ package game {
         - List<Game> games
 
         + GameManager(Path dataDir)
-        + getGame() List<Game>
+        + getGames() List<Game>
         + createGame() Game
         - loadSavedGamesIds() List<String>
         - loadGame(String id) Game
