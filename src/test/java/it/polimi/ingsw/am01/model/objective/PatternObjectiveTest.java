@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.model.card.face.BackCardFace;
 import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.collectible.Resource;
+import it.polimi.ingsw.am01.model.game.GameAssets;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
 
@@ -17,13 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PatternObjectiveTest {
 
-    //Ref card 90
-    Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
-            new PlayArea.Position(0,-1), CardColor.PURPLE,
-            new PlayArea.Position(0,0), CardColor.PURPLE,
-            new PlayArea.Position(0,1), CardColor.PURPLE
-    ));
-    Objective objective = new PatternObjective(2, map);
+    GameAssets assets = GameAssets.getInstance();
+    //Objective 4: SEQUENCE OF 3 INSECT CARDS
+    Objective objectiveInsect = assets.getObjectives().get(3);
 
     //for simplicity, I build cards based only on color
     FrontCardFace front = new FrontCardFace(
@@ -75,7 +72,7 @@ class PatternObjectiveTest {
         pa.placeAt(2,0, insectCard, Side.FRONT);
         pa.placeAt(1,-1, insectCard, Side.FRONT);
         pa.placeAt(1,-2, fungiCard, Side.FRONT);
-        assertEquals(0, objective.getEarnedPoints(pa));
+        assertEquals(0, objectiveInsect.getEarnedPoints(pa));
     }
     @Test
     void oneMatchSequence() {
@@ -87,7 +84,7 @@ class PatternObjectiveTest {
         pa.placeAt(1,-1, insectCard, Side.FRONT);
         pa.placeAt(3,0, insectCard, Side.FRONT);
         pa.placeAt(1,-2, fungiCard, Side.FRONT);
-        assertEquals(2, objective.getEarnedPoints(pa));
+        assertEquals(2, objectiveInsect.getEarnedPoints(pa));
     }
 
     @Test
@@ -101,7 +98,7 @@ class PatternObjectiveTest {
         pa.placeAt(3,0, insectCard, Side.FRONT);
         pa.placeAt(1,-2, insectCard, Side.FRONT);
         pa.placeAt(3,1, insectCard, Side.FRONT);
-        assertEquals(2, objective.getEarnedPoints(pa));
+        assertEquals(2, objectiveInsect.getEarnedPoints(pa));
     }
 
     @Test
@@ -116,7 +113,7 @@ class PatternObjectiveTest {
         pa.placeAt(3,-1, insectCard, Side.BACK);
         pa.placeAt(1,-2, insectCard, Side.FRONT);
         pa.placeAt(3,1, insectCard, Side.FRONT);
-        assertEquals(4, objective.getEarnedPoints(pa));
+        assertEquals(4, objectiveInsect.getEarnedPoints(pa));
     }
 
     @Test
@@ -133,16 +130,11 @@ class PatternObjectiveTest {
         pa.placeAt(3,1, insectCard, Side.FRONT);
         pa.placeAt(1,-3,insectCard, Side.FRONT);
         pa.placeAt(1,-4, insectCard, Side.BACK);
-        assertEquals(6, objective.getEarnedPoints(pa));
+        assertEquals(6, objectiveInsect.getEarnedPoints(pa));
     }
 
     //TESTS FOR "L PATTERN", ref card 93
-    Map<PlayArea.Position, CardColor> map2 = new HashMap<>(Map.of(
-            new PlayArea.Position(1,0), CardColor.RED,
-            new PlayArea.Position(0,0), CardColor.BLUE,
-            new PlayArea.Position(-1,-1), CardColor.BLUE
-    ));
-    Objective objective2 = new PatternObjective(3, map2);
+    Objective objectiveL = assets.getObjectives().get(6);
 
     @Test
     void noMatchL() {
@@ -151,7 +143,7 @@ class PatternObjectiveTest {
         pa.placeAt(1,0, animalCard, Side.BACK);
         pa.placeAt(0,-1, fungiCard, Side.BACK);
         pa.placeAt(2,0, fungiCard, Side.FRONT);
-        assertEquals(0, objective2.getEarnedPoints(pa));
+        assertEquals(0, objectiveL.getEarnedPoints(pa));
     }
 
     @Test
@@ -161,7 +153,7 @@ class PatternObjectiveTest {
         pa.placeAt(1,0, animalCard, Side.BACK);
         pa.placeAt(0,-1, animalCard, Side.FRONT);
         pa.placeAt(2,0, fungiCard, Side.BACK);
-        assertEquals(3, objective2.getEarnedPoints(pa));
+        assertEquals(3, objectiveL.getEarnedPoints(pa));
     }
 
     @Test
@@ -174,7 +166,7 @@ class PatternObjectiveTest {
         pa.placeAt(-1,-1, insectCard, Side.BACK);
         pa.placeAt(2,0, fungiCard, Side.BACK);
         pa.placeAt(-1,-2, animalCard, Side.FRONT);
-        assertEquals(3, objective2.getEarnedPoints(pa));
+        assertEquals(3, objectiveL.getEarnedPoints(pa));
     }
     @Test
     void twoMatches() {
@@ -188,7 +180,7 @@ class PatternObjectiveTest {
         pa.placeAt(-1,0, animalCard, Side.FRONT);
         pa.placeAt(2,0, fungiCard, Side.BACK);
         pa.placeAt(-1,-2, animalCard, Side.FRONT);
-        assertEquals(6, objective2.getEarnedPoints(pa));
+        assertEquals(6, objectiveL.getEarnedPoints(pa));
     }
 
     @Test
@@ -206,7 +198,7 @@ class PatternObjectiveTest {
         pa.placeAt(2,0, fungiCard, Side.BACK);
         pa.placeAt(-2,-3, animalCard, Side.FRONT);
         pa.placeAt(0,-2, fungiCard, Side.FRONT);
-        assertEquals(9, objective2.getEarnedPoints(pa));
+        assertEquals(9, objectiveL.getEarnedPoints(pa));
     }
 
     //TEST FOR EACH PATTERN: one match only
@@ -216,12 +208,7 @@ class PatternObjectiveTest {
 
     @Test
     void pattern87() {
-        Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
-                new PlayArea.Position(-1,0), CardColor.RED,
-                new PlayArea.Position(0,0), CardColor.RED,
-                new PlayArea.Position(1,0), CardColor.RED
-        ));
-        Objective objective = new PatternObjective(2, map);
+        Objective objective = assets.getObjectives().get(0);
 
         PlayArea pa = new PlayArea(startedCard, Side.FRONT);
         pa.placeAt(0,1, fungiCard, Side.BACK);
@@ -235,12 +222,7 @@ class PatternObjectiveTest {
 
     @Test
     void pattern91() {
-        Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
-                new PlayArea.Position(0,-1), CardColor.GREEN,
-                new PlayArea.Position(0,0), CardColor.RED,
-                new PlayArea.Position(1,1), CardColor.RED
-        ));
-        Objective objective = new PatternObjective(3, map);
+        Objective objective = assets.getObjectives().get(4);
 
         PlayArea pa = new PlayArea(startedCard, Side.FRONT);
         pa.placeAt(0,-1, fungiCard, Side.FRONT);
@@ -254,12 +236,7 @@ class PatternObjectiveTest {
 
     @Test
     void pattern92() {
-        Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
-                new PlayArea.Position(-1,0), CardColor.PURPLE,
-                new PlayArea.Position(0,0), CardColor.GREEN,
-                new PlayArea.Position(1,1), CardColor.GREEN
-        ));
-        Objective objective = new PatternObjective(3, map);
+        Objective objective = assets.getObjectives().get(5);
 
         PlayArea pa = new PlayArea(startedCard, Side.FRONT);
         pa.placeAt(0,-1, insectCard, Side.BACK);
@@ -273,12 +250,7 @@ class PatternObjectiveTest {
 
     @Test
     void pattern94() {
-        Map<PlayArea.Position, CardColor> map = new HashMap<>(Map.of(
-                new PlayArea.Position(0,1), CardColor.BLUE,
-                new PlayArea.Position(0,0), CardColor.PURPLE,
-                new PlayArea.Position(-1,-1), CardColor.PURPLE
-        ));
-        Objective objective = new PatternObjective(3, map);
+        Objective objective = assets.getObjectives().get(7);
 
         PlayArea pa = new PlayArea(startedCard, Side.FRONT);
         pa.placeAt(0,1, insectCard, Side.FRONT);
