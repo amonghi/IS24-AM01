@@ -30,7 +30,7 @@ public class PatternObjective extends Objective {
     public PatternObjective(int points, Map<PlayArea.Position, CardColor> pattern) {
         super(points);
         this.pattern = new HashMap<>(pattern);
-        matches = new HashSet<>();
+        matches = new HashSet<>(0);
     }
 
     /**
@@ -41,16 +41,14 @@ public class PatternObjective extends Objective {
      */
     @Override
     public int getEarnedPoints(PlayArea pa) {
-        int count;
+        matches.clear();
         PlayArea.Position origin = new PlayArea.Position(0,0);
 
         for(PlayArea.CardPlacement cp : pa) {
-            count = 0;
             //In this set I insert the cards that satisfy the pattern
-            Set<PlayArea.CardPlacement> satisfyingCards = new HashSet<>();
+            Set<PlayArea.CardPlacement> satisfyingCards = new HashSet<>(0);
             //The position (0,0) is always present in the Map
             if(cp.getCard().color().equals(pattern.get(origin))) {
-                count++;
                 satisfyingCards.add(cp);
                 //Relative positions to be checked
                 Set<PlayArea.Position> toCheck = pattern.keySet().stream()
@@ -62,7 +60,6 @@ public class PatternObjective extends Objective {
                     Optional<PlayArea.CardPlacement> card = pa.getAt(pos);
                     if(card.isPresent()) {
                         if(card.get().getCard().color().equals(pattern.get(relativePos))) {
-                            count++;
                             satisfyingCards.add(card.get());
                         }
                         //TODO: CI VA UN ELSE CHE INTERROMPE IL CICLO
@@ -70,7 +67,7 @@ public class PatternObjective extends Objective {
                 }
 
                 //Here I shoud have the complete set, if the objective has been satisfied
-                if(count == pattern.keySet().size())
+                if(satisfyingCards.size() == pattern.keySet().size())
                     matches.add(new HashSet<>(satisfyingCards));
                 satisfyingCards.clear();
             }

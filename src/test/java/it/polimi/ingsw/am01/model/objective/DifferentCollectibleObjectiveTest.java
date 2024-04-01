@@ -1,159 +1,33 @@
 package it.polimi.ingsw.am01.model.objective;
 
 import it.polimi.ingsw.am01.model.card.Card;
-import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
-import it.polimi.ingsw.am01.model.card.face.BackCardFace;
-import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
-import it.polimi.ingsw.am01.model.card.face.corner.Corner;
-import it.polimi.ingsw.am01.model.collectible.Item;
-import it.polimi.ingsw.am01.model.collectible.Resource;
+import it.polimi.ingsw.am01.model.game.GameAssets;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DifferentCollectibleObjectiveTest {
-    //Card 83 as started card
-    FrontCardFace frontCard83 = new FrontCardFace(
-            Corner.empty(),
-            Corner.filled(Resource.INSECT),
-            Corner.filled(Resource.PLANT),
-            Corner.filled(Resource.FUNGI)
-    );
-    BackCardFace backCard83 = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<Resource, Integer>(
-                    Map.of(
-                            Resource.PLANT, 1,
-                            Resource.FUNGI, 1)
-            )
-    );
-    Card card83 = new Card(83, CardColor.NEUTRAL, true, false, frontCard83, backCard83);
+    GameAssets assets = GameAssets.getInstance();
 
-    //Card 5: 1 QUILL
-    FrontCardFace frontCard5 = new FrontCardFace(
-            Corner.filled(Item.QUILL),
-            Corner.missing(),
-            Corner.filled(Resource.FUNGI),
-            Corner.filled(Resource.PLANT)
-    );
-    BackCardFace backCard5 = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<Resource, Integer>(Map.of(Resource.FUNGI, 1))
-    );
-    Card card5 = new Card(5, CardColor.RED, false, false, frontCard5, backCard5);
-
-    //Card 6: 1 INKWELL
-    FrontCardFace frontCard6 = new FrontCardFace(
-            Corner.filled(Resource.FUNGI),
-            Corner.filled(Item.INKWELL),
-            Corner.filled(Resource.ANIMAL),
-            Corner.missing()
-    );
-    BackCardFace backCard6 = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<Resource, Integer>(Map.of(Resource.FUNGI, 1))
-    );
-    Card card6 = new Card(6, CardColor.RED, false, false, frontCard6, backCard6);
-
-    //Card 7: 1 MANUSCRIPT
-    FrontCardFace frontCard7 = new FrontCardFace(
-            Corner.filled(Resource.INSECT),
-            Corner.filled(Resource.FUNGI),
-            Corner.empty(),
-            Corner.filled(Item.MANUSCRIPT)
-    );
-    BackCardFace backCard7 = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<Resource, Integer>(Map.of(Resource.FUNGI, 1))
-    );
-    Card card7 = new Card(7, CardColor.RED, false, false, frontCard7, backCard7);
-
-    //Card 15: 1 QUILL
-    FrontCardFace frontCard15 = new FrontCardFace(
-            Corner.filled(Resource.INSECT),
-            Corner.missing(),
-            Corner.filled(Resource.PLANT),
-            Corner.filled(Item.QUILL)
-    );
-    BackCardFace backCard15 = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<Resource, Integer>(Map.of(Resource.PLANT, 1))
-    );
-    Card card15 = new Card(15, CardColor.GREEN, false, false, frontCard15, backCard15);
-
-    //Card 16: 1 INKWELL
-    FrontCardFace frontCard16 = new FrontCardFace(
-            Corner.filled(Resource.PLANT),
-            Corner.filled(Resource.FUNGI),
-            Corner.filled(Item.INKWELL),
-            Corner.missing()
-    );
-    BackCardFace backCard16 = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<Resource, Integer>(Map.of(Resource.PLANT, 1))
-    );
-    Card card16 = new Card(16, CardColor.GREEN, false, false, frontCard16, backCard16);
-
-    //Card 17: 1 MANUSCRIPT
-    FrontCardFace frontCard17 = new FrontCardFace(
-            Corner.missing(),
-            Corner.filled(Item.MANUSCRIPT),
-            Corner.filled(Resource.ANIMAL),
-            Corner.filled(Resource.PLANT)
-    );
-    BackCardFace backCard17 = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<Resource, Integer>(Map.of(Resource.PLANT, 1))
-    );
-    Card card17 = new Card(17, CardColor.GREEN, false, false, frontCard17, backCard17);
-
-    //Card 25: 1 INKWELL
-    FrontCardFace frontCard25 = new FrontCardFace(
-            Corner.filled(Resource.INSECT),
-            Corner.missing(),
-            Corner.filled(Resource.ANIMAL),
-            Corner.filled(Item.INKWELL)
-    );
-    BackCardFace backCard25 = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<Resource, Integer>(Map.of(Resource.ANIMAL, 1))
-    );
-    Card card25 = new Card(25, CardColor.BLUE, false, false, frontCard25, backCard25);
-
+    //Objective 12: 3 DIFFERENT ITEMS
+    Objective objective = assets.getObjectives().get(12);
+    Card card83 = assets.getStarterCards().get(2);
+    //1 QUILL
+    Card card5 = assets.getResourceCards().get(4);
+    //1 INKWELL
+    Card card6 = assets.getResourceCards().get(5);
+    //1 MANUSCRIPT
+    Card card7 = assets.getResourceCards().get(6);
+    //1 QUILL
+    Card card15 = assets.getResourceCards().get(14);
+    //1 INKWELL
+    Card card16 = assets.getResourceCards().get(15);
+    //1 MANUSCRIPT
+    Card card17 = assets.getResourceCards().get(16);
+    //1 QUILL
+    Card card25 = assets.getResourceCards().get(24);
     PlayArea pa = new PlayArea(card83, Side.BACK);
-    Set<Item> requiredItems = new HashSet(Set.of(Item.INKWELL, Item.QUILL, Item.MANUSCRIPT));
-    Objective objective = new DifferentCollectibleObjective(3, requiredItems);
 
     @Test
     void noItems() {
