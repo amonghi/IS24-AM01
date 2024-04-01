@@ -53,6 +53,6 @@ public class FaceUpCard implements DrawSource {
      * @return A card drawn from mainSource or auxiliarySource if the first one is empty. If both source are empty it returns null
      */
     private Card drawFromDecks(){
-        return mainSource.draw().orElse(auxiliarySource.draw().orElse(null));
+        return mainSource.draw().or(auxiliarySource::draw).orElse(null);
     }
 }
