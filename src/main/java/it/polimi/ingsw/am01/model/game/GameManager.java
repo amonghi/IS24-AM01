@@ -14,7 +14,7 @@ public class GameManager {
         throw new UnsupportedOperationException("TODO");
     }
 
-    public Game createGame() {
+    public Game createGame(int maxPlayers) {
         throw new UnsupportedOperationException("TODO");
     }
 

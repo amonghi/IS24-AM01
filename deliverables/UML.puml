@@ -349,7 +349,7 @@ package game {
 
         + GameManager(Path dataDir)
         + getGames() List<Game>
-        + createGame() Game
+        + createGame(int maxPlayers) Game
         - loadSavedGamesIds() List<String>
         - loadGame(String id) Game
         + saveGame(Game game) void
