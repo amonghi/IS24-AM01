@@ -27,7 +27,7 @@ public class PlacementConstraint {
      */
     public boolean isSatisfied(PlayArea playArea) {
         for (Resource res : requiredResources.keySet()) {
-            if (requiredResources.get(res) > playArea.getCollectibleCount().get(res))
+            if (requiredResources.get(res) > playArea.getCollectibleCount().getOrDefault(res, 0))
                 return false;
         }
         return true;
