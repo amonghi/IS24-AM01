@@ -344,6 +344,11 @@ package chat {
 }
 
 package game {
+    enum DrawResult {
+        OK
+        EMPTY
+    }
+
     class GameManager {
         - List<Game> games
 
