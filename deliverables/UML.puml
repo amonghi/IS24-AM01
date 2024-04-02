@@ -291,7 +291,7 @@ package player {
         - Objective objective
         - PlayerColor color
 
-        + PlayerData(Card starterCard, Objective objectiveChoice, PlayerColor colorChoice)
+        + PlayerData(List<Card> hand, Objective objectiveChoice, PlayerColor colorChoice)
         + getHand() List<Card>
         + getObjectiveChoice() Objective
         + getColorChoice() PlayerColor

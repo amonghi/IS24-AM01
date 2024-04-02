@@ -10,19 +10,21 @@ public class PlayerData {
     private final Objective objective;
     private final PlayerColor color;
 
-    public PlayerData(Card starterCard, Objective objectiveChoice, PlayerColor colorChoice) {
-        throw new UnsupportedOperationException("TODO");
+    public PlayerData(List<Card> hand, Objective objectiveChoice, PlayerColor colorChoice) {
+        this.hand = hand;
+        this.objective = objectiveChoice;
+        this.color = colorChoice;
     }
 
     public List<Card> getHand() {
-        throw new UnsupportedOperationException("TODO");
+        return hand;
     }
 
     public Objective getObjectiveChoice() {
-        throw new UnsupportedOperationException("TODO");
+        return objective;
     }
 
     public PlayerColor getColorChoice() {
-        throw new UnsupportedOperationException("TODO");
+        return color;
     }
 }
