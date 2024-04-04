@@ -127,6 +127,11 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
             }
         }
 
+        //check placement constraints
+        if(!card.getFace(side).getPlacementConstraint().map(pc -> pc.isSatisfied(this)).orElse(true)) {
+            throw new IllegalPlacementException("attempt to place with no enough resources");
+        }
+
         // register placement
         this.cards.put(position, placement);
 

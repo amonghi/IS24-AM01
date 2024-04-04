@@ -367,8 +367,11 @@ package game {
     class Game {
         - String id
         - GameStatus status
+        - TurnPhase turnPhase
+        - GameStatus recoverStatus
         - List<PlayerProfile> playerProfiles
         - ChatManager chatManager
+        - Map<PlayerProfile, Card> startingCards;
 
         'initial choices
         - Map<PlayerProfile, Choice<Side>> startingCardSideChoices
@@ -380,23 +383,34 @@ package game {
         - Map<PlayerProfile, PlayArea> playAreas
         - Set<Objective> commonObjectives
         - int currentPlayer
+        - int maxPlayers
         - Board board
 
-        + Game(String id)
+        + Game(String id, int maxPlayers)
         
         + getId() String
+        + getObjectiveOptions(PlayerProfile pp) Set<Objective>
         + getPlayerProfiles() List<PlayerProfile>
         + getPlayerData(PlayerProfile pp) PlayerData
         + getPlayArea(PlayerProfile pp) PlayArea
+        + getBoard() Board
         + getCurrentPlayer() PlayerProfile
         + getCommonObjectives() Set<Objective>
         + getStatus() GameStatus
+        + getTurnPhase() TurnPhase
         + getChatManager() ChatManager
+        + getMaxPlayers() int
+        - changeCurrentPlayer() void
+        + getWinners() List<PlayerProfile>
+        + getTotalScores() Map<PlayerProfile, Integer>
 
         + startGame() void
         + pausedGame() void
         + resumeGame() void
-        
+        - transition(GameStatus nextStatus) void
+        - setTurnPhase(TurnPhase turnPhase) void
+
+        - setFirstPlayer() void
         + join(PlayerProfile pp) void
         + selectStartingCardSide(PlayerProfile pp, Side s) void
         + selectColor(PlayerProfile pp, PlayerColor pc) SelectionResult
@@ -404,6 +418,8 @@ package game {
         + drawCard(PlayerProfile pp, DrawSource ds) DrawResult
         + placeCard(PlayerProfile pp, Card c, Side s, int i, int j) void
     }
+
+    DrawResult .. Game
     'Board and PlayAreas exists only in a Game
     PlayerProfile <-- Game
     Choice <-- Game
@@ -434,27 +450,28 @@ package game {
     end note
 
     enum GameStatus {
-        AWAITING_PLAYERS
-        SETUP_STARTING_CARD_SIDE
-        SETUP_COLOR
-        SETUP_OBJECTIVE
-        PLAY_PLACING
-        PLAY_DRAWING
-        FINISHED
+        AWAITING_PLAYERS,
+        SETUP_STARTING_CARD_SIDE,
+        SETUP_COLOR,
+        SETUP_OBJECTIVE,
+        AWAITING_START,
+        PLAY,
+        SECOND_LAST_TURN,
+        LAST_TURN,
+        FINISHED,
         SUSPENDED
     }
 
     class Board {
-        - Set<FaceUpCard> faceUpResourceCards
-        - Set<FaceUpCard> faceUpGoldenCards
+        - Set<FaceUpCard> faceUpCards
         - Deck resourceCardDeck
         - Deck goldenCardDeck
 
-        + Board(Set<FaceUpCard> faceUpResourceCards, Set<FaceUpCard> faceUpGoldenCards, Deck resourceCardDeck, Deck goldenCardDeck)
-        + getFaceUpResourceCards() Set<FaceUpCard>
-        + getFaceUpGoldenCards() Set<FaceUpCard>
+        + Board(Deck resourceCardDeck, Deck goldenCardDeck)
+        + getFaceUpCards() Set<FaceUpCard>
         + getResourceCardDeck() Deck
         + getGoldenCardDeck() Deck
+        + createShuffled(Deck resourceCardDeck, Deck goldenCardDeck) Board
     }
     Deck <--* Board
     FaceUpCard <--* Board
