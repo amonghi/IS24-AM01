@@ -78,11 +78,11 @@ Components:
 
 ### Player
 
-| |Class|Implemented | Documented |Tested |
-|-----|-----|:---:|:---:|:---:|
-|                        | PlayerProfile         | 🚧 | ✅ | ❌ |
-|                        | PlayerData            | ✅ | ❌ | ❌ |
-|![](img/enum.svg)       | PayerColor            | ✅ | ✅ | ⬛ |
+| | Class         |Implemented | Documented |Tested |
+|-----|---------------|:---:|:---:|:---:|
+|                        | PlayerProfile | 🚧 | ✅ | ❌ |
+|                        | PlayerData    | ✅ | ❌ | ❌ |
+|![](img/enum.svg)       | PlayerColor   | ✅ | ✅ | ⬛ |
 
 
 
