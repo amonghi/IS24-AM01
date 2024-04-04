@@ -388,6 +388,7 @@ package game {
         - Board board
 
         + Game(int id, int maxPlayers)
+        + Game(int id, int maxPlayers, Board board)
         
         + getId() int
         + getObjectiveOptions(PlayerProfile pp) Set<Objective>

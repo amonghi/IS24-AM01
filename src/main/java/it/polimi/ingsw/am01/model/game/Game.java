@@ -51,6 +51,24 @@ public class Game {
         this.board = Board.createShuffled(new Deck(GameAssets.getInstance().getResourceCards()), new Deck(GameAssets.getInstance().getGoldenCards()));
     }
 
+    public Game(int id, int maxPlayers, Board board) {
+        this.id = id;
+        this.maxPlayers = maxPlayers;
+        this.status = GameStatus.AWAITING_PLAYERS;
+        this.playerProfiles = new ArrayList<>();
+        this.chatManager = new ChatManager();
+        this.startingCardSideChoices = new HashMap<>();
+        this.startingCards = new HashMap<>();
+        this.colorChoices = new HashMap<>();
+        this.objectiveChoices = new HashMap<>();
+        this.playersData = new HashMap<>();
+        this.playAreas = new HashMap<>();
+        this.commonObjectives = new HashSet<>();
+        this.currentPlayer = 0;
+        this.turnPhase = TurnPhase.PLACING;
+        this.board = board;
+    }
+
     public Set<Objective> getObjectiveOptions(PlayerProfile pp) {
         return objectiveChoices.get(pp).getOptions();
     }
@@ -267,13 +285,13 @@ public class Game {
     }
 
     public void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) {
-        if ((status == GameStatus.PLAY || status == GameStatus.SECOND_LAST_TURN || status == GameStatus.LAST_TURN) && turnPhase == TurnPhase.PLACING) {
+        if ((status == GameStatus.PLAY || status == GameStatus.SECOND_LAST_TURN || status == GameStatus.LAST_TURN)
+                && turnPhase == TurnPhase.PLACING && playersData.get(pp).getHand().contains(c)) {
             if (currentPlayer == playerProfiles.indexOf(pp)) {
                 //place on play area
                 playAreas.get(pp).placeAt(i, j, c, s);
 
                 //delete card from hand
-                // TODO: what if card is not in hand?
                 playersData.get(pp).getHand().remove(c);
 
                 switch (status) {
