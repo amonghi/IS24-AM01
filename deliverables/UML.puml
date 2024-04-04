@@ -351,12 +351,13 @@ package game {
 
     class GameManager {
         - List<Game> games
+        - int nextId
 
         + GameManager(Path dataDir)
         + getGames() List<Game>
         + createGame(int maxPlayers) Game
-        - loadSavedGamesIds() List<String>
-        - loadGame(String id) Game
+        - loadSavedGamesIds() List<Integer>
+        - loadGame(int id) Game
         + saveGame(Game game) void
     }
     Game <--* GameManager
@@ -365,7 +366,7 @@ package game {
     end note
 
     class Game {
-        - String id
+        - int id
         - GameStatus status
         - TurnPhase turnPhase
         - GameStatus recoverStatus
@@ -386,9 +387,9 @@ package game {
         - int maxPlayers
         - Board board
 
-        + Game(String id, int maxPlayers)
+        + Game(int id, int maxPlayers)
         
-        + getId() String
+        + getId() int
         + getObjectiveOptions(PlayerProfile pp) Set<Objective>
         + getPlayerProfiles() List<PlayerProfile>
         + getPlayerData(PlayerProfile pp) PlayerData

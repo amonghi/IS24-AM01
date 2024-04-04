@@ -16,7 +16,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import java.util.*;
 
 public class Game {
-    private final String id;
+    private final int id;
     private GameStatus status;
     private TurnPhase turnPhase;
     private GameStatus recoverStatus;
@@ -33,7 +33,7 @@ public class Game {
     private final int maxPlayers;
     private final Board board;
 
-    public Game(String id, int maxPlayers) {
+    public Game(int id, int maxPlayers) {
         this.id = id;
         this.maxPlayers = maxPlayers;
         this.status = GameStatus.AWAITING_PLAYERS;
@@ -55,7 +55,7 @@ public class Game {
         return objectiveChoices.get(pp).getOptions();
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 

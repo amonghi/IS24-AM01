@@ -1,26 +1,33 @@
 package it.polimi.ingsw.am01.model.game;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameManager {
     private final List<Game> games;
+    private int nextId;
 
     public GameManager(Path dataDir) {
-        throw new UnsupportedOperationException("TODO");
+        this.games = new ArrayList<>();
+        nextId = 0;
+        // TODO: ....
     }
 
     public List<Game> getGames() {
-        throw new UnsupportedOperationException("TODO");
+        return games;
     }
 
     public Game createGame(int maxPlayers) {
-        throw new UnsupportedOperationException("TODO");
+        Game newGame = new Game(nextId, maxPlayers);
+        nextId++;
+        games.add(newGame);
+        return newGame;
     }
 
-    private List<String> loadSavedGamesIds() {throw new UnsupportedOperationException("TODO");}
+    private List<Integer> loadSavedGamesIds() {throw new UnsupportedOperationException("TODO");}
 
-    private Game loadGame(String id){throw new UnsupportedOperationException("TODO");}
+    private Game loadGame(int id){throw new UnsupportedOperationException("TODO");}
 
     public void saveGame(Game game){throw new UnsupportedOperationException("TODO");}
 }
