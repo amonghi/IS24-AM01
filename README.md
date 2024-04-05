@@ -9,13 +9,13 @@ Components:
 - Matteo Garzone
 - Matteo Gatti
 
-## Classes progress
+## Implementation progress
 
 |    | Meaning          |
 |:--:|------------------|
 | ✅  | Completed        |
 | ❌  | Not completed    |
-| 🚧 | Working progress |
+| 🚧 | Work in progress |
 | ⬛  | N/A              |
 
 ### Card
