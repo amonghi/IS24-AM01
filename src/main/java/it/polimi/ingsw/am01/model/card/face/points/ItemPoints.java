@@ -21,6 +21,20 @@ public class ItemPoints implements Points {
     }
 
     /**
+     * @return the type of item that gives point
+     */
+    public Item getItem() {
+        return item;
+    }
+
+    /**
+     * @return the amount of points gained per item of the specified type
+     */
+    public int getPointsPerItem() {
+        return pointsPerItem;
+    }
+
+    /**
      * Counts the amount of the specified item and calculate the score gained after placing the card
      * @param cp A reference to the card placement
      * @return Returns the calculated score
