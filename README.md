@@ -12,4 +12,6 @@ Components:
 ## Repository map
 
 - :file_folder: `deliverables`: artifacts to be turned in
+- :file_folder: `docs`: documentation
+  - `docs/conventions.md`: conventions that we decided to follow for the development of this project
 - :file_folder: `src`: source code
