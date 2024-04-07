@@ -12,6 +12,7 @@ import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,115 +22,77 @@ class PatternObjectiveTest {
     GameAssets assets = GameAssets.getInstance();
     //Objective 4: SEQUENCE OF 3 INSECT CARDS
     Objective objectiveInsect = assets.getObjectives().get(3);
-
-    //for simplicity, I build cards based only on color
-    FrontCardFace front = new FrontCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty()
-    );
-    BackCardFace backInsect = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<>(Map.of(Resource.INSECT, 1))
-    );
-    BackCardFace backFungi = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<>(Map.of(Resource.FUNGI, 1))
-    );
-    BackCardFace backAnimal = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<>(Map.of(Resource.ANIMAL, 1))
-    );
-    BackCardFace backPlant = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            new HashMap<>(Map.of(Resource.PLANT, 1))
-    );
-    Card insectCard = new Card(1, CardColor.PURPLE, false, false, front, backInsect);
-    Card fungiCard = new Card(2, CardColor.RED, false,false, front, backFungi);
-    Card animalCard = new Card(3,CardColor.BLUE, false, true, front, backAnimal);
-    Card plantCard = new Card(4, CardColor.GREEN, false, false, front, backPlant);
-    Card startedCard = new Card(5, CardColor.NEUTRAL, true, false, front, backFungi);
+    List<Card> resourceCards = assets.getResourceCards();
+    List<Card> goldenCards = assets.getGoldenCards();
+    Card starterCard = assets.getStarterCards().get(0);
 
     //TESTS FOR "SEQUENCE PATTERN", ref. card 90
     @Test
-    void noMatchesSequence() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, insectCard, Side.FRONT);
-        pa.placeAt(1,0, insectCard, Side.FRONT);
-        pa.placeAt(2,0, insectCard, Side.FRONT);
-        pa.placeAt(1,-1, insectCard, Side.FRONT);
-        pa.placeAt(1,-2, fungiCard, Side.FRONT);
+    void noMatchSequence() {
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(35), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(33), Side.FRONT);
+        pa.placeAt(1,-1, resourceCards.get(37), Side.BACK);
+        pa.placeAt(1,-2, resourceCards.get(3), Side.FRONT);
         assertEquals(0, objectiveInsect.getEarnedPoints(pa));
     }
     @Test
     void oneMatchSequence() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, insectCard, Side.FRONT);
-        pa.placeAt(1,0, insectCard, Side.FRONT);
-        pa.placeAt(1,1, insectCard, Side.FRONT);
-        pa.placeAt(2,0, insectCard, Side.FRONT);
-        pa.placeAt(1,-1, insectCard, Side.FRONT);
-        pa.placeAt(3,0, insectCard, Side.FRONT);
-        pa.placeAt(1,-2, fungiCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(35), Side.FRONT);
+        pa.placeAt(1,1, resourceCards.get(31), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(33), Side.FRONT);
+        pa.placeAt(1,-1, resourceCards.get(37), Side.FRONT);
+        pa.placeAt(3,0, resourceCards.get(34), Side.FRONT);
+        pa.placeAt(1,-2, resourceCards.get(3), Side.FRONT);
         assertEquals(2, objectiveInsect.getEarnedPoints(pa));
     }
 
     @Test
     void overlapSequence() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, insectCard, Side.FRONT);
-        pa.placeAt(1,0, insectCard, Side.BACK);
-        pa.placeAt(1,1, insectCard, Side.FRONT);
-        pa.placeAt(2,0, insectCard, Side.FRONT);
-        pa.placeAt(1,-1, insectCard, Side.FRONT);
-        pa.placeAt(3,0, insectCard, Side.FRONT);
-        pa.placeAt(1,-2, insectCard, Side.FRONT);
-        pa.placeAt(3,1, insectCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(35), Side.BACK);
+        pa.placeAt(1,1, resourceCards.get(31), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(33), Side.FRONT);
+        pa.placeAt(1,-1, resourceCards.get(37), Side.FRONT);
+        pa.placeAt(3,0, resourceCards.get(34), Side.BACK);
+        pa.placeAt(1,-2, resourceCards.get(38), Side.FRONT);
+        pa.placeAt(3,1, resourceCards.get(39), Side.FRONT);
         assertEquals(2, objectiveInsect.getEarnedPoints(pa));
     }
 
     @Test
     void twoDistinctMatchesSequence() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, insectCard, Side.FRONT);
-        pa.placeAt(1,0, insectCard, Side.BACK);
-        pa.placeAt(1,1, insectCard, Side.FRONT);
-        pa.placeAt(2,0, insectCard, Side.FRONT);
-        pa.placeAt(1,-1, insectCard, Side.FRONT);
-        pa.placeAt(3,0, insectCard, Side.FRONT);
-        pa.placeAt(3,-1, insectCard, Side.BACK);
-        pa.placeAt(1,-2, insectCard, Side.FRONT);
-        pa.placeAt(3,1, insectCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(35), Side.BACK);
+        pa.placeAt(1,1, resourceCards.get(31), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(3), Side.FRONT);
+        pa.placeAt(1,-1, resourceCards.get(37), Side.FRONT);
+        pa.placeAt(3,0, resourceCards.get(33), Side.FRONT);
+        pa.placeAt(3,-1, resourceCards.get(32), Side.BACK);
+        pa.placeAt(1,-2, resourceCards.get(38), Side.FRONT);
+        pa.placeAt(3,1, resourceCards.get(34), Side.FRONT);
         assertEquals(4, objectiveInsect.getEarnedPoints(pa));
     }
 
     @Test
     void twoOverlappingMatchesSequence() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, insectCard, Side.FRONT);
-        pa.placeAt(1,0, insectCard, Side.BACK);
-        pa.placeAt(1,1, insectCard, Side.FRONT);
-        pa.placeAt(2,0, insectCard, Side.FRONT);
-        pa.placeAt(1,-1, insectCard, Side.FRONT);
-        pa.placeAt(3,0, insectCard, Side.FRONT);
-        pa.placeAt(3,-1, insectCard, Side.BACK);
-        pa.placeAt(1,-2, insectCard, Side.FRONT);
-        pa.placeAt(3,1, insectCard, Side.FRONT);
-        pa.placeAt(1,-3,insectCard, Side.FRONT);
-        pa.placeAt(1,-4, insectCard, Side.BACK);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(35), Side.BACK);
+        pa.placeAt(1,1, resourceCards.get(31), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(3), Side.FRONT);
+        pa.placeAt(1,-1, resourceCards.get(37), Side.FRONT);
+        pa.placeAt(3,0, resourceCards.get(33), Side.FRONT);
+        pa.placeAt(3,-1, resourceCards.get(32), Side.BACK);
+        pa.placeAt(1,-2, resourceCards.get(38), Side.FRONT);
+        pa.placeAt(3,1, resourceCards.get(34), Side.FRONT);
+        pa.placeAt(1,-3, resourceCards.get(39), Side.FRONT);
+        pa.placeAt(1,-4, resourceCards.get(30), Side.BACK);
         assertEquals(6, objectiveInsect.getEarnedPoints(pa));
     }
 
@@ -138,66 +101,66 @@ class PatternObjectiveTest {
 
     @Test
     void noMatchL() {
-        PlayArea pa = new PlayArea(startedCard, Side.BACK);
-        pa.placeAt(0,1, fungiCard, Side.FRONT);
-        pa.placeAt(1,0, animalCard, Side.BACK);
-        pa.placeAt(0,-1, fungiCard, Side.BACK);
-        pa.placeAt(2,0, fungiCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.BACK);
+        pa.placeAt(0,1, resourceCards.get(1), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(21), Side.BACK);
+        pa.placeAt(0,-1, resourceCards.get(8), Side.BACK);
+        pa.placeAt(2,0, resourceCards.get(6), Side.FRONT);
         assertEquals(0, objectiveL.getEarnedPoints(pa));
     }
 
     @Test
     void oneMatchL() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, fungiCard, Side.FRONT);
-        pa.placeAt(1,0, animalCard, Side.BACK);
-        pa.placeAt(0,-1, animalCard, Side.FRONT);
-        pa.placeAt(2,0, fungiCard, Side.BACK);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(1), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(21), Side.BACK);
+        pa.placeAt(0,-1, resourceCards.get(22), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(6), Side.BACK);
         assertEquals(3, objectiveL.getEarnedPoints(pa));
     }
 
     @Test
     void twoUseOfSameCard() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, fungiCard, Side.FRONT);
-        pa.placeAt(1,0, animalCard, Side.BACK);
-        pa.placeAt(1,-1, fungiCard, Side.FRONT);
-        pa.placeAt(0,-1, animalCard, Side.FRONT);
-        pa.placeAt(-1,-1, insectCard, Side.BACK);
-        pa.placeAt(2,0, fungiCard, Side.BACK);
-        pa.placeAt(-1,-2, animalCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(1), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(21), Side.BACK);
+        pa.placeAt(1,-1, resourceCards.get(8), Side.FRONT);
+        pa.placeAt(0,-1, resourceCards.get(20), Side.FRONT);
+        pa.placeAt(-1,-1, resourceCards.get(31), Side.BACK);
+        pa.placeAt(2,0, resourceCards.get(6), Side.BACK);
+        pa.placeAt(-1,-2, goldenCards.get(22), Side.FRONT);
         assertEquals(3, objectiveL.getEarnedPoints(pa));
     }
     @Test
     void twoMatches() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, animalCard, Side.BACK);
-        pa.placeAt(1,1,fungiCard, Side.FRONT);
-        pa.placeAt(1,0, animalCard, Side.BACK);
-        pa.placeAt(1,-1, fungiCard, Side.FRONT);
-        pa.placeAt(0,-1, animalCard, Side.FRONT);
-        pa.placeAt(-1,-1, insectCard, Side.BACK);
-        pa.placeAt(-1,0, animalCard, Side.FRONT);
-        pa.placeAt(2,0, fungiCard, Side.BACK);
-        pa.placeAt(-1,-2, animalCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(20), Side.BACK);
+        pa.placeAt(1,1,resourceCards.get(1), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(23), Side.BACK);
+        pa.placeAt(1,-1, resourceCards.get(8), Side.FRONT);
+        pa.placeAt(0,-1, resourceCards.get(24), Side.FRONT);
+        pa.placeAt(-1,-1, resourceCards.get(32), Side.BACK);
+        pa.placeAt(-1,0, resourceCards.get(27), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(6), Side.BACK);
+        pa.placeAt(-1,-2, resourceCards.get(26), Side.FRONT);
         assertEquals(6, objectiveL.getEarnedPoints(pa));
     }
 
     @Test
     void twoConsecutiveMatches() {
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, animalCard, Side.BACK);
-        pa.placeAt(1,1,fungiCard, Side.FRONT);
-        pa.placeAt(1,0, animalCard, Side.BACK);
-        pa.placeAt(1,-1, fungiCard, Side.FRONT);
-        pa.placeAt(0,-1, animalCard, Side.FRONT);
-        pa.placeAt(-1,-1, insectCard, Side.BACK);
-        pa.placeAt(-1,-2, animalCard, Side.FRONT);
-        pa.placeAt(-2,-2, animalCard, Side.FRONT);
-        pa.placeAt(-1,0, animalCard, Side.FRONT);
-        pa.placeAt(2,0, fungiCard, Side.BACK);
-        pa.placeAt(-2,-3, animalCard, Side.FRONT);
-        pa.placeAt(0,-2, fungiCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(20), Side.BACK);
+        pa.placeAt(1,1,resourceCards.get(1), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(23), Side.BACK);
+        pa.placeAt(1,-1, resourceCards.get(8), Side.FRONT);
+        pa.placeAt(0,-1, resourceCards.get(24), Side.FRONT);
+        pa.placeAt(-1,-1, resourceCards.get(33), Side.BACK);
+        pa.placeAt(-1,-2, resourceCards.get(27), Side.FRONT);
+        pa.placeAt(-2,-2, resourceCards.get(25), Side.FRONT);
+        pa.placeAt(-1,0, resourceCards.get(26), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(6), Side.BACK);
+        pa.placeAt(-2,-3, resourceCards.get(29), Side.FRONT);
+        pa.placeAt(0,-2, resourceCards.get(0), Side.FRONT);
         assertEquals(9, objectiveL.getEarnedPoints(pa));
     }
 
@@ -210,13 +173,13 @@ class PatternObjectiveTest {
     void pattern87() {
         Objective objective = assets.getObjectives().get(0);
 
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, fungiCard, Side.BACK);
-        pa.placeAt(0,-1, fungiCard, Side.FRONT);
-        pa.placeAt(1,0, fungiCard, Side.FRONT);
-        pa.placeAt(1,1, fungiCard, Side.BACK);
-        pa.placeAt(2,0, fungiCard, Side.FRONT);
-        pa.placeAt(2,1, fungiCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(0), Side.FRONT);
+        pa.placeAt(0,-1, resourceCards.get(1), Side.FRONT);
+        pa.placeAt(1,0, resourceCards.get(7), Side.FRONT);
+        pa.placeAt(1,1, resourceCards.get(3), Side.BACK);
+        pa.placeAt(2,0, resourceCards.get(5), Side.FRONT);
+        pa.placeAt(2,1, goldenCards.get(9), Side.FRONT);
         assertEquals(2, objective.getEarnedPoints(pa));
     }
 
@@ -224,13 +187,13 @@ class PatternObjectiveTest {
     void pattern91() {
         Objective objective = assets.getObjectives().get(4);
 
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,-1, fungiCard, Side.FRONT);
-        pa.placeAt(1,-1, plantCard, Side.BACK);
-        pa.placeAt(1,0, fungiCard, Side.FRONT);
-        pa.placeAt(2,0, plantCard, Side.FRONT);
-        pa.placeAt(2,1, fungiCard, Side.FRONT);
-        pa.placeAt(3,1, plantCard, Side.BACK);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,-1, resourceCards.get(5), Side.FRONT);
+        pa.placeAt(1,-1, resourceCards.get(17), Side.BACK);
+        pa.placeAt(1,0, resourceCards.get(3), Side.FRONT);
+        pa.placeAt(2,0, resourceCards.get(12), Side.FRONT);
+        pa.placeAt(2,1, resourceCards.get(7), Side.FRONT);
+        pa.placeAt(3,1, resourceCards.get(19), Side.BACK);
         assertEquals(3, objective.getEarnedPoints(pa));
     }
 
@@ -238,13 +201,13 @@ class PatternObjectiveTest {
     void pattern92() {
         Objective objective = assets.getObjectives().get(5);
 
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,-1, insectCard, Side.BACK);
-        pa.placeAt(1,-1, plantCard, Side.BACK);
-        pa.placeAt(1,0, insectCard, Side.BACK);
-        pa.placeAt(2,0, plantCard, Side.BACK);
-        pa.placeAt(2,1, animalCard, Side.BACK);
-        pa.placeAt(3,1, plantCard, Side.BACK);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,-1, resourceCards.get(30), Side.BACK);
+        pa.placeAt(1,-1, resourceCards.get(12), Side.BACK);
+        pa.placeAt(1,0, resourceCards.get(38), Side.BACK);
+        pa.placeAt(2,0, resourceCards.get(18), Side.BACK);
+        pa.placeAt(2,1, resourceCards.get(34), Side.BACK);
+        pa.placeAt(3,1, resourceCards.get(19), Side.BACK);
         assertEquals(3, objective.getEarnedPoints(pa));
     }
 
@@ -252,12 +215,12 @@ class PatternObjectiveTest {
     void pattern94() {
         Objective objective = assets.getObjectives().get(7);
 
-        PlayArea pa = new PlayArea(startedCard, Side.FRONT);
-        pa.placeAt(0,1, insectCard, Side.FRONT);
-        pa.placeAt(-1,0, insectCard, Side.FRONT);
-        pa.placeAt(0,2, animalCard, Side.FRONT);
-        pa.placeAt(-1,1, animalCard, Side.FRONT);
-        pa.placeAt(-2,0, fungiCard, Side.FRONT);
+        PlayArea pa = new PlayArea(starterCard, Side.FRONT);
+        pa.placeAt(0,1, resourceCards.get(37), Side.FRONT);
+        pa.placeAt(-1,0, resourceCards.get(36), Side.FRONT);
+        pa.placeAt(0,2, resourceCards.get(27), Side.FRONT);
+        pa.placeAt(-1,1, resourceCards.get(20), Side.FRONT);
+        pa.placeAt(-2,0, resourceCards.get(8), Side.FRONT);
         assertEquals(3, objective.getEarnedPoints(pa));
     }
 }

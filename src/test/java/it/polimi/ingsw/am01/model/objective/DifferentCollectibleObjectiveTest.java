@@ -54,7 +54,7 @@ class DifferentCollectibleObjectiveTest {
         assertEquals(0, objective.getEarnedPoints(pa));
     }
     @Test
-    void completSet() {
+    void completeSet() {
         pa.placeAt(0,1,card16,Side.FRONT);
         pa.placeAt(0,-1,card7,Side.FRONT);
         pa.placeAt(-1,0,card5,Side.FRONT);
