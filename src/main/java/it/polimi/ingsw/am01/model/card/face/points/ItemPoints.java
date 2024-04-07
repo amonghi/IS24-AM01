@@ -27,7 +27,7 @@ public class ItemPoints implements Points {
      */
     @Override
     public int calculateScoredPoints(PlayArea.CardPlacement cp) {
-        int countedItems = cp.getPlayArea().getCollectibleCount().get(item);
+        int countedItems = cp.getPlayArea().getCollectibleCount().getOrDefault(item, 0);
         return countedItems * pointsPerItem;
     }
 }
