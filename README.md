@@ -53,12 +53,12 @@ Components:
 
 ### Chat
 
-|                                     | Class            |    Implemented     |      Documented      |        Tested        |
-|-------------------------------------|------------------|:------------------:|:--------------------:|:--------------------:|
-|                                     | Chat             | :white_check_mark: | :white_large_square: | :white_large_square: |
-| ![Abstract class](img/abstract.svg) | Message          | :white_check_mark: | :white_large_square: |                      |
-|                                     | DirectMessage    | :white_check_mark: | :white_large_square: | :white_large_square: |
-|                                     | BroadcastMessage | :white_check_mark: | :white_large_square: | :white_large_square: |
+|                                     | Class            |    Implemented     |     Documented     |        Tested        |
+|-------------------------------------|------------------|:------------------:|:------------------:|:--------------------:|
+|                                     | ChatManager      | :white_check_mark: | :white_check_mark: |  :white_check_mark:  |
+| ![Abstract class](img/abstract.svg) | Message          | :white_check_mark: | :white_check_mark: |                      |
+|                                     | DirectMessage    | :white_check_mark: | :white_check_mark: | :white_large_square: |
+|                                     | BroadcastMessage | :white_check_mark: | :white_check_mark: | :white_large_square: |
 
 ### Choice
 
@@ -83,7 +83,7 @@ Components:
 | ![Abstract class](img/abstract.svg) | Objective                     | :white_check_mark: | :white_check_mark: |                    |
 |                                     | SameCollectibleObjective      | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 |                                     | DifferentCollectibleObjective | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                     | PatternObjective              |   :construction:   | :white_check_mark: | :white_check_mark: |
+|                                     | PatternObjective              | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 ### Player
 
@@ -95,15 +95,16 @@ Components:
 
 ### Game
 
-|                                 | Class       |     Implemented      |      Documented      |        Tested        |
-|---------------------------------|-------------|:--------------------:|:--------------------:|:--------------------:|
-|                                 | Game        |    :construction:    | :white_large_square: | :white_large_square: |
-|                                 | GameManager | :white_large_square: | :white_large_square: | :white_large_square: |
-| ![Enum](img/enum.svg)           | GameStatus  |  :white_check_mark:  | :white_large_square: |                      |
-|                                 | PlayArea    |  :white_check_mark:  |  :white_check_mark:  |  :white_check_mark:  |
-|                                 | Board       |  :white_check_mark:  |  :white_check_mark:  | :white_large_square: |
-|                                 | Deck        |  :white_check_mark:  |  :white_check_mark:  |  :white_check_mark:  |
-|                                 | FaceUpCard  |  :white_check_mark:  |  :white_check_mark:  |  :white_check_mark:  |
-| ![Interface](img/interface.svg) | DrawSource  |  :white_check_mark:  | :white_large_square: |                      |
-| ![Enum](img/enum.svg)           | DrawResult  |  :white_check_mark:  | :white_large_square: |                      |
-|                                 | GameAssets  |  :white_check_mark:  | :white_large_square: |  :white_check_mark:  |
+|                                 | Class       |    Implemented     |      Documented      |        Tested        |
+|---------------------------------|-------------|:------------------:|:--------------------:|:--------------------:|
+|                                 | Game        | :white_check_mark: |  :white_check_mark:  |  :white_check_mark:  |
+| ![Enum](img/enum.svg)           | GameStatus  | :white_check_mark: |  :white_check_mark:  |                      |
+| ![Enum](img/enum.svg)           | TurnPhase   | :white_check_mark: |  :white_check_mark:  |                      |
+|                                 | GameManager | :white_check_mark: | :white_large_square: | :white_large_square: |
+|                                 | PlayArea    | :white_check_mark: |  :white_check_mark:  |  :white_check_mark:  |
+|                                 | Board       | :white_check_mark: |  :white_check_mark:  | :white_large_square: |
+|                                 | Deck        | :white_check_mark: |  :white_check_mark:  |  :white_check_mark:  |
+|                                 | FaceUpCard  | :white_check_mark: |  :white_check_mark:  |  :white_check_mark:  |
+| ![Interface](img/interface.svg) | DrawSource  | :white_check_mark: | :white_large_square: |                      |
+| ![Enum](img/enum.svg)           | DrawResult  | :white_check_mark: | :white_large_square: |                      |
+|                                 | GameAssets  | :white_check_mark: | :white_large_square: |  :white_check_mark:  |
