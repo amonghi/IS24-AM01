@@ -366,13 +366,16 @@ package game {
     class GameManager {
         - List<Game> games
         - int nextId
+        - {static} String dataDir
 
-        + GameManager(Path dataDir)
+        + GameManager()
         + getGames() List<Game>
         + createGame(int maxPlayers) Game
         - loadSavedGamesIds() List<Integer>
         - loadGame(int id) Game
         + saveGame(Game game) void
+        - serializeGame(Game game) String
+        - deserializeGame(String json) Game
     }
     Game <--* GameManager
     note left of GameManager::loadSavedGamesIds()
