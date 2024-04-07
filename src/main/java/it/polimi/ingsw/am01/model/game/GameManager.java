@@ -15,10 +15,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.model.serializers.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GameManager {
@@ -37,7 +34,7 @@ public class GameManager {
     }
 
     public List<Game> getGames() {
-        return games;
+        return Collections.unmodifiableList(games);
     }
 
     public Game createGame(int maxPlayers) {
