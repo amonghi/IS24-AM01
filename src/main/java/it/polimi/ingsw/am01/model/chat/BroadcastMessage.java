@@ -9,6 +9,6 @@ public class BroadcastMessage extends Message{
 
     @Override
     public boolean isRecipient(PlayerProfile pp) {
-        return true;
+        return !pp.equals(super.getSender());
     }
 }
