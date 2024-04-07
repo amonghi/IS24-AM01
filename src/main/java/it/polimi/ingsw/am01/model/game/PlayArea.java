@@ -41,6 +41,11 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
                 case BOTTOM_RIGHT -> new Position(i, j - 1);
             };
         }
+
+        @Override
+        public String toString() {
+            return  "(" + i + ", " + j  + ")";
+        }
     }
 
     private final Map<Position, CardPlacement> cards;
@@ -125,6 +130,11 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
             if (!foundSocket) {
                 throw new IllegalPlacementException("attempted to place without connecting to any other cards");
             }
+        }
+
+        //check placement constraints
+        if(!card.getFace(side).getPlacementConstraint().map(pc -> pc.isSatisfied(this)).orElse(true)) {
+            throw new IllegalPlacementException("attempt to place with no enough resources");
         }
 
         // register placement

@@ -28,6 +28,20 @@ public class SameCollectibleObjective extends Objective {
     }
 
     /**
+     * @return the {@link Collectible} required to earn the points
+     */
+    public Collectible getRequiredCollectible() {
+        return requiredCollectible;
+    }
+
+    /**
+     * @return the number of {@link Collectible} required to earn points
+     */
+    public int getRequiredNumber() {
+        return requiredNumber;
+    }
+
+    /**
      * Calculates the points earned by the player who meets this objective
      * checking whether there is the required number, or a multiple of it,
      * of the required {@link Collectible} on the {@link PlayArea}

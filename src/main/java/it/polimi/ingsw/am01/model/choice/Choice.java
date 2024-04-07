@@ -37,7 +37,7 @@ public class Choice<T> {
      * @throws DoubleChoiceException  if the user tries to choose more than once
      * @throws NoSuchElementException if the selected option is not one of those returned by {@code getOptions()}
      */
-    public void select(T selection) {
+    public void select(T selection) throws DoubleChoiceException, NoSuchElementException {
         if (this.selection != null) {
             throw new DoubleChoiceException();
         }

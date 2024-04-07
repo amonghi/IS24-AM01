@@ -34,6 +34,13 @@ public class PatternObjective extends Objective {
     }
 
     /**
+     * @return the map of that define the pattern
+     */
+    public Map<Position, CardColor> getPattern() {
+        return Collections.unmodifiableMap(pattern);
+    }
+
+    /**
      * Identify all the patterns on the {@link PlayArea} and calculate the points to assign to the player
      *
      * @param pa The {@link PlayArea} on which find matches

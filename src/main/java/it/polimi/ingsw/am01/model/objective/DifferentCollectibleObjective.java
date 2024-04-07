@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.model.objective;
 import it.polimi.ingsw.am01.model.collectible.Item;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,6 +24,13 @@ public class DifferentCollectibleObjective extends Objective {
     public DifferentCollectibleObjective(int points, Set<Item> requiredItems) {
         super(points);
         this.requiredItems = new HashSet<>(requiredItems);
+    }
+
+    /**
+     * @return the set of items required to earn the points
+     */
+    public Set<Item> getRequiredItems() {
+        return Collections.unmodifiableSet(requiredItems);
     }
 
     /**

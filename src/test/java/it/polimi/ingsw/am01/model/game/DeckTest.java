@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,6 +35,7 @@ class DeckTest {
                     Map.of(Resource.FUNGI, 1)
             )
     );
+
     List<Card> cardList = List.of(
             new Card(
                     2,
@@ -116,7 +118,7 @@ class DeckTest {
 
     @Test
     void canCheckIfEmpty() {
-        Deck deck = new Deck(List.of(aCard));
+        Deck deck = new Deck(GameAssets.getInstance().getStarterCards().stream().limit(1).collect(Collectors.toList()));
         assertFalse(deck.isEmpty());
         deck.draw();
         assertTrue(deck.isEmpty());

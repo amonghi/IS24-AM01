@@ -17,6 +17,13 @@ public class SimplePoints implements Points {
     }
 
     /**
+     * @return the number of points
+     */
+    public int getPoints() {
+        return points;
+    }
+
+    /**
      * @param cp A reference to the card placement
      * @return Returns the constant points value associated to the card
      */

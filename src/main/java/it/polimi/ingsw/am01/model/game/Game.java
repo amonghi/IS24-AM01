@@ -5,6 +5,7 @@ import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.chat.ChatManager;
 import it.polimi.ingsw.am01.model.choice.Choice;
+import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.MultiChoice;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -12,91 +13,532 @@ import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerData;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+/**
+ * It manages an entire game: from player joining to decreeing winners.
+ * It defines {@link PlayerData} for each {@link PlayerProfile} by looking on choices made.
+ * @see it.polimi.ingsw.am01.model.player.PlayerData
+ * @see it.polimi.ingsw.am01.model.player.PlayerProfile
+ * @see it.polimi.ingsw.am01.model.choice.Choice
+ * @see it.polimi.ingsw.am01.model.choice.MultiChoice
+ */
 public class Game {
-    private final String id;
-    private final GameStatus status;
+    private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
     private final Map<PlayerProfile, Choice<Side>> startingCardSideChoices;
+    private final Map<PlayerProfile, Card> startingCards;
     private final Map<PlayerProfile, MultiChoice<PlayerColor, PlayerProfile>.Choice> colorChoices;
     private final Map<PlayerProfile, Choice<Objective>> objectiveChoices;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
     private final Set<Objective> commonObjectives;
-    private int currentPlayer;
+    private final int maxPlayers;
     private final Board board;
+    private GameStatus status;
+    private TurnPhase turnPhase;
+    /**
+     * This attribute is used to save the previous valid status after a game pause.
+     * @see Game#pausedGame() pausedGame
+     * @see Game#resumeGame() resumeGame
+     */
+    private GameStatus recoverStatus;
+    /**
+     * It stores the current player's index referred to {@code playerProfiles} list
+     */
+    private int currentPlayer;
 
-    public Game(String id) {
-        throw new UnsupportedOperationException("TODO");
+    /**
+     * Constructs a new {@code Game} and set id and maxPlayers fields. {@link Board} is set with standard decks (40 cards per each deck)
+     * @see it.polimi.ingsw.am01.model.game.Board
+     *
+     * @param id the unique id of the game
+     * @param maxPlayers the maximum number of players that can play this game
+     */
+    public Game(int id, int maxPlayers) {
+        this.id = id;
+        this.maxPlayers = maxPlayers;
+        this.status = GameStatus.AWAITING_PLAYERS;
+        this.playerProfiles = new ArrayList<>();
+        this.chatManager = new ChatManager();
+        this.startingCardSideChoices = new HashMap<>();
+        this.startingCards = new HashMap<>();
+        this.colorChoices = new HashMap<>();
+        this.objectiveChoices = new HashMap<>();
+        this.playersData = new HashMap<>();
+        this.playAreas = new HashMap<>();
+        this.commonObjectives = new HashSet<>();
+        this.currentPlayer = 0;
+        this.turnPhase = TurnPhase.PLACING;
+        this.board = Board.createShuffled(new Deck(GameAssets.getInstance().getResourceCards()),
+                new Deck(GameAssets.getInstance().getGoldenCards()));
     }
 
-    public String getId() {
-        throw new UnsupportedOperationException("TODO");
+    /**
+     * Constructs a new {@code Game} and set id, maxPlayers and {@link Board} fields.
+     * This constructor is used to create a new game with custom decks.
+     * @see it.polimi.ingsw.am01.model.game.Board
+     *
+     * @param id the unique id of the game
+     * @param maxPlayers the maximum number of players that can play this game
+     * @param board the board of the game, that includes all {@link FaceUpCard} and {@link Deck}
+     */
+    public Game(int id, int maxPlayers, Board board) {
+        this.id = id;
+        this.maxPlayers = maxPlayers;
+        this.status = GameStatus.AWAITING_PLAYERS;
+        this.playerProfiles = new ArrayList<>();
+        this.chatManager = new ChatManager();
+        this.startingCardSideChoices = new HashMap<>();
+        this.startingCards = new HashMap<>();
+        this.colorChoices = new HashMap<>();
+        this.objectiveChoices = new HashMap<>();
+        this.playersData = new HashMap<>();
+        this.playAreas = new HashMap<>();
+        this.commonObjectives = new HashSet<>();
+        this.currentPlayer = 0;
+        this.turnPhase = TurnPhase.PLACING;
+        this.board = board;
     }
 
+    /**
+     * @param pp the {@link PlayerProfile} associated to player whose objective choices are required
+     * @return an unmodifiable set of {@link Objective} that represents all possible options that player {@code pp} could choose
+     */
+    public Set<Objective> getObjectiveOptions(PlayerProfile pp) {
+        return Collections.unmodifiableSet(objectiveChoices.get(pp).getOptions());
+    }
+
+    /**
+     * @return the id of the game
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * @return an unmodifiable list of {@link PlayerProfile} that have joined in game already
+     */
     public List<PlayerProfile> getPlayerProfiles() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.unmodifiableList(playerProfiles);
     }
 
+    /**
+     * @param pp the {@link PlayerProfile} associated to player whose {@link PlayerData} is required
+     * @return the {@link PlayerData} of {@code pp}
+     * @see it.polimi.ingsw.am01.model.player.PlayerData
+     */
     public PlayerData getPlayerData(PlayerProfile pp) {
-        throw new UnsupportedOperationException("TODO");
+        return playersData.get(pp);
     }
 
+    /**
+     * @param pp the {@link PlayerProfile} associated to player whose {@link PlayArea} is required
+     * @return the {@link PlayArea} of {@code pp}
+     * @see it.polimi.ingsw.am01.model.game.PlayArea
+     */
     public PlayArea getPlayArea(PlayerProfile pp) {
-        throw new UnsupportedOperationException("TODO");
+        return playAreas.get(pp);
     }
 
+    /**
+     * @return the {@link Board} of this game
+     * @see it.polimi.ingsw.am01.model.game.Board
+     */
+    public Board getBoard() {
+        return board;
+    }
+
+    /**
+     *
+     * @return the {@link PlayerProfile} that has to play at this moment of the game
+     */
     public PlayerProfile getCurrentPlayer() {
-        throw new UnsupportedOperationException("TODO");
+        return playerProfiles.get(currentPlayer);
     }
 
+    /**
+     * @return an unmodifiable set of common {@link Objective} of the game.
+     * Those {@link Objective} are available for everyone
+     */
     public Set<Objective> getCommonObjectives() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.unmodifiableSet(commonObjectives);
     }
 
+    /**
+     *
+     * @return the current macro-phase of the game
+     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     */
     public GameStatus getStatus() {
-        throw new UnsupportedOperationException("TODO");
+        return status;
     }
 
-    public ChatManager getChatManager(){throw new UnsupportedOperationException("TODO");}
+    /**
+     * @return the current {@link TurnPhase}: placing or drawing
+     * @see it.polimi.ingsw.am01.model.game.TurnPhase
+     */
+    public TurnPhase getTurnPhase() {
+        return turnPhase;
+    }
 
+    /**
+     * This method permits to set the current turn phase
+     * @param turnPhase the new {@link TurnPhase} to be set.
+     * @see it.polimi.ingsw.am01.model.game.TurnPhase
+     */
+    private void setTurnPhase(TurnPhase turnPhase) {
+        this.turnPhase = turnPhase;
+    }
+
+    /**
+     * @return the {@link ChatManager} of this game, that manages messages sent by each player
+     * @see it.polimi.ingsw.am01.model.chat.ChatManager
+     * @see it.polimi.ingsw.am01.model.chat.Message
+     */
+    public ChatManager getChatManager() {
+        return chatManager;
+    }
+
+    /**
+     * @return the maximum number of players that can play this game
+     */
+    public int getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    /**
+     * This method permits to start the turn-based phase of the game, after choices phase.
+     * This method is valid only on {@code AWAITING_START} status.
+     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     */
     public void startGame() {
-        throw new UnsupportedOperationException("TODO");
+        if (status != GameStatus.AWAITING_START) {
+            throw new IllegalMoveException();
+        }
+
+        for (PlayerProfile player : playerProfiles) {
+            List<Card> hand = new ArrayList<>();
+            hand.add(board.getResourceCardDeck().draw().orElseThrow()); // TODO: decide the exception to be thrown
+            hand.add(board.getResourceCardDeck().draw().orElseThrow());
+            hand.add(board.getGoldenCardDeck().draw().orElseThrow());
+
+            playersData.put(player,
+                    new PlayerData(hand,
+                            objectiveChoices.get(player).getSelected().orElseThrow(),
+                            colorChoices.get(player).getSelected().orElseThrow()));
+        }
+        setFirstPlayer();
+        transition(GameStatus.PLAY);
     }
 
+    /**
+     * This method randomly selects the first player that has to play. Players sequence, in a round, is based on joining order
+     */
+    private void setFirstPlayer() {
+        Random random = new Random();
+        Collections.rotate(playerProfiles, random.nextInt(maxPlayers));
+    }
+
+    /**
+     * This method permits to pause the game, if it is not already {@code SUSPENDED}.
+     * No action will be performed while {@code SUSPENDED} status is set.
+     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     */
     public void pausedGame() {
-        throw new UnsupportedOperationException("TODO");
+        if (status == GameStatus.SUSPENDED) {
+            throw new IllegalMoveException();
+        }
+        recoverStatus = status;
+        status = GameStatus.SUSPENDED;
     }
 
+    /**
+     * This method permits to resume the game, if it is {@code SUSPENDED}. The previous valid status will be recovered.
+     * No action will be performed while {@code SUSPENDED} status is not set.
+     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     */
     public void resumeGame() {
-        throw new UnsupportedOperationException("TODO");
+        if (status != GameStatus.SUSPENDED) {
+            throw new IllegalMoveException();
+        }
+        status = recoverStatus;
     }
 
+    /**
+     * This method set game's status. It permits to perform status' transition
+     * @param nextStatus the new current status
+     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     */
+    private void transition(GameStatus nextStatus) {
+        this.status = nextStatus;
+    }
+
+    /**
+     * This method prepares all choices: starting card side, player color and secret objective.
+     * It requires that all players have already joined the game, with {@link Game#join(PlayerProfile) join} method.
+     * @see it.polimi.ingsw.am01.model.choice.Choice
+     * @see it.polimi.ingsw.am01.model.choice.MultiChoice
+     */
+    private void setUpChoices() {
+        // Setup starter card choices
+        Deck starterCardDeck = new Deck(GameAssets.getInstance().getStarterCards());
+        starterCardDeck.shuffle();
+
+        for (PlayerProfile player : playerProfiles) {
+            startingCardSideChoices.put(player, new Choice<>(EnumSet.allOf(Side.class)));
+            startingCards.put(player, starterCardDeck.draw().orElseThrow()); // TODO: decide the exception to be thrown
+        }
+
+        // Setup color choices
+        MultiChoice<PlayerColor, PlayerProfile> multiChoice = new MultiChoice<>(EnumSet.allOf(PlayerColor.class), new HashSet<>(playerProfiles));
+        playerProfiles.forEach((player) -> colorChoices.put(player, multiChoice.getChoices().get(player)));
+
+        // Setup objective choices
+        List<Objective> objectiveDeck = new ArrayList<>(GameAssets.getInstance().getObjectives());
+        Collections.shuffle(objectiveDeck);
+
+        commonObjectives.add(objectiveDeck.removeFirst());
+        commonObjectives.add(objectiveDeck.removeFirst());
+
+        for (PlayerProfile player : playerProfiles) {
+            Set<Objective> secretObjectives = new HashSet<>();
+            secretObjectives.add(objectiveDeck.removeFirst());
+            secretObjectives.add(objectiveDeck.removeFirst());
+            objectiveChoices.put(player, new Choice<>(secretObjectives));
+        }
+    }
+
+    /**
+     * This method add a new {@link PlayerProfile} to game, and performs status transition if there are {@code maxPlayers} players joined.
+     * @param pp the {@link PlayerProfile} of new player
+     */
     public void join(PlayerProfile pp) {
-        throw new UnsupportedOperationException("TODO");
+        if (status != GameStatus.AWAITING_PLAYERS) {
+            throw new IllegalMoveException();
+        }
+
+        playerProfiles.add(pp);
+
+        if (playerProfiles.size() == maxPlayers) {
+            transition(GameStatus.SETUP_STARTING_CARD_SIDE);
+
+            setUpChoices();
+        }
     }
 
-    public void selectStartingCardSide(PlayerProfile pp, Side s) {
-        throw new UnsupportedOperationException("TODO");
+    /**
+     * This method performs a player choice: starting card side choice.
+     * Starting card is also placed on {@link PlayArea} of player {@code pp}, on side {@code s}.
+     * If all players have chosen side, this method performs status transition.
+     * @param pp the {@link PlayerProfile} of player tha want to choose
+     * @param s the chosen side of starting card
+     * @throws DoubleChoiceException if player has already chosen starting card side
+     * @see it.polimi.ingsw.am01.model.choice.Choice
+     */
+    public void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException {
+        if (status != GameStatus.SETUP_STARTING_CARD_SIDE) {
+            throw new IllegalMoveException();
+        }
+        startingCardSideChoices.get(pp).select(s);
+
+        playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
+
+        if (startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+            transition(GameStatus.SETUP_COLOR);
+        }
     }
 
+    /**
+     * This method performs a player choice: color choice.
+     * If all players have chosen their color, this method performs status transition.
+     * @param pp the {@link PlayerProfile} of player that want to choose
+     * @param pc the {@link PlayerColor} chosen by player {@code pp}
+     * @return the {@link SelectionResult} referred to the choice made
+     * @see it.polimi.ingsw.am01.model.choice.SelectionResult
+     * @see it.polimi.ingsw.am01.model.choice.MultiChoice
+     */
     public SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) {
-        throw new UnsupportedOperationException("TODO");
+        if (status != GameStatus.SETUP_COLOR) {
+            throw new IllegalMoveException();
+        }
+        SelectionResult sr = colorChoices.get(pp).select(pc);
+        if (colorChoices.get(pp).isSettled()) { // FIXME: MultiChoice class
+            transition(GameStatus.SETUP_OBJECTIVE);
+        }
+        return sr;
     }
 
+    /**
+     * This method performs a player choice: objective choice.
+     * If all players have chosen their secret objective, this method performs status transition.
+     * @param pp the {@link PlayerProfile} of player that want to choose
+     * @param o the {@link Objective} chosen by player {@code pp}
+     * @see it.polimi.ingsw.am01.model.choice.Choice
+     */
     public void selectObjective(PlayerProfile pp, Objective o) {
-        throw new UnsupportedOperationException("TODO");
+        if (status != GameStatus.SETUP_OBJECTIVE) {
+            throw new IllegalMoveException();
+        }
+        objectiveChoices.get(pp).select(o);
+        if (objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+            //all players had chosen their objective -> go to the next state (waiting for start "turn phase")
+            transition(GameStatus.AWAITING_START);
+        }
     }
 
+    /**
+     * This method allow player {@code pp} to draw a card from {@link DrawSource} {@code ds},
+     * only if source is not empty and game is in compatible status ({@code PLAY} or {@code SECOND_LAST_TURN})
+     * and compatible turn phase ({@code DRAWING}).
+     * Notice that in {@code LAST_TURN} status, players are not allowed to draw cards:
+     * drawing a card on last turn is useless because it is an action that doesn't affect the current turn.
+     * It also manages status, turn phase transition and set next player
+     * @param pp the {@link PlayerProfile} of player that want to draw
+     * @param ds the {@link DrawSource} from where to get the card
+     * @return the result of drawing
+     * @see it.polimi.ingsw.am01.model.game.DrawSource
+     * @see it.polimi.ingsw.am01.model.game.DrawResult
+     * @see it.polimi.ingsw.am01.model.game.TurnPhase
+     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     */
     public DrawResult drawCard(PlayerProfile pp, DrawSource ds) {
-        throw new UnsupportedOperationException("TODO");
+        if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN) || turnPhase != TurnPhase.DRAWING) {
+            throw new IllegalMoveException();
+        }
+        if (currentPlayer != playerProfiles.indexOf(pp)) {
+            throw new IllegalTurnException();
+        }
+
+        Optional<Card> card = ds.draw();
+        card.ifPresent(c -> playersData.get(pp).getHand().add(c));
+        if (card.isEmpty()) {
+            return DrawResult.EMPTY;
+        }
+
+        switch (status) {
+            case GameStatus.PLAY -> {
+                if (board.getResourceCardDeck().isEmpty() && board.getGoldenCardDeck().isEmpty()) {
+                    if (currentPlayer != maxPlayers - 1) {
+                        // all decks are empty --> game is on "final phase"
+                        transition(GameStatus.SECOND_LAST_TURN);
+                    } else {
+                        //this is the "last" player of round
+                        transition(GameStatus.LAST_TURN);
+                    }
+                }
+            }
+            case GameStatus.SECOND_LAST_TURN -> {
+                if (currentPlayer == maxPlayers - 1) {
+                    //this is the "last" player of round
+                    transition(GameStatus.LAST_TURN);
+                }
+            }
+        }
+        setTurnPhase(TurnPhase.PLACING);
+        changeCurrentPlayer();
+        return DrawResult.OK;
     }
 
+    /**
+     * This method permits to change the player that have to play
+     */
+    private void changeCurrentPlayer() {
+        currentPlayer = (currentPlayer + 1) % maxPlayers;
+    }
+
+    /**
+     * This method allow player {@code pp} to place a card on his {@link PlayArea} on coordinates {@code i} and {@code j},
+     * only if placement is valid, game is in compatible status ({@code PLAY}, {@code SECOND_LAST_TURN} or {@code LAST_TURN})
+     * and compatible turn phase ({@code DRAWING}) and player have the card {@code c} on his hand.
+     * It also manages status, turn phase transition and set next player (if needed)
+     * @param pp the {@link PlayerProfile} of player that want to place
+     * @param c the {@link Card} to be placed
+     * @param s the visible {@link Side} of the placement
+     * @param i the coordinate i of the placement
+     * @param j the coordinate j of the placement
+     * @see it.polimi.ingsw.am01.model.game.TurnPhase
+     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     * @see it.polimi.ingsw.am01.model.player.PlayerData
+     * @see it.polimi.ingsw.am01.model.game.PlayArea
+     * @see it.polimi.ingsw.am01.model.game.PlayArea.CardPlacement
+     */
     public void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) {
-        throw new UnsupportedOperationException("TODO");
+        if ((status == GameStatus.PLAY || status == GameStatus.SECOND_LAST_TURN || status == GameStatus.LAST_TURN)
+                && turnPhase == TurnPhase.PLACING && playersData.get(pp).getHand().contains(c)) {
+            if (currentPlayer == playerProfiles.indexOf(pp)) {
+                //place on play area
+                playAreas.get(pp).placeAt(i, j, c, s);
+
+                //delete card from hand
+                playersData.get(pp).getHand().remove(c);
+
+                switch (status) {
+                    case GameStatus.PLAY:
+                        if (playAreas.get(pp).getScore() >= 20) {
+                            //this is the second last one round
+                            transition(GameStatus.SECOND_LAST_TURN);
+                        }
+                        setTurnPhase(TurnPhase.DRAWING);
+                        break;
+
+                    case GameStatus.SECOND_LAST_TURN:
+                        setTurnPhase(TurnPhase.DRAWING);
+                        break;
+
+                    case GameStatus.LAST_TURN:
+                        if (currentPlayer == maxPlayers - 1) {
+                            //this player is the last one -> game is finished. It's useless drawing a card. This is the only one point from where finishing game
+                            transition(GameStatus.FINISHED);
+                        } else {
+                            //change current player (state and turn phase are not updated because in this phase it's useless to draw card)
+                            changeCurrentPlayer();
+                        }
+                        break;
+                }
+            } else {
+                throw new IllegalTurnException();
+            }
+        } else {
+            throw new IllegalMoveException();
+        }
+    }
+
+    /**
+     * This method provides winners, only if game status is set to {@code FINISHED}
+     * @return a list that contains all winners of the game. It is based on total scores
+     * @see Game#getTotalScores() getTotalScores
+     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     */
+    public List<PlayerProfile> getWinners() {
+        if (status != GameStatus.FINISHED) {
+            throw new IllegalMoveException();
+        }
+
+        Map<PlayerProfile, Integer> scores = getTotalScores();
+        int maxScore = scores.values().stream().mapToInt(s -> s).max().orElse(0);
+
+        return scores.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxScore)
+                .map(Map.Entry::getKey)
+                .toList();
+    }
+
+    /**
+     * This method provides total score for each player, only if game status is set to {@code FINISHED}
+     * @return a map that contains all total scores
+     */
+    public Map<PlayerProfile, Integer> getTotalScores() {
+        if (status != GameStatus.FINISHED) {
+            throw new IllegalMoveException();
+        }
+        Map<PlayerProfile, Integer> r = new HashMap<>();
+        playAreas.forEach((player, playArea) ->
+                r.put(player, playArea.getScore()
+                        + playersData.get(player).getObjectiveChoice().getEarnedPoints(playArea)
+                        + commonObjectives.stream().mapToInt(objective -> objective.getEarnedPoints(playArea)).sum()) // points earned from play area plus points earned from objective cards
+        );
+        return r;
     }
 }

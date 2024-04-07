@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.model.card.face.placement;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -18,6 +19,13 @@ public class PlacementConstraint {
      */
     public PlacementConstraint(Map<Resource, Integer> requiredResources) {
         this.requiredResources = new EnumMap<>(requiredResources);
+    }
+
+    /**
+     * @return the map that associate each resource with the necessary amount
+     */
+    public Map<Resource, Integer> getRequiredResources() {
+        return Collections.unmodifiableMap(requiredResources);
     }
 
     /**

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.model.game;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,40 +15,36 @@ import java.util.Set;
  */
 
 public class Board {
-    private final Set<FaceUpCard> faceUpResourceCards;
-    private final Set<FaceUpCard> faceUpGoldenCards;
+    private final Set<FaceUpCard> faceUpCards;
     private final Deck resourceCardDeck;
     private final Deck goldenCardDeck;
 
     /**
      * Constructs a new board with two Decks and four FaceUpCard.
-     * @param faceUpResourceCards A set of two visible resource cards
-     * @param faceUpGoldenCards A set of two visible golden cards
      * @param resourceCardDeck The resource card's deck
      * @param goldenCardDeck The golden card's deck
      *
      */
-    public Board(Set<FaceUpCard> faceUpResourceCards, Set<FaceUpCard> faceUpGoldenCards, Deck resourceCardDeck, Deck goldenCardDeck) {
-        this.faceUpResourceCards = new HashSet<>(faceUpResourceCards);
-        this.faceUpGoldenCards = new HashSet<>(faceUpGoldenCards);
+    public Board(Deck resourceCardDeck, Deck goldenCardDeck) {
         this.resourceCardDeck = resourceCardDeck;
         this.goldenCardDeck = goldenCardDeck;
+        this.faceUpCards = new HashSet<>();
+
+        //resource cards
+        this.faceUpCards.add(new FaceUpCard(resourceCardDeck, goldenCardDeck));
+        this.faceUpCards.add(new FaceUpCard(resourceCardDeck, goldenCardDeck));
+
+        //golden cards
+        this.faceUpCards.add(new FaceUpCard(goldenCardDeck, resourceCardDeck));
+        this.faceUpCards.add(new FaceUpCard(goldenCardDeck, resourceCardDeck));
     }
 
     /**
      *
-     * @return the reference of the set of the two visible resource cards on the board
+     * @return the reference of the set of the four visible cards on the board
      */
-    public Set<FaceUpCard> getFaceUpResourceCards() {
-        return faceUpResourceCards;
-    }
-
-    /**
-     *
-     * @return reference of the set of the two golden cards on the board
-     */
-    public Set<FaceUpCard> getFaceUpGoldenCards() {
-        return faceUpGoldenCards;
+    public Set<FaceUpCard> getFaceUpCards() {
+        return Collections.unmodifiableSet(faceUpCards);
     }
 
     /**
@@ -64,5 +61,17 @@ public class Board {
      */
     public Deck getGoldenCardDeck() {
         return goldenCardDeck;
+    }
+
+    /**
+     *
+     * @param resourceCardDeck The resource card's deck
+     * @param goldenCardDeck The golden card's deck
+     * @return a new Board with shuffled decks
+     */
+    public static Board createShuffled(Deck resourceCardDeck, Deck goldenCardDeck){
+        resourceCardDeck.shuffle();
+        goldenCardDeck.shuffle();
+        return new Board(resourceCardDeck, goldenCardDeck);
     }
 }

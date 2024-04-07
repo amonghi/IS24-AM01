@@ -17,6 +17,13 @@ public class CornerCoverPoints implements Points {
     }
 
     /**
+     * @return the amount of points gained per corner covered
+     */
+    public int getPointsPerCorner() {
+        return pointsPerCorner;
+    }
+
+    /**
      * Counts how many corners the card is covering after placing it and calculate the score
      * @param cp A reference to the card placement
      * @return Returns the calculated score
