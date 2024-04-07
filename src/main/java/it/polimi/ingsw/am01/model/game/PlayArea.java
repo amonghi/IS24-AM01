@@ -41,6 +41,11 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
                 case BOTTOM_RIGHT -> new Position(i, j - 1);
             };
         }
+
+        @Override
+        public String toString() {
+            return  "(" + i + ", " + j  + ")";
+        }
     }
 
     private final Map<Position, CardPlacement> cards;
