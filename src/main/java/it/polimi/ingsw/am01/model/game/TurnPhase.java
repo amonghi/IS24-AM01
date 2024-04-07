@@ -1,6 +1,10 @@
 package it.polimi.ingsw.am01.model.game;
 
-public enum TurnPhase { // ci sta? aggiornare UML
+/**
+ * TurnPhase represents a phase of player's turn
+ * @see it.polimi.ingsw.am01.model.game.GameStatus
+ */
+public enum TurnPhase {
     PLACING,
     DRAWING
 }
