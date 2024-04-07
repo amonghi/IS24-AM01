@@ -358,6 +358,11 @@ package game {
         EMPTY
     }
 
+    enum TurnPhase{
+        PLACING
+        DRAWING
+    }
+
     class GameManager {
         - List<Game> games
         - int nextId
