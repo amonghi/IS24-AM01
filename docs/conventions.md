@@ -47,6 +47,7 @@ All commits must be structured as follows:
     * adding/removing/updating dependencies
     * configuration changes to the build system
     * code formatting
+* `merge:` A merge commit
 
 `scope` can be whatever string surrounded by parenthesis.
 We don't have a list of defined scopes: just write whatever thing may help to understand the commit better, or just
