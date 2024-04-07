@@ -14,6 +14,15 @@ Components:
 - :file_folder: `deliverables`: artifacts to be turned in
 - :file_folder: `src`: source code
 
+## Advanced features
+
+| Feature                      | Status  |
+|------------------------------|:-------:|
+| Concurrent games             | Planned |
+| Persistence                  | Planned |
+| Resilience to disconnections | Planned |
+| Chat                         | Planned |
+
 ## Implementation progress
 
 |        Emoji         | Meaning          |
