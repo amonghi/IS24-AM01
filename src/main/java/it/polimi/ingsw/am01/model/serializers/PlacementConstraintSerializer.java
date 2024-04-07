@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.serializers;
+package it.polimi.ingsw.am01.model.serializers;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
