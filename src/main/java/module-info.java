@@ -14,6 +14,11 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.model.collectible to com.google.gson;
     opens it.polimi.ingsw.am01.model.objective to com.google.gson;
     opens it.polimi.ingsw.am01.model.game to com.google.gson;
+    opens it.polimi.ingsw.am01.model.chat to com.google.gson;
+    opens it.polimi.ingsw.am01.model.choice to com.google.gson;
+    opens it.polimi.ingsw.am01.model.player to com.google.gson;
+
+
 
     exports it.polimi.ingsw.am01;
 }
