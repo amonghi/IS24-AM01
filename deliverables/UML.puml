@@ -81,6 +81,7 @@ package card {
 
                 + PlacementConstraint(Map<Resource, Integer> requiredResources)
                 + isSatisfied(PlayArea playArea) boolean
+                + getRequiredResources() Map<Resource, Integer>
             }
         } /' end package placement '/
 
@@ -93,12 +94,14 @@ package card {
                 - int points
                 + SimplePoints(int points)
                 + calculateScoredPoints(PlayArea.CardPlacement cp) int
+                + getPoints() int
             }
 
             class CornerCoverPoints implements Points {
                 - int pointsPerCorner
                 + CornerCoverPoints(int pointsPerCorner)
                 + calculateScoredPoints(PlayArea.CardPlacement cp) int
+                + getPointsPerCorner() int
             }
 
             class ItemPoints implements Points {
@@ -106,6 +109,8 @@ package card {
                 - int pointsPerItem
                 + ItemPoints(Item item, int pointsPerItem)
                 + calculateScoredPoints(PlayArea.CardPlacement cp) int
+                + getItem() Item
+                + getPointsPerItem() int
             }
         } /' end package points '/
 
@@ -213,6 +218,8 @@ package objective {
         - int requiredNumber
         + SameCollectibleObjective(int points, Collectible requiredCollectible, int requiredNumber)
         + getEarnedPoints(PlayArea pa) int
+        + getRequiredCollectible() Collectible
+        + getRequiredNumber() int
     }
     Collectible ... SameCollectibleObjective
 
@@ -220,6 +227,7 @@ package objective {
         - Set<Item> requiredItems
         + DifferentCollectibleObjective(int points, Set<Item> requiredItems)
         + getEarnedPoints(PlayArea pa) int
+        + getRequiredItems() Set<Item>
     }
     Collectible ... DifferentCollectibleObjective
 
@@ -228,6 +236,7 @@ package objective {
         - Set<Set<CardPlacement>> matches
         + PatternObjective(int points, Map<Position, CardColor> pattern)
         + getEarnedPoints(PlayArea pa) int
+        + getPattern() Map<Position, CardColor>
     }
     CardColor ... PatternObjective
 } /' end package objective '/
@@ -414,6 +423,7 @@ package game {
 
         - setFirstPlayer() void
         + join(PlayerProfile pp) void
+        - setUpChoices() void
         + selectStartingCardSide(PlayerProfile pp, Side s) void
         + selectColor(PlayerProfile pp, PlayerColor pc) SelectionResult
         + selectObjective(PlayerProfile pp, Objective o) void
