@@ -16,85 +16,85 @@ Components:
 
 ## Implementation progress
 
-|    | Meaning          |
-|:--:|------------------|
-| ✅  | Completed        |
-| ❌  | Not completed    |
-| 🚧 | Work in progress |
-| ⬛  | N/A              |
+|        Emoji         | Meaning          |
+|:--------------------:|------------------|
+| :white_large_square: | Not completed    |
+|    :construction:    | Work in progress |
+|  :white_check_mark:  | Completed        |
+|       `empty`        | N/A              |
 
 ### Card
 
-|                        | Class               | Implemented | Documented | Tested |
-|------------------------|---------------------|:-----------:|:----------:|:------:|
-|                        | Card                |      ✅      |     ✅      |   ✅    |
-| ![](img/enum.svg)      | CardColor           |      ✅      |     ✅      |   ⬛    |
-| ![](img/enum.svg)      | Side                |      ✅      |     ✅      |   ⬛    |
-| ![](img/interface.svg) | CardFace            |      ✅      |     ❌      |   ⬛    |
-| ![](img/abstract.svg)  | BaseCardFace        |      ✅      |     ✅      |   ⬛    |
-|                        | BackCardFace        |      ✅      |     ✅      |   ✅    |
-|                        | FrontCardFace       |      ✅      |     ✅      |   ✅    |
-|                        | Corner              |      ✅      |     ✅      |   ✅    |
-| ![](img/enum.svg)      | CornerPosition      |      ✅      |     ✅      |   ⬛    |
-|                        | PlacementConstraint |      ✅      |     ✅      |   ✅    |
-| ![](img/interface.svg) | Points              |      ✅      |     ✅      |   ⬛    |
-|                        | SimplePoints        |      ✅      |     ✅      |   ✅    |
-|                        | ItemPoints          |      ✅      |     ✅      |   ✅    |
-|                        | CornerCoverPoints   |      ✅      |     ✅      |   ✅    |
+|                        | Class               |    Implemented     |      Documented      |       Tested       |
+|------------------------|---------------------|:------------------:|:--------------------:|:------------------:|
+|                        | Card                | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+| ![](img/enum.svg)      | CardColor           | :white_check_mark: |  :white_check_mark:  |                    |
+| ![](img/enum.svg)      | Side                | :white_check_mark: |  :white_check_mark:  |                    |
+| ![](img/interface.svg) | CardFace            | :white_check_mark: | :white_large_square: |                    |
+| ![](img/abstract.svg)  | BaseCardFace        | :white_check_mark: |  :white_check_mark:  |                    |
+|                        | BackCardFace        | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+|                        | FrontCardFace       | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+|                        | Corner              | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+| ![](img/enum.svg)      | CornerPosition      | :white_check_mark: |  :white_check_mark:  |                    |
+|                        | PlacementConstraint | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+| ![](img/interface.svg) | Points              | :white_check_mark: |  :white_check_mark:  |                    |
+|                        | SimplePoints        | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+|                        | ItemPoints          | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+|                        | CornerCoverPoints   | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
 
 ### Chat
 
-|                       | Class            | Implemented | Documented | Tested |
-|-----------------------|------------------|:-----------:|:----------:|:------:|
-|                       | Chat             |      ✅      |     ❌      |   ❌    |
-| ![](img/abstract.svg) | Message          |      ✅      |     ❌      |   ⬛    |
-|                       | DirectMessage    |      ✅      |     ❌      |   ❌    |
-|                       | BroadcastMessage |      ✅      |     ❌      |   ❌    |
+|                       | Class            |    Implemented     |      Documented      |        Tested        |
+|-----------------------|------------------|:------------------:|:--------------------:|:--------------------:|
+|                       | Chat             | :white_check_mark: | :white_large_square: | :white_large_square: |
+| ![](img/abstract.svg) | Message          | :white_check_mark: | :white_large_square: |                      |
+|                       | DirectMessage    | :white_check_mark: | :white_large_square: | :white_large_square: |
+|                       | BroadcastMessage | :white_check_mark: | :white_large_square: | :white_large_square: |
 
 ### Choice
 
-|                   | Class           | Implemented | Documented | Tested |
-|-------------------|-----------------|:-----------:|:----------:|:------:|
-|                   | Choice          |      ✅      |     ✅      |   ✅    |
-|                   | MultiChoice     |      ✅      |     ❌      |   ✅    |
-| ![](img/enum.svg) | SelectionResult |      ✅      |     ❌      |   ⬛    |
+|                   | Class           |    Implemented     |      Documented      |       Tested       |
+|-------------------|-----------------|:------------------:|:--------------------:|:------------------:|
+|                   | Choice          | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+|                   | MultiChoice     | :white_check_mark: | :white_large_square: | :white_check_mark: |
+| ![](img/enum.svg) | SelectionResult | :white_check_mark: | :white_large_square: |                    |
 
 ### Collectible
 
-|                        | Class       | Implemented | Documented | Tested |
-|------------------------|-------------|:-----------:|:----------:|:------:|
-| ![](img/interface.svg) | Collectible |      ✅      |     ✅      |   ⬛    |
-| ![](img/enum.svg)      | Item        |      ✅      |     ✅      |   ⬛    |
-| ![](img/enum.svg)      | Resource    |      ✅      |     ✅      |   ⬛    |
+|                        | Class       |    Implemented     |     Documented     | Tested |
+|------------------------|-------------|:------------------:|:------------------:|:------:|
+| ![](img/interface.svg) | Collectible | :white_check_mark: | :white_check_mark: |        |
+| ![](img/enum.svg)      | Item        | :white_check_mark: | :white_check_mark: |        |
+| ![](img/enum.svg)      | Resource    | :white_check_mark: | :white_check_mark: |        |
 
 ### Objective
 
-|                       | Class                         | Implemented | Documented | Tested |
-|-----------------------|-------------------------------|:-----------:|:----------:|:------:|
-| ![](img/abstract.svg) | Objective                     |      ✅      |     ✅      |   ⬛    |
-|                       | SameCollectibleObjective      |      ✅      |     ✅      |   ✅    |
-|                       | DifferentCollectibleObjective |      ✅      |     ✅      |   ✅    |
-|                       | PatternObjective              |     🚧      |     ✅      |   ✅    |
+|                       | Class                         |    Implemented     |     Documented     |       Tested       |
+|-----------------------|-------------------------------|:------------------:|:------------------:|:------------------:|
+| ![](img/abstract.svg) | Objective                     | :white_check_mark: | :white_check_mark: |                    |
+|                       | SameCollectibleObjective      | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                       | DifferentCollectibleObjective | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                       | PatternObjective              |   :construction:   | :white_check_mark: | :white_check_mark: |
 
 ### Player
 
-|                   | Class         | Implemented | Documented | Tested |
-|-------------------|---------------|:-----------:|:----------:|:------:|
-|                   | PlayerProfile |     🚧      |     ✅      |   ❌    |
-|                   | PlayerData    |      ✅      |     ❌      |   ❌    |
-| ![](img/enum.svg) | PayerColor    |      ✅      |     ✅      |   ⬛    |
+|                   | Class         |    Implemented     |      Documented      |        Tested        |
+|-------------------|---------------|:------------------:|:--------------------:|:--------------------:|
+|                   | PlayerProfile |   :construction:   |  :white_check_mark:  | :white_large_square: |
+|                   | PlayerData    | :white_check_mark: | :white_large_square: | :white_large_square: |
+| ![](img/enum.svg) | PayerColor    | :white_check_mark: |  :white_check_mark:  |                      |
 
 ### Game
 
-|                        | Class       | Implemented | Documented | Tested |
-|------------------------|-------------|:-----------:|:----------:|:------:|
-|                        | Game        |     🚧      |     ❌      |   ❌    |
-|                        | GameManager |      ❌      |     ❌      |   ❌    |
-| ![](img/enum.svg)      | GameStatus  |      ✅      |     ❌      |   ⬛    |
-|                        | PlayArea    |      ✅      |     ✅      |   ✅    |
-|                        | Board       |      ✅      |     ✅      |   ❌    |
-|                        | Deck        |      ✅      |     ✅      |   ✅    |
-|                        | FaceUpCard  |      ✅      |     ✅      |   ✅    |
-| ![](img/interface.svg) | DrawSource  |      ✅      |     ❌      |   ⬛    |
-| ![](img/enum.svg)      | DrawResult  |      ✅      |     ❌      |   ⬛    |
-|                        | GameAssets  |      ✅      |     ❌      |   ✅    |
+|                        | Class       |     Implemented      |      Documented      |        Tested        |
+|------------------------|-------------|:--------------------:|:--------------------:|:--------------------:|
+|                        | Game        |    :construction:    | :white_large_square: | :white_large_square: |
+|                        | GameManager | :white_large_square: | :white_large_square: | :white_large_square: |
+| ![](img/enum.svg)      | GameStatus  |  :white_check_mark:  | :white_large_square: |                      |
+|                        | PlayArea    |  :white_check_mark:  |  :white_check_mark:  |  :white_check_mark:  |
+|                        | Board       |  :white_check_mark:  |  :white_check_mark:  | :white_large_square: |
+|                        | Deck        |  :white_check_mark:  |  :white_check_mark:  |  :white_check_mark:  |
+|                        | FaceUpCard  |  :white_check_mark:  |  :white_check_mark:  |  :white_check_mark:  |
+| ![](img/interface.svg) | DrawSource  |  :white_check_mark:  | :white_large_square: |                      |
+| ![](img/enum.svg)      | DrawResult  |  :white_check_mark:  | :white_large_square: |                      |
+|                        | GameAssets  |  :white_check_mark:  | :white_large_square: |  :white_check_mark:  |
