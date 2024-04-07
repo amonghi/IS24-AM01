@@ -25,15 +25,6 @@ import java.util.*;
  */
 public class Game {
     private final int id;
-    private GameStatus status;
-    private TurnPhase turnPhase;
-
-    /**
-     * This attribute is used to save the previous valid status after a game pause.
-     * @see Game#pausedGame() pausedGame
-     * @see Game#resumeGame() resumeGame
-     */
-    private GameStatus recoverStatus;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
     private final Map<PlayerProfile, Choice<Side>> startingCardSideChoices;
@@ -43,13 +34,20 @@ public class Game {
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
     private final Set<Objective> commonObjectives;
-
+    private final int maxPlayers;
+    private final Board board;
+    private GameStatus status;
+    private TurnPhase turnPhase;
+    /**
+     * This attribute is used to save the previous valid status after a game pause.
+     * @see Game#pausedGame() pausedGame
+     * @see Game#resumeGame() resumeGame
+     */
+    private GameStatus recoverStatus;
     /**
      * It stores the current player's index referred to {@code playerProfiles} list
      */
     private int currentPlayer;
-    private final int maxPlayers;
-    private final Board board;
 
     /**
      * Constructs a new {@code Game} and set id and maxPlayers fields. {@link Board} is set with standard decks (40 cards per each deck)
@@ -186,6 +184,15 @@ public class Game {
     }
 
     /**
+     * This method permits to set the current turn phase
+     * @param turnPhase the new {@link TurnPhase} to be set.
+     * @see it.polimi.ingsw.am01.model.game.TurnPhase
+     */
+    private void setTurnPhase(TurnPhase turnPhase) {
+        this.turnPhase = turnPhase;
+    }
+
+    /**
      * @return the {@link ChatManager} of this game, that manages messages sent by each player
      * @see it.polimi.ingsw.am01.model.chat.ChatManager
      * @see it.polimi.ingsw.am01.model.chat.Message
@@ -213,7 +220,7 @@ public class Game {
 
         for (PlayerProfile player : playerProfiles) {
             List<Card> hand = new ArrayList<>();
-            hand.add(board.getResourceCardDeck().draw().orElseThrow()); // FIXME: decide the exception to be thrown
+            hand.add(board.getResourceCardDeck().draw().orElseThrow()); // TODO: decide the exception to be thrown
             hand.add(board.getResourceCardDeck().draw().orElseThrow());
             hand.add(board.getGoldenCardDeck().draw().orElseThrow());
 
@@ -281,7 +288,7 @@ public class Game {
 
         for (PlayerProfile player : playerProfiles) {
             startingCardSideChoices.put(player, new Choice<>(EnumSet.allOf(Side.class)));
-            startingCards.put(player, starterCardDeck.draw().orElseThrow()); // FIXME: decide the exception to be thrown
+            startingCards.put(player, starterCardDeck.draw().orElseThrow()); // TODO: decide the exception to be thrown
         }
 
         // Setup color choices
@@ -496,15 +503,6 @@ public class Game {
         } else {
             throw new IllegalMoveException();
         }
-    }
-
-    /**
-     * This method permits to set the current turn phase
-     * @param turnPhase the new {@link TurnPhase} to be set.
-     * @see it.polimi.ingsw.am01.model.game.TurnPhase
-     */
-    private void setTurnPhase(TurnPhase turnPhase) {
-        this.turnPhase = turnPhase;
     }
 
     /**
