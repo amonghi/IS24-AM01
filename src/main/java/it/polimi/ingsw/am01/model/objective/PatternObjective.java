@@ -23,7 +23,7 @@ public class PatternObjective extends Objective {
     /**
      * Constructs a new PatternObjective with a specified pattern of {@link Card}s
      *
-     * @param points The points a player earns for each match
+     * @param points  The points a player earns for each match
      * @param pattern The map of relative {@link Position} and {@link CardColor} that
      *                define the pattern
      */
@@ -49,46 +49,45 @@ public class PatternObjective extends Objective {
     @Override
     public int getEarnedPoints(PlayArea pa) {
         matches.clear();
-        PlayArea.Position origin = new PlayArea.Position(0,0);
+        //PlayArea.Position origin = new PlayArea.Position(0,0);
 
-        for(PlayArea.CardPlacement cp : pa) {
-            //In this set I insert the cards that satisfy the pattern
-            Set<PlayArea.CardPlacement> satisfyingCards = new HashSet<>(0);
-            //The position (0,0) is always present in the Map
-            if(cp.getCard().color().equals(pattern.get(origin))) {
-                satisfyingCards.add(cp);
-                //Relative positions to be checked
-                Set<PlayArea.Position> toCheck = pattern.keySet().stream()
-                                                                    .filter(pos -> !pos.equals(origin))
-                                                                    .collect(Collectors.toSet());
-                for(PlayArea.Position relativePos : toCheck) {
-                    PlayArea.Position pos = new PlayArea.Position(relativePos.i() + cp.getPosition().i(),
-                            relativePos.j() + cp.getPosition().j());
-                    Optional<PlayArea.CardPlacement> card = pa.getAt(pos);
-                    if(card.isPresent()) {
-                        if(card.get().getCard().color().equals(pattern.get(relativePos))) {
-                            satisfyingCards.add(card.get());
-                        }
-                        //TODO: CI VA UN ELSE CHE INTERROMPE IL CICLO
-                    }
-                }
+        for (PlayArea.CardPlacement cp : pa) {
+            //Extract absolute position from the pattern
+            Map<Position, CardColor> absPosition = new HashMap<>();
+            for (Position relPos : pattern.keySet()) {
+                absPosition.put(new Position(relPos.i() + cp.getPosition().i(), relPos.j() + cp.getPosition().j()), pattern.get(relPos));
+            }
 
-                //Here I shoud have the complete set, if the objective has been satisfied
-                if(satisfyingCards.size() == pattern.keySet().size())
-                    matches.add(new HashSet<>(satisfyingCards));
-                satisfyingCards.clear();
+            //Extract CardPlacement to check
+            Set<PlayArea.CardPlacement> toCheck = absPosition.keySet().stream()
+                    .map(pa::getAt)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toSet());
+
+            //Check if some CardPlacement is missing in one of the pattern's position
+            if (toCheck.size() == pattern.size()) {
+                //Check if the color of each card matches with the pattern
+                toCheck = toCheck.stream()
+                        .filter(cardPlacement -> cardPlacement.getCard().color().equals(absPosition.get(cardPlacement.getPosition())))
+                        .collect(Collectors.toSet());
+
+                if (toCheck.size() == pattern.size())
+                    matches.add(new HashSet<>(toCheck));
+
+                toCheck.clear();
             }
         }
 
         //Here, in matches, I have all the Set that satisfy the objective
         //And I have to identify ONLY the disjoint sets.
         int matchCards = (int) matches.stream()
-                                        .flatMap(Collection::stream)
-                                        .distinct()
-                                        .count();
+                .flatMap(Collection::stream)
+                .distinct()
+                .count();
 
         //Here I have the number of DIFFERENT cards that satisfy the objective.
         //Groups of pattern.keySet().size() cards can be used to calculate points
-        return (matchCards / pattern.keySet().size())*getPointsPerMatch();
+        return (matchCards / pattern.size()) * getPointsPerMatch();
     }
 }
