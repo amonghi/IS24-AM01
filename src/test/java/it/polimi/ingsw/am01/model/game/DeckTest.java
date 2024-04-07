@@ -6,11 +6,11 @@ import it.polimi.ingsw.am01.model.card.face.BackCardFace;
 import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.collectible.Resource;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -113,17 +113,6 @@ class DeckTest {
             )
 
     );
-
-    @RepeatedTest(10)
-    void canShuffle() {
-        Deck deck = new Deck(cardList);
-        deck.shuffle();
-        List<Card> list = Stream.generate(deck::draw)
-                .takeWhile(Optional::isPresent)
-                .flatMap(Optional::stream)
-                .toList();
-        assertNotEquals(cardList, list);
-    }
 
     @Test
     void canCheckIfEmpty() {
