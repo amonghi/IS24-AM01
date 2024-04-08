@@ -12,9 +12,8 @@ import java.util.Optional;
  */
 public interface DrawSource {
     /**
-     * This method permits to draw a card
+     * This method permits to draw a {@link Card}. Implementations of this method are defined in {@link Deck} and {@link FaceUpCard}
      * @return {@code Optional.empty()} if source is empty, otherwise the first card of source.
-     * Implementations of this method are defined in {@link Deck} and {@link FaceUpCard}
      */
     Optional<Card> draw();
 }
