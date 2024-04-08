@@ -13,7 +13,6 @@ import java.util.Set;
  * @see it.polimi.ingsw.am01.model.game.FaceUpCard
  *
  */
-
 public class Board {
     private final Set<FaceUpCard> faceUpCards;
     private final Deck resourceCardDeck;
@@ -41,6 +40,18 @@ public class Board {
 
     /**
      *
+     * @param resourceCardDeck The resource card's deck
+     * @param goldenCardDeck The golden card's deck
+     * @return a new Board with shuffled decks
+     */
+    public static Board createShuffled(Deck resourceCardDeck, Deck goldenCardDeck) {
+        resourceCardDeck.shuffle();
+        goldenCardDeck.shuffle();
+        return new Board(resourceCardDeck, goldenCardDeck);
+    }
+
+    /**
+     *
      * @return the reference of the set of the four visible cards on the board
      */
     public Set<FaceUpCard> getFaceUpCards() {
@@ -61,17 +72,5 @@ public class Board {
      */
     public Deck getGoldenCardDeck() {
         return goldenCardDeck;
-    }
-
-    /**
-     *
-     * @param resourceCardDeck The resource card's deck
-     * @param goldenCardDeck The golden card's deck
-     * @return a new Board with shuffled decks
-     */
-    public static Board createShuffled(Deck resourceCardDeck, Deck goldenCardDeck){
-        resourceCardDeck.shuffle();
-        goldenCardDeck.shuffle();
-        return new Board(resourceCardDeck, goldenCardDeck);
     }
 }
