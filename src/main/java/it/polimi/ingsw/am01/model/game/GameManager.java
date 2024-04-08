@@ -59,6 +59,20 @@ public class GameManager {
     }
 
     /**
+     * Deletes a game and the relative saved file
+     *
+     * @param game a reference of the selected game
+     */
+    public void deleteGame(Game game) {
+        games.remove(game);
+        // Delete json if save() has been already called
+        if (loadSavedGamesIds().contains(game.getId())) {
+            File file = new File(dataDir + "/" + game.getId() + ".json");
+            file.delete();
+        }
+    }
+
+    /**
      * Provides all ids of games saved as files
      *
      * @return a list of ids of games saved
