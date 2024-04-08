@@ -491,7 +491,7 @@ package game {
         + getFaceUpCards() Set<FaceUpCard>
         + getResourceCardDeck() Deck
         + getGoldenCardDeck() Deck
-        + createShuffled(Deck resourceCardDeck, Deck goldenCardDeck) Board
+        + {static} createShuffled(Deck resourceCardDeck, Deck goldenCardDeck) Board
     }
     Deck <--* Board
     FaceUpCard <--* Board
