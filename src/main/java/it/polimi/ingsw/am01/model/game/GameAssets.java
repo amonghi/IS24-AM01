@@ -17,13 +17,19 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/**
+ * Provides predetermined lists of {@link Objective} and {@link Card} divided by type.
+ * Takes all the provided cards and objectives from relatives json files.
+ *
+ */
 public class GameAssets {
-
     private static GameAssets instance = null;
     private final List<Card> cards;
     private final List<Objective> objectives;
 
-
+    /**
+     * Initialize GameAssets reading the cards and objectives from their json files
+     */
     private GameAssets() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Corner.class, new CornerDeserializer());
@@ -68,25 +74,50 @@ public class GameAssets {
         objectives = List.of(objectiveArray);
     }
 
+    /**
+     * Creates and saves a new instance of this class if it's the first time calling this method.
+     * Otherwise, provides that saved instance
+     *
+     * @return an instance of GameAssets
+     */
     public static GameAssets getInstance() {
         if (instance == null)
             instance = new GameAssets();
         return instance;
     }
 
-
+    /**
+     * Filters the saved cards and provides all the resource cards
+     *
+     * @return all the resource cards
+     */
     public List<Card> getResourceCards() {
         return cards.stream().filter(card -> !card.isStarter() && !card.isGold()).toList();
     }
 
+    /**
+     * Filters the saved cards and provides all the golden cards
+     *
+     * @return all the golden cards
+     */
     public List<Card> getGoldenCards() {
         return cards.stream().filter(Card::isGold).toList();
     }
 
+    /**
+     * Filters the saved cards and provides all the starter cards
+     *
+     * @return all the starter cards
+     */
     public List<Card> getStarterCards() {
         return cards.stream().filter(Card::isStarter).toList();
     }
 
+    /**
+     * Provides all the saved objectives
+     *
+     * @return all the objectives
+     */
     public List<Objective> getObjectives() {
         return objectives;
     }
