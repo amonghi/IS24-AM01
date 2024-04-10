@@ -57,8 +57,8 @@ Components:
 |-------------------------------------|------------------|:------------------:|:------------------:|:--------------------:|
 |                                     | ChatManager      | :white_check_mark: | :white_check_mark: |  :white_check_mark:  |
 | ![Abstract class](img/abstract.svg) | Message          | :white_check_mark: | :white_check_mark: |                      |
-|                                     | DirectMessage    | :white_check_mark: | :white_check_mark: | :white_large_square: |
-|                                     | BroadcastMessage | :white_check_mark: | :white_check_mark: | :white_large_square: |
+|                                     | DirectMessage    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                     | BroadcastMessage | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 ### Choice
 
