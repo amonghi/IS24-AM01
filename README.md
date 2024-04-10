@@ -90,7 +90,7 @@ Components:
 |                       | Class         |    Implemented     |      Documented      |        Tested        |
 |-----------------------|---------------|:------------------:|:--------------------:|:--------------------:|
 |                       | PlayerProfile |   :construction:   |  :white_check_mark:  | :white_large_square: |
-|                       | PlayerData    | :white_check_mark: | :white_large_square: | :white_large_square: |
+|                       | PlayerData    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | ![Enum](img/enum.svg) | PayerColor    | :white_check_mark: |  :white_check_mark:  |                      |
 
 ### Game
