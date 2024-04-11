@@ -91,7 +91,7 @@ Components:
 |-----------------------|---------------|:------------------:|:------------------:|:--------------------:|
 |                       | PlayerProfile |   :construction:   | :white_check_mark: | :white_large_square: |
 |                       | PlayerData    | :white_check_mark: | :white_check_mark: |  :white_check_mark:  |
-| ![Enum](img/enum.svg) | PayerColor    | :white_check_mark: | :white_check_mark: |                      |
+| ![Enum](img/enum.svg) | PlayerColor   | :white_check_mark: | :white_check_mark: |                      |
 
 ### Game
 
