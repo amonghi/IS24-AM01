@@ -29,6 +29,7 @@ public class GameManager {
 
     /**
      * Creates a new {@code GameManager} and load all the saved games from file
+     *
      * @param dataDir the path of the directory in which the saved games will be stored
      */
     public GameManager(Path dataDir) {
@@ -71,6 +72,7 @@ public class GameManager {
         // Delete json if save() has been already called
         if (loadSavedGamesIds().contains(game.getId())) {
             File file = dataDir.resolve(game.getId() + ".json").toFile();
+            //noinspection ResultOfMethodCallIgnored
             file.delete();
         }
     }
@@ -119,6 +121,7 @@ public class GameManager {
      * @param game a reference to the game
      */
     public void saveGame(Game game) {
+        //noinspection ResultOfMethodCallIgnored
         dataDir.toFile().mkdir();
         File file = dataDir.resolve(game.getId() + ".json").toFile();
         try (Writer fileWriter = new FileWriter(file, false)) {
