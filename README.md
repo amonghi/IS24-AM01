@@ -87,11 +87,11 @@ Components:
 
 ### Player
 
-|                       | Class         |    Implemented     |     Documented     |        Tested        |
-|-----------------------|---------------|:------------------:|:------------------:|:--------------------:|
-|                       | PlayerProfile |   :construction:   | :white_check_mark: | :white_large_square: |
-|                       | PlayerData    | :white_check_mark: | :white_check_mark: |  :white_check_mark:  |
-| ![Enum](img/enum.svg) | PlayerColor   | :white_check_mark: | :white_check_mark: |                      |
+|                       | Class         |      Implemented      |     Documented     |       Tested       |
+|-----------------------|---------------|:---------------------:|:------------------:|:------------------:|
+|                       | PlayerProfile |  :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+|                       | PlayerData    |  :white_check_mark:   | :white_check_mark: | :white_check_mark: |
+| ![Enum](img/enum.svg) | PlayerColor   |  :white_check_mark:   | :white_check_mark: |                    |
 
 ### Game
 
