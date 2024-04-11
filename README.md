@@ -34,29 +34,29 @@ Components:
 
 ### Card
 
-|                                     | Class               |    Implemented     |      Documented      |       Tested       |
-|-------------------------------------|---------------------|:------------------:|:--------------------:|:------------------:|
-|                                     | Card                | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
-| ![Enum](img/enum.svg)               | CardColor           | :white_check_mark: |  :white_check_mark:  |                    |
-| ![Enum](img/enum.svg)               | Side                | :white_check_mark: |  :white_check_mark:  |                    |
-| ![Interface](img/interface.svg)     | CardFace            | :white_check_mark: | :white_large_square: |                    |
-| ![Abstract class](img/abstract.svg) | BaseCardFace        | :white_check_mark: |  :white_check_mark:  |                    |
-|                                     | BackCardFace        | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
-|                                     | FrontCardFace       | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
-|                                     | Corner              | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
-| ![Enum](img/enum.svg)               | CornerPosition      | :white_check_mark: |  :white_check_mark:  |                    |
-|                                     | PlacementConstraint | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
-| ![Interface](img/interface.svg)     | Points              | :white_check_mark: |  :white_check_mark:  |                    |
-|                                     | SimplePoints        | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
-|                                     | ItemPoints          | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
-|                                     | CornerCoverPoints   | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
+|                                     | Class               |    Implemented     |     Documented     |       Tested       |
+|-------------------------------------|---------------------|:------------------:|:------------------:|:------------------:|
+|                                     | Card                | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| ![Enum](img/enum.svg)               | CardColor           | :white_check_mark: | :white_check_mark: |                    |
+| ![Enum](img/enum.svg)               | Side                | :white_check_mark: | :white_check_mark: |                    |
+| ![Interface](img/interface.svg)     | CardFace            | :white_check_mark: | :white_check_mark: |                    |
+| ![Abstract class](img/abstract.svg) | BaseCardFace        | :white_check_mark: | :white_check_mark: |                    |
+|                                     | BackCardFace        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                     | FrontCardFace       | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                     | Corner              | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| ![Enum](img/enum.svg)               | CornerPosition      | :white_check_mark: | :white_check_mark: |                    |
+|                                     | PlacementConstraint | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| ![Interface](img/interface.svg)     | Points              | :white_check_mark: | :white_check_mark: |                    |
+|                                     | SimplePoints        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                     | ItemPoints          | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                     | CornerCoverPoints   | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 ### Chat
 
-|                                     | Class            |    Implemented     |     Documented     |        Tested        |
-|-------------------------------------|------------------|:------------------:|:------------------:|:--------------------:|
-|                                     | ChatManager      | :white_check_mark: | :white_check_mark: |  :white_check_mark:  |
-| ![Abstract class](img/abstract.svg) | Message          | :white_check_mark: | :white_check_mark: |                      |
+|                                     | Class            |    Implemented     |     Documented     |       Tested       |
+|-------------------------------------|------------------|:------------------:|:------------------:|:------------------:|
+|                                     | ChatManager      | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| ![Abstract class](img/abstract.svg) | Message          | :white_check_mark: | :white_check_mark: |                    |
 |                                     | DirectMessage    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 |                                     | BroadcastMessage | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
@@ -87,11 +87,11 @@ Components:
 
 ### Player
 
-|                       | Class         |    Implemented     |      Documented      |        Tested        |
-|-----------------------|---------------|:------------------:|:--------------------:|:--------------------:|
-|                       | PlayerProfile |   :construction:   |  :white_check_mark:  | :white_large_square: |
-|                       | PlayerData    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| ![Enum](img/enum.svg) | PayerColor    | :white_check_mark: |  :white_check_mark:  |                      |
+|                       | Class         |    Implemented     |     Documented     |        Tested        |
+|-----------------------|---------------|:------------------:|:------------------:|:--------------------:|
+|                       | PlayerProfile |   :construction:   | :white_check_mark: | :white_large_square: |
+|                       | PlayerData    | :white_check_mark: | :white_check_mark: |  :white_check_mark:  |
+| ![Enum](img/enum.svg) | PayerColor    | :white_check_mark: | :white_check_mark: |                      |
 
 ### Game
 
