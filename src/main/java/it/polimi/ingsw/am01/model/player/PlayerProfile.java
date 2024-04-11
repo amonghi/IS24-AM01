@@ -8,6 +8,7 @@ public class PlayerProfile {
 
     /**
      * Constructs a PlayerProfile and sets name
+     *
      * @param name The name of the player
      */
     public PlayerProfile(String name) {
@@ -16,19 +17,11 @@ public class PlayerProfile {
 
     /**
      * Provides the name of player
+     *
      * @return The name of player
      */
-    public String getName(){
+    public String getName() {
         return name;
-    }
-
-    //TODO: implement isConnected()
-    /**
-     *
-     * @return
-     */
-    public boolean isConnected() {
-        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
