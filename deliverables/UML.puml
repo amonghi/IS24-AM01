@@ -368,7 +368,7 @@ package game {
         - int nextId
         - {static} String dataDir
 
-        + GameManager()
+        + GameManager(Path dataDir)
         + getGames() List<Game>
         + createGame(int maxPlayers) Game
         - loadSavedGamesIds() List<Integer>

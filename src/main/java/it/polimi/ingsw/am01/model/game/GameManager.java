@@ -15,6 +15,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.model.serializers.*;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,15 +25,17 @@ import java.util.stream.Collectors;
 public class GameManager {
     private final List<Game> games;
     private int nextId;
-    private static final String dataDir = "./data"; // TODO: add command line argument for dataDir
+    private final Path dataDir;
 
     /**
      * Creates a new {@code GameManager} and load all the saved games from file
+     * @param dataDir the path of the directory in which the saved games will be stored
      */
-    public GameManager() {
+    public GameManager(Path dataDir) {
         this.games = new ArrayList<>();
+        this.dataDir = dataDir;
         List<Integer> savedGamesIds = loadSavedGamesIds();
-        nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(-1);
+        nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(0);
         for (int id : savedGamesIds) {
             games.add(loadGame(id));
         }
@@ -67,7 +70,7 @@ public class GameManager {
         games.remove(game);
         // Delete json if save() has been already called
         if (loadSavedGamesIds().contains(game.getId())) {
-            File file = new File(dataDir + "/" + game.getId() + ".json");
+            File file = dataDir.resolve(game.getId() + ".json").toFile();
             file.delete();
         }
     }
@@ -78,7 +81,7 @@ public class GameManager {
      * @return a list of ids of games saved
      */
     private List<Integer> loadSavedGamesIds() {
-        File folder = new File(dataDir);
+        File folder = dataDir.toFile();
         File[] containedFiles = folder.listFiles();
         if (containedFiles == null) {
             return new ArrayList<>();
@@ -99,7 +102,7 @@ public class GameManager {
      * @return a reference to the loaded game
      */
     private Game loadGame(int id) {
-        File file = new File(dataDir + "/" + id + ".json");
+        File file = dataDir.resolve(id + ".json").toFile();
 
         try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             String content = fileReader.lines().collect(Collectors.joining(System.lineSeparator()));
@@ -116,8 +119,8 @@ public class GameManager {
      * @param game a reference to the game
      */
     public void saveGame(Game game) {
-        File file = new File(dataDir + "/" + game.getId() + ".json");
-        file.getParentFile().mkdir();
+        dataDir.toFile().mkdir();
+        File file = dataDir.resolve(game.getId() + ".json").toFile();
         try (Writer fileWriter = new FileWriter(file, false)) {
             fileWriter.write(serializeGame(game));
         } catch (IOException e) {
