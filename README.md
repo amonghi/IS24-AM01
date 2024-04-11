@@ -95,16 +95,16 @@ Components:
 
 ### Game
 
-|                                 | Class       |    Implemented     |      Documented      |        Tested        |
-|---------------------------------|-------------|:------------------:|:--------------------:|:--------------------:|
-|                                 | Game        | :white_check_mark: |  :white_check_mark:  |  :white_check_mark:  |
-| ![Enum](img/enum.svg)           | GameStatus  | :white_check_mark: |  :white_check_mark:  |                      |
-| ![Enum](img/enum.svg)           | TurnPhase   | :white_check_mark: |  :white_check_mark:  |                      |
-|                                 | GameManager | :white_check_mark: | :white_large_square: | :white_large_square: |
-|                                 | PlayArea    | :white_check_mark: |  :white_check_mark:  |  :white_check_mark:  |
-|                                 | Board       | :white_check_mark: |  :white_check_mark:  | :white_large_square: |
-|                                 | Deck        | :white_check_mark: |  :white_check_mark:  |  :white_check_mark:  |
-|                                 | FaceUpCard  | :white_check_mark: |  :white_check_mark:  |  :white_check_mark:  |
-| ![Interface](img/interface.svg) | DrawSource  | :white_check_mark: | :white_large_square: |                      |
-| ![Enum](img/enum.svg)           | DrawResult  | :white_check_mark: | :white_large_square: |                      |
-|                                 | GameAssets  | :white_check_mark: | :white_large_square: |  :white_check_mark:  |
+|                                 | Class       |    Implemented     |     Documented     |       Tested       |
+|---------------------------------|-------------|:------------------:|:------------------:|:------------------:|
+|                                 | Game        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| ![Enum](img/enum.svg)           | GameStatus  | :white_check_mark: | :white_check_mark: |                    |
+| ![Enum](img/enum.svg)           | TurnPhase   | :white_check_mark: | :white_check_mark: |                    |
+|                                 | GameManager | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                 | PlayArea    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                 | Board       | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                 | Deck        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|                                 | FaceUpCard  | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| ![Interface](img/interface.svg) | DrawSource  | :white_check_mark: | :white_check_mark: |                    |
+| ![Enum](img/enum.svg)           | DrawResult  | :white_check_mark: | :white_check_mark: |                    |
+|                                 | GameAssets  | :white_check_mark: | :white_check_mark: | :white_check_mark: |

@@ -368,7 +368,7 @@ package game {
         - int nextId
         - {static} String dataDir
 
-        + GameManager()
+        + GameManager(Path dataDir)
         + getGames() List<Game>
         + createGame(int maxPlayers) Game
         - loadSavedGamesIds() List<Integer>
@@ -491,7 +491,7 @@ package game {
         + getFaceUpCards() Set<FaceUpCard>
         + getResourceCardDeck() Deck
         + getGoldenCardDeck() Deck
-        + createShuffled(Deck resourceCardDeck, Deck goldenCardDeck) Board
+        + {static} createShuffled(Deck resourceCardDeck, Deck goldenCardDeck) Board
     }
     Deck <--* Board
     FaceUpCard <--* Board

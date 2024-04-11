@@ -15,28 +15,46 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.model.serializers.*;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Manages multiple {@link Game} instances at once and allows to save the current status in a json file
+ */
 public class GameManager {
     private final List<Game> games;
     private int nextId;
-    private static final String dataDir = "./data";
+    private final Path dataDir;
 
-    // TODO: add command line argument for dataDir
-    public GameManager() {
+    /**
+     * Creates a new {@code GameManager} and load all the saved games from file
+     *
+     * @param dataDir the path of the directory in which the saved games will be stored
+     */
+    public GameManager(Path dataDir) {
         this.games = new ArrayList<>();
+        this.dataDir = dataDir;
         List<Integer> savedGamesIds = loadSavedGamesIds();
-        nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(-1);
+        nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(0);
         for (int id : savedGamesIds) {
             games.add(loadGame(id));
         }
     }
 
+    /**
+     * @return a list of the games that are currently running
+     */
     public List<Game> getGames() {
         return Collections.unmodifiableList(games);
     }
 
+    /**
+     * Creates a new game
+     *
+     * @param maxPlayers the maximum amount of players allowed in that game
+     * @return a reference to the created game
+     */
     public Game createGame(int maxPlayers) {
         Game newGame = new Game(nextId, maxPlayers);
         nextId++;
@@ -44,8 +62,28 @@ public class GameManager {
         return newGame;
     }
 
+    /**
+     * Deletes a game and the relative saved file
+     *
+     * @param game a reference of the selected game
+     */
+    public void deleteGame(Game game) {
+        games.remove(game);
+        // Delete json if save() has been already called
+        if (loadSavedGamesIds().contains(game.getId())) {
+            File file = dataDir.resolve(game.getId() + ".json").toFile();
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        }
+    }
+
+    /**
+     * Provides all ids of games saved as files
+     *
+     * @return a list of ids of games saved
+     */
     private List<Integer> loadSavedGamesIds() {
-        File folder = new File(dataDir);
+        File folder = dataDir.toFile();
         File[] containedFiles = folder.listFiles();
         if (containedFiles == null) {
             return new ArrayList<>();
@@ -59,8 +97,14 @@ public class GameManager {
                 .toList();
     }
 
+    /**
+     * Loads a game from file and recovering its status
+     *
+     * @param id the id of the game
+     * @return a reference to the loaded game
+     */
     private Game loadGame(int id) {
-        File file = new File(dataDir + "/" + id + ".json");
+        File file = dataDir.resolve(id + ".json").toFile();
 
         try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             String content = fileReader.lines().collect(Collectors.joining(System.lineSeparator()));
@@ -71,9 +115,15 @@ public class GameManager {
         }
     }
 
+    /**
+     * Saves the status of a game into a file
+     *
+     * @param game a reference to the game
+     */
     public void saveGame(Game game) {
-        File file = new File(dataDir + "/" + game.getId() + ".json");
-        file.getParentFile().mkdir();
+        //noinspection ResultOfMethodCallIgnored
+        dataDir.toFile().mkdir();
+        File file = dataDir.resolve(game.getId() + ".json").toFile();
         try (Writer fileWriter = new FileWriter(file, false)) {
             fileWriter.write(serializeGame(game));
         } catch (IOException e) {
@@ -81,6 +131,12 @@ public class GameManager {
         }
     }
 
+    /**
+     * Serializes a {@link Game} object into a json string
+     *
+     * @param game a reference to the game
+     * @return the serialized json
+     */
     private String serializeGame(Game game) {
         Gson gson = new GsonBuilder().setPrettyPrinting()
                 .registerTypeAdapter(Corner.class, new CornerSerializer())
@@ -95,6 +151,12 @@ public class GameManager {
         return gson.toJson(game);
     }
 
+    /**
+     * Deserializes a json string into a {@link Game} object
+     *
+     * @param json the json string
+     * @return a reference to the deserialized game
+     */
     private Game deserializeGame(String json) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Corner.class, new CornerDeserializer())
