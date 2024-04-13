@@ -7,22 +7,21 @@ import it.polimi.ingsw.am01.model.game.PlayArea;
 /**
  * An objective whose requirements are to have a minimum number
  * of a specific {@link Collectible}
- *
  */
-
 public class SameCollectibleObjective extends Objective {
     private final Collectible requiredCollectible;
     private final int requiredNumber;
+
     /**
      * Constructs a new SameCollectibleObjective
      *
-     * @param points the points a player earns for each match
+     * @param id                  The id of this objective
+     * @param points              the points a player earns for each match
      * @param requiredCollectible the {@link Collectible} required to earn the points
-     * @param requiredNumber the number of {@link Collectible} required to earn points
-     *
+     * @param requiredNumber      the number of {@link Collectible} required to earn points
      */
-    public SameCollectibleObjective(int points, Collectible requiredCollectible, int requiredNumber) {
-        super(points);
+    public SameCollectibleObjective(int id, int points, Collectible requiredCollectible, int requiredNumber) {
+        super(id, points);
         this.requiredCollectible = requiredCollectible;
         this.requiredNumber = requiredNumber;
     }
@@ -48,7 +47,6 @@ public class SameCollectibleObjective extends Objective {
      *
      * @param pa The {@link PlayArea} where the requirements have to be verified
      * @return the sum of the points earned by the player
-     *
      */
     @Override
     public int getEarnedPoints(PlayArea pa) {

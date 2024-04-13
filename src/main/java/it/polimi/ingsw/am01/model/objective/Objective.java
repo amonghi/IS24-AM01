@@ -12,22 +12,30 @@ import it.polimi.ingsw.am01.model.collectible.Collectible;
  * @see it.polimi.ingsw.am01.model.objective.PatternObjective
  * @see it.polimi.ingsw.am01.model.objective.SameCollectibleObjective
  * @see it.polimi.ingsw.am01.model.objective.DifferentCollectibleObjective
- *
  */
-
 public abstract class Objective {
+    private final int id;
     private final int points;
 
     /**
      * Constructs a new Objective
+     *
+     * @param id     The id of this objective
      * @param points The number of points a player earns for each match
      */
-    public Objective(int points) {
+    public Objective(int id, int points) {
         this.points = points;
+        this.id = id;
     }
 
     /**
-     *
+     * @return The id of this objective
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
      * @return The points earned for each match
      */
     public int getPointsPerMatch() {
@@ -35,10 +43,8 @@ public abstract class Objective {
     }
 
     /**
-     *
      * @param pa The {@link PlayArea} on which find matches
      * @return the number of points earned by the player, considering all the matches
      */
     public abstract int getEarnedPoints(PlayArea pa);
 }
-
