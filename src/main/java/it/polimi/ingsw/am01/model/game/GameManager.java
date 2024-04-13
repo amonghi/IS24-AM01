@@ -67,6 +67,19 @@ public class GameManager {
         return Collections.unmodifiableList(games);
     }
 
+    public Optional<Game> getGame(int id) {
+        return this.games.stream()
+                .filter(game -> game.getId() == id)
+                .findAny();
+    }
+
+    public Optional<Game> getGameWhereIsPlaying(PlayerProfile pp) {
+        // a player cannot be in more than one game at a time
+        return this.games.stream()
+                .filter(game -> game.getPlayerProfiles().equals(pp))
+                .findFirst();
+    }
+
     /**
      * Creates a new game
      *
