@@ -1,7 +1,11 @@
 package it.polimi.ingsw.am01.controller;
 
+import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.game.Game;
 import it.polimi.ingsw.am01.model.game.GameManager;
+import it.polimi.ingsw.am01.model.objective.Objective;
+import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
@@ -42,5 +46,37 @@ public class Controller {
         ensureNotInGame(player);
 
         game.join(player);
+    }
+
+    public void selectStartingCardSide(int gameId, String playerName, Side side) {
+        Game game = this.gameManager.getGame(gameId)
+                .orElseThrow();
+        PlayerProfile player = this.playerManager.getProfile(playerName)
+                .orElseThrow();
+
+        game.selectStartingCardSide(player, side);
+    }
+
+    public SelectionResult selectPlayerColor(int gameId, String playerName, PlayerColor color) {
+        Game game = this.gameManager.getGame(gameId)
+                .orElseThrow();
+        PlayerProfile player = this.playerManager.getProfile(playerName)
+                .orElseThrow();
+
+        return game.selectColor(player, color);
+    }
+
+    public void selectSecretObjective(int gameId, String playerName, int objectiveId) {
+        Game game = this.gameManager.getGame(gameId)
+                .orElseThrow();
+        PlayerProfile player = this.playerManager.getProfile(playerName)
+                .orElseThrow();
+
+        Objective objective = game.getObjectiveOptions(player).stream()
+                .filter(o -> o.getId() == objectiveId)
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("The specified objective is not a valid choice for this player"));
+
+        game.selectObjective(player, objective);
     }
 }
