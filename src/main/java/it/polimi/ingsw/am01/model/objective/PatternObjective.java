@@ -9,12 +9,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
  * A type of {@link Objective} that gives you point if a specific
  * pattern of {@link Card}s is visible on the {@link PlayArea}
  *
  * @see it.polimi.ingsw.am01.model.objective.Objective
- *
  */
 public class PatternObjective extends Objective {
     private final Map<PlayArea.Position, CardColor> pattern;
@@ -23,12 +21,13 @@ public class PatternObjective extends Objective {
     /**
      * Constructs a new PatternObjective with a specified pattern of {@link Card}s
      *
+     * @param id      The id of this objective
      * @param points  The points a player earns for each match
      * @param pattern The map of relative {@link Position} and {@link CardColor} that
      *                define the pattern
      */
-    public PatternObjective(int points, Map<PlayArea.Position, CardColor> pattern) {
-        super(points);
+    public PatternObjective(int id, int points, Map<PlayArea.Position, CardColor> pattern) {
+        super(id, points);
         this.pattern = new HashMap<>(pattern);
         matches = new HashSet<>(0);
     }

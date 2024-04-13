@@ -27,6 +27,7 @@ public class ObjectiveSerializer implements JsonSerializer<Objective> {
     public JsonElement serialize(Objective objective, Type type, JsonSerializationContext context) {
         JsonObject result = new JsonObject();
         JsonObject jsonObjective = new JsonObject();
+        jsonObjective.addProperty("id", objective.getId());
         jsonObjective.addProperty("points", objective.getPointsPerMatch());
         switch (objective){
             case SameCollectibleObjective sameCollectibleObjective -> {

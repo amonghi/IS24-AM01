@@ -13,6 +13,7 @@ public class PatternObjectiveDeserializer implements JsonDeserializer<PatternObj
     @Override
     public PatternObjective deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
+        int id = jsonObject.get("id").getAsInt();
         int points = jsonObject.get("points").getAsInt();
         String[] patternMatrix = context.deserialize(jsonObject.get("pattern"), String[].class);
 
@@ -32,7 +33,7 @@ public class PatternObjectiveDeserializer implements JsonDeserializer<PatternObj
                 }
             }
         }
-        return new PatternObjective(points, patternMap);
+        return new PatternObjective(id, points, patternMap);
     }
     private static CardColor parseColor(char color){
         return switch (Character.toUpperCase(color)) {

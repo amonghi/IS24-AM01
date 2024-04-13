@@ -10,19 +10,19 @@ import java.util.Set;
 /**
  * An objective whose requirements are to have a minimum number
  * of a certain set of {@link Item}s
- *
  */
 public class DifferentCollectibleObjective extends Objective {
     private final Set<Item> requiredItems;
+
     /**
      * Constructs a new DifferentCollectibleObjective
      *
-     * @param points the points a player earns for each match
+     * @param id            the id of this objective
+     * @param points        the points a player earns for each match
      * @param requiredItems the set of items required to earn the points
-     *
      */
-    public DifferentCollectibleObjective(int points, Set<Item> requiredItems) {
-        super(points);
+    public DifferentCollectibleObjective(int id, int points, Set<Item> requiredItems) {
+        super(id, points);
         this.requiredItems = new HashSet<>(requiredItems);
     }
 
@@ -40,15 +40,14 @@ public class DifferentCollectibleObjective extends Objective {
      *
      * @param pa The {@link PlayArea} where the requirements have to be verified
      * @return the sum of the points earned by the player
-     *
      */
     @Override
     public int getEarnedPoints(PlayArea pa) {
         return pa.getCollectibleCount().keySet().containsAll(requiredItems) ?
                 getPointsPerMatch() * requiredItems.stream()
-                                        .mapToInt(item -> pa.getCollectibleCount().get(item))
-                                        .min()
-                                        .orElse(0)
+                        .mapToInt(item -> pa.getCollectibleCount().get(item))
+                        .min()
+                        .orElse(0)
                 : 0;
     }
 }
