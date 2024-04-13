@@ -15,13 +15,11 @@ import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import org.junit.jupiter.api.Test;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GameTest {
     Game standardGame = new Game(1, 4);
@@ -31,7 +29,7 @@ class GameTest {
     PlayerProfile p4 = new PlayerProfile("George");
 
     @Test
-    public void testMaxPlayers(){
+    public void testMaxPlayers() {
         standardGame.join(p1);
         assertEquals(GameStatus.AWAITING_PLAYERS, standardGame.getStatus());
         standardGame.join(p2);
@@ -44,7 +42,7 @@ class GameTest {
     }
 
     @Test
-    public void testGameDoubleChoiceSide(){
+    public void testGameDoubleChoiceSide() {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -60,7 +58,7 @@ class GameTest {
     }
 
     @Test
-    public void testOneTurnPerPlayer(){
+    public void testOneTurnPerPlayer() {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -110,7 +108,7 @@ class GameTest {
         assertEquals(first, standardGame.getCurrentPlayer());
         Card c1 = standardGame.getPlayerData(first).getHand().getFirst();
 
-        standardGame.pausedGame();
+        standardGame.pauseGame();
         assertEquals(GameStatus.SUSPENDED, standardGame.getStatus());
 
         assertThrows(IllegalMoveException.class, () -> standardGame.placeCard(first, c1, Side.FRONT, 1, 0));
@@ -186,7 +184,7 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameDeckEmpty(){
+    public void firstTestEndGameDeckEmpty() {
         Game shortGame1 = new Game(2, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(9).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
@@ -313,7 +311,7 @@ class GameTest {
     }
 
     @Test
-    public void secondTestEndGameDeckEmpty(){
+    public void secondTestEndGameDeckEmpty() {
         Game shortGame2 = new Game(3, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(10).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
@@ -438,11 +436,11 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameTwentyPoints(){
+    public void firstTestEndGameTwentyPoints() {
         List<Card> cards = new ArrayList<>();
 
-        for(int i=90;i<120;i++){
-             cards.add(new Card(
+        for (int i = 90; i < 120; i++) {
+            cards.add(new Card(
                     i,
                     CardColor.RED,
                     true,
@@ -583,10 +581,10 @@ class GameTest {
     }
 
     @Test
-    public void secondTestEndGameTwentyPoints(){
+    public void secondTestEndGameTwentyPoints() {
         List<Card> cards = new ArrayList<>();
 
-        for(int i=90;i<120;i++){
+        for (int i = 90; i < 120; i++) {
             cards.add(new Card(
                     i,
                     CardColor.RED,
@@ -721,5 +719,25 @@ class GameTest {
 
         assertEquals(GameStatus.FINISHED, shortGame4.getStatus());
         assertTrue(shortGame4.getTotalScores().size() == shortGame4.getMaxPlayers() && !shortGame4.getWinners().isEmpty());
+    }
+
+    @Test
+    public void testPlayerHasAlreadyJoined() {
+        standardGame.join(p1);
+        standardGame.join(p2);
+        assertThrows(IllegalArgumentException.class, () -> standardGame.join(p1));
+
+        PlayerProfile p5 = new PlayerProfile("Mattew");
+        assertThrows(IllegalArgumentException.class, () -> standardGame.join(p5));
+    }
+
+    @Test
+    public void testMaxPlayersNotValid() {
+        assertThrows(IllegalArgumentException.class, () -> new Game(5, 1));
+        assertThrows(IllegalArgumentException.class, () -> new Game(4, 5));
+        
+        Board board = new Board(new Deck(GameAssets.getInstance().getResourceCards()), new Deck(GameAssets.getInstance().getGoldenCards()));
+        assertThrows(IllegalArgumentException.class, () -> new Game(6, 1, board));
+        assertThrows(IllegalArgumentException.class, () -> new Game(7, 5, board));
     }
 }
