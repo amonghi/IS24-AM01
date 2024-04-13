@@ -40,7 +40,7 @@ public class Game {
     private TurnPhase turnPhase;
     /**
      * This attribute is used to save the previous valid status after a game pause.
-     * @see Game#pausedGame() pausedGame
+     * @see Game#pauseGame() pausedGame
      * @see Game#resumeGame() resumeGame
      */
     private GameStatus recoverStatus;
@@ -246,7 +246,7 @@ public class Game {
      * No action will be performed while {@code SUSPENDED} status is set.
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
-    public void pausedGame() {
+    public void pauseGame() {
         if (status == GameStatus.SUSPENDED) {
             throw new IllegalMoveException();
         }

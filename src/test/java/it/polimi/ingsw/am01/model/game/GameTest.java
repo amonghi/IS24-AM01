@@ -110,7 +110,7 @@ class GameTest {
         assertEquals(first, standardGame.getCurrentPlayer());
         Card c1 = standardGame.getPlayerData(first).getHand().getFirst();
 
-        standardGame.pausedGame();
+        standardGame.pauseGame();
         assertEquals(GameStatus.SUSPENDED, standardGame.getStatus());
 
         assertThrows(IllegalMoveException.class, () -> standardGame.placeCard(first, c1, Side.FRONT, 1, 0));

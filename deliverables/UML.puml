@@ -424,7 +424,7 @@ package game {
         + getTotalScores() Map<PlayerProfile, Integer>
 
         + startGame() void
-        + pausedGame() void
+        + pauseGame() void
         + resumeGame() void
         - transition(GameStatus nextStatus) void
         - setTurnPhase(TurnPhase turnPhase) void
