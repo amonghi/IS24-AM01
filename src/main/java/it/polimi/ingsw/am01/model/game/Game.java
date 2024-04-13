@@ -50,13 +50,18 @@ public class Game {
     private int currentPlayer;
 
     /**
-     * Constructs a new {@code Game} and set id and maxPlayers fields. {@link Board} is set with standard decks (40 cards per each deck)
+     * Constructs a new {@code Game} and set id and maxPlayers fields. {@link Board} is set with standard decks (40 cards per each deck).
+     * It throws an {@code IllegalArgumentException} if {@code maxPlayers} is not between 2 and 4
      * @see it.polimi.ingsw.am01.model.game.Board
      *
      * @param id the unique id of the game
      * @param maxPlayers the maximum number of players that can play this game
      */
     public Game(int id, int maxPlayers) {
+        if (maxPlayers < 2 || maxPlayers > 4) {
+            throw new IllegalArgumentException("maxPlayers must be between 2 and 4");
+        }
+
         this.id = id;
         this.maxPlayers = maxPlayers;
         this.status = GameStatus.AWAITING_PLAYERS;
@@ -78,6 +83,7 @@ public class Game {
     /**
      * Constructs a new {@code Game} and set id, maxPlayers and {@link Board} fields.
      * This constructor is used to create a new game with custom decks.
+     * It throws an {@code IllegalArgumentException} if {@code maxPlayers} is not between 2 and 4
      * @see it.polimi.ingsw.am01.model.game.Board
      *
      * @param id the unique id of the game
@@ -85,6 +91,10 @@ public class Game {
      * @param board the board of the game, that includes all {@link FaceUpCard} and {@link Deck}
      */
     public Game(int id, int maxPlayers, Board board) {
+        if (maxPlayers < 2 || maxPlayers > 4) {
+            throw new IllegalArgumentException("maxPlayers must be between 2 and 4");
+        }
+
         this.id = id;
         this.maxPlayers = maxPlayers;
         this.status = GameStatus.AWAITING_PLAYERS;

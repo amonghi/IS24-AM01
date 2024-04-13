@@ -730,4 +730,14 @@ class GameTest {
         PlayerProfile p5 = new PlayerProfile("Mattew");
         assertThrows(IllegalArgumentException.class, () -> standardGame.join(p5));
     }
+
+    @Test
+    public void testMaxPlayersNotValid() {
+        assertThrows(IllegalArgumentException.class, () -> new Game(5, 1));
+        assertThrows(IllegalArgumentException.class, () -> new Game(4, 5));
+        
+        Board board = new Board(new Deck(GameAssets.getInstance().getResourceCards()), new Deck(GameAssets.getInstance().getGoldenCards()));
+        assertThrows(IllegalArgumentException.class, () -> new Game(6, 1, board));
+        assertThrows(IllegalArgumentException.class, () -> new Game(7, 5, board));
+    }
 }
