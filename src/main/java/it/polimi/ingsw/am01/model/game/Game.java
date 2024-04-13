@@ -312,11 +312,15 @@ public class Game {
 
     /**
      * This method add a new {@link PlayerProfile} to game, and performs status transition if there are {@code maxPlayers} players joined.
+     * It throws an {@code IllegalArgumentException} if player is already in game
      * @param pp the {@link PlayerProfile} of new player
      */
     public void join(PlayerProfile pp) {
         if (status != GameStatus.AWAITING_PLAYERS) {
             throw new IllegalMoveException();
+        }
+        if (playerProfiles.stream().anyMatch(p -> p.getName().equals(pp.getName()))) {
+            throw new IllegalArgumentException("Player already in game");
         }
 
         playerProfiles.add(pp);
