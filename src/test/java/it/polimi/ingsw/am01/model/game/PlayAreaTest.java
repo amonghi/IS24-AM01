@@ -1,18 +1,13 @@
 package it.polimi.ingsw.am01.model.game;
 
+import com.google.gson.internal.PreJava9DateFormatProvider;
 import it.polimi.ingsw.am01.model.card.Card;
-import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
-import it.polimi.ingsw.am01.model.card.face.BackCardFace;
-import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
-import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import org.junit.jupiter.api.Test;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +17,9 @@ class PlayAreaTest {
     GameAssets assets = GameAssets.getInstance();
     final Card starterCard = assets.getStarterCards().get(0);
     final Card aCard = assets.getResourceCards().get(0);
+    final Card bCard = assets.getResourceCards().get(1);
+    final Card cCard = assets.getResourceCards().get(2);
+
     //Golden card requiring 2 FUNGI + 1 INSECT
     final Card goldCard = assets.getGoldenCards().get(6);
     //Golden card requiring 1 FUNGI and 2 PLANT
@@ -30,6 +28,14 @@ class PlayAreaTest {
     @Test
     void placesInitialCard() {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+
+        Set<PlayArea.Position> curPlayablePos = new HashSet<>();
+        curPlayablePos.add(new PlayArea.Position(0,1));
+        curPlayablePos.add(new PlayArea.Position(0,-1));
+        curPlayablePos.add(new PlayArea.Position(1,0));
+        assertNotEquals(curPlayablePos, playArea.getPlayablePositions());
+        curPlayablePos.add(new PlayArea.Position(-1,0));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
 
         Optional<PlayArea.CardPlacement> optInitialPlacement = playArea.getAt(PlayArea.Position.ORIGIN);
         assertTrue(optInitialPlacement.isPresent());
@@ -46,7 +52,21 @@ class PlayAreaTest {
     @Test
     void canPlace() {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+
+        Set<PlayArea.Position> curPlayablePos = new HashSet<>();
+        curPlayablePos.add(new PlayArea.Position(0,1));
+        curPlayablePos.add(new PlayArea.Position(0,-1));
+        curPlayablePos.add(new PlayArea.Position(1,0));
+        curPlayablePos.add(new PlayArea.Position(-1,0));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
+
         PlayArea.CardPlacement cp1 = playArea.placeAt(1, 0, aCard, Side.BACK);
+        curPlayablePos.remove(new PlayArea.Position(1,0));
+        curPlayablePos.add(new PlayArea.Position(2,0));
+        curPlayablePos.add(new PlayArea.Position(1,1));
+        curPlayablePos.add(new PlayArea.Position(1,-1));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
+
         assertEquals(playArea, cp1.getPlayArea());
         assertEquals(new PlayArea.Position(1, 0), cp1.getPosition());
         assertEquals(aCard, cp1.getCard());
@@ -58,20 +78,91 @@ class PlayAreaTest {
     @Test
     void cantPlaceWithoutConnecting() {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        Set<PlayArea.Position> curPlayablePos = new HashSet<>();
+        curPlayablePos.add(new PlayArea.Position(0,1));
+        curPlayablePos.add(new PlayArea.Position(0,-1));
+        curPlayablePos.add(new PlayArea.Position(1,0));
+        curPlayablePos.add(new PlayArea.Position(-1,0));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
         assertThrows(IllegalPlacementException.class, () -> playArea.placeAt(100, 100, aCard, Side.FRONT));
     }
 
     @Test
     void cantPlaceOverFilledCorner() {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+
+        Set<PlayArea.Position> curPlayablePos = new HashSet<>();
+        curPlayablePos.add(new PlayArea.Position(0,1));
+        curPlayablePos.add(new PlayArea.Position(0,-1));
+        curPlayablePos.add(new PlayArea.Position(1,0));
+        curPlayablePos.add(new PlayArea.Position(-1,0));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
+
         playArea.placeAt(1, 0, aCard, Side.FRONT);
+        curPlayablePos.remove(new PlayArea.Position(1,0));
+        curPlayablePos.add(new PlayArea.Position(2,0));
+        curPlayablePos.add(new PlayArea.Position(1,1));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
+
         assertThrows(IllegalPlacementException.class, () -> playArea.placeAt(1, -1, aCard, Side.FRONT));
+    }
+
+    @Test
+    void newPlacementNearMissingCorner() {
+        PlayArea playArea = new PlayArea(starterCard, Side.BACK);
+        playArea.placeAt(0,1, bCard, Side.FRONT);
+        Set<PlayArea.Position> curPlayablePos = new HashSet<>();
+        curPlayablePos.add(new PlayArea.Position(0,-1));
+        curPlayablePos.add(new PlayArea.Position(1,0));
+        curPlayablePos.add(new PlayArea.Position(-1,0));
+        curPlayablePos.add(new PlayArea.Position(1,1));
+        curPlayablePos.add(new PlayArea.Position(0,2));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
+
+        playArea.placeAt(-1,0, aCard, Side.FRONT);
+        curPlayablePos.remove(new PlayArea.Position(-1,0));
+        curPlayablePos.add(new PlayArea.Position(-2,0));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
+
+        playArea.placeAt(0,-1, cCard, Side.FRONT);
+        curPlayablePos.remove(new PlayArea.Position(0,-1));
+        curPlayablePos.add(new PlayArea.Position(0,-2));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
+    }
+
+    @Test
+    void newPlacementWithMissingCorner() {
+        PlayArea playArea = new PlayArea(starterCard, Side.BACK);
+
+        playArea.placeAt(-1,0, aCard, Side.FRONT);
+        Set<PlayArea.Position> curPlayablePos = new HashSet<>();
+        curPlayablePos.add(new PlayArea.Position(0,-1));
+        curPlayablePos.add(new PlayArea.Position(1,0));
+        curPlayablePos.add(new PlayArea.Position(0,1));
+        curPlayablePos.add(new PlayArea.Position(-2,0));
+        curPlayablePos.add(new PlayArea.Position(-1,1));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
+
+        playArea.placeAt(0,1, bCard, Side.FRONT);
+        curPlayablePos.remove(new PlayArea.Position(0,1));
+        curPlayablePos.remove(new PlayArea.Position(-1,1));
+        curPlayablePos.add(new PlayArea.Position(0,2));
+        curPlayablePos.add(new PlayArea.Position(1,1));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
     }
 
     @Test
     void getAtIjSameAsGetAtPosition() {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         PlayArea.CardPlacement cp = playArea.placeAt(1, 0, aCard, Side.FRONT);
+
+        Set<PlayArea.Position> curPlayablePos = new HashSet<>();
+        curPlayablePos.add(new PlayArea.Position(0,1));
+        curPlayablePos.add(new PlayArea.Position(0,-1));
+        curPlayablePos.add(new PlayArea.Position(-1,0));
+        curPlayablePos.add(new PlayArea.Position(2,0));
+        curPlayablePos.add(new PlayArea.Position(1,1));
+        assertEquals(curPlayablePos, playArea.getPlayablePositions());
 
         Optional<PlayArea.CardPlacement> cp1 = playArea.getAt(1, 0);
         assertTrue(cp1.isPresent());
