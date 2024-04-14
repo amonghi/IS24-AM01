@@ -26,6 +26,24 @@ public class GameManager {
     private final List<Game> games;
     private int nextId;
     private final Path dataDir;
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Corner.class, new CornerSerializer())
+            .registerTypeAdapter(Points.class, new PointsSerializer())
+            .registerTypeAdapter(SameCollectibleObjective.class, new ObjectiveSerializer())
+            .registerTypeAdapter(DifferentCollectibleObjective.class, new ObjectiveSerializer())
+            .registerTypeAdapter(PatternObjective.class, new ObjectiveSerializer())
+            .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerializer())
+            .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
+            .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
+            .registerTypeAdapter(Corner.class, new CornerDeserializer())
+            .registerTypeAdapter(Points.class, new PointsDeserializer())
+            .registerTypeAdapter(Collectible.class, new CollectibleDeserializer())
+            .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer())
+            .registerTypeAdapter(Objective.class, new ObjectiveDeserializer())
+            .registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer())
+            .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
+            .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
+            .create();
 
     /**
      * Creates a new {@code GameManager} and load all the saved games from file
@@ -72,8 +90,10 @@ public class GameManager {
         // Delete json if save() has been already called
         if (loadSavedGamesIds().contains(game.getId())) {
             File file = dataDir.resolve(game.getId() + ".json").toFile();
-            //noinspection ResultOfMethodCallIgnored
-            file.delete();
+            boolean deleted = file.delete();
+            if(!deleted){
+                throw new RuntimeException("Failed to delete file " + game.getId() + ".json");
+            }
         }
     }
 
@@ -90,9 +110,8 @@ public class GameManager {
         }
         return Arrays.stream(containedFiles)
                 .map(File::getName)
-                .filter(name -> name.endsWith(".json"))
+                .filter(name -> name.matches("\\d+\\.json"))
                 .map(name -> name.substring(0, name.lastIndexOf(".json")))
-                .filter(name -> name.matches("\\d+"))
                 .map(Integer::parseInt)
                 .toList();
     }
@@ -111,7 +130,7 @@ public class GameManager {
             return deserializeGame(content);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to read from file " + id + ".json");
         }
     }
 
@@ -127,7 +146,7 @@ public class GameManager {
         try (Writer fileWriter = new FileWriter(file, false)) {
             fileWriter.write(serializeGame(game));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to read from file " + game.getId() + ".json");
         }
     }
 
@@ -138,16 +157,6 @@ public class GameManager {
      * @return the serialized json
      */
     private String serializeGame(Game game) {
-        Gson gson = new GsonBuilder().setPrettyPrinting()
-                .registerTypeAdapter(Corner.class, new CornerSerializer())
-                .registerTypeAdapter(Points.class, new PointsSerializer())
-                .registerTypeAdapter(SameCollectibleObjective.class, new ObjectiveSerializer())
-                .registerTypeAdapter(DifferentCollectibleObjective.class, new ObjectiveSerializer())
-                .registerTypeAdapter(PatternObjective.class, new ObjectiveSerializer())
-                .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerializer())
-                .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
-                .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
-                .create();
         return gson.toJson(game);
     }
 
@@ -158,16 +167,6 @@ public class GameManager {
      * @return a reference to the deserialized game
      */
     private Game deserializeGame(String json) {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Corner.class, new CornerDeserializer())
-                .registerTypeAdapter(Points.class, new PointsDeserializer())
-                .registerTypeAdapter(Collectible.class, new CollectibleDeserializer())
-                .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer())
-                .registerTypeAdapter(Objective.class, new ObjectiveDeserializer())
-                .registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer())
-                .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
-                .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
-                .create();
         return gson.fromJson(json, Game.class);
     }
 }
