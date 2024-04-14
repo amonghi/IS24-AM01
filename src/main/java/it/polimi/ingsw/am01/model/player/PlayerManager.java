@@ -41,6 +41,7 @@ public class PlayerManager {
      * Unregister a profile when a player leaves
      *
      * @param profile the profile to un-register
+     * @throws NoSuchElementException if the specified profile is not registered in this {@link PlayerManager}
      */
     public void removeProfile(PlayerProfile profile) {
         if (!this.profiles.containsKey(profile.getName())) {
