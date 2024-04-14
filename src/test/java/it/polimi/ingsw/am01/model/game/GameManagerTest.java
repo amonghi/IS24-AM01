@@ -1,13 +1,15 @@
 package it.polimi.ingsw.am01.model.game;
 
+import it.polimi.ingsw.am01.model.player.PlayerManager;
+import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GameManagerTest {
     @Test
@@ -50,5 +52,34 @@ class GameManagerTest {
         File[] files = dataDir.toFile().listFiles();
         assertNotNull(files);
         assertEquals(k - d, files.length);
+    }
+
+    @Test
+    void canGetGameById(@TempDir Path dataDir) {
+        GameManager gameManager = new GameManager(dataDir);
+        Game createdGame = gameManager.createGame(3);
+
+        Optional<Game> foundGame = gameManager.getGame(createdGame.getId());
+
+        assertTrue(foundGame.isPresent());
+        assertEquals(createdGame, foundGame.get());
+    }
+
+    @Test
+    void canGetGameByPlayer(@TempDir Path dataDir) {
+        PlayerManager playerManager = new PlayerManager();
+        PlayerProfile player = playerManager.createProfile("Alice");
+
+        GameManager gameManager = new GameManager(dataDir);
+        Game game = gameManager.createGame(3);
+
+        Optional<Game> found1 = gameManager.getGameWhereIsPlaying(player);
+        assertTrue(found1.isEmpty());
+
+        game.join(player);
+
+        Optional<Game> found2 = gameManager.getGameWhereIsPlaying(player);
+        assertTrue(found2.isPresent());
+        assertEquals(game, found2.get());
     }
 }

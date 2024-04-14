@@ -88,7 +88,7 @@ public class GameManager {
     public Optional<Game> getGameWhereIsPlaying(PlayerProfile pp) {
         // a player cannot be in more than one game at a time
         return this.games.stream()
-                .filter(game -> game.getPlayerProfiles().equals(pp))
+                .filter(game -> game.getPlayerProfiles().stream().anyMatch(profile -> profile.equals(pp)))
                 .findFirst();
     }
 
