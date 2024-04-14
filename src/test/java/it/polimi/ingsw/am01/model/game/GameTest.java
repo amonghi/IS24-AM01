@@ -786,10 +786,17 @@ class GameTest {
         Card c3 = standardGame.getPlayerData(third).getHand().get(2); // golden card
 
         assertThrows(IllegalTurnException.class, () -> standardGame.placeCard(third, c3, Side.BACK, 1, 0));
+        PlayerProfile second = standardGame.getPlayerProfiles().get(1);
+        Card c2 = standardGame.getPlayerData(second).getHand().getFirst();
+        standardGame.placeCard(second, c2, Side.FRONT, 1, 0);
+
+        assertEquals(GameStatus.PLAY, standardGame.getStatus());
+        assertEquals(TurnPhase.DRAWING, standardGame.getTurnPhase());
+        assertThrows(IllegalTurnException.class, () -> standardGame.drawCard(third, standardGame.getBoard().getFaceUpCards().stream().findAny().orElse(null)));
         assertEquals(standardGame.getPlayerProfiles().get(1), standardGame.getCurrentPlayer());
 
         assertEquals(GameStatus.PLAY, standardGame.getStatus());
-        assertEquals(TurnPhase.PLACING, standardGame.getTurnPhase());
+        assertEquals(TurnPhase.DRAWING, standardGame.getTurnPhase());
     }
 
     @Test
