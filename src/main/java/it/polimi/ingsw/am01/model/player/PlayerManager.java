@@ -14,7 +14,7 @@ public class PlayerManager {
 
     public PlayerProfile createProfile(String name) {
         if (this.profiles.containsKey(name)) {
-            throw new IllegalArgumentException("A player with that name already exists");
+            throw new IllegalStateException("A player with that name already exists");
         }
 
         PlayerProfile newProfile = new PlayerProfile(name);
