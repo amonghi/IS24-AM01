@@ -6,6 +6,7 @@ import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
+import javafx.geometry.Pos;
 
 import java.util.*;
 
@@ -48,6 +49,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         }
     }
 
+    private final Set<Position> playablePositions;
     private final Map<Position, CardPlacement> cards;
     private int score;
     private int seq;
@@ -71,7 +73,9 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         this.score = 0;
         this.seq = 0;
         this.collectibleCount = new HashMap<>();
+        this.playablePositions = new HashSet<>();
 
+        this.playablePositions.add(Position.ORIGIN);
         this.placeAt(Position.ORIGIN, starterCard, side, true);
     }
 
@@ -165,7 +169,34 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         card.getFace(side).getCenterResources()
                 .forEach((resource, amount) -> collectibleCount.merge(resource, amount, Integer::sum));
 
+        updatePlayablePositions(placement);
+
         return placement;
+    }
+
+    private void updatePlayablePositions(CardPlacement placement) {
+        int invalidCount;
+        playablePositions.remove(placement.getPosition());
+        for (CornerPosition cornerPos : CornerPosition.values()) {
+            Position pos = placement.getPosition().getRelative(cornerPos);
+            if (getAt(pos).isEmpty() && placement.getVisibleFace().corner(cornerPos).isSocket()) {
+                invalidCount = 0;
+                for (CornerPosition newCornerPos : CornerPosition.values()) {
+                    Position toCheck = pos.getRelative(newCornerPos);
+                    if (getAt(toCheck).isPresent() && !getAt(toCheck).get().getVisibleFace().corner(newCornerPos.getOpposite()).isSocket()) {
+                        invalidCount++;
+                    }
+                }
+                if (invalidCount == 0)
+                    playablePositions.add(pos);
+            } else {
+                playablePositions.remove(pos);
+            }
+        }
+    }
+
+    public Set<Position> getPlayablePositions() {
+        return Collections.unmodifiableSet(playablePositions);
     }
 
     /**
