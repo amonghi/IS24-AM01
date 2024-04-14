@@ -5,6 +5,7 @@ import it.polimi.ingsw.am01.model.game.GameManager;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -27,96 +28,112 @@ class ControllerTest {
         this.controller = new Controller(this.pm, this.gm);
     }
 
-    @Test
-    void authenticatesPlayer() {
-        assertFalse(pm.getProfile("Alice").isPresent());
+    /**
+     * Tests related to {@link Controller#authenticate(String)}
+     */
+    @Nested
+    class Authenticate {
+        @Test
+        void authenticatesPlayer() {
+            assertFalse(pm.getProfile("Alice").isPresent());
 
-        PlayerProfile aProfile = controller.authenticate("Alice");
-        assertEquals("Alice", aProfile.getName());
+            PlayerProfile aProfile = controller.authenticate("Alice");
+            assertEquals("Alice", aProfile.getName());
 
-        assertTrue(pm.getProfile("Alice").isPresent());
+            assertTrue(pm.getProfile("Alice").isPresent());
+        }
+
+        @Test
+        void cannotAuthenticateIfPlayerWithSameNameAlreadyExists() {
+            controller.authenticate("Alice");
+            assertTrue(pm.getProfile("Alice").isPresent());
+
+            assertThrows(IllegalStateException.class, () -> controller.authenticate("Alice"));
+        }
     }
 
-    @Test
-    void cannotAuthenticateIfPlayerWithSameNameAlreadyExists() {
-        controller.authenticate("Alice");
-        assertTrue(pm.getProfile("Alice").isPresent());
+    /**
+     * Tests related to {@link Controller#createAndJoinGame(int, String)}
+     */
+    @Nested
+    class CreateAndJoinGame {
+        PlayerProfile alice;
 
-        assertThrows(IllegalStateException.class, () -> controller.authenticate("Alice"));
+        @BeforeEach
+        void init() {
+            this.alice = controller.authenticate("Alice");
+            assertTrue(pm.getProfile("Alice").isPresent());
+            assertTrue(gm.getGames().isEmpty());
+        }
+
+        @Test
+        void canCreateGame() {
+            Game aGame = controller.createAndJoinGame(4, "Alice");
+            assertEquals(1, gm.getGames().size());
+
+            Optional<Game> gameWhereIsPlaying = gm.getGameWhereIsPlaying(alice);
+            assertTrue(gameWhereIsPlaying.isPresent());
+            assertEquals(aGame, gameWhereIsPlaying.get());
+        }
+
+        @Test
+        void nonexistentPlayerCannotCreateGame() {
+            assertTrue(pm.getProfile("Bob").isEmpty());
+            assertThrows(NoSuchElementException.class, () -> controller.createAndJoinGame(3, "Bob"));
+        }
+
+        @Test
+        void cannotCreateGameIfAlreadyPlaying() {
+            controller.createAndJoinGame(3, "Alice");
+            assertEquals(1, gm.getGames().size());
+            assertTrue(gm.getGameWhereIsPlaying(alice).isPresent());
+
+            assertThrows(IllegalArgumentException.class, () -> controller.createAndJoinGame(4, "Alice"));
+        }
     }
 
-    @Test
-    void canCreateGame() {
-        PlayerProfile aProfile = controller.authenticate("Alice");
-        assertTrue(pm.getProfile("Alice").isPresent());
-        assertTrue(gm.getGames().isEmpty());
+    /**
+     * Tests related to {@link Controller#joinGame(int, String)}
+     */
+    @Nested
+    class JoinGame {
+        PlayerProfile alice;
+        PlayerProfile bob;
+        Game game;
 
-        Game aGame = controller.createAndJoinGame(4, "Alice");
-        assertEquals(1, gm.getGames().size());
+        @BeforeEach
+        void init() {
+            this.alice = controller.authenticate("Alice");
+            this.bob = controller.authenticate("Bob");
+            this.game = controller.createAndJoinGame(4, "Alice");
+            assertEquals(1, gm.getGames().size());
+            assertEquals(1, game.getPlayerProfiles().size());
+        }
 
-        Optional<Game> gameWhereIsPlaying = gm.getGameWhereIsPlaying(aProfile);
-        assertTrue(gameWhereIsPlaying.isPresent());
-        assertEquals(aGame, gameWhereIsPlaying.get());
+        @Test
+        void canJoinGame() {
+            controller.joinGame(game.getId(), "Bob");
+            assertEquals(2, game.getPlayerProfiles().size());
+        }
+
+        @Test
+        void nonexistentPlayerCannotJoinGame() {
+            assertTrue(pm.getProfile("Carlos").isEmpty());
+
+            assertThrows(NoSuchElementException.class, () -> controller.joinGame(game.getId(), "Carlos"));
+        }
+
+        @Test
+        void cannotJoinNonexistentGame() {
+            assertThrows(NoSuchElementException.class, () -> controller.joinGame(1234, "Bob"));
+        }
+
+        @Test
+        void cannotJoinGameIfAlreadyPlaying() {
+            Game game2 = controller.createAndJoinGame(4, "Bob");
+
+            assertThrows(IllegalArgumentException.class, () -> controller.joinGame(game2.getId(), "Alice"));
+            assertThrows(IllegalArgumentException.class, () -> controller.joinGame(game.getId(), "Bob"));
+        }
     }
-
-    @Test
-    void nonexistentPlayerCannotCreateGame() {
-        assertTrue(pm.getProfile("Bob").isEmpty());
-        assertThrows(NoSuchElementException.class, () -> controller.createAndJoinGame(3, "Bob"));
-    }
-
-    @Test
-    void cannotCreateGameIfAlreadyPlaying() {
-        PlayerProfile aProfile = controller.authenticate("Alice");
-        controller.createAndJoinGame(3, "Alice");
-        assertTrue(pm.getProfile("Alice").isPresent());
-        assertTrue(gm.getGameWhereIsPlaying(aProfile).isPresent());
-
-        assertThrows(IllegalArgumentException.class, () -> controller.createAndJoinGame(4, "Alice"));
-    }
-
-    @Test
-    void canJoinGame() {
-        controller.authenticate("Alice");
-        controller.authenticate("Bob");
-        Game game = controller.createAndJoinGame(4, "Alice");
-        assertEquals(1, game.getPlayerProfiles().size());
-
-        controller.joinGame(game.getId(), "Bob");
-        assertEquals(2, game.getPlayerProfiles().size());
-    }
-
-    @Test
-    void nonexistentPlayerCannotJoinGame() {
-        controller.authenticate("Alice");
-        controller.authenticate("Bob");
-        Game game = controller.createAndJoinGame(4, "Alice");
-        assertEquals(1, game.getPlayerProfiles().size());
-        assertTrue(pm.getProfile("Carlos").isEmpty());
-
-        assertThrows(NoSuchElementException.class, () -> controller.joinGame(game.getId(), "Carlos"));
-    }
-
-    @Test
-    void cannotJoinNonexistentGame() {
-        controller.authenticate("Alice");
-        controller.authenticate("Bob");
-        Game game = controller.createAndJoinGame(4, "Alice");
-        assertEquals(1, game.getPlayerProfiles().size());
-
-        assertThrows(NoSuchElementException.class, () -> controller.joinGame(1234, "Bob"));
-    }
-
-    @Test
-    void cannotJoinGameIfAlreadyPlaying() {
-        controller.authenticate("Alice");
-        controller.authenticate("Bob");
-        Game game = controller.createAndJoinGame(4, "Alice");
-        Game game2 = controller.createAndJoinGame(4, "Bob");
-        assertEquals(1, game.getPlayerProfiles().size());
-
-        assertThrows(IllegalArgumentException.class, () -> controller.joinGame(game2.getId(), "Alice"));
-        assertThrows(IllegalArgumentException.class, () -> controller.joinGame(game.getId(), "Bob"));
-    }
-
 }
