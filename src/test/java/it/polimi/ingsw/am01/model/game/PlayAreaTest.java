@@ -19,51 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PlayAreaTest {
 
-    // card 81
-    final FrontCardFace starterCardFF = new FrontCardFace(
-            Corner.filled(Resource.PLANT),
-            Corner.filled(Resource.FUNGI),
-            Corner.filled(Resource.ANIMAL),
-            Corner.filled(Resource.INSECT)
-    );
-    final BackCardFace starterCardBF = new BackCardFace(
-            Corner.filled(Resource.PLANT),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.filled(Resource.INSECT),
-            Map.of(Resource.INSECT, 1)
-    );
-    final Card starterCard = new Card(
-            1,
-            CardColor.NEUTRAL,
-            true,
-            false,
-            starterCardFF,
-            starterCardBF
-    );
-
-    // card 1
-    final FrontCardFace aCardFF = new FrontCardFace(
-            Corner.empty(),
-            Corner.filled(Resource.FUNGI),
-            Corner.missing(),
-            Corner.filled(Resource.FUNGI)
-    );
-    final BackCardFace aCardBF = new BackCardFace(
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Corner.empty(),
-            Map.of(Resource.FUNGI, 1)
-    );
-    final Card aCard = new Card(
-            1,
-            CardColor.RED,
-            true,
-            false,
-            aCardFF,
-            aCardBF
-    );
+    GameAssets assets = GameAssets.getInstance();
+    final Card starterCard = assets.getStarterCards().get(0);
+    final Card aCard = assets.getResourceCards().get(0);
+    //Golden card requiring 2 FUNGI + 1 INSECT
+    final Card goldCard = assets.getGoldenCards().get(6);
+    //Golden card requiring 1 FUNGI and 2 PLANT
+    final Card goldCardNotPlaceable = assets.getGoldenCards().get(11);
 
     @Test
     void placesInitialCard() {
@@ -77,7 +39,7 @@ class PlayAreaTest {
         assertEquals(PlayArea.Position.ORIGIN, cp0.getPosition());
         assertEquals(starterCard, cp0.getCard());
         assertEquals(Side.FRONT, cp0.getSide());
-        assertEquals(starterCardFF, cp0.getVisibleFace());
+        assertEquals(starterCard.getFace(Side.FRONT), cp0.getVisibleFace());
         assertEquals(0, cp0.getPoints());
     }
 
@@ -89,7 +51,7 @@ class PlayAreaTest {
         assertEquals(new PlayArea.Position(1, 0), cp1.getPosition());
         assertEquals(aCard, cp1.getCard());
         assertEquals(Side.BACK, cp1.getSide());
-        assertEquals(aCardBF, cp1.getVisibleFace());
+        assertEquals(aCard.getFace(Side.BACK), cp1.getVisibleFace());
         assertEquals(0, cp1.getPoints());
     }
 
@@ -195,6 +157,15 @@ class PlayAreaTest {
         assertEquals(Map.of(), cp0.getCovered());
 
         assertEquals(Map.of(CornerPosition.BOTTOM_LEFT, cp0), cp1.getCovered());
+    }
+
+    @Test
+    void placeGoldCard() {
+        PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        playArea.placeAt(1, 0, aCard, Side.FRONT);
+        playArea.placeAt(0, -1, goldCard, Side.FRONT);
+        assertThrows(IllegalPlacementException.class, () -> playArea.placeAt(-1, 0, goldCardNotPlaceable, Side.FRONT));
+        assertEquals(3, playArea.getScore());
     }
 
 }
