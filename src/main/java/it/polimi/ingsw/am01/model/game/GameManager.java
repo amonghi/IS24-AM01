@@ -67,12 +67,24 @@ public class GameManager {
         return Collections.unmodifiableList(games);
     }
 
+    /**
+     * Get a {@link Game} by its ID, if such a game exists
+     *
+     * @param id the id of the game
+     * @return the game with the given ID, i such a game exists
+     */
     public Optional<Game> getGame(int id) {
         return this.games.stream()
                 .filter(game -> game.getId() == id)
                 .findAny();
     }
 
+    /**
+     * Returns the game where a given player is currently playing, if such a game exists
+     *
+     * @param pp the profile of the player whose current game we want to find
+     * @return The game where the player is currently playing, if such a game exists
+     */
     public Optional<Game> getGameWhereIsPlaying(PlayerProfile pp) {
         // a player cannot be in more than one game at a time
         return this.games.stream()
