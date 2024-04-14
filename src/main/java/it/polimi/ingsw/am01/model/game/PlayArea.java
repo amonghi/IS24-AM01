@@ -44,14 +44,18 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
 
         @Override
         public String toString() {
-            return  "(" + i + ", " + j  + ")";
+            return "(" + i + ", " + j + ")";
         }
     }
 
     private final Map<Position, CardPlacement> cards;
     private int score;
     private int seq;
-    private final Map<Collectible, Integer> collectibleCount; // TODO: decide if this should always contain all collectibles as keys
+    /**
+     * It counts each type of {@link Collectible} visible on the {@link PlayArea}.
+     * Until a {@link Card} with a certain type of {@link Collectible} is placed, the {@code KeySet} does not contain that {@link Collectible}.
+     */
+    private final Map<Collectible, Integer> collectibleCount;
 
     /**
      * Create a new play area and initialize it with the first {@link CardPlacement}.
@@ -133,7 +137,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         }
 
         //check placement constraints
-        if(!card.getFace(side).getPlacementConstraint().map(pc -> pc.isSatisfied(this)).orElse(true)) {
+        if (!card.getFace(side).getPlacementConstraint().map(pc -> pc.isSatisfied(this)).orElse(true)) {
             throw new IllegalPlacementException("attempt to place with no enough resources");
         }
 
@@ -184,7 +188,9 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         return Optional.ofNullable(this.cards.get(pos));
     }
 
-    // TODO: javadoc
+    /**
+     * @return An {@code UnmodifiableMap} of the visible {@link Collectible} on the {@link PlayArea}
+     */
     public Map<Collectible, Integer> getCollectibleCount() {
         return Collections.unmodifiableMap(this.collectibleCount);
     }
