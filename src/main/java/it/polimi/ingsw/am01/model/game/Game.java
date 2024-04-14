@@ -492,13 +492,17 @@ public class Game {
      */
     public void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN)
-                || turnPhase != TurnPhase.PLACING || !playersData.get(pp).getHand().contains(c)) {
+                || turnPhase != TurnPhase.PLACING) {
 
             throw new IllegalMoveException();
         }
 
         if (currentPlayer != playerProfiles.indexOf(pp)) {
             throw new IllegalTurnException();
+        }
+
+        if (!playersData.get(pp).getHand().contains(c)) {
+            throw new IllegalArgumentException("Player doesn't have that card in his hand");
         }
 
         //place on play area
