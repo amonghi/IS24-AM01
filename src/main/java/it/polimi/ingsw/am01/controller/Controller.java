@@ -23,10 +23,11 @@ public class Controller {
     }
 
     /**
-     * Registers that a player exists
+     * Authenticates a new player. The player must have a unique name.
      *
      * @param name the player to authenticate
      * @return the player profile
+     * @see PlayerManager#createProfile(String)
      */
     public PlayerProfile authenticate(String name) {
         return this.playerManager.createProfile(name);
