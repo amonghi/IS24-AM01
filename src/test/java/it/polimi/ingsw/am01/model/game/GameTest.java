@@ -58,7 +58,7 @@ class GameTest {
     }
 
     @Test
-    public void testOneTurnPerPlayer() {
+    public void testOneTurnPerPlayerWithPause() {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -733,11 +733,101 @@ class GameTest {
 
     @Test
     public void testMaxPlayersNotValid() {
-        assertThrows(IllegalArgumentException.class, () -> new Game(5, 1));
-        assertThrows(IllegalArgumentException.class, () -> new Game(4, 5));
-        
+        assertThrows(IllegalArgumentException.class, () -> new Game(4, 1));
+        assertThrows(IllegalArgumentException.class, () -> new Game(5, 5));
+
         Board board = new Board(new Deck(GameAssets.getInstance().getResourceCards()), new Deck(GameAssets.getInstance().getGoldenCards()));
         assertThrows(IllegalArgumentException.class, () -> new Game(6, 1, board));
         assertThrows(IllegalArgumentException.class, () -> new Game(7, 5, board));
+    }
+
+    @Test
+    public void testNotPlayerTurn() {
+        standardGame.join(p1);
+        standardGame.join(p2);
+        standardGame.join(p3);
+        standardGame.join(p4);
+
+        standardGame.selectStartingCardSide(p1, Side.BACK);
+        standardGame.selectStartingCardSide(p2, Side.BACK);
+        standardGame.selectStartingCardSide(p3, Side.BACK);
+        standardGame.selectStartingCardSide(p4, Side.BACK);
+
+        standardGame.selectColor(p1, PlayerColor.RED);
+        standardGame.selectColor(p2, PlayerColor.BLUE);
+        standardGame.selectColor(p3, PlayerColor.YELLOW);
+        standardGame.selectColor(p4, PlayerColor.GREEN);
+
+        Objective o1 = standardGame.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        standardGame.selectObjective(p1, o1);
+
+        Objective o2 = standardGame.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        standardGame.selectObjective(p2, o2);
+
+        Objective o3 = standardGame.getObjectiveOptions(p3).stream().findAny().orElse(null);
+        standardGame.selectObjective(p3, o3);
+
+        Objective o4 = standardGame.getObjectiveOptions(p4).stream().findAny().orElse(null);
+        standardGame.selectObjective(p4, o4);
+
+        standardGame.startGame();
+
+        // FIRST PLAYER
+        PlayerProfile first = standardGame.getPlayerProfiles().getFirst();
+        Card c1 = standardGame.getPlayerData(first).getHand().getFirst();
+
+        standardGame.placeCard(first, c1, Side.FRONT, 1, 0);
+        standardGame.drawCard(first, standardGame.getBoard().getFaceUpCards().stream().findAny().orElse(null));
+
+        // THIRD PLAYER (wrong player!)
+        assertEquals(GameStatus.PLAY, standardGame.getStatus());
+        assertEquals(TurnPhase.PLACING, standardGame.getTurnPhase());
+        PlayerProfile third = standardGame.getPlayerProfiles().get(2);
+        Card c3 = standardGame.getPlayerData(third).getHand().get(2); // golden card
+
+        assertThrows(IllegalTurnException.class, () -> standardGame.placeCard(third, c3, Side.BACK, 1, 0));
+        assertEquals(standardGame.getPlayerProfiles().get(1), standardGame.getCurrentPlayer());
+
+        assertEquals(GameStatus.PLAY, standardGame.getStatus());
+        assertEquals(TurnPhase.PLACING, standardGame.getTurnPhase());
+    }
+
+    @Test
+    public void testCardNotInHand() {
+        standardGame.join(p1);
+        standardGame.join(p2);
+        standardGame.join(p3);
+        standardGame.join(p4);
+
+        standardGame.selectStartingCardSide(p1, Side.BACK);
+        standardGame.selectStartingCardSide(p2, Side.BACK);
+        standardGame.selectStartingCardSide(p3, Side.BACK);
+        standardGame.selectStartingCardSide(p4, Side.BACK);
+
+        standardGame.selectColor(p1, PlayerColor.RED);
+        standardGame.selectColor(p2, PlayerColor.BLUE);
+        standardGame.selectColor(p3, PlayerColor.YELLOW);
+        standardGame.selectColor(p4, PlayerColor.GREEN);
+
+        Objective o1 = standardGame.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        standardGame.selectObjective(p1, o1);
+
+        Objective o2 = standardGame.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        standardGame.selectObjective(p2, o2);
+
+        Objective o3 = standardGame.getObjectiveOptions(p3).stream().findAny().orElse(null);
+        standardGame.selectObjective(p3, o3);
+
+        Objective o4 = standardGame.getObjectiveOptions(p4).stream().findAny().orElse(null);
+        standardGame.selectObjective(p4, o4);
+
+        standardGame.startGame();
+
+        // FIRST PLAYER
+        PlayerProfile first = standardGame.getPlayerProfiles().getFirst();
+        PlayerProfile second = standardGame.getPlayerProfiles().get(1);
+        Card c2 = standardGame.getPlayerData(second).getHand().getFirst();
+
+        assertThrows(IllegalArgumentException.class, () -> standardGame.placeCard(first, c2, Side.FRONT, 1, 0));
     }
 }
