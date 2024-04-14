@@ -174,6 +174,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         return placement;
     }
 
+    //TODO: add docs and update UML
     private void updatePlayablePositions(CardPlacement placement) {
         int invalidCount;
         playablePositions.remove(placement.getPosition());
@@ -194,7 +195,8 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
             }
         }
     }
-
+    
+    //TODO: add docs and update UML
     public Set<Position> getPlayablePositions() {
         return Collections.unmodifiableSet(playablePositions);
     }
