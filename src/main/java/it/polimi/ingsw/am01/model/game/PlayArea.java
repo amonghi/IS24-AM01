@@ -6,7 +6,6 @@ import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import javafx.geometry.Pos;
 
 import java.util.*;
 
@@ -174,7 +173,12 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         return placement;
     }
 
-    //TODO: add docs and update UML
+    /**
+     * It updates the {@code Set} of playable {@link Position} every time a new {@link Card} is placed
+     *
+     * @param placement The {@link CardPlacement} returned by the {@link PlayArea#placeAt(int, int, Card, Side)} method
+     * @see PlayArea#placeAt(int, int, Card, Side)
+     */
     private void updatePlayablePositions(CardPlacement placement) {
         int invalidCount;
         playablePositions.remove(placement.getPosition());
@@ -195,8 +199,13 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
             }
         }
     }
-    
-    //TODO: add docs and update UML
+
+    /**
+     * Provides the playable {@link Position}, i.e. the {@link Position} where a new {@link Card},
+     * if placed, will be connected to other {@link Card} without covering any missing {@link Corner}
+     *
+     * @return The {@code Set} containing all the playable {@link Position}
+     */
     public Set<Position> getPlayablePositions() {
         return Collections.unmodifiableSet(playablePositions);
     }
