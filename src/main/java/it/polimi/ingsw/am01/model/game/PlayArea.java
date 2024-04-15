@@ -44,14 +44,19 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
 
         @Override
         public String toString() {
-            return  "(" + i + ", " + j  + ")";
+            return "(" + i + ", " + j + ")";
         }
     }
 
+    private final Set<Position> playablePositions;
     private final Map<Position, CardPlacement> cards;
     private int score;
     private int seq;
-    private final Map<Collectible, Integer> collectibleCount; // TODO: decide if this should always contain all collectibles as keys
+    /**
+     * It counts each type of {@link Collectible} visible on the {@link PlayArea}.
+     * Until a {@link Card} with a certain type of {@link Collectible} is placed, the {@code KeySet} does not contain that {@link Collectible}.
+     */
+    private final Map<Collectible, Integer> collectibleCount;
 
     /**
      * Create a new play area and initialize it with the first {@link CardPlacement}.
@@ -67,7 +72,9 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         this.score = 0;
         this.seq = 0;
         this.collectibleCount = new HashMap<>();
+        this.playablePositions = new HashSet<>();
 
+        this.playablePositions.add(Position.ORIGIN);
         this.placeAt(Position.ORIGIN, starterCard, side, true);
     }
 
@@ -133,7 +140,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         }
 
         //check placement constraints
-        if(!card.getFace(side).getPlacementConstraint().map(pc -> pc.isSatisfied(this)).orElse(true)) {
+        if (!card.getFace(side).getPlacementConstraint().map(pc -> pc.isSatisfied(this)).orElse(true)) {
             throw new IllegalPlacementException("attempt to place with no enough resources");
         }
 
@@ -161,7 +168,46 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         card.getFace(side).getCenterResources()
                 .forEach((resource, amount) -> collectibleCount.merge(resource, amount, Integer::sum));
 
+        updatePlayablePositions(placement);
+
         return placement;
+    }
+
+    /**
+     * It updates the {@code Set} of playable {@link Position} every time a new {@link Card} is placed
+     *
+     * @param placement The {@link CardPlacement} returned by the {@link PlayArea#placeAt(int, int, Card, Side)} method
+     * @see PlayArea#placeAt(int, int, Card, Side)
+     */
+    private void updatePlayablePositions(CardPlacement placement) {
+        int invalidCount;
+        playablePositions.remove(placement.getPosition());
+        for (CornerPosition cornerPos : CornerPosition.values()) {
+            Position pos = placement.getPosition().getRelative(cornerPos);
+            if (getAt(pos).isEmpty() && placement.getVisibleFace().corner(cornerPos).isSocket()) {
+                invalidCount = 0;
+                for (CornerPosition newCornerPos : CornerPosition.values()) {
+                    Position toCheck = pos.getRelative(newCornerPos);
+                    if (getAt(toCheck).isPresent() && !getAt(toCheck).get().getVisibleFace().corner(newCornerPos.getOpposite()).isSocket()) {
+                        invalidCount++;
+                    }
+                }
+                if (invalidCount == 0)
+                    playablePositions.add(pos);
+            } else {
+                playablePositions.remove(pos);
+            }
+        }
+    }
+
+    /**
+     * Provides the playable {@link Position}, i.e. the {@link Position} where a new {@link Card},
+     * if placed, will be connected to other {@link Card} without covering any missing {@link Corner}
+     *
+     * @return The {@code Set} containing all the playable {@link Position}
+     */
+    public Set<Position> getPlayablePositions() {
+        return Collections.unmodifiableSet(playablePositions);
     }
 
     /**
@@ -184,7 +230,9 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         return Optional.ofNullable(this.cards.get(pos));
     }
 
-    // TODO: javadoc
+    /**
+     * @return An {@code UnmodifiableMap} of the visible {@link Collectible} on the {@link PlayArea}
+     */
     public Map<Collectible, Integer> getCollectibleCount() {
         return Collections.unmodifiableMap(this.collectibleCount);
     }
