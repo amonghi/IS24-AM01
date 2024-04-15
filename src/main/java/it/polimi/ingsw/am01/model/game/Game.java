@@ -232,9 +232,9 @@ public class Game {
 
         for (PlayerProfile player : playerProfiles) {
             List<Card> hand = new ArrayList<>();
-            hand.add(board.getResourceCardDeck().draw().orElseThrow()); // TODO: decide the exception to be thrown
-            hand.add(board.getResourceCardDeck().draw().orElseThrow());
-            hand.add(board.getGoldenCardDeck().draw().orElseThrow());
+            hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new SourceShouldNotBeEmptyException("Resource card deck should not be empty")));
+            hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new SourceShouldNotBeEmptyException("Resource card deck should not be empty")));
+            hand.add(board.getGoldenCardDeck().draw().orElseThrow(() -> new SourceShouldNotBeEmptyException("Golden card deck should not be empty")));
 
             playersData.put(player,
                     new PlayerData(hand,
@@ -304,7 +304,7 @@ public class Game {
 
         for (PlayerProfile player : playerProfiles) {
             startingCardSideChoices.put(player, new Choice<>(EnumSet.allOf(Side.class)));
-            startingCards.put(player, starterCardDeck.draw().orElseThrow()); // TODO: decide the exception to be thrown
+            startingCards.put(player, starterCardDeck.draw().orElseThrow(() -> new SourceShouldNotBeEmptyException("Starting cards list should not be empty")));
         }
 
         // Setup color choices
