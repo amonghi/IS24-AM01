@@ -837,4 +837,73 @@ class GameTest {
 
         assertThrows(IllegalArgumentException.class, () -> standardGame.placeCard(first, c2, Side.FRONT, 1, 0));
     }
+
+    @Test
+    public void testNotEnoughCards(){
+        Game notValidGame1 = new Game(8, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(4).toList()),
+                new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(20).toList())));
+
+        notValidGame1.join(p1);
+        notValidGame1.join(p2);
+
+        notValidGame1.selectStartingCardSide(p1, Side.BACK);
+        notValidGame1.selectStartingCardSide(p2, Side.BACK);
+
+        notValidGame1.selectColor(p1, PlayerColor.RED);
+        notValidGame1.selectColor(p2, PlayerColor.BLUE);
+
+        Objective o1 = notValidGame1.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        notValidGame1.selectObjective(p1, o1);
+
+        Objective o2 = notValidGame1.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        notValidGame1.selectObjective(p2, o2);
+
+        assertThrows(NotEnoughGameResourcesException.class, notValidGame1::startGame);
+
+
+        Game notValidGame2 = new Game(9, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(20).toList()),
+                new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(3).toList())));
+
+        notValidGame2.join(p1);
+        notValidGame2.join(p2);
+
+        notValidGame2.selectStartingCardSide(p1, Side.BACK);
+        notValidGame2.selectStartingCardSide(p2, Side.BACK);
+
+        notValidGame2.selectColor(p1, PlayerColor.RED);
+        notValidGame2.selectColor(p2, PlayerColor.BLUE);
+
+        o1 = notValidGame2.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        notValidGame2.selectObjective(p1, o1);
+
+        o2 = notValidGame2.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        notValidGame2.selectObjective(p2, o2);
+
+        assertThrows(NotEnoughGameResourcesException.class, notValidGame2::startGame);
+    }
+
+    @Test
+    public void testDecksAreEmptyOnStarting(){
+        Game shortGame5 = new Game(11, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(6).toList()),
+                new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(4).toList())));
+
+        shortGame5.join(p1);
+        shortGame5.join(p2);
+
+        shortGame5.selectStartingCardSide(p1, Side.BACK);
+        shortGame5.selectStartingCardSide(p2, Side.BACK);
+
+        shortGame5.selectColor(p1, PlayerColor.RED);
+        shortGame5.selectColor(p2, PlayerColor.BLUE);
+
+        Objective o1 = shortGame5.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        shortGame5.selectObjective(p1, o1);
+
+        Objective o2 = shortGame5.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        shortGame5.selectObjective(p2, o2);
+
+        shortGame5.startGame();
+
+        assertEquals(GameStatus.LAST_TURN, shortGame5.getStatus());
+    }
 }
