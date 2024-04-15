@@ -221,6 +221,7 @@ public class Game {
 
     /**
      * This method permits to start the turn-based phase of the game, after choices phase.
+     * It throws a {@code NotEnoughGameResourcesException} if there are not enough resource or golden cards into decks
      * This method is valid only on {@code AWAITING_START} status.
      *
      * @see it.polimi.ingsw.am01.model.game.GameStatus
@@ -232,9 +233,9 @@ public class Game {
 
         for (PlayerProfile player : playerProfiles) {
             List<Card> hand = new ArrayList<>();
-            hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new SourceShouldNotBeEmptyException("Resource card deck should not be empty")));
-            hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new SourceShouldNotBeEmptyException("Resource card deck should not be empty")));
-            hand.add(board.getGoldenCardDeck().draw().orElseThrow(() -> new SourceShouldNotBeEmptyException("Golden card deck should not be empty")));
+            hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Resource card deck should not be empty")));
+            hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Resource card deck should not be empty")));
+            hand.add(board.getGoldenCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Golden card deck should not be empty")));
 
             playersData.put(player,
                     new PlayerData(hand,
@@ -242,7 +243,12 @@ public class Game {
                             colorChoices.get(player).getSelected().orElseThrow()));
         }
         setFirstPlayer();
-        transition(GameStatus.PLAY);
+        if (board.getResourceCardDeck().isEmpty() && board.getGoldenCardDeck().isEmpty()) {
+            transition(GameStatus.LAST_TURN);
+        } else {
+            transition(GameStatus.PLAY);
+        }
+
     }
 
     /**
@@ -292,6 +298,7 @@ public class Game {
 
     /**
      * This method prepares all choices: starting card side, player color and secret objective.
+     * It throws a {@code NotEnoughGameResourcesException} if there are not enough starting or objective cards
      * It requires that all players have already joined the game, with {@link Game#join(PlayerProfile) join} method.
      *
      * @see it.polimi.ingsw.am01.model.choice.Choice
@@ -304,7 +311,7 @@ public class Game {
 
         for (PlayerProfile player : playerProfiles) {
             startingCardSideChoices.put(player, new Choice<>(EnumSet.allOf(Side.class)));
-            startingCards.put(player, starterCardDeck.draw().orElseThrow(() -> new SourceShouldNotBeEmptyException("Starting cards list should not be empty")));
+            startingCards.put(player, starterCardDeck.draw().orElseThrow(() -> new NotEnoughGameResourcesException("Starting cards list should not be empty")));
         }
 
         // Setup color choices
@@ -312,16 +319,20 @@ public class Game {
         playerProfiles.forEach((player) -> colorChoices.put(player, multiChoice.getChoices().get(player)));
 
         // Setup objective choices
-        List<Objective> objectiveDeck = new ArrayList<>(GameAssets.getInstance().getObjectives());
-        Collections.shuffle(objectiveDeck);
+        List<Objective> objectiveList = new ArrayList<>(GameAssets.getInstance().getObjectives());
+        if (objectiveList.size() < (maxPlayers + 1) * 2) {
+            throw new NotEnoughGameResourcesException("There are not enough objective cards");
+        }
 
-        commonObjectives.add(objectiveDeck.removeFirst());
-        commonObjectives.add(objectiveDeck.removeFirst());
+        Collections.shuffle(objectiveList);
+
+        commonObjectives.add(objectiveList.removeFirst());
+        commonObjectives.add(objectiveList.removeFirst());
 
         for (PlayerProfile player : playerProfiles) {
             Set<Objective> secretObjectives = new HashSet<>();
-            secretObjectives.add(objectiveDeck.removeFirst());
-            secretObjectives.add(objectiveDeck.removeFirst());
+            secretObjectives.add(objectiveList.removeFirst());
+            secretObjectives.add(objectiveList.removeFirst());
             objectiveChoices.put(player, new Choice<>(secretObjectives));
         }
     }
