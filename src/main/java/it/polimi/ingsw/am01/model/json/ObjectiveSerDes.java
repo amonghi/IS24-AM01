@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.model.serializers;
+package it.polimi.ingsw.am01.model.json;
 
 import com.google.gson.*;
 import it.polimi.ingsw.am01.model.card.CardColor;
@@ -11,25 +11,39 @@ import it.polimi.ingsw.am01.model.objective.SameCollectibleObjective;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-public class ObjectiveSerializer implements JsonSerializer<Objective> {
+public class ObjectiveSerDes implements JsonDeserializer<Objective>, JsonSerializer<Objective> {
     Map<PlayArea.Position, PlayArea.Position> positionConversionMap = Map.of(
-            new PlayArea.Position(0, 1),   new PlayArea.Position(0, 0),
-            new PlayArea.Position(1, 1),   new PlayArea.Position(0, 1),
-            new PlayArea.Position(1, 0),   new PlayArea.Position(0, 2),
-            new PlayArea.Position(-1, 1),  new PlayArea.Position(1, 0),
-            new PlayArea.Position(0, 0),   new PlayArea.Position(1, 1),
-            new PlayArea.Position(1, -1),  new PlayArea.Position(1, 2),
-            new PlayArea.Position(-1, 0),  new PlayArea.Position(2, 0),
+            new PlayArea.Position(0, 1), new PlayArea.Position(0, 0),
+            new PlayArea.Position(1, 1), new PlayArea.Position(0, 1),
+            new PlayArea.Position(1, 0), new PlayArea.Position(0, 2),
+            new PlayArea.Position(-1, 1), new PlayArea.Position(1, 0),
+            new PlayArea.Position(0, 0), new PlayArea.Position(1, 1),
+            new PlayArea.Position(1, -1), new PlayArea.Position(1, 2),
+            new PlayArea.Position(-1, 0), new PlayArea.Position(2, 0),
             new PlayArea.Position(-1, -1), new PlayArea.Position(2, 1),
-            new PlayArea.Position(0, -1),  new PlayArea.Position(2, 2)
+            new PlayArea.Position(0, -1), new PlayArea.Position(2, 2)
     );
+
+    @Override
+    public Objective deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        String objectiveType = jsonObject.get("type").getAsString();
+
+        return switch (objectiveType) {
+            case "same" -> context.deserialize(jsonObject.get("objective"), SameCollectibleObjective.class);
+            case "different" -> context.deserialize(jsonObject.get("objective"), DifferentCollectibleObjective.class);
+            case "pattern" -> context.deserialize(jsonObject.get("objective"), PatternObjective.class);
+            default -> throw new JsonParseException("Unknown Points type: " + objectiveType);
+        };
+    }
+
     @Override
     public JsonElement serialize(Objective objective, Type type, JsonSerializationContext context) {
         JsonObject result = new JsonObject();
         JsonObject jsonObjective = new JsonObject();
         jsonObjective.addProperty("id", objective.getId());
         jsonObjective.addProperty("points", objective.getPointsPerMatch());
-        switch (objective){
+        switch (objective) {
             case SameCollectibleObjective sameCollectibleObjective -> {
                 result.addProperty("type", "same");
                 jsonObjective.addProperty("requiredCollectible", sameCollectibleObjective.getRequiredCollectible().toString());
@@ -47,7 +61,7 @@ public class ObjectiveSerializer implements JsonSerializer<Objective> {
                     PlayArea.Position convertedPosition = positionConversionMap.get(entry.getKey());
                     stringMatrix[convertedPosition.i()][convertedPosition.j()] = entry.getValue().toString().charAt(0);
                 }
-                for(char[] row : stringMatrix){
+                for (char[] row : stringMatrix) {
                     pattern.add(String.valueOf(row));
                 }
                 jsonObjective.add("pattern", pattern);

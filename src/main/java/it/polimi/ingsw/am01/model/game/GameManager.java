@@ -6,13 +6,12 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.deserializers.*;
+import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.DifferentCollectibleObjective;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.objective.PatternObjective;
 import it.polimi.ingsw.am01.model.objective.SameCollectibleObjective;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
-import it.polimi.ingsw.am01.model.serializers.*;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -27,22 +26,12 @@ public class GameManager {
     private int nextId;
     private final Path dataDir;
     private static final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Corner.class, new CornerSerializer())
-            .registerTypeAdapter(Points.class, new PointsSerializer())
-            .registerTypeAdapter(SameCollectibleObjective.class, new ObjectiveSerializer())
-            .registerTypeAdapter(DifferentCollectibleObjective.class, new ObjectiveSerializer())
-            .registerTypeAdapter(PatternObjective.class, new ObjectiveSerializer())
-            .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerializer())
-            .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
-            .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
-            .registerTypeAdapter(Corner.class, new CornerDeserializer())
-            .registerTypeAdapter(Points.class, new PointsDeserializer())
+            .registerTypeAdapter(Corner.class, new CornerSerDes())
+            .registerTypeAdapter(Points.class, new PointsSerDes())
             .registerTypeAdapter(Collectible.class, new CollectibleDeserializer())
-            .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer())
-            .registerTypeAdapter(Objective.class, new ObjectiveDeserializer())
+            .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerDes())
+            .registerTypeAdapter(Objective.class, new ObjectiveSerDes())
             .registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer())
-            .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
-            .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
             .create();
 
     /**

@@ -7,7 +7,7 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.deserializers.*;
+import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.objective.PatternObjective;
 
@@ -41,11 +41,11 @@ public class GameAssets {
      */
     private GameAssets() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Corner.class, new CornerDeserializer());
-        gsonBuilder.registerTypeAdapter(Points.class, new PointsDeserializer());
+        gsonBuilder.registerTypeAdapter(Corner.class, new CornerSerDes());
+        gsonBuilder.registerTypeAdapter(Points.class, new PointsSerDes());
         gsonBuilder.registerTypeAdapter(Collectible.class, new CollectibleDeserializer());
-        gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer());
-        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveDeserializer());
+        gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerDes());
+        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveSerDes());
         gsonBuilder.registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer());
         Gson gson = gsonBuilder.create();
 
