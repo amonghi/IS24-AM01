@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.model.deserializers;
+package it.polimi.ingsw.am01.model.json;
 
 import com.google.gson.*;
 import it.polimi.ingsw.am01.model.card.CardColor;
@@ -18,16 +18,16 @@ public class PatternObjectiveDeserializer implements JsonDeserializer<PatternObj
         String[] patternMatrix = context.deserialize(jsonObject.get("pattern"), String[].class);
 
         PlayArea.Position[][] positions = {
-            {new PlayArea.Position(0, 1), new PlayArea.Position(1, 1), new PlayArea.Position(1, 0)},
-            {new PlayArea.Position(-1, 1), new PlayArea.Position(0, 0), new PlayArea.Position(1, -1)},
-            {new PlayArea.Position(-1, 0), new PlayArea.Position(-1, -1), new PlayArea.Position(0, -1)}
+                {new PlayArea.Position(0, 1), new PlayArea.Position(1, 1), new PlayArea.Position(1, 0)},
+                {new PlayArea.Position(-1, 1), new PlayArea.Position(0, 0), new PlayArea.Position(1, -1)},
+                {new PlayArea.Position(-1, 0), new PlayArea.Position(-1, -1), new PlayArea.Position(0, -1)}
         };
         Map<PlayArea.Position, CardColor> patternMap = new HashMap<>();
 
-        for(int i = 0; i < patternMatrix.length; i++){
-            for(int j = 0; j < patternMatrix[0].length(); j++){
+        for (int i = 0; i < patternMatrix.length; i++) {
+            for (int j = 0; j < patternMatrix[0].length(); j++) {
                 char colorChar = patternMatrix[i].charAt(j);
-                if(colorChar != ' ') {
+                if (colorChar != ' ') {
                     CardColor color = parseColor(colorChar);
                     patternMap.put(positions[i][j], color);
                 }
@@ -35,7 +35,8 @@ public class PatternObjectiveDeserializer implements JsonDeserializer<PatternObj
         }
         return new PatternObjective(id, points, patternMap);
     }
-    private static CardColor parseColor(char color){
+
+    private static CardColor parseColor(char color) {
         return switch (Character.toUpperCase(color)) {
             case 'R' -> CardColor.RED;
             case 'G' -> CardColor.GREEN;
