@@ -2,7 +2,7 @@
   {
     "type": "pattern",
     "objective": {
-      "id": "1",
+      "id": 1,
       "points": 2,
       "pattern": [
         "  R",
@@ -14,7 +14,7 @@
   {
     "type": "pattern",
     "objective": {
-      "id": "2",
+      "id": 2,
       "points": 2,
       "pattern": [
         "G  ",
@@ -26,7 +26,7 @@
   {
     "type": "pattern",
     "objective": {
-      "id": "3",
+      "id": 3,
       "points": 2,
       "pattern": [
         "  B",
@@ -38,7 +38,7 @@
   {
     "type": "pattern",
     "objective": {
-      "id": "4",
+      "id": 4,
       "points": 2,
       "pattern": [
         "P  ",
@@ -50,7 +50,7 @@
   {
     "type": "pattern",
     "objective": {
-      "id": "5",
+      "id": 5,
       "points": 3,
       "pattern": [
         " R ",
@@ -62,7 +62,7 @@
   {
     "type": "pattern",
     "objective": {
-      "id": "6",
+      "id": 6,
       "points": 3,
       "pattern": [
         " G ",
@@ -74,7 +74,7 @@
   {
     "type": "pattern",
     "objective": {
-      "id": "7",
+      "id": 7,
       "points": 3,
       "pattern": [
         "  R",
@@ -86,7 +86,7 @@
   {
     "type": "pattern",
     "objective": {
-      "id": "8",
+      "id": 8,
       "points": 3,
       "pattern": [
         "B  ",
@@ -98,7 +98,7 @@
   {
     "type": "same",
     "objective": {
-      "id": "9",
+      "id": 9,
       "points": 2,
       "requiredCollectible": "FUNGI",
       "requiredNumber": 3
@@ -107,7 +107,7 @@
   {
     "type": "same",
     "objective": {
-      "id": "10",
+      "id": 10,
       "points": 2,
       "requiredCollectible": "PLANT",
       "requiredNumber": 3
@@ -116,7 +116,7 @@
   {
     "type": "same",
     "objective": {
-      "id": "11",
+      "id": 11,
       "points": 2,
       "requiredCollectible": "ANIMAL",
       "requiredNumber": 3
@@ -125,7 +125,7 @@
   {
     "type": "same",
     "objective": {
-      "id": "12",
+      "id": 12,
       "points": 2,
       "requiredCollectible": "INSECT",
       "requiredNumber": 3
@@ -134,7 +134,7 @@
   {
     "type": "different",
     "objective": {
-      "id": "13",
+      "id": 13,
       "points": 3,
       "requiredItems": [
         "INKWELL",
@@ -146,7 +146,7 @@
   {
     "type": "same",
     "objective": {
-      "id": "14",
+      "id": 14,
       "points": 2,
       "requiredCollectible": "FUNGI",
       "requiredNumber": 3
@@ -155,7 +155,7 @@
   {
     "type": "same",
     "objective": {
-      "id": "15",
+      "id": 15,
       "points": 2,
       "requiredCollectible": "MANUSCRIPT",
       "requiredNumber": 2
@@ -164,7 +164,7 @@
   {
     "type": "same",
     "objective": {
-      "id": "16",
+      "id": 16,
       "points": 2,
       "requiredCollectible": "INKWELL",
       "requiredNumber": 2
@@ -173,7 +173,7 @@
   {
     "type": "same",
     "objective": {
-      "id": "17",
+      "id": 17,
       "points": 2,
       "requiredCollectible": "QUILL",
       "requiredNumber": 2
