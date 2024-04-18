@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.model.game;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
@@ -29,6 +30,8 @@ public class GameManager {
             .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerDes())
             .registerTypeAdapter(Objective.class, new ObjectiveSerDes())
             .registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer())
+            .registerTypeAdapter(Card.class, new IDCardSerDes())
+            .registerTypeAdapter(Objective.class, new IDObjectiveSerDes())
             .create();
     private final List<Game> games;
     private final Path dataDir;
