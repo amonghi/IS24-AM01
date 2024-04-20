@@ -49,6 +49,10 @@ alt
     $selectColor_res_OK_notContended(Alice)
     $event_updateChosenColorList(Alice)
     $event_updateChosenColorList(Bob)
+
+    opt all players have selected a color
+        event_seq_newStatus_SETUP_OBJECTIVE("Alice~Bob")
+    end
 else color has been already chosen by someone else
     $selectColor_res_OK_contended(Alice)
     $event_updateChosenColorList(Alice)

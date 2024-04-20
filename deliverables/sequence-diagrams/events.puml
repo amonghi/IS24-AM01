@@ -1,5 +1,7 @@
 @startuml
 
+'single events
+
 !procedure $event_updateGameList($client, $server=Server)
     $client <<- $server: updateGameList(gameData1, gameData2, ...)
 !endprocedure
@@ -30,6 +32,32 @@
 
 !procedure $event_setStartingCard($client, $server=Server)
     $client <<- $server: setStartingCard(startingCard)
+!endprocedure
+
+'sequences
+
+!procedure event_seq_newStatus($status, $inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateGameStatus($status, NULL, $c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newStatus_SETUP_STARTING_CARD_SIDE($inGame="")
+    $event_seq_newStatus(SETUP_STARTING_CARD_SIDE, $inGame)
+    !foreach $c in %splitstr($inGame, "~")
+        $event_setStartingCard($c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newStatus_SETUP_COLOR($inGame="")
+    $event_seq_newStatus(SETUP_COLOR, $inGame)
+!endprocedure
+
+!procedure event_seq_newStatus_SETUP_OBJECTIVE($inGame="")
+    $event_seq_newStatus(SETUP_OBJECTIVE, $inGame)
+    !foreach $c in %splitstr($inGame, "~")
+        $event_setSecretObjectives($c)
+    !endfor
 !endprocedure
 
 @enduml

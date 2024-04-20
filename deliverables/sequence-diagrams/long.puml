@@ -47,10 +47,8 @@ newpage Game setup
 |||
 |||
 
-$notifyStatusAll(SETUP_STARTING_CARD_SIDE, "Alice~Bob~Carlos")
-!foreach $c in ["Alice", "Bob", "Carlos"]
-    $event_setStartingCard($c)
-!endfor
+event_seq_newStatus_SETUP_STARTING_CARD_SIDE("Alice~Bob~Carlos")
+
 |||
 $selectSide_seq("Alice", "Alice~Bob~Carlos")
 |||
@@ -62,7 +60,7 @@ $selectSide_seq("Carlos", "Alice~Bob~Carlos")
 |||
 |||
 
-$notifyStatusAll(SETUP_COLOR, "Alice~Bob~Carlos")
+event_seq_newStatus_SETUP_COLOR("Alice~Bob~Carlos")
 
 |||
 |||
@@ -78,10 +76,7 @@ $selectColor_seq(Carlos, "Alice~Bob~Carlos")
 |||
 |||
 
-$notifyStatusAll(SETUP_OBJECTIVE, "Alice~Bob~Carlos")
-!foreach $c in ["Alice", "Bob", "Carlos"]
-    $event_setSecretObjectives($c)
-!endfor
+event_seq_newStatus_SETUP_OBJECTIVE("Alice~Bob~Carlos")
 
 |||
 |||

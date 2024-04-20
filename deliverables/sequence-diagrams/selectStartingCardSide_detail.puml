@@ -52,6 +52,10 @@ alt
     $event_updateChosenSideList(Bob)
 
     'TODO: at this point the PlayArea is created, we should notify the client
+
+    opt all players have selected a side
+        event_seq_newStatus_SETUP_COLOR("Alice~Bob")
+    end
 else this player has already chosen the starting card side
     $selectSide_res_KO_sideAlreadyChosen(Alice)
 else the selected side is not a valid option
