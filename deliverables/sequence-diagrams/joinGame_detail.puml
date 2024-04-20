@@ -1,0 +1,63 @@
+@startuml
+
+!startsub PARTS
+!include events.puml
+
+!procedure $joinGame_req($client, $server=Server)
+    $client -> $server : joinGame(gameID)
+!endprocedure
+
+!procedure $joinGame_res_OK($client, $server=Server)
+    $client <-- $server: OK, gameJoined(gameID)
+    hnote over $client : IN_GAME
+!endprocedure
+
+!procedure $joinGame_res_KO_gameNotFound($client, $server=Server)
+    $client <-- $server: KO, gameNotFound(gameID)
+!endprocedure
+
+!procedure $joinGame_res_KO_gameAlreadyStarted($client, $server=Server)
+    $client <-- $server: KO, gameAlreadyStarted(gameID)
+!endprocedure
+
+!procedure $joinGame_seq_OK($client, $outsideGame="", $insideGame="", $status=AWAITING_PLAYERS, $server=Server)
+     $joinGame_req($client, $server)
+     $joinGame_res_OK($client, $server)
+     $event_updateGameStatus($status, NULL, $client)
+
+     !foreach $c2 in %splitstr($insideGame, "~")
+         $event_updatePlayerList($c2)
+     !endfor
+
+     !foreach $c1 in %splitstr($outsideGame, "~")
+         $event_updateGameList($c1)
+     !endfor
+!endprocedure
+
+!endsub
+
+title Joining a game
+participant Alice
+participant Server
+participant Bob
+note over Server 
+    There is a previously created game.
+endnote
+/ hnote over Alice : AUTHENTICATED
+/ hnote over Bob : AUTHENTICATED
+
+$joinGame_req(Alice)
+activate Server
+alt
+    $joinGame_res_OK(Alice)
+    $event_updateGameStatus(AWAITING_PLAYERS, NULL, Alice)
+    $event_updatePlayerList(Alice)
+    $event_updateGameList(Bob)
+else game does not exist
+    $joinGame_res_KO_gameNotFound(Alice)
+else game has already started
+    $joinGame_res_KO_gameAlreadyStarted(Alice)
+end
+deactivate Server
+
+@enduml

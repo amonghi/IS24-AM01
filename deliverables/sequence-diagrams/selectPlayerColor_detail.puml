@@ -1,0 +1,60 @@
+@startuml
+
+!startsub PARTS
+
+!procedure $selectColor_req($client, $server=Server)
+    $client -> $server: selectColor(color)
+!endprocedure
+
+!procedure $selectColor_res_OK_contended($client, $server=Server)
+    $client <-- $server: OK, contended()
+!endprocedure
+
+!procedure $selectColor_res_OK_notContended($client, $server=Server)
+    $client <-- $server: OK, notContended()
+!endprocedure
+
+!procedure $selectColor_res_KO_invalidColor($client, $server=Server)
+    $client <-- $server: KO, invalidColor()
+!endprocedure
+
+!procedure $selectColor_seq($client, $inGame="", $server=Server)
+    $selectColor_req($client)
+    $selectColor_res_OK_notContended($client)
+
+    !foreach $other in %splitstr($inGame, "~")
+        $event_updateChosenColorList($other)
+    !endfor
+!endprocedure
+
+!endsub
+
+!include events.puml
+
+title Select player color
+participant Alice
+participant Server
+participant Bob
+
+hnote over Alice : IN_GAME
+/ hnote over Bob : IN_GAME
+
+$event_updateGameStatus(SETUP_COLOR, NULL, Alice)
+$event_updateGameStatus(SETUP_COLOR, NULL, Bob)
+
+|||
+
+$selectColor_req(Alice)
+alt
+    $selectColor_res_OK_notContended(Alice)
+    $event_updateChosenColorList(Alice)
+    $event_updateChosenColorList(Bob)
+else color has been already chosen by someone else
+    $selectColor_res_OK_contended(Alice)
+    $event_updateChosenColorList(Alice)
+    $event_updateChosenColorList(Bob)
+else invalid color
+    $selectColor_res_KO_invalidColor(Alice)
+end
+
+@enduml

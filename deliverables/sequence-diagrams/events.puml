@@ -1,0 +1,35 @@
+@startuml
+
+!procedure $event_updateGameList($client, $server=Server)
+    $client <<- $server: updateGameList(gameData1, gameData2, ...)
+!endprocedure
+
+!procedure $event_updatePlayerList($client, $server=Server)
+    $client <<- $server: updatePlayerList(player1, player2, ...)
+!endprocedure
+
+!procedure $event_updateGameStatus($status, $turnPhase, $client, $server=Server)
+    $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>, <font:monospace><b>$turnPhase</b></font>)
+!endprocedure
+
+!procedure $event_updateChosenColorList($client, $server=Server)
+    $client <<- $server: updateChosenColorList(player1ChosenColor, player2ChosenColor, ...)
+!endprocedure
+
+!procedure $event_updateChosenObjectiveList($client, $server=Server)
+    $client <<- $server: updateChosenObjectiveList(player1HasChosen, player2HasChosen, ...)
+!endprocedure
+
+!procedure $event_updateChosenSideList($client, $server=Server)
+    $client <<- $server: updateSideChosenList(player1HasChosen, player2HasChosen, ...)
+!endprocedure
+
+!procedure $event_setSecretObjectives($client, $server=Server)
+    $client <<- $server: setSecretObjectives(objective1, objective2)
+!endprocedure
+
+!procedure $event_setStartingCard($client, $server=Server)
+    $client <<- $server: setStartingCard(startingCard)
+!endprocedure
+
+@enduml

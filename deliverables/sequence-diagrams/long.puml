@@ -1,0 +1,96 @@
+@startuml
+
+' for all pages
+!include events.puml
+
+!procedure notifyStatusAll($status, $clients)
+    !foreach $c in %splitstr($clients, "~")
+        $event_updateGameStatus($status, NULL, $c)
+    !endfor
+!endprocedure
+
+'first page
+!includesub auth_detail.puml!PARTS
+
+participant Alice
+participant Bob
+participant Carlos
+participant Server
+
+title User authentication
+hnote over Alice : NOT_AUTHENTICATED
+/ hnote over Bob : NOT_AUTHENTICATED
+/ hnote over Carlos : NOT_AUTHENTICATED
+
+$auth_seq_OK(Alice)
+|||
+$auth_seq_OK(Bob)
+|||
+$auth_seq_OK(Carlos)
+
+newpage Create game and join
+!includesub createGame_detail.puml!PARTS
+!includesub joinGame_detail.puml!PARTS
+
+$createGame_seq_OK(Alice, "Bob~Carlos")
+|||
+$joinGame_seq_OK(Bob, "Carlos", "Alice~Bob")
+|||
+$joinGame_seq_OK(Carlos, "", "Alice~Bob~Carlos")
+
+newpage Game setup
+!includesub selectStartingCardSide_detail.puml!PARTS
+!includesub selectPlayerColor_detail.puml!PARTS
+!includesub selectSecretObjective_detail.puml!PARTS
+
+|||
+|||
+|||
+
+$notifyStatusAll(SETUP_STARTING_CARD_SIDE, "Alice~Bob~Carlos")
+!foreach $c in ["Alice", "Bob", "Carlos"]
+    $event_setStartingCard($c)
+!endfor
+|||
+$selectSide_seq("Alice", "Alice~Bob~Carlos")
+|||
+$selectSide_seq("Bob", "Alice~Bob~Carlos")
+|||
+$selectSide_seq("Carlos", "Alice~Bob~Carlos")
+
+|||
+|||
+|||
+
+$notifyStatusAll(SETUP_COLOR, "Alice~Bob~Carlos")
+
+|||
+|||
+|||
+
+$selectColor_seq(Alice, "Alice~Bob~Carlos")
+|||
+$selectColor_seq(Bob, "Alice~Bob~Carlos")
+|||
+$selectColor_seq(Carlos, "Alice~Bob~Carlos")
+
+|||
+|||
+|||
+
+$notifyStatusAll(SETUP_OBJECTIVE, "Alice~Bob~Carlos")
+!foreach $c in ["Alice", "Bob", "Carlos"]
+    $event_setSecretObjectives($c)
+!endfor
+
+|||
+|||
+|||
+
+$selectObjective_seq(Alice, "Alice~Bob~Carlos")
+|||
+$selectObjective_seq(Bob, "Alice~Bob~Carlos")
+|||
+$selectObjective_seq(Carlos, "Alice~Bob~Carlos")
+
+@enduml
