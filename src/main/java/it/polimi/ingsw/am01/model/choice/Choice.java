@@ -24,7 +24,7 @@ public class Choice<T> {
     }
 
     /**
-     * @return all the options that are available in this {@code Choice}
+     * @return an unmodifiable set that contains all the options that are available in this {@code Choice}
      */
     public Set<T> getOptions() {
         return Collections.unmodifiableSet(this.options);

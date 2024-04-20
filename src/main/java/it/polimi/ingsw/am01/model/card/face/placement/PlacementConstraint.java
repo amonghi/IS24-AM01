@@ -22,7 +22,7 @@ public class PlacementConstraint {
     }
 
     /**
-     * @return the map that associate each resource with the necessary amount
+     * @return an unmodifiable map that associate each resource with the necessary amount
      */
     public Map<Resource, Integer> getRequiredResources() {
         return Collections.unmodifiableMap(requiredResources);

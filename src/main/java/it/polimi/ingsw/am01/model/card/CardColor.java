@@ -9,7 +9,7 @@ public enum CardColor {
     BLUE,
     PURPLE,
     /**
-     * NEUTRAL is the starter card's color
+     * {@code NEUTRAL} is the starter card's color
      */
     NEUTRAL
 }

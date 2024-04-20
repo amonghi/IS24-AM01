@@ -52,7 +52,7 @@ public class Board {
 
     /**
      *
-     * @return the reference of the set of the four visible cards on the board
+     * @return the reference of the set of the four visible cards on the board. Set is unmodifiable
      */
     public Set<FaceUpCard> getFaceUpCards() {
         return Collections.unmodifiableSet(faceUpCards);

@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
  * Manages multiple {@link Game} instances at once and allows to save the current status in a json file
  */
 public class GameManager {
-    private final List<Game> games;
-    private int nextId;
-    private final Path dataDir;
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Corner.class, new CornerSerializer())
             .registerTypeAdapter(Points.class, new PointsSerializer())
@@ -44,6 +41,9 @@ public class GameManager {
             .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
             .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
             .create();
+    private final List<Game> games;
+    private final Path dataDir;
+    private int nextId;
 
     /**
      * Creates a new {@code GameManager} and load all the saved games from file
@@ -61,7 +61,7 @@ public class GameManager {
     }
 
     /**
-     * @return a list of the games that are currently running
+     * @return an unmodifiable list of the games that are currently running
      */
     public List<Game> getGames() {
         return Collections.unmodifiableList(games);
@@ -91,7 +91,7 @@ public class GameManager {
         if (loadSavedGamesIds().contains(game.getId())) {
             File file = dataDir.resolve(game.getId() + ".json").toFile();
             boolean deleted = file.delete();
-            if(!deleted){
+            if (!deleted) {
                 throw new RuntimeException("Failed to delete file " + game.getId() + ".json");
             }
         }

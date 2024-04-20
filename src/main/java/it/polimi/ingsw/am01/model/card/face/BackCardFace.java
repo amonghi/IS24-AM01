@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.model.card.face;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,10 +21,10 @@ public class BackCardFace extends BaseCardFace {
     /**
      * Constructs a new {@code BackCardFace}
      *
-     * @param tl the top-left corner
-     * @param tr the top-right corner
-     * @param bl the bottom-left corner
-     * @param br the bottom-right corner
+     * @param tl        the top-left corner
+     * @param tr        the top-right corner
+     * @param bl        the bottom-left corner
+     * @param br        the bottom-right corner
      * @param resources the map with the permanent resources of this face
      */
 
@@ -33,11 +34,10 @@ public class BackCardFace extends BaseCardFace {
     }
 
     /**
-     *
-     * @return the map with the permanent resources of this face
+     * @return an unmodifiable map with the permanent resources of this face
      */
     @Override
     public Map<Resource, Integer> getCenterResources() {
-        return resources;
+        return Collections.unmodifiableMap(resources);
     }
 }

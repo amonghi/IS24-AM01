@@ -11,53 +11,15 @@ import java.util.*;
 
 public class PlayArea implements Iterable<PlayArea.CardPlacement> {
 
-    /**
-     * Represent a position in the {@link PlayArea}
-     * <p>
-     * A position is represented by two indices {@code i} and {@code j}.
-     * The indices can be positive or negative.
-     *
-     * @param i the first index of the position. Can be positive or negative.
-     * @param j the second index of the position. Can be positive or negative.
-     */
-    public record Position(int i, int j) {
-        /**
-         * The origin of the {@link PlayArea}, that is {@code Position(0, 0)}.
-         */
-        public static final Position ORIGIN = new Position(0, 0);
-
-        /**
-         * Finds a new position by starting at the position represented by {@code this}
-         * and moving in the direction of {@code CornerPosition}.
-         *
-         * @param cp the direction to move into
-         * @return the position at which we arrive after moving
-         */
-        public Position getRelative(CornerPosition cp) {
-            return switch (cp) {
-                case TOP_RIGHT -> new Position(i + 1, j);
-                case TOP_LEFT -> new Position(i, j + 1);
-                case BOTTOM_LEFT -> new Position(i - 1, j);
-                case BOTTOM_RIGHT -> new Position(i, j - 1);
-            };
-        }
-
-        @Override
-        public String toString() {
-            return "(" + i + ", " + j + ")";
-        }
-    }
-
     private final Set<Position> playablePositions;
     private final Map<Position, CardPlacement> cards;
-    private int score;
-    private int seq;
     /**
      * It counts each type of {@link Collectible} visible on the {@link PlayArea}.
      * Until a {@link Card} with a certain type of {@link Collectible} is placed, the {@code KeySet} does not contain that {@link Collectible}.
      */
     private final Map<Collectible, Integer> collectibleCount;
-
+    private int score;
+    private int seq;
     /**
      * Create a new play area and initialize it with the first {@link CardPlacement}.
      * <p>
@@ -204,7 +166,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      * Provides the playable {@link Position}, i.e. the {@link Position} where a new {@link Card},
      * if placed, will be connected to other {@link Card} without covering any missing {@link Corner}
      *
-     * @return The {@code Set} containing all the playable {@link Position}
+     * @return The {@code Set} containing all the playable {@link Position}. Set is unmodifiable
      */
     public Set<Position> getPlayablePositions() {
         return Collections.unmodifiableSet(playablePositions);
@@ -247,6 +209,43 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
     @Override
     public Iterator<CardPlacement> iterator() {
         return this.cards.values().iterator();
+    }
+
+    /**
+     * Represent a position in the {@link PlayArea}
+     * <p>
+     * A position is represented by two indices {@code i} and {@code j}.
+     * The indices can be positive or negative.
+     *
+     * @param i the first index of the position. Can be positive or negative.
+     * @param j the second index of the position. Can be positive or negative.
+     */
+    public record Position(int i, int j) {
+        /**
+         * The origin of the {@link PlayArea}, that is {@code Position(0, 0)}.
+         */
+        public static final Position ORIGIN = new Position(0, 0);
+
+        /**
+         * Finds a new position by starting at the position represented by {@code this}
+         * and moving in the direction of {@code CornerPosition}.
+         *
+         * @param cp the direction to move into
+         * @return the position at which we arrive after moving
+         */
+        public Position getRelative(CornerPosition cp) {
+            return switch (cp) {
+                case TOP_RIGHT -> new Position(i + 1, j);
+                case TOP_LEFT -> new Position(i, j + 1);
+                case BOTTOM_LEFT -> new Position(i - 1, j);
+                case BOTTOM_RIGHT -> new Position(i, j - 1);
+            };
+        }
+
+        @Override
+        public String toString() {
+            return "(" + i + ", " + j + ")";
+        }
     }
 
     /**

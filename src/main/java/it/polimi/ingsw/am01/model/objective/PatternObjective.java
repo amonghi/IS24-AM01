@@ -34,7 +34,7 @@ public class PatternObjective extends Objective {
     }
 
     /**
-     * @return the map of that define the pattern
+     * @return an unmodifiable map which defines the pattern
      */
     public Map<Position, CardColor> getPattern() {
         return Collections.unmodifiableMap(pattern);

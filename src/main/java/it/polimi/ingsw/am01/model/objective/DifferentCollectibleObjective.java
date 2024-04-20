@@ -14,6 +14,7 @@ import java.util.Set;
  */
 public class DifferentCollectibleObjective extends Objective {
     private final Set<Item> requiredItems;
+
     /**
      * Constructs a new DifferentCollectibleObjective
      *
@@ -27,7 +28,7 @@ public class DifferentCollectibleObjective extends Objective {
     }
 
     /**
-     * @return the set of items required to earn the points
+     * @return an unmodifiable set of items required to earn the points
      */
     public Set<Item> getRequiredItems() {
         return Collections.unmodifiableSet(requiredItems);
@@ -46,9 +47,9 @@ public class DifferentCollectibleObjective extends Objective {
     public int getEarnedPoints(PlayArea pa) {
         return pa.getCollectibleCount().keySet().containsAll(requiredItems) ?
                 getPointsPerMatch() * requiredItems.stream()
-                                        .mapToInt(item -> pa.getCollectibleCount().get(item))
-                                        .min()
-                                        .orElse(0)
+                        .mapToInt(item -> pa.getCollectibleCount().get(item))
+                        .min()
+                        .orElse(0)
                 : 0;
     }
 }
