@@ -23,9 +23,9 @@ hnote over Alice : NOT_AUTHENTICATED
 / hnote over Carlos : NOT_AUTHENTICATED
 
 $auth_seq_OK(Alice)
-|||
+||25||
 $auth_seq_OK(Bob)
-|||
+||25||
 $auth_seq_OK(Carlos)
 
 newpage Create game and join
@@ -33,9 +33,9 @@ newpage Create game and join
 !includesub joinGame_detail.puml!PARTS
 
 $createGame_seq_OK(Alice, "Bob~Carlos")
-|||
+||25||
 $joinGame_seq_OK(Bob, "Carlos", "Alice~Bob")
-|||
+||25||
 $joinGame_seq_OK(Carlos, "", "Alice~Bob~Carlos")
 
 newpage Game setup
@@ -43,49 +43,39 @@ newpage Game setup
 !includesub selectPlayerColor_detail.puml!PARTS
 !includesub selectSecretObjective_detail.puml!PARTS
 
-|||
-|||
-|||
+||75||
 
 event_seq_newStatus_SETUP_STARTING_CARD_SIDE("Alice~Bob~Carlos")
 
-|||
+||25||
 $selectSide_seq("Alice", "Alice~Bob~Carlos")
-|||
+||25||
 $selectSide_seq("Bob", "Alice~Bob~Carlos")
-|||
+||25||
 $selectSide_seq("Carlos", "Alice~Bob~Carlos")
 
-|||
-|||
-|||
+||75||
 
 event_seq_newStatus_SETUP_COLOR("Alice~Bob~Carlos")
 
-|||
-|||
-|||
+||75||
 
 $selectColor_seq(Alice, "Alice~Bob~Carlos")
-|||
+||25||
 $selectColor_seq(Bob, "Alice~Bob~Carlos")
-|||
+||25||
 $selectColor_seq(Carlos, "Alice~Bob~Carlos")
 
-|||
-|||
-|||
+||75||
 
 event_seq_newStatus_SETUP_OBJECTIVE("Alice~Bob~Carlos")
 
-|||
-|||
-|||
+||75||
 
 $selectObjective_seq(Alice, "Alice~Bob~Carlos")
-|||
+||25||
 $selectObjective_seq(Bob, "Alice~Bob~Carlos")
-|||
+||25||
 $selectObjective_seq(Carlos, "Alice~Bob~Carlos")
 
 @enduml
