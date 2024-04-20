@@ -34,7 +34,7 @@ public class BackCardFace extends BaseCardFace {
     }
 
     /**
-     * @return the map with the permanent resources of this face
+     * @return an unmodifiable map with the permanent resources of this face
      */
     @Override
     public Map<Resource, Integer> getCenterResources() {
