@@ -1,0 +1,48 @@
+@startuml
+
+!startsub PARTS
+!include events.puml
+
+!procedure $sendBroadcastMessage_req($sender, $server=Server)
+    $sender -> $server : sendBroadcastMessage(sender, content)
+!endprocedure
+
+!procedure $sendDirectMessage_req($sender, $server=Server)
+    $sender -> $server : sendDirectMessage(sender, recipient, content)
+!endprocedure
+
+!procedure $sendMessage_res_OK($client, $server=Server)
+    $client <-- $server : OK
+!endprocedure
+!endsub
+
+title Send messages
+participant Alice
+participant Server
+participant Bob
+participant Carlos
+
+hnote over Alice : IN_GAME
+/ hnote over Bob : IN_GAME
+
+note over Alice: Alice is sending a direct message to Bob
+$sendDirectMessage_req(Alice)
+'TODO: alt
+alt
+    $sendMessage_res_OK(Alice)
+    $event_updateMailbox(Bob, DIRECT)
+else
+else
+end
+||||
+
+note over Carlos: Carlos is sending a broadcast message
+$sendBroadcastMessage_req(Carlos)
+'TODO: alt
+alt
+    $sendMessage_res_OK(Carlos)
+    $event_seq_updateMailboxes($inGame="Alice~Bob~Carlos")
+else
+else
+end
+@enduml

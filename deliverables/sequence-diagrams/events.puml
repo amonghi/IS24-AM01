@@ -71,6 +71,10 @@
     $client <<- $server: updateFinalScores(playerScore1, playerScore2, ...)
 !endprocedure
 
+!procedure $event_updateMailbox($client, $MessageType, $server=Server)
+    $client <<- $server: updateMailbox(sender, <font:monospace><b>$MessageType</b></font>, content)
+!endprocedure
+
 'sequences
 
 !procedure event_seq_newStatus($status, $inGame="")
@@ -160,5 +164,10 @@
     !endfor
 !endprocedure
 
+!procedure event_seq_updateMailboxes($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateMailbox($c, BROADCAST)
+    !endfor
+!endprocedure
 
 @enduml
