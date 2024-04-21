@@ -51,8 +51,7 @@ alt
     $event_updateChosenSideList(Alice)
     $event_updateChosenSideList(Bob)
 
-    'TODO: at this point the PlayArea is created, we should notify the client
-
+    $event_seq_updatePlayArea(Alice, $inGame="Alice~Bob")
     opt all players have selected a side
         event_seq_newStatus_SETUP_COLOR("Alice~Bob")
     end

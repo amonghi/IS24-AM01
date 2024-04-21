@@ -34,11 +34,35 @@
     $client <<- $server: setStartingCard(startingCard)
 !endprocedure
 
+!procedure $event_setPlayablePosition($client, $server=Server)
+    $client <<- $server: setPlayablePosition(position1, position2, ...)
+!endprocedure
+
+!procedure $event_updatePlayArea($client, $owner, $server=Server)
+    $client <<- $server: updatePlayArea($owner, cardPlacement)
+!endprocedure
+
+!procedure $event_updateColor($client, $owner, $server=Server)
+    $client <<- $server: updateColor($owner, color)
+!endprocedure
+
+!procedure $event_setCommonObjectives($client, $server=Server)
+    $client <<- $server: setCommonObjectives(objective1, objective2)
+!endprocedure
+
+!procedure $event_setCardsInHand($client, $server=Server)
+    $client <<- $server: setCardsInHand(card1, card2, card3)
+!endprocedure
+
+!procedure $event_setFaceUpCards($client, $server=Server)
+    $client <<- $server: setFaceUpCards(card1, card2, card3, card4)
+!endprocedure
+
 'sequences
 
-!procedure event_seq_newStatus($status, $inGame="")
+!procedure event_seq_newStatus($status, $inGame="", $turnPhase=NULL)
     !foreach $c in %splitstr($inGame, "~")
-        $event_updateGameStatus($status, NULL, $c)
+        $event_updateGameStatus($status, $turnPhase, $c)
     !endfor
 !endprocedure
 
@@ -57,6 +81,45 @@
     $event_seq_newStatus(SETUP_OBJECTIVE, $inGame)
     !foreach $c in %splitstr($inGame, "~")
         $event_setSecretObjectives($c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newTurnPhase_PLACING($inGame="")
+    $event_seq_newStatus(PLAY, $inGame, PLACING)
+!endprocedure
+
+!procedure event_seq_newTurnPhase_DRAWING($inGame="")
+    $event_seq_newStatus(PLAY, $inGame, DRAWING)
+!endprocedure
+
+!procedure event_seq_updatePlayArea($owner, $inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updatePlayArea($c, $owner)
+    !endfor
+
+!endprocedure
+
+!procedure event_seq_updateColor($owner, $inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+       $event_updateColor($c, $owner)
+    !endfor
+!endprocedure
+
+!procedure event_seq_setCommonObjectives($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+       $event_setCommonObjectives($c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_setCardsInHand($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_setCardsInHand($c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_setFaceUpCards($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_setFaceUpCards($c)
     !endfor
 !endprocedure
 
