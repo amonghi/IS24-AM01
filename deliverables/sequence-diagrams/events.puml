@@ -18,8 +18,8 @@
     $client <<- $server: updateTurn(currentPlayer, <font:monospace><b>$turnPhase</b></font>)
 !endprocedure
 
-!procedure $event_updateChosenColorList($client, $server=Server)
-    $client <<- $server: updateChosenColorList(player1ChosenColor, player2ChosenColor, ...)
+!procedure $event_updateColor($client, $server=Server)
+    $client <<- $server: updateColor(player, chosenColor)
 !endprocedure
 
 !procedure $event_updateChosenObjectiveList($client, $server=Server)
@@ -65,6 +65,10 @@
 
 !procedure $event_updateScores($client, $server=Server)
     $client <<- $server: updateScores(currentPlayer, score)
+!endprocedure
+
+!procedure $event_updateFinalScores($client, $server=Server)
+    $client <<- $server: updateFinalScores(playerScore1, playerScore2, ...)
 !endprocedure
 
 'sequences

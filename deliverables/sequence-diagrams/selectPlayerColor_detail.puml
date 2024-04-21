@@ -1,6 +1,7 @@
 @startuml
 
 !startsub PARTS
+!include events.puml
 
 !procedure $selectColor_req($client, $server=Server)
     $client -> $server: selectColor(color)
@@ -19,13 +20,11 @@
     $selectColor_res_OK_notContended($client)
 
     !foreach $other in %splitstr($inGame, "~")
-        $event_updateChosenColorList($other)
+        $event_updateColor($other)
     !endfor
 !endprocedure
 
 !endsub
-
-!include events.puml
 
 title Select player color
 participant Alice

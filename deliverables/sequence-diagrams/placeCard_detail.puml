@@ -11,6 +11,16 @@
     $server --> $client: OK
 !endprocedure
 
+!procedure $placeCard_seq($client, $inGame="", $server=Server)
+    note over $client : $client's turn
+    $event_setPlayablePosition($client)
+    $placeCard_req($client)
+    $placeCard_res_OK($client)
+    $event_seq_updatePlayArea($inGame)
+    $event_seq_updateScores($inGame)
+!endprocedure
+
+
 !endsub
 
 title Place a card
@@ -22,6 +32,9 @@ hnote over Alice : IN_GAME
 / hnote over Bob : IN_GAME
 
 $event_seq_newTurn_PLACING($inGame="Alice~Bob")
+
+|||
+
 $event_setPlayablePosition(Alice)
 note over Alice : It is Alice's turn
 $placeCard_req(Alice)
