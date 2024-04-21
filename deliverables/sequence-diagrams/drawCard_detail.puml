@@ -1,0 +1,56 @@
+@startuml
+!startsub PARTS
+!include events.puml
+
+!procedure $drawCard_req($client, $server=Server)
+    $client -> $server: drawCard(drawSource)
+!endprocedure
+
+!procedure $drawCard_res_OK($client, $server=Server)
+    $server --> $client: OK
+!endprocedure
+
+!endsub
+
+title Draw a card
+participant Alice
+participant Server
+participant Bob
+
+hnote over Alice : IN_GAME
+/ hnote over Bob : IN_GAME
+
+note over Alice : It is Alice's turn
+
+$event_seq_newTurn_DRAWING($inGame="Alice~Bob")
+
+|||
+
+$drawCard_req(Alice)
+alt
+    $drawCard_res_OK(Alice)
+    $event_seq_updateDecksStatus("Alice~Bob")
+    opt player has drawn a face up card
+        $event_seq_updateFaceUpCards("Alice~Bob")
+    end
+
+    opt decks are empty and status is PLAY
+        |||
+        alt currentPlayer is not the last player
+            $event_seq_newStatus(SECOND_LAST_TURN, "Alice~Bob")
+        else currentPlayer is the last player
+            $event_seq_newStatus(LAST_TURN, "Alice~Bob")
+        end
+        |||
+    end
+    opt this is the last player and status is SECOND_LAST_TURN
+        $event_seq_newStatus(LAST_TURN, "Alice~Bob")
+    end
+    $event_seq_newTurn_PLACING("Alice~Bob")
+    note over Bob : It's Bob tur
+else source is empty
+    Server --> Alice: KO, emptySource()
+end
+
+
+@enduml
