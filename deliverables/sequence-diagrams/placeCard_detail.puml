@@ -23,13 +23,33 @@ hnote over Alice : IN_GAME
 
 $event_seq_newTurn_PLACING($inGame="Alice~Bob")
 $event_setPlayablePosition(Alice)
-'FIXME: how do we notice that?
 note over Alice : It is Alice's turn
 $placeCard_req(Alice)
 alt
     $placeCard_res_OK(Alice)
-    $event_seq_updatePlayArea(Alice, $inGame="Alice~Bob")
-    $event_seq_newTurn_DRAWING($inGame="Alice~Bob")
+    $event_seq_updatePlayArea("Alice~Bob")
+    $event_seq_updateScores("Alice~Bob")
+
+    alt status is PLAY or SECOND_LAST_TURN
+        $event_seq_newTurn_DRAWING($inGame="Alice~Bob")
+        opt player has just reached 20 points during PLAY status
+            $event_seq_newStatus(SECOND_LAST_TURN, "Alice~Bob")
+        end
+        note over Alice : It's still Alice turn
+        |||
+    else status is LAST_TURN and currentPlayer is not the last player
+        $event_seq_newTurn_PLACING("Alice~Bob")
+        note over Bob : It's Bob turn
+        |||
+    else status is LAST_TURN and currentPlayer is the last player
+        $event_seq_newStatus(FINISHED, "Alice~Bob")
+        note over Alice : Game has finished
+        |||
+    end
+
+
+
+
 else Player has not the card in his hand
     Server --> Alice: KO, invalidCard()
 else There aren't enough resources
@@ -37,7 +57,4 @@ else There aren't enough resources
 else Invalid position chosen
     Server --> Alice: KO, invalidPosition()
 end
-'FIXME: useless?
-note over Alice : It is still Alice's turn
-
 @enduml

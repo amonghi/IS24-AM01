@@ -42,13 +42,18 @@
     $client <<- $server: setPlayablePosition(position1, position2, ...)
 !endprocedure
 
-!procedure $event_updatePlayArea($client, $owner, $server=Server)
-    $client <<- $server: updatePlayArea($owner, cardPlacement)
+!procedure $event_updatePlayArea($client, $server=Server)
+    $client <<- $server: updatePlayArea(currentPlayer, cardPlacement)
 !endprocedure
 
-!procedure $event_updateColor($client, $owner, $server=Server)
-    $client <<- $server: updateColor($owner, color)
+!procedure $event_updateFaceUpCards($client, $server=Server)
+    $client <<- $server: updateFaceUpCards(card1, card2, card3, card4)
 !endprocedure
+
+!procedure $event_updateDecksStatus($client, $server=Server)
+    $client <<- $server: updateDecksStatus(resourceDeckIsEmpty, goldenDeckIsEmpty)
+!endprocedure
+
 
 !procedure $event_setCommonObjectives($client, $server=Server)
     $client <<- $server: setCommonObjectives(objective1, objective2)
@@ -58,8 +63,8 @@
     $client <<- $server: setCardsInHand(card1, card2, card3)
 !endprocedure
 
-!procedure $event_setFaceUpCards($client, $server=Server)
-    $client <<- $server: setFaceUpCards(card1, card2, card3, card4)
+!procedure $event_updateScores($client, $server=Server)
+    $client <<- $server: updateScores(currentPlayer, score)
 !endprocedure
 
 'sequences
@@ -102,16 +107,16 @@
     $event_seq_newTurn(DRAWING, $inGame)
 !endprocedure
 
-!procedure event_seq_updatePlayArea($owner, $inGame="")
+!procedure event_seq_updatePlayArea($inGame="")
     !foreach $c in %splitstr($inGame, "~")
-        $event_updatePlayArea($c, $owner)
+        $event_updatePlayArea($c)
     !endfor
 
 !endprocedure
 
-!procedure event_seq_updateColor($owner, $inGame="")
+!procedure event_seq_updateColor($inGame="")
     !foreach $c in %splitstr($inGame, "~")
-       $event_updateColor($c, $owner)
+       $event_updateColor($c)
     !endfor
 !endprocedure
 
@@ -127,10 +132,29 @@
     !endfor
 !endprocedure
 
-!procedure event_seq_setFaceUpCards($inGame="")
+!procedure event_seq_updateFaceUpCards($inGame="")
     !foreach $c in %splitstr($inGame, "~")
-        $event_setFaceUpCards($c)
+        $event_updateFaceUpCards($c)
     !endfor
 !endprocedure
+
+!procedure event_seq_updateDecksStatus($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateDecksStatus($c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_updateScores($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateScores($c, $server=Server)
+    !endfor
+!endprocedure
+
+!procedure event_seq_updateFinalScores($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateFinalScores($c)
+    !endfor
+!endprocedure
+
 
 @enduml

@@ -14,10 +14,6 @@
     $client <-- $server: OK, notContended()
 !endprocedure
 
-!procedure $selectColor_res_KO_invalidColor($client, $server=Server)
-    $client <-- $server: KO, invalidColor()
-!endprocedure
-
 !procedure $selectColor_seq($client, $inGame="", $server=Server)
     $selectColor_req($client)
     $selectColor_res_OK_notContended($client)
@@ -47,9 +43,7 @@ $event_updateGameStatus(SETUP_COLOR, Bob)
 $selectColor_req(Alice)
 alt
     $selectColor_res_OK_notContended(Alice)
-    $event_updateChosenColorList(Alice)
-    $event_updateChosenColorList(Bob)
-    $event_seq_updateColor(Alice, "Alice~Bob")
+    $event_seq_updateColor("Alice~Bob")
 
     opt all players have selected a color
         event_seq_newStatus_SETUP_OBJECTIVE("Alice~Bob")
@@ -59,7 +53,7 @@ else color has been already chosen by someone else
     $event_updateChosenColorList(Alice)
     $event_updateChosenColorList(Bob)
 else invalid color
-    $selectColor_res_KO_invalidColor(Alice)
+    Alice <-- Server: KO, invalidColor()
 end
 
 @enduml
