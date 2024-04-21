@@ -23,7 +23,7 @@
 !procedure $joinGame_seq_OK($client, $outsideGame="", $insideGame="", $status=AWAITING_PLAYERS, $server=Server)
      $joinGame_req($client, $server)
      $joinGame_res_OK($client, $server)
-     $event_updateGameStatus($status, NULL, $client)
+     $event_updateGameStatus($status, $client)
 
      !foreach $c2 in %splitstr($insideGame, "~")
          $event_updatePlayerList($c2)
@@ -50,7 +50,7 @@ $joinGame_req(Alice)
 activate Server
 alt
     $joinGame_res_OK(Alice)
-    $event_updateGameStatus(AWAITING_PLAYERS, NULL, Alice)
+    $event_updateGameStatus(AWAITING_PLAYERS, Alice)
     $event_updatePlayerList(Alice)
     $event_updateGameList(Bob)
 
