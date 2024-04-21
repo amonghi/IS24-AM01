@@ -10,8 +10,12 @@
     $client <<- $server: updatePlayerList(player1, player2, ...)
 !endprocedure
 
-!procedure $event_updateGameStatus($status, $turnPhase, $client, $server=Server)
-    $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>, <font:monospace><b>$turnPhase</b></font>)
+!procedure $event_updateGameStatus($status, $client, $server=Server)
+    $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>)
+!endprocedure
+
+!procedure $event_updateTurn($turnPhase, $client, $server=Server)
+    $client <<- $server: updateTurn(currentPlayer, <font:monospace><b>$turnPhase</b></font>)
 !endprocedure
 
 !procedure $event_updateChosenColorList($client, $server=Server)
@@ -60,9 +64,15 @@
 
 'sequences
 
-!procedure event_seq_newStatus($status, $inGame="", $turnPhase=NULL)
+!procedure event_seq_newStatus($status, $inGame="")
     !foreach $c in %splitstr($inGame, "~")
-        $event_updateGameStatus($status, $turnPhase, $c)
+        $event_updateGameStatus($status, $c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newTurn($turnPhase, $inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateTurn($turnPhase, $c)
     !endfor
 !endprocedure
 
@@ -84,12 +94,12 @@
     !endfor
 !endprocedure
 
-!procedure event_seq_newTurnPhase_PLACING($inGame="")
-    $event_seq_newStatus(PLAY, $inGame, PLACING)
+!procedure event_seq_newTurn_PLACING($inGame="")
+    $event_seq_newTurn(PLACING, $inGame)
 !endprocedure
 
-!procedure event_seq_newTurnPhase_DRAWING($inGame="")
-    $event_seq_newStatus(PLAY, $inGame, DRAWING)
+!procedure event_seq_newTurn_DRAWING($inGame="")
+    $event_seq_newTurn(DRAWING, $inGame)
 !endprocedure
 
 !procedure event_seq_updatePlayArea($owner, $inGame="")

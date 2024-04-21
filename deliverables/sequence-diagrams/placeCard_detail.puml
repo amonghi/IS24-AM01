@@ -21,7 +21,7 @@ participant Bob
 hnote over Alice : IN_GAME
 / hnote over Bob : IN_GAME
 
-$event_seq_newTurnPhase_PLACING($inGame="Alice~Bob")
+$event_seq_newTurn_PLACING($inGame="Alice~Bob")
 $event_setPlayablePosition(Alice)
 'FIXME: how do we notice that?
 note over Alice : It is Alice's turn
@@ -29,7 +29,7 @@ $placeCard_req(Alice)
 alt
     $placeCard_res_OK(Alice)
     $event_seq_updatePlayArea(Alice, $inGame="Alice~Bob")
-    $event_seq_newTurnPhase_DRAWING($inGame="Alice~Bob")
+    $event_seq_newTurn_DRAWING($inGame="Alice~Bob")
 else Player has not the card in his hand
     Server --> Alice: KO, invalidCard()
 else There aren't enough resources

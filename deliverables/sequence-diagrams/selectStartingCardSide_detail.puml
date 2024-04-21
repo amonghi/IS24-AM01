@@ -11,14 +11,6 @@
     $client <-- $server: OK
 !endprocedure
 
-!procedure $selectSide_res_KO_sideAlreadyChosen($client, $server=Server)
-    $client <-- $server: KO, sideAlreadyChosen()
-!endprocedure
-
-!procedure $selectSide_res_KO_invalidChoice($client, $server=Server)
-    $client <-- $server: KO, invalidSide()
-!endprocedure
-
 !procedure $selectSide_seq($client, $inGame="", $server=Server)
     $selectSide_req($client)
     $selectSide_res_OK($client)
@@ -38,9 +30,9 @@ participant Bob
 hnote over Alice : IN_GAME
 / hnote over Bob : IN_GAME
 
-$event_updateGameStatus(SETUP_STARTING_CARD_SIDE, NULL, Alice)
+$event_updateGameStatus(SETUP_STARTING_CARD_SIDE, Alice)
 $event_setStartingCard(Alice)
-$event_updateGameStatus(SETUP_STARTING_CARD_SIDE, NULL, Bob)
+$event_updateGameStatus(SETUP_STARTING_CARD_SIDE, Bob)
 $event_setStartingCard(Bob)
 
 |||
@@ -56,9 +48,9 @@ alt
         event_seq_newStatus_SETUP_COLOR("Alice~Bob")
     end
 else this player has already chosen the starting card side
-    $selectSide_res_KO_sideAlreadyChosen(Alice)
+    Alice <-- Server: KO, sideAlreadyChosen()
 else the selected side is not a valid option
-    $selectSide_res_KO_invalidChoice(Alice)
+    Alice <-- Server: KO, invalidSide()
 end
 
 @enduml

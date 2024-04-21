@@ -16,7 +16,7 @@
 !procedure $createGame_seq_OK($client, $outsideGame="", $server=Server)
     $createGame_req($client, $server)
     $joinGame_res_OK($client, $server)
-    $event_updateGameStatus(AWAITING_PLAYERS, NULL, $client)
+    $event_updateGameStatus(AWAITING_PLAYERS, $client)
     $event_updatePlayerList($client)
 
     !foreach $other in %splitstr($outsideGame, "~")
@@ -40,7 +40,7 @@ activate Server
 
 alt
     $joinGame_res_OK(Alice)
-    $event_updateGameStatus(AWAITING_PLAYERS, NULL, Alice)
+    $event_updateGameStatus(AWAITING_PLAYERS, Alice)
     $event_updatePlayerList(Alice)
     $event_updateGameList(Bob)
 else maxPlayers < 2 || maxPlayers > 4
