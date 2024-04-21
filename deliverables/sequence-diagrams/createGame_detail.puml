@@ -36,7 +36,6 @@ hnote over Alice : AUTHENTICATED
 / hnote over Bob : AUTHENTICATED
 
 $createGame_req(Alice)
-activate Server
 
 alt
     $joinGame_res_OK(Alice)
@@ -46,6 +45,5 @@ alt
 else maxPlayers < 2 || maxPlayers > 4
     $createGame_res_KO_invalidMaxPlayers(Alice)
 end
-deactivate Server
 
 @enduml
