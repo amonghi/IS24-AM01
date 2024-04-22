@@ -134,19 +134,6 @@ public class Controller {
     }
 
     /**
-     * Starts the game.
-     * <p>
-     * To start the game all players must have already performed the necessary choices.
-     *
-     * @param gameId the ID of the game to be started
-     */
-    public void startGame(int gameId) {
-        Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
-        game.startGame();
-    }
-
-    /**
      * Draws a card from the deck that is indicated by {@code deckLocation} and places it in the hand of the player
      *
      * @param gameId       the ID of the game in which the player is playing
