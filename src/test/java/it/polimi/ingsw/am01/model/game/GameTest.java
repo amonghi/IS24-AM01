@@ -48,8 +48,6 @@ class GameTest {
         standardGame.join(p3);
         standardGame.join(p4);
 
-        assertThrows(IllegalMoveException.class, () -> standardGame.startGame());
-
         assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, standardGame.getStatus());
 
         standardGame.selectStartingCardSide(p1, Side.BACK);
@@ -63,8 +61,6 @@ class GameTest {
         standardGame.join(p2);
         standardGame.join(p3);
         standardGame.join(p4);
-
-        assertThrows(IllegalMoveException.class, () -> standardGame.startGame());
 
         assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, standardGame.getStatus());
 
@@ -97,8 +93,7 @@ class GameTest {
         Objective o4 = standardGame.getObjectiveOptions(p4).stream().findAny().orElse(null);
         standardGame.selectObjective(p4, o4);
 
-        assertEquals(GameStatus.AWAITING_START, standardGame.getStatus());
-        standardGame.startGame();
+        assertEquals(GameStatus.PLAY, standardGame.getStatus());
 
 
         // FIRST PLAYER
@@ -210,7 +205,6 @@ class GameTest {
         shortGame1.selectObjective(p3, o3);
 
 
-        shortGame1.startGame();
         assertEquals(GameStatus.PLAY, shortGame1.getStatus());
         assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
 
@@ -337,7 +331,6 @@ class GameTest {
         shortGame2.selectObjective(p3, o3);
 
 
-        shortGame2.startGame();
         assertEquals(GameStatus.PLAY, shortGame2.getStatus());
         assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
 
@@ -485,7 +478,6 @@ class GameTest {
         shortGame3.selectObjective(p3, o3);
 
 
-        shortGame3.startGame();
         assertEquals(GameStatus.PLAY, shortGame3.getStatus());
         assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
 
@@ -630,7 +622,6 @@ class GameTest {
         shortGame4.selectObjective(p3, o3);
 
 
-        shortGame4.startGame();
         assertEquals(GameStatus.PLAY, shortGame4.getStatus());
         assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
 
@@ -770,7 +761,6 @@ class GameTest {
         Objective o4 = standardGame.getObjectiveOptions(p4).stream().findAny().orElse(null);
         standardGame.selectObjective(p4, o4);
 
-        standardGame.startGame();
 
         // FIRST PLAYER
         PlayerProfile first = standardGame.getPlayerProfiles().getFirst();
@@ -828,7 +818,6 @@ class GameTest {
         Objective o4 = standardGame.getObjectiveOptions(p4).stream().findAny().orElse(null);
         standardGame.selectObjective(p4, o4);
 
-        standardGame.startGame();
 
         // FIRST PLAYER
         PlayerProfile first = standardGame.getPlayerProfiles().getFirst();
@@ -839,7 +828,7 @@ class GameTest {
     }
 
     @Test
-    public void testNotEnoughCards(){
+    public void testNotEnoughCards() {
         Game notValidGame1 = new Game(8, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(4).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(20).toList())));
 
@@ -855,10 +844,7 @@ class GameTest {
         Objective o1 = notValidGame1.getObjectiveOptions(p1).stream().findAny().orElse(null);
         notValidGame1.selectObjective(p1, o1);
 
-        Objective o2 = notValidGame1.getObjectiveOptions(p2).stream().findAny().orElse(null);
-        notValidGame1.selectObjective(p2, o2);
-
-        assertThrows(NotEnoughGameResourcesException.class, notValidGame1::startGame);
+        assertThrows(NotEnoughGameResourcesException.class, () -> notValidGame1.selectObjective(p2, notValidGame1.getObjectiveOptions(p2).stream().findAny().orElse(null)));
 
 
         Game notValidGame2 = new Game(9, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(20).toList()),
@@ -876,14 +862,11 @@ class GameTest {
         o1 = notValidGame2.getObjectiveOptions(p1).stream().findAny().orElse(null);
         notValidGame2.selectObjective(p1, o1);
 
-        o2 = notValidGame2.getObjectiveOptions(p2).stream().findAny().orElse(null);
-        notValidGame2.selectObjective(p2, o2);
-
-        assertThrows(NotEnoughGameResourcesException.class, notValidGame2::startGame);
+        assertThrows(NotEnoughGameResourcesException.class, () -> notValidGame2.selectObjective(p2, notValidGame2.getObjectiveOptions(p2).stream().findAny().orElse(null)));
     }
 
     @Test
-    public void testDecksAreEmptyOnStarting(){
+    public void testDecksAreEmptyOnStarting() {
         Game shortGame5 = new Game(11, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(6).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(4).toList())));
 
@@ -901,8 +884,6 @@ class GameTest {
 
         Objective o2 = shortGame5.getObjectiveOptions(p2).stream().findAny().orElse(null);
         shortGame5.selectObjective(p2, o2);
-
-        shortGame5.startGame();
 
         assertEquals(GameStatus.LAST_TURN, shortGame5.getStatus());
     }

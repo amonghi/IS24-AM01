@@ -301,7 +301,7 @@ class ControllerTest {
 
             Objective bObjective = game.getObjectiveOptions(bob).stream().findAny().orElseThrow();
             controller.selectSecretObjective(game.getId(), "Bob", bObjective.getId());
-            assertEquals(GameStatus.AWAITING_START, game.getStatus());
+            assertEquals(GameStatus.PLAY, game.getStatus());
         }
 
         @Test
@@ -343,54 +343,6 @@ class ControllerTest {
     }
 
     /**
-     * Tests related to {@link Controller#startGame(int)}
-     */
-    @Nested
-    class StartGame {
-        PlayerProfile alice;
-        PlayerProfile bob;
-        Game game;
-
-        @BeforeEach
-        void init() {
-            this.alice = controller.authenticate("Alice");
-            this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(2, "Alice");
-            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
-            controller.joinGame(this.game.getId(), "Bob");
-            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
-            controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
-            controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
-            assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
-            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
-            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
-            assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
-            controller.selectSecretObjective(game.getId(), "Alice", game.getObjectiveOptions(alice).stream().findAny().orElseThrow().getId());
-            controller.selectSecretObjective(game.getId(), "Bob", game.getObjectiveOptions(bob).stream().findAny().orElseThrow().getId());
-            assertEquals(GameStatus.AWAITING_START, game.getStatus());
-        }
-
-        @Test
-        void canStartGame() {
-            controller.startGame(game.getId());
-            assertEquals(GameStatus.PLAY, game.getStatus());
-        }
-
-        @Test
-        void cannotStartGameTwice() {
-            controller.startGame(game.getId());
-            assertEquals(GameStatus.PLAY, game.getStatus());
-
-            assertThrows(IllegalMoveException.class, () -> controller.startGame(game.getId()));
-        }
-
-        @Test
-        void cannotStartNonexistentGame() {
-            assertThrows(NoSuchElementException.class, () -> controller.startGame(1234));
-        }
-    }
-
-    /**
      * Tests related to {@link Controller#placeCard(int, String, int, Side, int, int)}
      */
     @Nested
@@ -417,8 +369,6 @@ class ControllerTest {
                     game.getObjectiveOptions(alice).stream().findAny().orElseThrow().getId());
             controller.selectSecretObjective(game.getId(), "Bob",
                     game.getObjectiveOptions(bob).stream().findAny().orElseThrow().getId());
-            assertEquals(GameStatus.AWAITING_START, game.getStatus());
-            controller.startGame(game.getId());
             assertEquals(GameStatus.PLAY, game.getStatus());
             assertEquals(TurnPhase.PLACING, game.getTurnPhase());
         }

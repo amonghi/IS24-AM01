@@ -423,7 +423,7 @@ package game {
         + getWinners() List<PlayerProfile>
         + getTotalScores() Map<PlayerProfile, Integer>
 
-        + startGame() void
+        - setupAndStartTurnPhase() void
         + pauseGame() void
         + resumeGame() void
         - transition(GameStatus nextStatus) void
@@ -474,7 +474,6 @@ package game {
         SETUP_STARTING_CARD_SIDE,
         SETUP_COLOR,
         SETUP_OBJECTIVE,
-        AWAITING_START,
         PLAY,
         SECOND_LAST_TURN,
         LAST_TURN,

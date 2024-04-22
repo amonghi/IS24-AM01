@@ -220,17 +220,12 @@ public class Game {
     }
 
     /**
-     * This method permits to start the turn-based phase of the game, after choices phase.
+     * This method permits to prepare and start the turn-based phase of the game, after choices phase.
      * It throws a {@code NotEnoughGameResourcesException} if there are not enough resource or golden cards into decks
-     * This method is valid only on {@code AWAITING_START} status.
      *
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
-    public void startGame() {
-        if (status != GameStatus.AWAITING_START) {
-            throw new IllegalMoveException();
-        }
-
+    private void setupAndStartTurnPhase() {
         for (PlayerProfile player : playerProfiles) {
             List<Card> hand = new ArrayList<>();
             hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Resource card deck should not be empty")));
@@ -418,8 +413,8 @@ public class Game {
         }
         objectiveChoices.get(pp).select(o);
         if (objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
-            //all players had chosen their objective -> go to the next state (waiting for start "turn phase")
-            transition(GameStatus.AWAITING_START);
+            //all players had chosen their objective -> go to the next state (start "turn phase")
+            setupAndStartTurnPhase();
         }
     }
 
