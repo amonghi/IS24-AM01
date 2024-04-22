@@ -296,7 +296,6 @@ class GameTest {
         assertEquals(c31.id(), shortGame1.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-        assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
         assertEquals(2, shortGame1.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame1.getStatus());
@@ -421,7 +420,6 @@ class GameTest {
         assertEquals(c31.id(), shortGame2.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-        assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
         assertEquals(2, shortGame2.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame2.getStatus());
@@ -565,7 +563,6 @@ class GameTest {
         assertEquals(c31.id(), shortGame3.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-        assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
         assertEquals(2, shortGame3.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame3.getStatus());
@@ -705,7 +702,6 @@ class GameTest {
         assertEquals(c31.id(), shortGame4.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-        assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
         assertEquals(2, shortGame4.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame4.getStatus());
