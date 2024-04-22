@@ -36,27 +36,24 @@ $event_seq_newTurn_PLACING($inGame="Alice~Bob")
 |||
 
 $event_setPlayablePosition(Alice)
-note over Alice : It is Alice's turn
+note over Alice : Alice's turn
 $placeCard_req(Alice)
 alt
     $placeCard_res_OK(Alice)
     $event_seq_updatePlayArea("Alice~Bob")
     $event_seq_updateScores("Alice~Bob")
 
-    alt status is PLAY or SECOND_LAST_TURN
+    alt status is PLAY
         $event_seq_newTurn_DRAWING($inGame="Alice~Bob")
-        opt player has just reached 20 points during PLAY status
-            $event_seq_newStatus(SECOND_LAST_TURN, "Alice~Bob")
-        end
-        note over Alice : It's still Alice turn
+        note over Alice : It's still Alice's turn
         |||
     else status is LAST_TURN and currentPlayer is not the last player
         $event_seq_newTurn_PLACING("Alice~Bob")
-        note over Bob : It's Bob turn
+        note over Bob : It's Bob's turn
         |||
     else status is LAST_TURN and currentPlayer is the last player
         $event_seq_newStatus(FINISHED, "Alice~Bob")
-        note over Alice : Game has finished
+        note over Alice,Bob : Game has finished
         |||
     end
 

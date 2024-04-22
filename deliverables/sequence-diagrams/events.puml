@@ -14,8 +14,8 @@
     $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>)
 !endprocedure
 
-!procedure $event_updateTurn($turnPhase, $client, $server=Server)
-    $client <<- $server: updateTurn(currentPlayer, <font:monospace><b>$turnPhase</b></font>)
+!procedure $event_updateTurn($turnPhase, $client, $sender=currentPlayer, $server=Server)
+    $client <<- $server: updateTurn($sender, <font:monospace><b>$turnPhase</b></font>)
 !endprocedure
 
 !procedure $event_updateColor($client, $server=Server)
@@ -83,9 +83,9 @@
     !endfor
 !endprocedure
 
-!procedure event_seq_newTurn($turnPhase, $inGame="")
+!procedure event_seq_newTurn($turnPhase, $inGame="", $sender)
     !foreach $c in %splitstr($inGame, "~")
-        $event_updateTurn($turnPhase, $c)
+        $event_updateTurn($turnPhase, $c, $sender)
     !endfor
 !endprocedure
 
@@ -107,12 +107,12 @@
     !endfor
 !endprocedure
 
-!procedure event_seq_newTurn_PLACING($inGame="")
-    $event_seq_newTurn(PLACING, $inGame)
+!procedure event_seq_newTurn_PLACING($inGame="", $sender=currentPlayer)
+    $event_seq_newTurn(PLACING, $inGame, $sender)
 !endprocedure
 
-!procedure event_seq_newTurn_DRAWING($inGame="")
-    $event_seq_newTurn(DRAWING, $inGame)
+!procedure event_seq_newTurn_DRAWING($inGame="", $sender=currentPlayer)
+    $event_seq_newTurn(DRAWING, $inGame, $sender)
 !endprocedure
 
 !procedure event_seq_updatePlayArea($inGame="")

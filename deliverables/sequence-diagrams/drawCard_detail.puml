@@ -34,20 +34,11 @@ alt
         $event_seq_updateFaceUpCards("Alice~Bob")
     end
 
-    opt decks are empty and status is PLAY
-        |||
-        alt currentPlayer is not the last player
-            $event_seq_newStatus(SECOND_LAST_TURN, "Alice~Bob")
-        else currentPlayer is the last player
-            $event_seq_newStatus(LAST_TURN, "Alice~Bob")
-        end
-        |||
-    end
-    opt this is the last player and status is SECOND_LAST_TURN
+    opt currentPlayer is the last player and someone reached an ending condition
         $event_seq_newStatus(LAST_TURN, "Alice~Bob")
     end
     $event_seq_newTurn_PLACING("Alice~Bob")
-    note over Bob : It's Bob tur
+    note over Bob : It's Bob's turn
 else source is empty
     Server --> Alice: KO, emptySource()
 end

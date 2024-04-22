@@ -4,16 +4,21 @@
 !include events.puml
 
 !procedure $sendBroadcastMessage_req($sender, $server=Server)
-    $sender -> $server : sendBroadcastMessage(sender, content)
+    $sender -> $server : sendBroadcastMessage(content)
 !endprocedure
 
 !procedure $sendDirectMessage_req($sender, $server=Server)
-    $sender -> $server : sendDirectMessage(sender, recipient, content)
+    $sender -> $server : sendDirectMessage(recipient, content)
 !endprocedure
 
 !procedure $sendMessage_res_OK($client, $server=Server)
     $client <-- $server : OK
 !endprocedure
+
+!procedure $sendMessage_res_KO_invalidRecipient($client, $server=Server)
+    $client <-- $server : KO, invalidRecipient()
+!endprocedure
+
 !endsub
 
 title Send messages
@@ -27,22 +32,17 @@ hnote over Alice : IN_GAME
 
 note over Alice: Alice is sending a direct message to Bob
 $sendDirectMessage_req(Alice)
-'TODO: alt
 alt
     $sendMessage_res_OK(Alice)
     $event_updateMailbox(Bob, DIRECT)
-else
-else
+else invalid recipient
+    $sendMessage_res_KO_invalidRecipient(Alice)
 end
 ||||
 
 note over Carlos: Carlos is sending a broadcast message
 $sendBroadcastMessage_req(Carlos)
-'TODO: alt
-alt
-    $sendMessage_res_OK(Carlos)
-    $event_seq_updateMailboxes($inGame="Alice~Bob~Carlos")
-else
-else
-end
+$sendMessage_res_OK(Carlos)
+'TODO: decide how manage sent messages
+$event_seq_updateMailboxes($inGame="Alice~Bob")
 @enduml

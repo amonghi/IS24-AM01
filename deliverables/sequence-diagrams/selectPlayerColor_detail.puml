@@ -49,8 +49,7 @@ alt
     end
 else color has been already chosen by someone else
     $selectColor_res_OK_contended(Alice)
-    $event_updateChosenColorList(Alice)
-    $event_updateChosenColorList(Bob)
+    $event_seq_updateColor("Alice~Bob")
 else invalid color
     Alice <-- Server: KO, invalidColor()
 end
