@@ -19,9 +19,27 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Stream.concat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerTest {
+
+    private <E> E getOutside(Stream<E> universe, Collection<E> excluded) {
+        return universe.filter(e -> !excluded.contains(e)).findAny().orElseThrow();
+    }
+
+    private Card getCardOutsideOf(Collection<Card> excluded) {
+        Stream<Card> universe = concat(
+                GameAssets.getInstance().getResourceCards().stream(),
+                GameAssets.getInstance().getGoldenCards().stream());
+
+        return getOutside(universe, excluded);
+    }
+
+    private Objective getObjectiveOutside(Collection<Objective> excluded) {
+        Stream<Objective> universe = GameAssets.getInstance().getObjectives().stream();
+        return getOutside(universe, excluded);
+    }
 
     PlayerManager pm;
     GameManager gm;
@@ -333,10 +351,7 @@ class ControllerTest {
         @Test
         void cannotSelectObjectiveOutsideOfTheOptions() {
             Set<Objective> objectiveOptions = game.getObjectiveOptions(alice);
-            Objective objective = GameAssets.getInstance().getObjectives().stream()
-                    .filter(o -> !objectiveOptions.contains(o))
-                    .findAny()
-                    .orElseThrow();
+            Objective objective = getObjectiveOutside(objectiveOptions);
 
             assertThrows(IllegalArgumentException.class,
                     () -> controller.selectSecretObjective(game.getId(), "Alice", objective.getId()));
@@ -414,13 +429,7 @@ class ControllerTest {
             List<Card> hand = game.getPlayerData(currentPlayer).getHand();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
-
-            Card notInHandCard = Stream.concat(
-                            GameAssets.getInstance().getResourceCards().stream(),
-                            GameAssets.getInstance().getGoldenCards().stream())
-                    .filter(card -> !hand.contains(card))
-                    .findAny()
-                    .orElseThrow();
+            Card notInHandCard = getCardOutsideOf(hand);
 
             assertThrows(NoSuchElementException.class,
                     () -> controller.placeCard(1234, currentPlayer.getName(), notInHandCard.id(), Side.BACK, position.i(), position.j()));
@@ -524,13 +533,7 @@ class ControllerTest {
             Set<Card> availableCards = game.getBoard().getFaceUpCards().stream()
                     .flatMap(faceUpCard -> faceUpCard.getCard().stream())
                     .collect(Collectors.toSet());
-
-            Card notAvailable = Stream.concat(
-                            GameAssets.getInstance().getResourceCards().stream(),
-                            GameAssets.getInstance().getGoldenCards().stream())
-                    .filter(card -> !availableCards.contains(card))
-                    .findAny()
-                    .orElseThrow();
+            Card notAvailable = getCardOutsideOf(availableCards);
 
             assertThrows(IllegalArgumentException.class,
                     () -> controller.drawCardFromFaceUpCards(game.getId(), player.getName(), notAvailable.id()));
