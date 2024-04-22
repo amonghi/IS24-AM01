@@ -11,13 +11,13 @@
     $server --> $client: OK
 !endprocedure
 
-!procedure $placeCard_seq($client, $inGame="", $server=Server)
+!procedure $placeCard_seq($client, $inGame="", $sender=currentPlayer, $server=Server)
     note over $client : $client's turn
     $event_setPlayablePosition($client)
     $placeCard_req($client)
     $placeCard_res_OK($client)
-    $event_seq_updatePlayArea($inGame)
-    $event_seq_updateScores($inGame)
+    $event_seq_updatePlayArea($inGame, $sender)
+    $event_seq_updateScores($inGame, $sender)
 !endprocedure
 
 

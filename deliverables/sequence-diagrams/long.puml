@@ -10,9 +10,9 @@
     $event_seq_newTurn($turnPhase, $clients)
 !endprocedure
 
-!procedure const($string)
-    <font:monospace><b>$string</b></font>
-!endprocedure
+!function $const($string)
+    !return "<font:monospace><b>" + $string + "</b></font>"
+!endfunction
 
 
 'first page
@@ -87,7 +87,7 @@ $selectObjective_seq(Carlos, "Alice~Bob~Carlos")
 ||75||
 
 $event_seq_newStatus(PLAY, "Alice~Bob~Carlos")
-$event_seq_newTurn_PLACING("Alice~Bob~Carlos", "<font:monospace><b>Alice</b></font>")
+$event_seq_newTurn_PLACING("Alice~Bob~Carlos", $const(Alice))
 
 $event_seq_setCommonObjectives("Alice~Bob~Carlos")
 $event_seq_setCardsInHand("Alice~Bob~Carlos")
@@ -99,49 +99,49 @@ newpage First turn
 !includesub drawCard_detail.puml!PARTS
 
 
-$placeCard_seq(Alice, "Alice~Bob~Carlos")
-$event_seq_newTurn_DRAWING("Alice~Bob~Carlos", "<font:monospace><b>Alice</b></font>")
+$placeCard_seq(Alice, "Alice~Bob~Carlos", $const(Alice))
+$event_seq_newTurn_DRAWING("Alice~Bob~Carlos", $const(Alice))
 ||25||
 $drawCard_req(Alice)
 $drawCard_res_OK(Alice)
 $event_seq_updateDecksStatus("Alice~Bob~Carlos")
-$event_seq_newTurn_PLACING("Alice~Bob~Carlos", "<font:monospace><b>Bob</b></font>")
+$event_seq_newTurn_PLACING("Alice~Bob~Carlos", $const(Bob))
 
 ||50||
 
-$placeCard_seq(Bob, "Alice~Bob~Carlos")
-$event_seq_newTurn_DRAWING("Alice~Bob~Carlos", "<font:monospace><b>Bob</b></font>")
+$placeCard_seq(Bob, "Alice~Bob~Carlos", $const(Bob))
+$event_seq_newTurn_DRAWING("Alice~Bob~Carlos", $const(Bob))
 ||25||
 $drawCard_req(Bob)
 $drawCard_res_OK(Bob)
 $event_seq_updateDecksStatus("Alice~Bob~Carlos")
-$event_seq_newTurn_PLACING("Alice~Bob~Carlos", "<font:monospace><b>Carlos</b></font>")
+$event_seq_newTurn_PLACING("Alice~Bob~Carlos", $const(Carlos))
 
 ||50||
 
 
-$placeCard_seq(Carlos, "Alice~Bob~Carlos")
-$event_seq_newTurn_DRAWING("Alice~Bob~Carlos", "<font:monospace><b>Carlos</b></font>")
+$placeCard_seq(Carlos, "Alice~Bob~Carlos", $const(Carlos))
+$event_seq_newTurn_DRAWING("Alice~Bob~Carlos", $const(Carlos))
 ||25||
 $drawCard_req(Carlos)
 $drawCard_res_OK(Carlos)
 $event_seq_newStatus(LAST_TURN, "Alice~Bob~Carlos")
-$event_seq_newTurn_PLACING("Alice~Bob~Carlos", "<font:monospace><b>Alice</b></font>")
+$event_seq_newTurn_PLACING("Alice~Bob~Carlos", $const(Alice))
 
 
 newpage Last turn
 !includesub gameFinished_detail.puml!PARTS
 
-$placeCard_seq(Alice, "Alice~Bob~Carlos")
-$event_seq_newTurn_PLACING("Alice~Bob~Carlos", "<font:monospace><b>Bob</b></font>")
+$placeCard_seq(Alice, "Alice~Bob~Carlos", $const(Alice))
+$event_seq_newTurn_PLACING("Alice~Bob~Carlos", $const(Bob))
 ||50||
 
-$placeCard_seq(Bob, "Alice~Bob~Carlos")
-$event_seq_newTurn_PLACING("Alice~Bob~Carlos", "<font:monospace><b>Carlos</b></font>")
+$placeCard_seq(Bob, "Alice~Bob~Carlos", $const(Bob))
+$event_seq_newTurn_PLACING("Alice~Bob~Carlos", $const(Carlos))
 
 ||50||
 
-$placeCard_seq(Carlos, "Alice~Bob~Carlos")
+$placeCard_seq(Carlos, "Alice~Bob~Carlos", $const(Carlos))
 $event_seq_newStatus(FINISHED, "Alice~Bob~Carlos")
 
 note over Alice,Carlos : Game has finished

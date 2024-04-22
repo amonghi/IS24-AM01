@@ -3,7 +3,7 @@
 !include events.puml
 !endsub
 
-title Game is finished
+title Game has finished
 participant Alice
 participant Server
 participant Bob

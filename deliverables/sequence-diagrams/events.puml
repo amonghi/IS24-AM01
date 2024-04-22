@@ -42,8 +42,8 @@
     $client <<- $server: setPlayablePosition(position1, position2, ...)
 !endprocedure
 
-!procedure $event_updatePlayArea($client, $server=Server)
-    $client <<- $server: updatePlayArea(currentPlayer, cardPlacement)
+!procedure $event_updatePlayArea($client, $sender=currentPlayer, $server=Server)
+    $client <<- $server: updatePlayArea($sender, cardPlacement)
 !endprocedure
 
 !procedure $event_updateFaceUpCards($client, $server=Server)
@@ -63,8 +63,8 @@
     $client <<- $server: setCardsInHand(card1, card2, card3)
 !endprocedure
 
-!procedure $event_updateScores($client, $server=Server)
-    $client <<- $server: updateScores(currentPlayer, score)
+!procedure $event_updateScores($client, $sender=currentPlayer, $server=Server)
+    $client <<- $server: updateScores($sender, score)
 !endprocedure
 
 !procedure $event_updateFinalScores($client, $server=Server)
@@ -115,9 +115,9 @@
     $event_seq_newTurn(DRAWING, $inGame, $sender)
 !endprocedure
 
-!procedure event_seq_updatePlayArea($inGame="")
+!procedure event_seq_updatePlayArea($inGame="", $sender=currentPlayer)
     !foreach $c in %splitstr($inGame, "~")
-        $event_updatePlayArea($c)
+        $event_updatePlayArea($c, $sender)
     !endfor
 
 !endprocedure
@@ -152,9 +152,9 @@
     !endfor
 !endprocedure
 
-!procedure event_seq_updateScores($inGame="")
+!procedure event_seq_updateScores($inGame="", $sender=currentPlayer)
     !foreach $c in %splitstr($inGame, "~")
-        $event_updateScores($c, $server=Server)
+        $event_updateScores($c, $sender)
     !endfor
 !endprocedure
 
