@@ -16,6 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -423,6 +424,116 @@ class ControllerTest {
 
             assertThrows(NoSuchElementException.class,
                     () -> controller.placeCard(1234, currentPlayer.getName(), notInHandCard.id(), Side.BACK, position.i(), position.j()));
+        }
+    }
+
+    /**
+     * Tests related to {@link Controller#drawCardFromDeck(int, String, DeckLocation)}
+     * and {@link Controller#drawCardFromFaceUpCards(int, String, int)}
+     */
+    @Nested
+    class DrawCard {
+        PlayerProfile alice;
+        PlayerProfile bob;
+        Game game;
+
+        @BeforeEach
+        void init() {
+            this.alice = controller.authenticate("Alice");
+            this.bob = controller.authenticate("Bob");
+            this.game = controller.createAndJoinGame(2, "Alice");
+            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
+            controller.joinGame(this.game.getId(), "Bob");
+            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
+            controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
+            controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
+            assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
+            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
+            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
+            assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
+            controller.selectSecretObjective(game.getId(), "Alice",
+                    game.getObjectiveOptions(alice).stream().findAny().orElseThrow().getId());
+            controller.selectSecretObjective(game.getId(), "Bob",
+                    game.getObjectiveOptions(bob).stream().findAny().orElseThrow().getId());
+            assertEquals(GameStatus.PLAY, game.getStatus());
+            assertEquals(TurnPhase.PLACING, game.getTurnPhase());
+
+            // place a card so now we can draw
+            PlayerProfile currentPlayer = game.getCurrentPlayer();
+            Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
+            PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
+                    .orElseThrow();
+
+            controller.placeCard(game.getId(), currentPlayer.getName(), aCard.id(), Side.FRONT, position.i(), position.j());
+            assertEquals(GameStatus.PLAY, game.getStatus());
+            assertEquals(TurnPhase.DRAWING, game.getTurnPhase());
+        }
+
+        @Test
+        void canDrawFromDeck() {
+            PlayerProfile player = game.getCurrentPlayer();
+            controller.drawCardFromDeck(game.getId(), player.getName(), DeckLocation.RESOURCE_CARD_DECK);
+            assertEquals(GameStatus.PLAY, game.getStatus());
+            assertEquals(TurnPhase.PLACING, game.getTurnPhase());
+            assertNotEquals(player, game.getCurrentPlayer());
+        }
+
+        @Test
+        void nonexistentPlayerCannotDrawFromDeck() {
+            assertThrows(NoSuchElementException.class,
+                    () -> controller.drawCardFromDeck(game.getId(), "Carlos", DeckLocation.GOLDEN_CARD_DECK));
+        }
+
+        @Test
+        void cannotDrawFromDeckInNonexistentGame() {
+            PlayerProfile player = game.getCurrentPlayer();
+            assertThrows(NoSuchElementException.class,
+                    () -> controller.drawCardFromDeck(1234, player.getName(), DeckLocation.GOLDEN_CARD_DECK));
+        }
+
+        @Test
+        void canDrawFromFaceUpCards() {
+            PlayerProfile player = game.getCurrentPlayer();
+            FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
+
+            controller.drawCardFromFaceUpCards(game.getId(), player.getName(), faceUpCard.getCard().orElseThrow().id());
+
+            assertEquals(GameStatus.PLAY, game.getStatus());
+            assertEquals(TurnPhase.PLACING, game.getTurnPhase());
+            assertNotEquals(player, game.getCurrentPlayer());
+        }
+
+        @Test
+        void nonexistentPlayerCannotDrawFromFaceUpCards() {
+            FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
+            assertThrows(NoSuchElementException.class,
+                    () -> controller.drawCardFromFaceUpCards(game.getId(), "Carlos", faceUpCard.getCard().orElseThrow().id()));
+        }
+
+        @Test
+        void cannotDrawFromFaceUpCardNonexistentGame() {
+            PlayerProfile player = game.getCurrentPlayer();
+            FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
+            assertThrows(NoSuchElementException.class,
+                    () -> controller.drawCardFromFaceUpCards(1234, player.getName(), faceUpCard.getCard().orElseThrow().id()));
+        }
+
+        @Test
+        void cannotDrawFaceUpCardThatIsNotPresent() {
+            PlayerProfile player = game.getCurrentPlayer();
+            Set<Card> availableCards = game.getBoard().getFaceUpCards().stream()
+                    .flatMap(faceUpCard -> faceUpCard.getCard().stream())
+                    .collect(Collectors.toSet());
+
+            Card notAvailable = Stream.concat(
+                            GameAssets.getInstance().getResourceCards().stream(),
+                            GameAssets.getInstance().getGoldenCards().stream())
+                    .filter(card -> !availableCards.contains(card))
+                    .findAny()
+                    .orElseThrow();
+
+            assertThrows(IllegalArgumentException.class,
+                    () -> controller.drawCardFromFaceUpCards(game.getId(), player.getName(), notAvailable.id()));
         }
     }
 }
