@@ -24,23 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerTest {
 
-    private <E> E getOutside(Stream<E> universe, Collection<E> excluded) {
-        return universe.filter(e -> !excluded.contains(e)).findAny().orElseThrow();
-    }
-
-    private Card getCardOutsideOf(Collection<Card> excluded) {
-        Stream<Card> universe = concat(
-                GameAssets.getInstance().getResourceCards().stream(),
-                GameAssets.getInstance().getGoldenCards().stream());
-
-        return getOutside(universe, excluded);
-    }
-
-    private Objective getObjectiveOutside(Collection<Objective> excluded) {
-        Stream<Objective> universe = GameAssets.getInstance().getObjectives().stream();
-        return getOutside(universe, excluded);
-    }
-
     PlayerManager pm;
     GameManager gm;
     Controller controller;
@@ -116,22 +99,96 @@ class ControllerTest {
         }
     }
 
-    /**
-     * Tests related to {@link Controller#joinGame(int, String)}
-     */
-    @Nested
-    class JoinGame {
+    abstract class WithUtils {
         PlayerProfile alice;
         PlayerProfile bob;
         Game game;
 
-        @BeforeEach
-        void init() {
+        void prepare_AWAITING_PLAYERS() {
             this.alice = controller.authenticate("Alice");
             this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(4, "Alice");
+            this.game = controller.createAndJoinGame(2, "Alice");
             assertEquals(1, gm.getGames().size());
             assertEquals(1, game.getPlayerProfiles().size());
+            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
+        }
+
+        void prepare_SETUP_STARTING_CARD_SIDE() {
+            this.prepare_AWAITING_PLAYERS();
+
+            controller.joinGame(this.game.getId(), "Bob");
+            assertEquals(2, game.getPlayerProfiles().size());
+            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
+        }
+
+        void prepare_SETUP_COLOR() {
+            this.prepare_SETUP_STARTING_CARD_SIDE();
+
+            controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
+            controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
+            assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
+        }
+
+        void prepare_SETUP_OBJECTIVE() {
+            this.prepare_SETUP_COLOR();
+
+            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
+            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
+            assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
+        }
+
+        void prepare_PLAY_PLACING() {
+            this.prepare_SETUP_OBJECTIVE();
+
+            controller.selectSecretObjective(game.getId(), "Alice",
+                    game.getObjectiveOptions(alice).stream().findAny().orElseThrow().getId());
+            controller.selectSecretObjective(game.getId(), "Bob",
+                    game.getObjectiveOptions(bob).stream().findAny().orElseThrow().getId());
+            assertEquals(GameStatus.PLAY, game.getStatus());
+            assertEquals(TurnPhase.PLACING, game.getTurnPhase());
+        }
+
+        void prepare_PLAY_DRAWING() {
+            this.prepare_PLAY_PLACING();
+
+            // place a card so now we can draw
+            PlayerProfile currentPlayer = game.getCurrentPlayer();
+            Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
+            PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
+                    .orElseThrow();
+
+            controller.placeCard(game.getId(), currentPlayer.getName(), aCard.id(), Side.FRONT, position.i(), position.j());
+            assertEquals(GameStatus.PLAY, game.getStatus());
+            assertEquals(TurnPhase.DRAWING, game.getTurnPhase());
+        }
+
+        <E> E getOutside(Stream<E> universe, Collection<E> excluded) {
+            return universe.filter(e -> !excluded.contains(e)).findAny().orElseThrow();
+        }
+
+        Card getCardOutsideOf(Collection<Card> excluded) {
+            Stream<Card> universe = concat(
+                    GameAssets.getInstance().getResourceCards().stream(),
+                    GameAssets.getInstance().getGoldenCards().stream());
+
+            return getOutside(universe, excluded);
+        }
+
+        Objective getObjectiveOutside(Collection<Objective> excluded) {
+            Stream<Objective> universe = GameAssets.getInstance().getObjectives().stream();
+            return getOutside(universe, excluded);
+        }
+    }
+
+    /**
+     * Tests related to {@link Controller#joinGame(int, String)}
+     */
+    @Nested
+    class JoinGame extends WithUtils {
+
+        @BeforeEach
+        void init() {
+            this.prepare_AWAITING_PLAYERS();
         }
 
         @Test
@@ -165,19 +222,11 @@ class ControllerTest {
      * Tests related to {@link Controller#selectStartingCardSide(int, String, Side)}
      */
     @Nested
-    class SelectStartingCardSide {
-        PlayerProfile alice;
-        PlayerProfile bob;
-        Game game;
+    class SelectStartingCardSide extends WithUtils {
 
         @BeforeEach
         void init() {
-            this.alice = controller.authenticate("Alice");
-            this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(2, "Alice");
-            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
-            controller.joinGame(this.game.getId(), "Bob");
-            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
+            this.prepare_SETUP_STARTING_CARD_SIDE();
         }
 
         @Test
@@ -212,22 +261,11 @@ class ControllerTest {
      * Tests related to {@link Controller#selectPlayerColor(int, String, PlayerColor)}
      */
     @Nested
-    class SelectPlayerColor {
-        PlayerProfile alice;
-        PlayerProfile bob;
-        Game game;
+    class SelectPlayerColor extends WithUtils {
 
         @BeforeEach
         void init() {
-            this.alice = controller.authenticate("Alice");
-            this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(2, "Alice");
-            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
-            controller.joinGame(this.game.getId(), "Bob");
-            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
-            controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
-            controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
-            assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
+            this.prepare_SETUP_COLOR();
         }
 
         @Test
@@ -291,25 +329,11 @@ class ControllerTest {
      * Tests related to {@link Controller#selectSecretObjective(int, String, int)}
      */
     @Nested
-    class SelectSecretObjective {
-        PlayerProfile alice;
-        PlayerProfile bob;
-        Game game;
+    class SelectSecretObjective extends WithUtils {
 
         @BeforeEach
         void init() {
-            this.alice = controller.authenticate("Alice");
-            this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(2, "Alice");
-            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
-            controller.joinGame(this.game.getId(), "Bob");
-            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
-            controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
-            controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
-            assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
-            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
-            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
-            assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
+            this.prepare_SETUP_OBJECTIVE();
         }
 
         @Test
@@ -362,31 +386,11 @@ class ControllerTest {
      * Tests related to {@link Controller#placeCard(int, String, int, Side, int, int)}
      */
     @Nested
-    class PlaceCard {
-        PlayerProfile alice;
-        PlayerProfile bob;
-        Game game;
+    class PlaceCard extends WithUtils {
 
         @BeforeEach
         void init() {
-            this.alice = controller.authenticate("Alice");
-            this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(2, "Alice");
-            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
-            controller.joinGame(this.game.getId(), "Bob");
-            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
-            controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
-            controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
-            assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
-            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
-            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
-            assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
-            controller.selectSecretObjective(game.getId(), "Alice",
-                    game.getObjectiveOptions(alice).stream().findAny().orElseThrow().getId());
-            controller.selectSecretObjective(game.getId(), "Bob",
-                    game.getObjectiveOptions(bob).stream().findAny().orElseThrow().getId());
-            assertEquals(GameStatus.PLAY, game.getStatus());
-            assertEquals(TurnPhase.PLACING, game.getTurnPhase());
+            this.prepare_PLAY_PLACING();
         }
 
         @Test
@@ -441,41 +445,11 @@ class ControllerTest {
      * and {@link Controller#drawCardFromFaceUpCards(int, String, int)}
      */
     @Nested
-    class DrawCard {
-        PlayerProfile alice;
-        PlayerProfile bob;
-        Game game;
+    class DrawCard extends WithUtils {
 
         @BeforeEach
         void init() {
-            this.alice = controller.authenticate("Alice");
-            this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(2, "Alice");
-            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
-            controller.joinGame(this.game.getId(), "Bob");
-            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
-            controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
-            controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
-            assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
-            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
-            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
-            assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
-            controller.selectSecretObjective(game.getId(), "Alice",
-                    game.getObjectiveOptions(alice).stream().findAny().orElseThrow().getId());
-            controller.selectSecretObjective(game.getId(), "Bob",
-                    game.getObjectiveOptions(bob).stream().findAny().orElseThrow().getId());
-            assertEquals(GameStatus.PLAY, game.getStatus());
-            assertEquals(TurnPhase.PLACING, game.getTurnPhase());
-
-            // place a card so now we can draw
-            PlayerProfile currentPlayer = game.getCurrentPlayer();
-            Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
-            PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
-                    .orElseThrow();
-
-            controller.placeCard(game.getId(), currentPlayer.getName(), aCard.id(), Side.FRONT, position.i(), position.j());
-            assertEquals(GameStatus.PLAY, game.getStatus());
-            assertEquals(TurnPhase.DRAWING, game.getTurnPhase());
+            this.prepare_PLAY_DRAWING();
         }
 
         @Test
