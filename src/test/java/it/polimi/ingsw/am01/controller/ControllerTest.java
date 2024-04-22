@@ -377,7 +377,7 @@ class ControllerTest {
             Set<Objective> objectiveOptions = game.getObjectiveOptions(alice);
             Objective objective = getObjectiveOutside(objectiveOptions);
 
-            assertThrows(IllegalArgumentException.class,
+            assertThrows(NoSuchElementException.class,
                     () -> controller.selectSecretObjective(game.getId(), "Alice", objective.getId()));
         }
     }

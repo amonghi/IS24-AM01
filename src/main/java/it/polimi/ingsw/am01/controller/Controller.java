@@ -124,11 +124,8 @@ public class Controller {
                 .orElseThrow();
         PlayerProfile player = this.playerManager.getProfile(playerName)
                 .orElseThrow();
-
-        Objective objective = game.getObjectiveOptions(player).stream()
-                .filter(o -> o.getId() == objectiveId)
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("The specified objective is not a valid choice for this player"));
+        Objective objective = GameAssets.getInstance().getObjectiveById(objectiveId)
+                .orElseThrow();
 
         game.selectObjective(player, objective);
     }
@@ -197,11 +194,8 @@ public class Controller {
                 .orElseThrow();
         PlayerProfile player = this.playerManager.getProfile(playerName)
                 .orElseThrow();
-
-        Card toPlace = game.getPlayerData(player).getHand().stream()
-                .filter(card -> card.id() == cardId)
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("The player does not have that card in their hand"));
+        Card toPlace = GameAssets.getInstance().getCardById(cardId)
+                .orElseThrow();
 
         game.placeCard(player, toPlace, side, i, j);
     }
