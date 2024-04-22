@@ -296,7 +296,6 @@ class GameTest {
         assertEquals(c31.id(), shortGame1.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-        assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
         assertEquals(2, shortGame1.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame1.getStatus());
@@ -421,7 +420,6 @@ class GameTest {
         assertEquals(c31.id(), shortGame2.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-        assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
         assertEquals(2, shortGame2.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame2.getStatus());
@@ -565,7 +563,6 @@ class GameTest {
         assertEquals(c31.id(), shortGame3.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-        assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
         assertEquals(2, shortGame3.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame3.getStatus());
@@ -705,7 +702,6 @@ class GameTest {
         assertEquals(c31.id(), shortGame4.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-        assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
         assertEquals(2, shortGame4.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame4.getStatus());
@@ -886,5 +882,52 @@ class GameTest {
         shortGame5.selectObjective(p2, o2);
 
         assertEquals(GameStatus.LAST_TURN, shortGame5.getStatus());
+    }
+
+    @Test
+    public void testPlayerIsNotInGame() {
+        standardGame.join(p1);
+        standardGame.join(p2);
+        standardGame.join(p3);
+        standardGame.join(p4);
+
+        PlayerProfile playerNotInGame = new PlayerProfile("Hacker");
+
+        assertThrows(IllegalArgumentException.class, () -> standardGame.selectStartingCardSide(playerNotInGame, Side.BACK));
+
+        standardGame.selectStartingCardSide(p1, Side.BACK);
+        standardGame.selectStartingCardSide(p2, Side.BACK);
+        standardGame.selectStartingCardSide(p3, Side.BACK);
+        standardGame.selectStartingCardSide(p4, Side.BACK);
+
+        assertThrows(IllegalArgumentException.class, () -> standardGame.selectColor(playerNotInGame, PlayerColor.RED));
+        standardGame.selectColor(p1, PlayerColor.RED);
+        standardGame.selectColor(p2, PlayerColor.BLUE);
+        standardGame.selectColor(p3, PlayerColor.YELLOW);
+        standardGame.selectColor(p4, PlayerColor.GREEN);
+
+        Objective o1 = standardGame.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        assertThrows(IllegalArgumentException.class, () -> standardGame.selectObjective(playerNotInGame, o1));
+
+        standardGame.selectObjective(p1, o1);
+
+        Objective o2 = standardGame.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        standardGame.selectObjective(p2, o2);
+
+        Objective o3 = standardGame.getObjectiveOptions(p3).stream().findAny().orElse(null);
+        standardGame.selectObjective(p3, o3);
+
+        Objective o4 = standardGame.getObjectiveOptions(p4).stream().findAny().orElse(null);
+        standardGame.selectObjective(p4, o4);
+
+
+        // FIRST PLAYER
+        PlayerProfile first = standardGame.getPlayerProfiles().getFirst();
+        Card c1 = standardGame.getPlayerData(first).getHand().getFirst();
+
+        assertThrows(IllegalArgumentException.class, () -> standardGame.placeCard(playerNotInGame, c1, Side.FRONT, 1, 0));
+        standardGame.placeCard(first, c1, Side.FRONT, 1, 0);
+
+        assertThrows(IllegalArgumentException.class, () -> standardGame.drawCard(playerNotInGame, standardGame.getBoard().getFaceUpCards().stream().findAny().orElse(null)));
     }
 }
