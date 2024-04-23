@@ -53,4 +53,17 @@ public class SameCollectibleObjective extends Objective {
         return pa.getCollectibleCount().containsKey(requiredCollectible) ?
                 (pa.getCollectibleCount().get(requiredCollectible) / requiredNumber) * getPointsPerMatch() : 0;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "SameCollectibleObjective{" +
+                "id=" + getId() +
+                ", points=" + getPointsPerMatch() +
+                ", requiredCollectible=" + requiredCollectible +
+                ", requiredNumber=" + requiredNumber +
+                '}';
+    }
 }
