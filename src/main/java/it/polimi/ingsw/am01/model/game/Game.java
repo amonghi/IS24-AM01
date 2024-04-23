@@ -271,7 +271,7 @@ public class Game {
      */
     private void setFirstPlayer() {
         Random random = new Random();
-        Collections.rotate(playerProfiles, random.nextInt(maxPlayers));
+        Collections.rotate(playerProfiles, random.nextInt(playerProfiles.size()));
     }
 
     /**
@@ -335,7 +335,7 @@ public class Game {
 
         // Setup objective choices
         List<Objective> objectiveList = new ArrayList<>(GameAssets.getInstance().getObjectives());
-        if (objectiveList.size() < (maxPlayers + 1) * 2) {
+        if (objectiveList.size() < (playerProfiles.size() + 1) * 2) {
             throw new NotEnoughGameResourcesException("There are not enough objective cards");
         }
 
@@ -370,9 +370,25 @@ public class Game {
 
         if (playerProfiles.size() == maxPlayers) {
             transition(GameStatus.SETUP_STARTING_CARD_SIDE);
-
             setUpChoices();
         }
+    }
+
+    /**
+     * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
+     * despite there aren't yet connected {@code maxPlayers} players.
+     * Game starts automatically as soon as the maximum threshold of connected players is reached
+     */
+    public void startGame() {
+        if (status != GameStatus.AWAITING_PLAYERS) {
+            throw new IllegalMoveException();
+        }
+        if (playerProfiles.size() < 2) {
+            throw new IllegalMoveException();
+        }
+
+        transition(GameStatus.SETUP_STARTING_CARD_SIDE);
+        setUpChoices();
     }
 
     /**
@@ -486,7 +502,7 @@ public class Game {
         switch (status) {
             case GameStatus.PLAY -> {
                 if (board.getResourceCardDeck().isEmpty() && board.getGoldenCardDeck().isEmpty()) {
-                    if (currentPlayer != maxPlayers - 1) {
+                    if (currentPlayer != playerProfiles.size() - 1) {
                         // all decks are empty --> game is on "final phase"
                         transition(GameStatus.SECOND_LAST_TURN);
                     } else {
@@ -496,7 +512,7 @@ public class Game {
                 }
             }
             case GameStatus.SECOND_LAST_TURN -> {
-                if (currentPlayer == maxPlayers - 1) {
+                if (currentPlayer == playerProfiles.size() - 1) {
                     //this is the "last" player of round
                     transition(GameStatus.LAST_TURN);
                 }
@@ -511,7 +527,7 @@ public class Game {
      * This method permits to change the player that have to play
      */
     private void changeCurrentPlayer() {
-        currentPlayer = (currentPlayer + 1) % maxPlayers;
+        currentPlayer = (currentPlayer + 1) % playerProfiles.size();
     }
 
     /**
@@ -567,7 +583,7 @@ public class Game {
                 break;
 
             case GameStatus.LAST_TURN:
-                if (currentPlayer == maxPlayers - 1) {
+                if (currentPlayer == playerProfiles.size() - 1) {
                     //this player is the last one -> game is finished. It's useless drawing a card. This is the only one point from where finishing game
                     transition(GameStatus.FINISHED);
                 } else {
