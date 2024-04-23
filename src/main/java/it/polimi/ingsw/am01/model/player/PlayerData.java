@@ -53,4 +53,39 @@ public class PlayerData {
     public PlayerColor getColorChoice() {
         return color;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "PlayerData{" +
+                "hand=" + hand +
+                ", objective=" + objective +
+                ", color=" + color +
+                '}';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlayerData that = (PlayerData) o;
+        return hand.equals(that.hand) && objective.equals(that.objective) && color == that.color;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        int result = hand.hashCode();
+        result = 31 * result + objective.hashCode();
+        result = 31 * result + color.hashCode();
+        return result;
+    }
 }
