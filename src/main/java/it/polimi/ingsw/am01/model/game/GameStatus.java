@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.model.game;
 
 /**
- * GameStatus represents all possibile macro-phases of a {@link Game}.
+ * GameStatus represents all possible macro-phases of a {@link Game}.
  * <p>
  * The sequence of status transitions is listed below:
  * <ol>
@@ -9,7 +9,6 @@ package it.polimi.ingsw.am01.model.game;
  *     <li>{@code SETUP_STARTING_CARD_SIDE}</li>
  *     <li>{@code SETUP_COLOR}</li>
  *     <li>{@code SETUP_OBJECTIVE}</li>
- *     <li>{@code AWAITING_START}</li>
  *     <li>{@code PLAY}</li>
  *     <li>{@code SECOND_LAST_TURN}</li>
  *     <li>{@code LAST_TURN}</li>
@@ -22,10 +21,8 @@ public enum GameStatus {
     SETUP_COLOR,
     SETUP_OBJECTIVE,
     /**
-     * {@code AWAITING_START} indicates that all decisions have been made and the turns' phase can start
-     */
-    AWAITING_START,
-    /**
+     * {@code PLAY} represents the turn-based game phase
+     *
      * @see it.polimi.ingsw.am01.model.game.TurnPhase
      */
     PLAY,
@@ -39,7 +36,7 @@ public enum GameStatus {
     LAST_TURN,
     FINISHED,
     /**
-     * {@code SUSPENDED} is used to make {@link Game} paused.
+     * {@code SUSPENDED} is used to make {@link Game} paused
      */
     SUSPENDED
 }

@@ -1,6 +1,6 @@
 [
   {
-    "id": "1",
+    "id": 1,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -21,7 +21,7 @@
     }
   },
   {
-    "id": "2",
+    "id": 2,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -42,7 +42,7 @@
     }
   },
   {
-    "id": "3",
+    "id": 3,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -63,7 +63,7 @@
     }
   },
   {
-    "id": "4",
+    "id": 4,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -84,7 +84,7 @@
     }
   },
   {
-    "id": "5",
+    "id": 5,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -105,7 +105,7 @@
     }
   },
   {
-    "id": "6",
+    "id": 6,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -126,7 +126,7 @@
     }
   },
   {
-    "id": "7",
+    "id": 7,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -147,7 +147,7 @@
     }
   },
   {
-    "id": "8",
+    "id": 8,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -172,7 +172,7 @@
     }
   },
   {
-    "id": "9",
+    "id": 9,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -197,7 +197,7 @@
     }
   },
   {
-    "id": "10",
+    "id": 10,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": false,
@@ -222,7 +222,7 @@
     }
   },
   {
-    "id": "11",
+    "id": 11,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -243,7 +243,7 @@
     }
   },
   {
-    "id": "12",
+    "id": 12,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -264,7 +264,7 @@
     }
   },
   {
-    "id": "13",
+    "id": 13,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -285,7 +285,7 @@
     }
   },
   {
-    "id": "14",
+    "id": 14,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -306,7 +306,7 @@
     }
   },
   {
-    "id": "15",
+    "id": 15,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -327,7 +327,7 @@
     }
   },
   {
-    "id": "16",
+    "id": 16,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -348,7 +348,7 @@
     }
   },
   {
-    "id": "17",
+    "id": 17,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -369,7 +369,7 @@
     }
   },
   {
-    "id": "18",
+    "id": 18,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -394,7 +394,7 @@
     }
   },
   {
-    "id": "19",
+    "id": 19,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -419,7 +419,7 @@
     }
   },
   {
-    "id": "20",
+    "id": 20,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": false,
@@ -444,7 +444,7 @@
     }
   },
   {
-    "id": "21",
+    "id": 21,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -465,7 +465,7 @@
     }
   },
   {
-    "id": "22",
+    "id": 22,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -486,7 +486,7 @@
     }
   },
   {
-    "id": "23",
+    "id": 23,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -507,7 +507,7 @@
     }
   },
   {
-    "id": "24",
+    "id": 24,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -528,7 +528,7 @@
     }
   },
   {
-    "id": "25",
+    "id": 25,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -549,7 +549,7 @@
     }
   },
   {
-    "id": "26",
+    "id": 26,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -570,7 +570,7 @@
     }
   },
   {
-    "id": "27",
+    "id": 27,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -591,7 +591,7 @@
     }
   },
   {
-    "id": "28",
+    "id": 28,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -616,7 +616,7 @@
     }
   },
   {
-    "id": "29",
+    "id": 29,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -641,7 +641,7 @@
     }
   },
   {
-    "id": "30",
+    "id": 30,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": false,
@@ -666,7 +666,7 @@
     }
   },
   {
-    "id": "31",
+    "id": 31,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -687,7 +687,7 @@
     }
   },
   {
-    "id": "32",
+    "id": 32,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -708,7 +708,7 @@
     }
   },
   {
-    "id": "33",
+    "id": 33,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -729,7 +729,7 @@
     }
   },
   {
-    "id": "34",
+    "id": 34,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -750,7 +750,7 @@
     }
   },
   {
-    "id": "35",
+    "id": 35,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -771,7 +771,7 @@
     }
   },
   {
-    "id": "36",
+    "id": 36,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -792,7 +792,7 @@
     }
   },
   {
-    "id": "37",
+    "id": 37,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -813,7 +813,7 @@
     }
   },
   {
-    "id": "38",
+    "id": 38,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -838,7 +838,7 @@
     }
   },
   {
-    "id": "39",
+    "id": 39,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -863,7 +863,7 @@
     }
   },
   {
-    "id": "40",
+    "id": 40,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": false,
@@ -888,7 +888,7 @@
     }
   },
   {
-    "id": "41",
+    "id": 41,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -918,7 +918,7 @@
     }
   },
   {
-    "id": "42",
+    "id": 42,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -948,7 +948,7 @@
     }
   },
   {
-    "id": "43",
+    "id": 43,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -978,7 +978,7 @@
     }
   },
   {
-    "id": "44",
+    "id": 44,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -1007,7 +1007,7 @@
     }
   },
   {
-    "id": "45",
+    "id": 45,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -1036,7 +1036,7 @@
     }
   },
   {
-    "id": "46",
+    "id": 46,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -1065,7 +1065,7 @@
     }
   },
   {
-    "id": "47",
+    "id": 47,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -1093,7 +1093,7 @@
     }
   },
   {
-    "id": "48",
+    "id": 48,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -1121,7 +1121,7 @@
     }
   },
   {
-    "id": "49",
+    "id": 49,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -1149,7 +1149,7 @@
     }
   },
   {
-    "id": "50",
+    "id": 50,
     "baseColor": "RED",
     "isStarter": false,
     "isGold": true,
@@ -1177,7 +1177,7 @@
     }
   },
   {
-    "id": "51",
+    "id": 51,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1207,7 +1207,7 @@
     }
   },
   {
-    "id": "52",
+    "id": 52,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1237,7 +1237,7 @@
     }
   },
   {
-    "id": "53",
+    "id": 53,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1267,7 +1267,7 @@
     }
   },
   {
-    "id": "54",
+    "id": 54,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1296,7 +1296,7 @@
     }
   },
   {
-    "id": "55",
+    "id": 55,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1325,7 +1325,7 @@
     }
   },
   {
-    "id": "56",
+    "id": 56,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1354,7 +1354,7 @@
     }
   },
   {
-    "id": "57",
+    "id": 57,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1382,7 +1382,7 @@
     }
   },
   {
-    "id": "58",
+    "id": 58,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1410,7 +1410,7 @@
     }
   },
   {
-    "id": "59",
+    "id": 59,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1438,7 +1438,7 @@
     }
   },
   {
-    "id": "60",
+    "id": 60,
     "baseColor": "GREEN",
     "isStarter": false,
     "isGold": true,
@@ -1466,7 +1466,7 @@
     }
   },
   {
-    "id": "61",
+    "id": 61,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1496,7 +1496,7 @@
     }
   },
   {
-    "id": "62",
+    "id": 62,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1526,7 +1526,7 @@
     }
   },
   {
-    "id": "63",
+    "id": 63,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1556,7 +1556,7 @@
     }
   },
   {
-    "id": "64",
+    "id": 64,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1585,7 +1585,7 @@
     }
   },
   {
-    "id": "65",
+    "id": 65,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1614,7 +1614,7 @@
     }
   },
   {
-    "id": "66",
+    "id": 66,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1643,7 +1643,7 @@
     }
   },
   {
-    "id": "67",
+    "id": 67,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1671,7 +1671,7 @@
     }
   },
   {
-    "id": "68",
+    "id": 68,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1699,7 +1699,7 @@
     }
   },
   {
-    "id": "69",
+    "id": 69,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1727,7 +1727,7 @@
     }
   },
   {
-    "id": "70",
+    "id": 70,
     "baseColor": "BLUE",
     "isStarter": false,
     "isGold": true,
@@ -1755,7 +1755,7 @@
     }
   },
   {
-    "id": "71",
+    "id": 71,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -1785,7 +1785,7 @@
     }
   },
   {
-    "id": "72",
+    "id": 72,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -1815,7 +1815,7 @@
     }
   },
   {
-    "id": "73",
+    "id": 73,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -1845,7 +1845,7 @@
     }
   },
   {
-    "id": "74",
+    "id": 74,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -1874,7 +1874,7 @@
     }
   },
   {
-    "id": "75",
+    "id": 75,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -1903,7 +1903,7 @@
     }
   },
   {
-    "id": "76",
+    "id": 76,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -1932,7 +1932,7 @@
     }
   },
   {
-    "id": "77",
+    "id": 77,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -1960,7 +1960,7 @@
     }
   },
   {
-    "id": "78",
+    "id": 78,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -1988,7 +1988,7 @@
     }
   },
   {
-    "id": "79",
+    "id": 79,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -2016,7 +2016,7 @@
     }
   },
   {
-    "id": "80",
+    "id": 80,
     "baseColor": "PURPLE",
     "isStarter": false,
     "isGold": true,
@@ -2044,7 +2044,7 @@
     }
   },
   {
-    "id": "81",
+    "id": 81,
     "baseColor": "NEUTRAL",
     "isStarter": true,
     "isGold": false,
@@ -2065,7 +2065,7 @@
     }
   },
   {
-    "id": "82",
+    "id": 82,
     "baseColor": "NEUTRAL",
     "isStarter": true,
     "isGold": false,
@@ -2086,7 +2086,7 @@
     }
   },
   {
-    "id": "83",
+    "id": 83,
     "baseColor": "NEUTRAL",
     "isStarter": true,
     "isGold": false,
@@ -2108,7 +2108,7 @@
     }
   },
   {
-    "id": "84",
+    "id": 84,
     "baseColor": "NEUTRAL",
     "isStarter": true,
     "isGold": false,
@@ -2130,7 +2130,7 @@
     }
   },
   {
-    "id": "85",
+    "id": 85,
     "baseColor": "NEUTRAL",
     "isStarter": true,
     "isGold": false,
@@ -2153,7 +2153,7 @@
     }
   },
   {
-    "id": "86",
+    "id": 86,
     "baseColor": "NEUTRAL",
     "isStarter": true,
     "isGold": false,

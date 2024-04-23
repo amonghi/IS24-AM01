@@ -1,9 +1,10 @@
 [
   {
-    "type" : "pattern",
-    "objective" : {
-      "points" : 2,
-      "pattern" : [
+    "type": "pattern",
+    "objective": {
+      "id": 1,
+      "points": 2,
+      "pattern": [
         "  R",
         " R ",
         "R  "
@@ -11,10 +12,11 @@
     }
   },
   {
-    "type" : "pattern",
-    "objective" : {
-      "points" : 2,
-      "pattern" : [
+    "type": "pattern",
+    "objective": {
+      "id": 2,
+      "points": 2,
+      "pattern": [
         "G  ",
         " G ",
         "  G"
@@ -22,10 +24,11 @@
     }
   },
   {
-    "type" : "pattern",
-    "objective" : {
-      "points" : 2,
-      "pattern" : [
+    "type": "pattern",
+    "objective": {
+      "id": 3,
+      "points": 2,
+      "pattern": [
         "  B",
         " B ",
         "B  "
@@ -33,10 +36,11 @@
     }
   },
   {
-    "type" : "pattern",
-    "objective" : {
-      "points" : 2,
-      "pattern" : [
+    "type": "pattern",
+    "objective": {
+      "id": 4,
+      "points": 2,
+      "pattern": [
         "P  ",
         " P ",
         "  P"
@@ -44,10 +48,11 @@
     }
   },
   {
-    "type" : "pattern",
-    "objective" : {
-      "points" : 3,
-      "pattern" : [
+    "type": "pattern",
+    "objective": {
+      "id": 5,
+      "points": 3,
+      "pattern": [
         " R ",
         " R ",
         "  G"
@@ -55,10 +60,11 @@
     }
   },
   {
-    "type" : "pattern",
-    "objective" : {
-      "points" : 3,
-      "pattern" : [
+    "type": "pattern",
+    "objective": {
+      "id": 6,
+      "points": 3,
+      "pattern": [
         " G ",
         " G ",
         "P  "
@@ -66,10 +72,11 @@
     }
   },
   {
-    "type" : "pattern",
-    "objective" : {
-      "points" : 3,
-      "pattern" : [
+    "type": "pattern",
+    "objective": {
+      "id": 7,
+      "points": 3,
+      "pattern": [
         "  R",
         " B ",
         " B "
@@ -77,10 +84,11 @@
     }
   },
   {
-    "type" : "pattern",
-    "objective" : {
-      "points" : 3,
-      "pattern" : [
+    "type": "pattern",
+    "objective": {
+      "id": 8,
+      "points": 3,
+      "pattern": [
         "B  ",
         " P ",
         " P "
@@ -88,42 +96,47 @@
     }
   },
   {
-    "type" : "same",
-    "objective" : {
-      "points" : 2,
-      "requiredCollectible" : "FUNGI",
-      "requiredNumber" : 3
+    "type": "same",
+    "objective": {
+      "id": 9,
+      "points": 2,
+      "requiredCollectible": "FUNGI",
+      "requiredNumber": 3
     }
   },
   {
-    "type" : "same",
-    "objective" : {
-      "points" : 2,
-      "requiredCollectible" : "PLANT",
-      "requiredNumber" : 3
+    "type": "same",
+    "objective": {
+      "id": 10,
+      "points": 2,
+      "requiredCollectible": "PLANT",
+      "requiredNumber": 3
     }
   },
   {
-    "type" : "same",
-    "objective" : {
-      "points" : 2,
-      "requiredCollectible" : "ANIMAL",
-      "requiredNumber" : 3
+    "type": "same",
+    "objective": {
+      "id": 11,
+      "points": 2,
+      "requiredCollectible": "ANIMAL",
+      "requiredNumber": 3
     }
   },
   {
-    "type" : "same",
-    "objective" : {
-      "points" : 2,
-      "requiredCollectible" : "INSECT",
-      "requiredNumber" : 3
+    "type": "same",
+    "objective": {
+      "id": 12,
+      "points": 2,
+      "requiredCollectible": "INSECT",
+      "requiredNumber": 3
     }
   },
   {
-    "type" : "different",
-    "objective" : {
-      "points" : 3,
-      "requiredItems" : [
+    "type": "different",
+    "objective": {
+      "id": 13,
+      "points": 3,
+      "requiredItems": [
         "INKWELL",
         "MANUSCRIPT",
         "QUILL"
@@ -131,35 +144,39 @@
     }
   },
   {
-    "type" : "same",
-    "objective" : {
-      "points" : 2,
-      "requiredCollectible" : "FUNGI",
-      "requiredNumber" : 3
+    "type": "same",
+    "objective": {
+      "id": 14,
+      "points": 2,
+      "requiredCollectible": "FUNGI",
+      "requiredNumber": 3
     }
   },
   {
-    "type" : "same",
-    "objective" : {
-      "points" : 2,
-      "requiredCollectible" : "MANUSCRIPT",
-      "requiredNumber" : 2
+    "type": "same",
+    "objective": {
+      "id": 15,
+      "points": 2,
+      "requiredCollectible": "MANUSCRIPT",
+      "requiredNumber": 2
     }
   },
   {
-    "type" : "same",
-    "objective" : {
-      "points" : 2,
-      "requiredCollectible" : "INKWELL",
-      "requiredNumber" : 2
+    "type": "same",
+    "objective": {
+      "id": 16,
+      "points": 2,
+      "requiredCollectible": "INKWELL",
+      "requiredNumber": 2
     }
   },
   {
-    "type" : "same",
-    "objective" : {
-      "points" : 2,
-      "requiredCollectible" : "QUILL",
-      "requiredNumber" : 2
+    "type": "same",
+    "objective": {
+      "id": 17,
+      "points": 2,
+      "requiredCollectible": "QUILL",
+      "requiredNumber": 2
     }
   }
 ]

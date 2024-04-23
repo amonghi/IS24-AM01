@@ -2,17 +2,17 @@ package it.polimi.ingsw.am01.model.game;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.deserializers.*;
+import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.DifferentCollectibleObjective;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.objective.PatternObjective;
 import it.polimi.ingsw.am01.model.objective.SameCollectibleObjective;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
-import it.polimi.ingsw.am01.model.serializers.*;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -24,22 +24,14 @@ import java.util.stream.Collectors;
  */
 public class GameManager {
     private static final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Corner.class, new CornerSerializer())
-            .registerTypeAdapter(Points.class, new PointsSerializer())
-            .registerTypeAdapter(SameCollectibleObjective.class, new ObjectiveSerializer())
-            .registerTypeAdapter(DifferentCollectibleObjective.class, new ObjectiveSerializer())
-            .registerTypeAdapter(PatternObjective.class, new ObjectiveSerializer())
-            .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerializer())
-            .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
-            .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
-            .registerTypeAdapter(Corner.class, new CornerDeserializer())
-            .registerTypeAdapter(Points.class, new PointsDeserializer())
+            .registerTypeAdapter(Corner.class, new CornerSerDes())
+            .registerTypeAdapter(Points.class, new PointsSerDes())
             .registerTypeAdapter(Collectible.class, new CollectibleDeserializer())
-            .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer())
-            .registerTypeAdapter(Objective.class, new ObjectiveDeserializer())
+            .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerDes())
+            .registerTypeAdapter(Objective.class, new ObjectiveSerDes())
             .registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer())
-            .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerializer())
-            .registerTypeAdapter(PlayArea.Position.class, new PositionSerializer())
+            .registerTypeAdapter(Card.class, new IDCardSerDes())
+            .registerTypeAdapter(Objective.class, new IDObjectiveSerDes())
             .create();
     private final List<Game> games;
     private final Path dataDir;
@@ -65,6 +57,31 @@ public class GameManager {
      */
     public List<Game> getGames() {
         return Collections.unmodifiableList(games);
+    }
+
+    /**
+     * Get a {@link Game} by its ID, if such a game exists
+     *
+     * @param id the id of the game
+     * @return the game with the given ID, i such a game exists
+     */
+    public Optional<Game> getGame(int id) {
+        return this.games.stream()
+                .filter(game -> game.getId() == id)
+                .findAny();
+    }
+
+    /**
+     * Returns the game where a given player is currently playing, if such a game exists
+     *
+     * @param pp the profile of the player whose current game we want to find
+     * @return The game where the player is currently playing, if such a game exists
+     */
+    public Optional<Game> getGameWhereIsPlaying(PlayerProfile pp) {
+        // a player cannot be in more than one game at a time
+        return this.games.stream()
+                .filter(game -> game.getPlayerProfiles().stream().anyMatch(profile -> profile.equals(pp)))
+                .findFirst();
     }
 
     /**

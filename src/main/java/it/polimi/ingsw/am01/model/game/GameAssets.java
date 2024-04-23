@@ -7,7 +7,7 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.deserializers.*;
+import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.objective.PatternObjective;
 
@@ -16,6 +16,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides predetermined lists of {@link Objective} and {@link Card} divided by type.
@@ -24,19 +28,24 @@ import java.util.List;
  */
 public class GameAssets {
     private static GameAssets instance = null;
-    private final List<Card> cards;
-    private final List<Objective> objectives;
+    private final Map<Integer, Card> cards;
+    private final List<Card> resourceCardList;
+    private final List<Card> goldenCardList;
+    private final List<Card> starterCardList;
+    private final Map<Integer, Objective> objectives;
+    private final List<Objective> objectiveList;
+
 
     /**
      * Initialize GameAssets reading the cards and objectives from their json files
      */
     private GameAssets() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Corner.class, new CornerDeserializer());
-        gsonBuilder.registerTypeAdapter(Points.class, new PointsDeserializer());
+        gsonBuilder.registerTypeAdapter(Corner.class, new CornerSerDes());
+        gsonBuilder.registerTypeAdapter(Points.class, new PointsSerDes());
         gsonBuilder.registerTypeAdapter(Collectible.class, new CollectibleDeserializer());
-        gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer());
-        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveDeserializer());
+        gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerDes());
+        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveSerDes());
         gsonBuilder.registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer());
         Gson gson = gsonBuilder.create();
 
@@ -68,10 +77,13 @@ public class GameAssets {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        resourceCardList = Stream.of(cardArray).filter(card -> !card.isStarter() && !card.isGold()).toList();
+        goldenCardList = Stream.of(cardArray).filter(Card::isGold).toList();
+        starterCardList = Stream.of(cardArray).filter(Card::isStarter).toList();
+        objectiveList = List.of(objectiveArray);
 
-
-        cards = List.of(cardArray);
-        objectives = List.of(objectiveArray);
+        cards = Stream.of(cardArray).collect(Collectors.toMap(Card::id, card -> card));
+        objectives = Stream.of(objectiveArray).collect(Collectors.toMap(Objective::getId, objective -> objective));
     }
 
     /**
@@ -92,7 +104,7 @@ public class GameAssets {
      * @return all the resource cards
      */
     public List<Card> getResourceCards() {
-        return cards.stream().filter(card -> !card.isStarter() && !card.isGold()).toList();
+        return resourceCardList;
     }
 
     /**
@@ -101,7 +113,7 @@ public class GameAssets {
      * @return all the golden cards
      */
     public List<Card> getGoldenCards() {
-        return cards.stream().filter(Card::isGold).toList();
+        return goldenCardList;
     }
 
     /**
@@ -110,7 +122,7 @@ public class GameAssets {
      * @return all the starter cards
      */
     public List<Card> getStarterCards() {
-        return cards.stream().filter(Card::isStarter).toList();
+        return starterCardList;
     }
 
     /**
@@ -119,7 +131,24 @@ public class GameAssets {
      * @return all the objectives
      */
     public List<Objective> getObjectives() {
-        return objectives;
+        return objectiveList;
     }
 
+    /**
+     * Find a card by its id
+     * @param id the id of the card
+     * @return the corresponding card if the id is valid, {@code Optional.empty()} otherwise
+     */
+    public Optional<Card> getCardById(int id) {
+        return Optional.ofNullable(cards.get(id));
+    }
+
+    /**
+     * Find an objective by its id
+     * @param id the id of the objective
+     * @return the corresponding objective if the id is valid, {@code Optional.empty()} otherwise
+     */
+    public Optional<Objective> getObjectiveById(int id) {
+        return Optional.ofNullable(objectives.get(id));
+    }
 }

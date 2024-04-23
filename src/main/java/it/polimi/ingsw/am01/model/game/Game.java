@@ -119,6 +119,10 @@ public class Game {
      * @return an unmodifiable set of {@link Objective} that represents all possible options that player {@code pp} could choose
      */
     public Set<Objective> getObjectiveOptions(PlayerProfile pp) {
+        if (!playerProfiles.contains(pp)) {
+            throw new IllegalArgumentException("Player is not in this game");
+        }
+
         return Collections.unmodifiableSet(objectiveChoices.get(pp).getOptions());
     }
 
@@ -142,6 +146,10 @@ public class Game {
      * @see it.polimi.ingsw.am01.model.player.PlayerData
      */
     public PlayerData getPlayerData(PlayerProfile pp) {
+        if (!playerProfiles.contains(pp)) {
+            throw new IllegalArgumentException("Player is not in this game");
+        }
+
         return playersData.get(pp);
     }
 
@@ -151,6 +159,10 @@ public class Game {
      * @see it.polimi.ingsw.am01.model.game.PlayArea
      */
     public PlayArea getPlayArea(PlayerProfile pp) {
+        if (!playerProfiles.contains(pp)) {
+            throw new IllegalArgumentException("Player is not in this game");
+        }
+
         return playAreas.get(pp);
     }
 
@@ -166,6 +178,10 @@ public class Game {
      * @return the {@link PlayerProfile} that has to play at this moment of the game
      */
     public PlayerProfile getCurrentPlayer() {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
+            throw new IllegalMoveException();
+        }
+
         return playerProfiles.get(currentPlayer);
     }
 
@@ -190,6 +206,10 @@ public class Game {
      * @see it.polimi.ingsw.am01.model.game.TurnPhase
      */
     public TurnPhase getTurnPhase() {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
+            throw new IllegalMoveException();
+        }
+
         return turnPhase;
     }
 
@@ -220,17 +240,12 @@ public class Game {
     }
 
     /**
-     * This method permits to start the turn-based phase of the game, after choices phase.
+     * This method permits to prepare and start the turn-based phase of the game, after choices phase.
      * It throws a {@code NotEnoughGameResourcesException} if there are not enough resource or golden cards into decks
-     * This method is valid only on {@code AWAITING_START} status.
      *
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
-    public void startGame() {
-        if (status != GameStatus.AWAITING_START) {
-            throw new IllegalMoveException();
-        }
-
+    private void setupAndStartTurnPhase() {
         for (PlayerProfile player : playerProfiles) {
             List<Card> hand = new ArrayList<>();
             hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Resource card deck should not be empty")));
@@ -374,6 +389,10 @@ public class Game {
         if (status != GameStatus.SETUP_STARTING_CARD_SIDE) {
             throw new IllegalMoveException();
         }
+        if (!playerProfiles.contains(pp)) {
+            throw new IllegalArgumentException("Player is not in this game");
+        }
+
         startingCardSideChoices.get(pp).select(s);
 
         playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
@@ -397,6 +416,10 @@ public class Game {
         if (status != GameStatus.SETUP_COLOR) {
             throw new IllegalMoveException();
         }
+        if (!playerProfiles.contains(pp)) {
+            throw new IllegalArgumentException("Player is not in this game");
+        }
+
         SelectionResult sr = colorChoices.get(pp).select(pc);
         if (colorChoices.get(pp).isSettled()) { // FIXME: MultiChoice class
             transition(GameStatus.SETUP_OBJECTIVE);
@@ -416,10 +439,14 @@ public class Game {
         if (status != GameStatus.SETUP_OBJECTIVE) {
             throw new IllegalMoveException();
         }
+        if (!playerProfiles.contains(pp)) {
+            throw new IllegalArgumentException("Player is not in this game");
+        }
+
         objectiveChoices.get(pp).select(o);
         if (objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
-            //all players had chosen their objective -> go to the next state (waiting for start "turn phase")
-            transition(GameStatus.AWAITING_START);
+            //all players had chosen their objective -> go to the next state (start "turn phase")
+            setupAndStartTurnPhase();
         }
     }
 
@@ -442,6 +469,9 @@ public class Game {
     public DrawResult drawCard(PlayerProfile pp, DrawSource ds) {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN) || turnPhase != TurnPhase.DRAWING) {
             throw new IllegalMoveException();
+        }
+        if (!playerProfiles.contains(pp)) {
+            throw new IllegalArgumentException("Player is not in this game");
         }
         if (currentPlayer != playerProfiles.indexOf(pp)) {
             throw new IllegalTurnException();
@@ -507,11 +537,12 @@ public class Game {
 
             throw new IllegalMoveException();
         }
-
+        if (!playerProfiles.contains(pp)) {
+            throw new IllegalArgumentException("Player is not in this game");
+        }
         if (currentPlayer != playerProfiles.indexOf(pp)) {
             throw new IllegalTurnException();
         }
-
         if (!playersData.get(pp).getHand().contains(c)) {
             throw new IllegalArgumentException("Player doesn't have that card in his hand");
         }
@@ -555,10 +586,6 @@ public class Game {
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
     public List<PlayerProfile> getWinners() {
-        if (status != GameStatus.FINISHED) {
-            throw new IllegalMoveException();
-        }
-
         Map<PlayerProfile, Integer> scores = getTotalScores();
         int maxScore = scores.values().stream().mapToInt(s -> s).max().orElse(0);
 
