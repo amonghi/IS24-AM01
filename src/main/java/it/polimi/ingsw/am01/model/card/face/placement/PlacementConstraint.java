@@ -6,6 +6,7 @@ import it.polimi.ingsw.am01.model.game.PlayArea;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * PlacementConstraint represents the amount of resources necessary to place a card inside a PlayArea
@@ -39,5 +40,34 @@ public class PlacementConstraint {
                 return false;
         }
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlacementConstraint that = (PlacementConstraint) o;
+        return Objects.equals(requiredResources, that.requiredResources);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(requiredResources);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "PlacementConstraint{" +
+                "requiredResources=" + requiredResources +
+                '}';
     }
 }

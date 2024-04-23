@@ -2,6 +2,8 @@ package it.polimi.ingsw.am01.model.card.face.points;
 
 import it.polimi.ingsw.am01.model.game.PlayArea;
 
+import java.util.Objects;
+
 /**
  * CornerCoverPoints is a type of Points that gives an amount of points per every corner covered by placing the card
  */
@@ -32,5 +34,34 @@ public class CornerCoverPoints implements Points {
     public int calculateScoredPoints(PlayArea.CardPlacement cp) {
         int countedCorners = cp.getCovered().keySet().size();
         return countedCorners * pointsPerCorner;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CornerCoverPoints that = (CornerCoverPoints) o;
+        return pointsPerCorner == that.pointsPerCorner;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(pointsPerCorner);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "CornerCoverPoints{" +
+                "pointsPerCorner=" + pointsPerCorner +
+                '}';
     }
 }

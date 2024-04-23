@@ -1,11 +1,13 @@
 package it.polimi.ingsw.am01.model.card.face;
 
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
+import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The back face of a card.
@@ -39,5 +41,39 @@ public class BackCardFace extends BaseCardFace {
     @Override
     public Map<Resource, Integer> getCenterResources() {
         return Collections.unmodifiableMap(resources);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        BackCardFace that = (BackCardFace) o;
+        return Objects.equals(resources, that.resources);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), resources);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "BackCardFace{" +
+                "tl=" + corner(CornerPosition.TOP_LEFT) +
+                ", tr=" + corner(CornerPosition.TOP_RIGHT) +
+                ", bl=" + corner(CornerPosition.BOTTOM_LEFT) +
+                ", br=" + corner(CornerPosition.BOTTOM_RIGHT) +
+                ", resources=" + resources +
+                '}';
     }
 }

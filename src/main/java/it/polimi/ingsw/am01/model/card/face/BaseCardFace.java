@@ -2,12 +2,13 @@ package it.polimi.ingsw.am01.model.card.face;
 
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
-import it.polimi.ingsw.am01.model.collectible.Resource;
-import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
+import it.polimi.ingsw.am01.model.card.face.points.Points;
+import it.polimi.ingsw.am01.model.collectible.Resource;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -50,7 +51,7 @@ public abstract class BaseCardFace implements CardFace {
      */
     @Override
     public Corner corner(CornerPosition cornerPosition) {
-        return switch(cornerPosition) {
+        return switch (cornerPosition) {
             case TOP_LEFT -> tl;
             case TOP_RIGHT -> tr;
             case BOTTOM_LEFT -> bl;
@@ -89,5 +90,37 @@ public abstract class BaseCardFace implements CardFace {
     @Override
     public Map<Resource, Integer> getCenterResources() {
         return Collections.emptyMap();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseCardFace that = (BaseCardFace) o;
+        return Objects.equals(tl, that.tl) && Objects.equals(tr, that.tr) && Objects.equals(bl, that.bl) && Objects.equals(br, that.br);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(tl, tr, bl, br);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "BaseCardFace{" +
+                "tl=" + tl +
+                ", tr=" + tr +
+                ", bl=" + bl +
+                ", br=" + br +
+                '}';
     }
 }
