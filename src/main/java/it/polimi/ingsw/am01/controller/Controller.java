@@ -75,6 +75,18 @@ public class Controller {
     }
 
     /**
+     * Starts a game, despite not having reached the maximum threshold of connected players
+     *
+     * @param gameId the ID of the game that have to start
+     */
+    public void startGame(int gameId) {
+        Game game = this.gameManager.getGame(gameId)
+                .orElseThrow();
+
+        game.startGame();
+    }
+
+    /**
      * Selects on which side to place the initial card of a certain player in a certain game, then places it.
      *
      * @param gameId     the ID of the game in which the player is playing
