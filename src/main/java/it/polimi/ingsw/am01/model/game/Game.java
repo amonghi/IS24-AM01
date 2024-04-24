@@ -612,4 +612,48 @@ public class Game {
         );
         return r;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Game{" +
+                "\n\tid=" + id +
+                ",\n\tplayerProfiles=" + playerProfiles +
+                ",\n\tchatManager=" + chatManager +
+                ",\n\tstartingCardSideChoices=" + startingCardSideChoices +
+                ",\n\tstartingCards=" + startingCards +
+                ",\n\tcolorChoices=" + colorChoices +
+                ",\n\tobjectiveChoices=" + objectiveChoices +
+                ",\n\tplayersData=" + playersData +
+                ",\n\tplayAreas=" + playAreas +
+                ",\n\tcommonObjectives=" + commonObjectives +
+                ",\n\tmaxPlayers=" + maxPlayers +
+                ",\n\tboard=" + board +
+                ",\n\tstatus=" + status +
+                ",\n\tturnPhase=" + turnPhase +
+                ",\n\trecoverStatus=" + recoverStatus +
+                ",\n\tcurrentPlayer=" + currentPlayer +
+                "\n}";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        Game game = (Game) other;
+        return id == game.id;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, playerProfiles, chatManager, startingCardSideChoices, startingCards, colorChoices, objectiveChoices, playersData, playAreas, commonObjectives, maxPlayers, board, status, turnPhase, recoverStatus, currentPlayer);
+    }
 }
