@@ -4,6 +4,8 @@ import it.polimi.ingsw.am01.model.card.face.BackCardFace;
 import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 
+import java.util.Objects;
+
 /**
  * Card represents placeable card of the game (which are allocated into PlayArea). In particular: resource, gold and starter card
  */
@@ -74,5 +76,39 @@ public class Card {
             case FRONT -> front;
             case BACK -> back;
         };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Card card = (Card) o;
+        return id == card.id;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Card{" +
+                "id=" + id +
+                ", baseColor=" + baseColor +
+                ", isStarter=" + isStarter +
+                ", isGold=" + isGold +
+                ", front=" + front +
+                ", back=" + back +
+                '}';
     }
 }

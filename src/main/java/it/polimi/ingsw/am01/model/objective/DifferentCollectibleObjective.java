@@ -50,4 +50,16 @@ public class DifferentCollectibleObjective extends Objective {
                         .orElse(0)
                 : 0;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "DifferentCollectibleObjective{" +
+                "id=" + getId() +
+                ", points=" + getPointsPerMatch() +
+                ", requiredItems=" + requiredItems +
+                '}';
+    }
 }

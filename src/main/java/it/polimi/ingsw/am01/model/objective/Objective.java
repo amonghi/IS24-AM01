@@ -47,4 +47,26 @@ public abstract class Objective {
      * @return the number of points earned by the player, considering all the matches
      */
     public abstract int getEarnedPoints(PlayArea pa);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Objective objective = (Objective) o;
+        return id == objective.id;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + points;
+        return result;
+    }
 }

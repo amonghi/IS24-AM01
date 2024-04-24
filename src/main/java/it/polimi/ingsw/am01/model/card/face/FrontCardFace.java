@@ -1,9 +1,11 @@
 package it.polimi.ingsw.am01.model.card.face;
 
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
+import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -18,7 +20,6 @@ import java.util.Optional;
 
 public class FrontCardFace extends BaseCardFace {
     private final PlacementConstraint placementConstraint;
-
     private final Points points;
 
     /**
@@ -92,5 +93,40 @@ public class FrontCardFace extends BaseCardFace {
     @Override
     public Optional<PlacementConstraint> getPlacementConstraint() {
         return Optional.ofNullable(placementConstraint);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        FrontCardFace that = (FrontCardFace) o;
+        return Objects.equals(placementConstraint, that.placementConstraint) && Objects.equals(points, that.points);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), placementConstraint, points);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "FrontCardFace{" +
+                "tl=" + corner(CornerPosition.TOP_LEFT) +
+                ", tr=" + corner(CornerPosition.TOP_RIGHT) +
+                ", bl=" + corner(CornerPosition.BOTTOM_LEFT) +
+                ", br=" + corner(CornerPosition.BOTTOM_RIGHT) +
+                ", placementConstraint=" + placementConstraint +
+                ", points=" + points +
+                '}';
     }
 }

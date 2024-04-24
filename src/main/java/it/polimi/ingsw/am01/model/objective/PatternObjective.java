@@ -89,4 +89,17 @@ public class PatternObjective extends Objective {
         //Groups of pattern.keySet().size() cards can be used to calculate points
         return (matchCards / pattern.size()) * getPointsPerMatch();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "PatternObjective{" +
+                "id=" + getId() +
+                ", points=" + getPointsPerMatch() +
+                ", pattern=" + pattern +
+                ", matches=" + matches +
+                '}';
+    }
 }

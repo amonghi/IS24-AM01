@@ -41,6 +41,18 @@ public class MultiChoice<T, I> {
         return choices.values().stream().allMatch(choice -> choice.getSelected().isPresent());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "MultiChoice{" +
+                "options=" + options +
+                ", choices=" + choices +
+                ", settled=" + settled +
+                '}';
+    }
+
     public class Choice {
         private T selection;
 
@@ -78,6 +90,16 @@ public class MultiChoice<T, I> {
 
         public boolean isSettled() {
             return settled;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return "Choice{" +
+                    "selection=" + selection +
+                    '}';
         }
     }
 }

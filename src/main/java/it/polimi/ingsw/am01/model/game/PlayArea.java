@@ -20,6 +20,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
     private final Map<Collectible, Integer> collectibleCount;
     private int score;
     private int seq;
+
     /**
      * Create a new play area and initialize it with the first {@link CardPlacement}.
      * <p>
@@ -212,6 +213,40 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "PlayArea{" +
+                "playablePositions=" + playablePositions +
+                ", cards=" + cards +
+                ", collectibleCount=" + collectibleCount +
+                ", score=" + score +
+                ", seq=" + seq +
+                '}';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        PlayArea playArea = (PlayArea) other;
+        return score == playArea.score && seq == playArea.seq && Objects.equals(playablePositions, playArea.playablePositions)
+                && Objects.equals(cards, playArea.cards) && Objects.equals(collectibleCount, playArea.collectibleCount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(playablePositions, cards, collectibleCount, score, seq);
+    }
+
+    /**
      * Represent a position in the {@link PlayArea}
      * <p>
      * A position is represented by two indices {@code i} and {@code j}.
@@ -242,9 +277,34 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
             };
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Position position = (Position) o;
+            return i == position.i && j == position.j;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public String toString() {
-            return "(" + i + ", " + j + ")";
+            return "Position{" +
+                    "i=" + i +
+                    ", j=" + j +
+                    '}';
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int hashCode() {
+            return Objects.hash(i, j);
         }
     }
 
@@ -410,6 +470,39 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         @Override
         public int compareTo(CardPlacement other) {
             return Integer.compare(this.seq, other.seq);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CardPlacement other = (CardPlacement) o;
+            return seq == other.seq && position.equals(other.position) && card.equals(other.card) && side == other.side;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return "CardPlacement{" +
+                    "position=" + position +
+                    ", card=" + card +
+                    ", side=" + side +
+                    ", seq=" + seq +
+                    ", points=" + points +
+                    '}';
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int hashCode() {
+            return Objects.hash(position, card, side, seq, points);
         }
     }
 }

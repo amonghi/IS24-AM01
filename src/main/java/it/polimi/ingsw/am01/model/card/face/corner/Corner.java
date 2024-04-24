@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.model.card.face.corner;
 
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -14,7 +15,6 @@ import java.util.Optional;
 
 public class Corner {
     private final boolean socket;
-
     private final Collectible collectible;
 
     /**
@@ -79,5 +79,35 @@ public class Corner {
      */
     public Optional<Collectible> getCollectible() {
         return Optional.ofNullable(collectible);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Corner corner = (Corner) o;
+        return socket == corner.socket && Objects.equals(collectible, corner.collectible);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(socket, collectible);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Corner{" +
+                "socket=" + socket +
+                ", collectible=" + collectible +
+                '}';
     }
 }

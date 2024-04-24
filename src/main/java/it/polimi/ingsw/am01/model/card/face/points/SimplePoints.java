@@ -2,6 +2,8 @@ package it.polimi.ingsw.am01.model.card.face.points;
 
 import it.polimi.ingsw.am01.model.game.PlayArea;
 
+import java.util.Objects;
+
 /**
  * SimplePoints is type of Points that gives a constant score for a card placement
  */
@@ -30,5 +32,34 @@ public class SimplePoints implements Points {
     @Override
     public int calculateScoredPoints(PlayArea.CardPlacement cp) {
         return points;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimplePoints that = (SimplePoints) o;
+        return points == that.points;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(points);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "SimplePoints{" +
+                "points=" + points +
+                '}';
     }
 }

@@ -24,6 +24,9 @@ public class PlayerProfile {
         return name;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -34,11 +37,17 @@ public class PlayerProfile {
         return name.equals(that.name);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return name.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return name;

@@ -2,10 +2,7 @@ package it.polimi.ingsw.am01.model.game;
 
 import it.polimi.ingsw.am01.model.card.Card;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Represents an ordered deck of Cards
@@ -49,5 +46,40 @@ public class Deck implements DrawSource {
             element = cards.remove(cards.size() - 1);
         }
         return Optional.ofNullable(element);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder cards = new StringBuilder();
+        for (Card card : this.cards) {
+            cards.append(card.id()).append(", ");
+        }
+        cards.delete(cards.length() - 2, cards.length());
+        return "Deck{" +
+                "size= " + this.cards.size() +
+                ", cards= " + cards +
+                "}";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        Deck deck = (Deck) other;
+        return Objects.equals(cards, deck.cards);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(cards);
     }
 }
