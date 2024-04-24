@@ -55,4 +55,15 @@ public class Choice<T> {
     public Optional<T> getSelected() {
         return Optional.ofNullable(this.selection);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Choice{" +
+                "options=" + options +
+                ", selection=" + selection +
+                '}';
+    }
 }
