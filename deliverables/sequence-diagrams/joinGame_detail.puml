@@ -22,14 +22,14 @@
 
 !procedure $joinGame_seq_OK($client, $outsideGame="", $insideGame="", $status=AWAITING_PLAYERS, $server=Server)
      $joinGame_req($client, $server)
-     $joinGame_res_OK($client, AWAITING_PLAYERS, $server)
+     $joinGame_res_OK($client, $status, $server)
 
-     !foreach $c2 in %splitstr($insideGame, "~")
-         $event_updatePlayerList($c2)
+     !foreach $c1 in %splitstr($insideGame, "~")
+         $event_updatePlayerList($c1)
      !endfor
 
-     !foreach $c1 in %splitstr($outsideGame, "~")
-         $event_updateGameList($c1)
+     !foreach $c2 in %splitstr($outsideGame, "~")
+         $event_updateGameList($c2)
      !endfor
 !endprocedure
 
@@ -50,7 +50,6 @@ alt
     $joinGame_res_OK(Alice, AWAITING_PLAYERS)
     $event_updatePlayerList(Alice)
     $event_updateGameList(Bob)
-
     opt all players have joined or someone has started the game
         event_seq_newStatus_SETUP_STARTING_CARD_SIDE("Alice~Bob")
     end

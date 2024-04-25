@@ -13,14 +13,12 @@
     !endfor
 !endprocedure
 
-!procedure $placeCard_seq($client, $inGame="", $sender=currentPlayer, $server=Server)
+!procedure $placeCard_seq_OK($client, $inGame="", $sender=currentPlayer, $server=Server)
     note over $client : $client's turn
     $event_setPlayablePosition($client)
     $placeCard_req($client)
     $placeCard_res_OK($inGame)
 !endprocedure
-
-
 !endsub
 
 title Place a card
@@ -57,9 +55,6 @@ alt
         / hnote over Bob : AUTHENTICATED
         |||
     end
-
-
-
 
 else Player has not the card in his hand
     Server --> Alice: KO, invalidCard()

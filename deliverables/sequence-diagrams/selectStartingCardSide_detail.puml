@@ -13,7 +13,7 @@
     !endfor
 !endprocedure
 
-!procedure $selectSide_seq($client, $inGame="", $server=Server)
+!procedure $selectSide_res_seq_OK($client, $inGame="", $server=Server)
     $selectSide_req($client)
     $selectSide_res_OK($inGame)
     $event_seq_updatePlayArea($inGame, $client)
@@ -29,7 +29,7 @@ participant Bob
 hnote over Alice : IN_GAME
 / hnote over Bob : IN_GAME
 
-event_seq_newStatus_SETUP_STARTING_CARD_SIDE(SETUP_STARTING_CARD_SIDE, $inGame="Alice~Bob", $server=Server)
+event_seq_newStatus_SETUP_STARTING_CARD_SIDE($inGame="Alice~Bob", $server=Server)
 
 |||
 

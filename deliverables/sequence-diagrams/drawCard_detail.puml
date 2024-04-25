@@ -38,6 +38,7 @@ alt
     opt currentPlayer is the last player and someone reached an ending condition
         $event_seq_newStatus(LAST_TURN, "Alice~Bob")
     end
+    'TODO: maybe merge with the above messages
     $event_seq_newTurn_PLACING("Alice~Bob")
     note over Bob : It's Bob's turn
 else source is empty

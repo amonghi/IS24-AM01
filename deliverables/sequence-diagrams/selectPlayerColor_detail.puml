@@ -7,8 +7,10 @@
     $client -> $server: selectColor(color)
 !endprocedure
 
-!procedure $selectColor_res_OK_contended($client, $server=Server)
-    $client <<- $server: updateColor(player, chosenColor, <font:monospace><b>CONTENDED</b></font>)
+!procedure $selectColor_res_OK_contended($inGame, $server=Server, $player="player")
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateColor($player, chosenColor, <font:monospace><b>CONTENDED</b></font>)
+    !endfor
 !endprocedure
 
 !procedure $selectColor_res_OK_notContended($inGame="", $server=Server, $player="player")
@@ -17,7 +19,7 @@
     !endfor
 !endprocedure
 
-!procedure $selectColor_seq($client, $inGame="", $server=Server, $player)
+!procedure $selectColor_res_seq_OK_notContended($client, $inGame="", $server=Server, $player)
     $selectColor_req($client)
     $selectColor_res_OK_notContended($inGame, $player=$player)
 !endprocedure
@@ -44,7 +46,7 @@ alt
         event_seq_newStatus_SETUP_OBJECTIVE("Alice~Bob")
     end
 else color has been already chosen by someone else
-    $selectColor_res_OK_contended(Alice)
+    $selectColor_res_OK_contended("Alice~Bob", $player="<font:monospace><b>Alice</b></font>")
 
 else invalid color
     Alice <-- Server: KO, invalidColor()

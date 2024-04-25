@@ -14,8 +14,8 @@
     $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>)
 !endprocedure
 
-!procedure $event_updateTurn($turnPhase, $client, $sender=currentPlayer, $server=Server)
-    $client <<- $server: updateTurn($sender, <font:monospace><b>$turnPhase</b></font>)
+!procedure $event_updateTurn($turnPhase, $client, $currentPlayer=currentPlayer, $server=Server)
+    $client <<- $server: updateTurn($currentPlayer, <font:monospace><b>$turnPhase</b></font>)
 !endprocedure
 
 !procedure $event_updateFaceUpCards($client, $server=Server)
@@ -26,26 +26,13 @@
     $client <<- $server: updatePlayArea($sender, cardPlacement)
 !endprocedure
 
-!procedure $event_setStartingCard($client, $server=Server)
-    $client <<- $server: setStartingCard(startingCard)
+!procedure $event_updateMailbox($client, $MessageType, $server=Server)
+    $client <<- $server: updateMailbox(sender, <font:monospace><b>$MessageType</b></font>, content)
 !endprocedure
 
 !procedure $event_setPlayablePosition($client, $server=Server)
     $client <<- $server: setPlayablePosition(position1, position2, ...)
 !endprocedure
-
-!procedure $event_updateFinalScores($client, $server=Server)
-    $client <<- $server: updateFinalScores(playerScore1, playerScore2, ...)
-!endprocedure
-
-!procedure $event_updateMailbox($client, $MessageType, $server=Server)
-    $client <<- $server: updateMailbox(sender, <font:monospace><b>$MessageType</b></font>, content)
-!endprocedure
-
-!procedure $event_updateScores($client, $sender=currentPlayer, $server=Server)
-    $client <<- $server: updateScores($sender, score)
-!endprocedure
-
 
 'sequences
 
@@ -55,21 +42,15 @@
     !endfor
 !endprocedure
 
-!procedure event_seq_newTurn($turnPhase, $inGame="", $sender)
-    !foreach $c in %splitstr($inGame, "~")
-        $event_updateTurn($turnPhase, $c, $sender)
-    !endfor
-!endprocedure
-
 !procedure event_seq_newStatus_SETUP_STARTING_CARD_SIDE($inGame="", $server=Server)
     !foreach $c in %splitstr($inGame, "~")
         $c <<- $server: updateGameStatus(<font:monospace><b>SETUP_STARTING_CARD_SIDE</b></font>, startingCard)
     !endfor
 !endprocedure
 
-!procedure event_seq_newStatus_PLAY($status, $turnPhase, $inGame="", $server=Server)
+!procedure event_seq_newStatus_PLAY($turnPhase, $inGame="", $server=Server)
     !foreach $c in %splitstr($inGame, "~")
-        $c <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>, <font:monospace><b>$turnPhase</b></font>, currentPlayer)
+        $c <<- $server: updateGameStatus(<font:monospace><b>PLAY</b></font>, <font:monospace><b>$turnPhase</b></font>, currentPlayer)
     !endfor
 !endprocedure
 
@@ -83,13 +64,26 @@
     !endfor
 !endprocedure
 
-!procedure event_seq_newTurn_PLACING($inGame="", $sender=currentPlayer)
-    $event_seq_newTurn(PLACING, $inGame, $sender)
+!procedure event_seq_newStatus_FINISHED($inGame="", $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateGameStatus(<font:monospace><b>FINISHED</b></font>, playerScore1, playerScore2, ...)
+    !endfor
 !endprocedure
 
-!procedure event_seq_newTurn_DRAWING($inGame="", $sender=currentPlayer)
-    $event_seq_newTurn(DRAWING, $inGame, $sender)
+!procedure event_seq_newTurn($turnPhase, $inGame="", $currentPlayer)
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateTurn($turnPhase, $c, $currentPlayer)
+    !endfor
 !endprocedure
+
+!procedure event_seq_newTurn_PLACING($inGame="", $currentPlayer=currentPlayer)
+    $event_seq_newTurn(PLACING, $inGame, $currentPlayer)
+!endprocedure
+
+!procedure event_seq_newTurn_DRAWING($inGame="", $currentPlayer=currentPlayer)
+    $event_seq_newTurn(DRAWING, $inGame, $currentPlayer)
+!endprocedure
+
 
 !procedure event_seq_updatePlayArea($inGame="", $sender=currentPlayer)
     !foreach $c in %splitstr($inGame, "~")
@@ -97,39 +91,9 @@
     !endfor
 !endprocedure
 
-!procedure event_seq_updateColor($inGame="")
-    !foreach $c in %splitstr($inGame, "~")
-       $event_updateColor($c)
-    !endfor
-!endprocedure
-
-!procedure event_seq_setCommonObjectives($inGame="")
-    !foreach $c in %splitstr($inGame, "~")
-       $event_setCommonObjectives($c)
-    !endfor
-!endprocedure
-
-!procedure event_seq_setCardsInHand($inGame="")
-    !foreach $c in %splitstr($inGame, "~")
-        $event_setCardsInHand($c)
-    !endfor
-!endprocedure
-
 !procedure event_seq_updateFaceUpCards($inGame="")
     !foreach $c in %splitstr($inGame, "~")
         $event_updateFaceUpCards($c)
-    !endfor
-!endprocedure
-
-!procedure event_seq_updateScores($inGame="", $sender=currentPlayer)
-    !foreach $c in %splitstr($inGame, "~")
-        $event_updateScores($c, $sender)
-    !endfor
-!endprocedure
-
-!procedure event_seq_updateFinalScores($inGame="")
-    !foreach $c in %splitstr($inGame, "~")
-        $event_updateFinalScores($c)
     !endfor
 !endprocedure
 
@@ -150,11 +114,4 @@
         $client <<- $server: setHand(card1, card2, card3, card4)
     !endfor
 !endprocedure
-
-!procedure event_seq_newStatus_FINISHED($inGame="", $server=Server)
-    !foreach $client in %splitstr($inGame, "~")
-        $client <<- $server: updateGameStatus(<font:monospace><b>FINISHED</b></font>, playerScore1, playerScore2, ...)
-    !endfor
-!endprocedure
-
 @enduml
