@@ -7,17 +7,17 @@
     $client -> $server: placeCard(cardPlacement)
 !endprocedure
 
-!procedure $placeCard_res_OK($client, $server=Server)
-    $server --> $client: OK
+!procedure $placeCard_res_OK($inGame="", $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $server ->> $client: updatePlayArea(currentPlayer, cardPlacement, score)
+    !endfor
 !endprocedure
 
 !procedure $placeCard_seq($client, $inGame="", $sender=currentPlayer, $server=Server)
     note over $client : $client's turn
     $event_setPlayablePosition($client)
     $placeCard_req($client)
-    $placeCard_res_OK($client)
-    $event_seq_updatePlayArea($inGame, $sender)
-    $event_seq_updateScores($inGame, $sender)
+    $placeCard_res_OK($inGame)
 !endprocedure
 
 
@@ -39,9 +39,8 @@ $event_setPlayablePosition(Alice)
 note over Alice : Alice's turn
 $placeCard_req(Alice)
 alt
-    $placeCard_res_OK(Alice)
-    $event_seq_updatePlayArea("Alice~Bob")
-    $event_seq_updateScores("Alice~Bob")
+    $placeCard_res_OK("Alice~Bob")
+
 
     alt status is PLAY
         $event_seq_newTurn_DRAWING($inGame="Alice~Bob")
@@ -52,8 +51,10 @@ alt
         note over Bob : It's Bob's turn
         |||
     else status is LAST_TURN and currentPlayer is the last player
-        $event_seq_newStatus(FINISHED, "Alice~Bob")
+        event_seq_newStatus_FINISHED("Alice~Bob")
         note over Alice,Bob : Game has finished
+        hnote over Alice : AUTHENTICATED
+        / hnote over Bob : AUTHENTICATED
         |||
     end
 

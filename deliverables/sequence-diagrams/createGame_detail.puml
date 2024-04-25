@@ -15,15 +15,14 @@
 
 !procedure $createGame_seq_OK($client, $outsideGame="", $server=Server)
     $createGame_req($client, $server)
-    $joinGame_res_OK($client, $server)
-    $event_updateGameStatus(AWAITING_PLAYERS, $client)
+    $client <<- $server: updateGameStatus(<font:monospace><b>AWAITING_PLAYERS</b></font>, gameID)
+    hnote over $client : IN_GAME
     $event_updatePlayerList($client)
 
     !foreach $other in %splitstr($outsideGame, "~")
         $event_updateGameList($other)
     !endfor
 !endprocedure
-
 !endsub
 
 !include events.puml
@@ -38,8 +37,7 @@ hnote over Alice : AUTHENTICATED
 $createGame_req(Alice)
 
 alt
-    $joinGame_res_OK(Alice)
-    $event_updateGameStatus(AWAITING_PLAYERS, Alice)
+    $joinGame_res_OK(Alice, AWAITING_PLAYERS)
     $event_updatePlayerList(Alice)
     $event_updateGameList(Bob)
 else maxPlayers < 2 || maxPlayers > 4

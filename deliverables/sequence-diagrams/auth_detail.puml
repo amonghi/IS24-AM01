@@ -8,7 +8,7 @@
 !endprocedure
 
 !procedure $auth_res_OK($client, $server=Server)
-    $client <-- $server: OK
+    $client <<- $server: updateGameList(gameData1, gameData2, ...)
     hnote over $client : AUTHENTICATED
 !endprocedure
 
@@ -19,7 +19,6 @@
 !procedure $auth_seq_OK($client, $others="", $server=Server)
     $auth_req($client, $server)
     $auth_res_OK($client, $server)
-    $event_updateGameList($client)
 !endprocedure
 
 !endsub
@@ -32,7 +31,6 @@ hnote over Alice : NOT_AUTHENTICATED
 $auth_req(Alice, Server)
 alt
     $auth_res_OK(Alice)
-    $event_updateGameList(Alice)
 else player with that name already exists
     $auth_res_KO_nameAlreadyTaken(Alice)
 end

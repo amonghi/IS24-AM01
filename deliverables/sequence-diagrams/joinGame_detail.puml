@@ -7,8 +7,8 @@
     $client -> $server : joinGame(gameID)
 !endprocedure
 
-!procedure $joinGame_res_OK($client, $server=Server)
-    $client <-- $server: OK, gameJoined(gameID)
+!procedure $joinGame_res_OK($client, $status, $server=Server)
+    $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>)
     hnote over $client : IN_GAME
 !endprocedure
 
@@ -22,8 +22,7 @@
 
 !procedure $joinGame_seq_OK($client, $outsideGame="", $insideGame="", $status=AWAITING_PLAYERS, $server=Server)
      $joinGame_req($client, $server)
-     $joinGame_res_OK($client, $server)
-     $event_updateGameStatus($status, $client)
+     $joinGame_res_OK($client, AWAITING_PLAYERS, $server)
 
      !foreach $c2 in %splitstr($insideGame, "~")
          $event_updatePlayerList($c2)
@@ -47,14 +46,12 @@ endnote
 / hnote over Bob : AUTHENTICATED
 
 $joinGame_req(Alice)
-activate Server
 alt
-    $joinGame_res_OK(Alice)
-    $event_updateGameStatus(AWAITING_PLAYERS, Alice)
+    $joinGame_res_OK(Alice, AWAITING_PLAYERS)
     $event_updatePlayerList(Alice)
     $event_updateGameList(Bob)
 
-    opt all players have joined
+    opt all players have joined or someone has started the game
         event_seq_newStatus_SETUP_STARTING_CARD_SIDE("Alice~Bob")
     end
 else game does not exist
@@ -62,6 +59,4 @@ else game does not exist
 else game has already started
     $joinGame_res_KO_gameAlreadyStarted(Alice)
 end
-deactivate Server
-
 @enduml

@@ -6,8 +6,10 @@
     $client -> $server: drawCard(drawSource)
 !endprocedure
 
-!procedure $drawCard_res_OK($client, $server=Server)
-    $server --> $client: OK
+!procedure $drawCard_res_OK($inGame, $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateDecksStatus(resourceDeckIsEmpty, goldenDeckIsEmpty)
+    !endfor
 !endprocedure
 
 !endsub
@@ -28,8 +30,7 @@ $event_seq_newTurn_DRAWING($inGame="Alice~Bob")
 
 $drawCard_req(Alice)
 alt
-    $drawCard_res_OK(Alice)
-    $event_seq_updateDecksStatus("Alice~Bob")
+    $drawCard_res_OK("Alice~Bob")
     opt player has drawn a face up card
         $event_seq_updateFaceUpCards("Alice~Bob")
     end
