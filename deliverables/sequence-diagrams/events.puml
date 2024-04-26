@@ -23,7 +23,7 @@
 !endprocedure
 
 !procedure $event_updatePlayArea($client, $sender=currentPlayer, $server=Server)
-    $client <<- $server: updatePlayArea($sender, cardPlacement)
+    $client <<- $server: updatePlayArea($sender, cardPlacement, score)
 !endprocedure
 
 !procedure $event_updateMailbox($client, $MessageType, $server=Server)
