@@ -62,5 +62,7 @@ else There aren't enough resources
     Server --> Alice: KO, insufficientResources()
 else Invalid position chosen
     Server --> Alice: KO, invalidPosition()
+else Invalid side chosen
+    Server --> Alice: KO, invalidSide()
 end
 @enduml
