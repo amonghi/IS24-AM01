@@ -14,6 +14,10 @@
     $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>)
 !endprocedure
 
+!procedure $event_updateGameStatusAndTurn($status, $turnPhase, $client, $server=Server)
+    $client <<- $server: updateGameStatusAndTurn(<font:monospace><b>$status</b></font>, <font:monospace><b>$turnPhase</b></font>, currentPlayer)
+!endprocedure
+
 !procedure $event_updateTurn($turnPhase, $client, $currentPlayer=currentPlayer, $server=Server)
     $client <<- $server: updateTurn($currentPlayer, <font:monospace><b>$turnPhase</b></font>)
 !endprocedure
@@ -34,11 +38,21 @@
     $client <<- $server: setPlayablePosition(position1, position2, ...)
 !endprocedure
 
+!procedure $event_setMessages($client, $server=Server)
+    $client <<- $server: setMessages(message1, message2, ...)
+!endprocedure
+
 'sequences
 
 !procedure event_seq_newStatus($status, $inGame="")
     !foreach $c in %splitstr($inGame, "~")
         $event_updateGameStatus($status, $c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newStatusAndTurn($status,$turnPhase, $inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateGameStatusAndTurn($status, $turnPhase, $c)
     !endfor
 !endprocedure
 

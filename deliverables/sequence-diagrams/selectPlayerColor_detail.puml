@@ -4,7 +4,7 @@
 !include events.puml
 
 !procedure $selectColor_req($client, $server=Server)
-    $client -> $server: selectColor(color)
+    $client ->> $server: selectColor(color)
 !endprocedure
 
 !procedure $selectColor_res_OK_contended($inGame, $server=Server, $player="player")
@@ -49,6 +49,6 @@ else color has been already chosen by someone else
     $selectColor_res_OK_contended("Alice~Bob", $player="<font:monospace><b>Alice</b></font>")
 
 else invalid color
-    Alice <-- Server: KO, invalidColor()
+    Alice <<- Server: KO, invalidColor()
 end
 @enduml

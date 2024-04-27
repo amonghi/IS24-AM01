@@ -4,20 +4,21 @@
 !include events.puml
 
 !procedure $joinGame_req($client, $server=Server)
-    $client -> $server : joinGame(gameID)
+    $client ->> $server : joinGame(gameID)
 !endprocedure
 
 !procedure $joinGame_res_OK($client, $status, $server=Server)
     $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>)
     hnote over $client : IN_GAME
+    $event_setMessages($client)
 !endprocedure
 
 !procedure $joinGame_res_KO_gameNotFound($client, $server=Server)
-    $client <-- $server: KO, gameNotFound(gameID)
+    $client <<- $server: KO, gameNotFound(gameID)
 !endprocedure
 
 !procedure $joinGame_res_KO_gameAlreadyStarted($client, $server=Server)
-    $client <-- $server: KO, gameAlreadyStarted(gameID)
+    $client <<- $server: KO, gameAlreadyStarted(gameID)
 !endprocedure
 
 !procedure $joinGame_seq_OK($client, $outsideGame="", $insideGame="", $status=AWAITING_PLAYERS, $server=Server)
@@ -52,12 +53,13 @@ alt
     $event_updateGameList(Bob)
     opt all players have joined
         event_seq_newStatus_SETUP_STARTING_CARD_SIDE("Alice~Bob")
-    else someone want to start the game
-        Alice -> Server : startGame(gameID)
-        opt there are at least two players
+    else someone wants to start the game early
+        Alice ->> Server : startGame()
+        alt there are at least two players
             event_seq_newStatus_SETUP_STARTING_CARD_SIDE("Alice~Bob")
         else there is just one player
-            Alice <-- Server: KO, insufficientPlayers()
+            Alice <<- Server: KO, insufficientPlayers()
+        end
     end
 else game does not exist
     $joinGame_res_KO_gameNotFound(Alice)

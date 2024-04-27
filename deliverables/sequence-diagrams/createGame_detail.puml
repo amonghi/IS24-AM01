@@ -6,17 +6,16 @@
 !includesub joinGame_detail.puml!PARTS
 
 !procedure $createGame_req($client, $server=Server)
-    $client -> $server : createGameAndJoin(maxPlayers)
+    $client ->> $server : createGameAndJoin(maxPlayers)
 !endprocedure
 
 !procedure $createGame_res_KO_invalidMaxPlayers($client, $server=Server)
-    $client <-- $server : KO, invalidMaxPlayers()
+    $client <<- $server : KO, invalidMaxPlayers()
 !endprocedure
 
 !procedure $createGame_seq_OK($client, $outsideGame="", $server=Server)
     $createGame_req($client, $server)
-    $client <<- $server: updateGameStatus(<font:monospace><b>AWAITING_PLAYERS</b></font>, gameID)
-    hnote over $client : IN_GAME
+    $joinGame_res_OK($client, AWAITING_PLAYERS)
     $event_updatePlayerList($client)
 
     !foreach $other in %splitstr($outsideGame, "~")

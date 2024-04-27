@@ -4,7 +4,7 @@
 !include events.puml
 
 !procedure $selectSide_req($client, $server=Server)
-    $client -> $server: selectSide(side)
+    $client ->> $server: selectSide(side)
 !endprocedure
 
 !procedure $selectSide_res_OK($inGame="", $server=Server)
@@ -41,9 +41,9 @@ alt
         event_seq_newStatus_SETUP_COLOR("Alice~Bob")
     end
 else this player has already chosen the starting card side
-    Alice <-- Server: KO, sideAlreadyChosen()
+    Alice <<- Server: KO, sideAlreadyChosen()
 else the selected side is not a valid option
-    Alice <-- Server: KO, invalidSide()
+    Alice <<- Server: KO, invalidSide()
 end
 
 @enduml
