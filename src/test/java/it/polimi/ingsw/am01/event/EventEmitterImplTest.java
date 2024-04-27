@@ -9,14 +9,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 
+class SomeEvent implements Event {
+}
+
+class SomeSubEvent extends SomeEvent {
+}
+
 @ExtendWith(MockitoExtension.class)
 class EventEmitterImplTest {
-
-    class SomeEvent implements Event {
-    }
-
-    class SomeSubEvent extends SomeEvent {
-    }
 
     @Test
     void canListenToAny() {
