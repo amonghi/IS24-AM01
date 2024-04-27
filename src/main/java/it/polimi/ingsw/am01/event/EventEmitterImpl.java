@@ -17,7 +17,7 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
 
     @Override
     public EventEmitter.Registration onAny(EventListener<E> listener) {
-        RegistrationInternal<E> registration = listener::notify;
+        RegistrationInternal<E> registration = listener::onEvent;
         this.registrations.add(registration);
         return registration;
     }
@@ -27,7 +27,7 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
         RegistrationInternal<E> registration = event -> {
             if (eventClass.isInstance(event)) {
                 T castEvent = eventClass.cast(event);
-                listener.notify(castEvent);
+                listener.onEvent(castEvent);
             }
         };
         this.registrations.add(registration);
