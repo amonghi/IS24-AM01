@@ -50,8 +50,14 @@ alt
     $joinGame_res_OK(Alice, AWAITING_PLAYERS)
     $event_updatePlayerList(Alice)
     $event_updateGameList(Bob)
-    opt all players have joined or someone has started the game
+    opt all players have joined
         event_seq_newStatus_SETUP_STARTING_CARD_SIDE("Alice~Bob")
+    else someone want to start the game
+        Alice -> Server : startGame(gameID)
+        opt there are at least two players
+            event_seq_newStatus_SETUP_STARTING_CARD_SIDE("Alice~Bob")
+        else there is just one player
+            Alice <-- Server: KO, insufficientPlayers()
     end
 else game does not exist
     $joinGame_res_KO_gameNotFound(Alice)
