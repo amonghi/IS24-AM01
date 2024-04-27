@@ -4,20 +4,19 @@
 !include events.puml
 
 !procedure $selectSide_req($client, $server=Server)
-    $client -> $server: selectSide(side)
+    $client ->> $server: selectSide(side)
 !endprocedure
 
-!procedure $selectSide_res_OK($client, $server=Server)
-    $client <-- $server: OK
-!endprocedure
-
-!procedure $selectSide_seq($client, $inGame="", $server=Server)
-    $selectSide_req($client)
-    $selectSide_res_OK($client)
-
-    !foreach $other in %splitstr($inGame, "~")
-        $event_updateChosenSideList($other)
+!procedure $selectSide_res_OK($inGame="", $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateSideChosenList(player1HasChosen, player2HasChosen, ...)
     !endfor
+!endprocedure
+
+!procedure $selectSide_res_seq_OK($client, $inGame="", $server=Server)
+    $selectSide_req($client)
+    $selectSide_res_OK($inGame)
+    $event_seq_updatePlayArea($inGame, $client)
 !endprocedure
 
 !endsub
@@ -30,27 +29,21 @@ participant Bob
 hnote over Alice : IN_GAME
 / hnote over Bob : IN_GAME
 
-$event_updateGameStatus(SETUP_STARTING_CARD_SIDE, Alice)
-$event_setStartingCard(Alice)
-$event_updateGameStatus(SETUP_STARTING_CARD_SIDE, Bob)
-$event_setStartingCard(Bob)
+event_seq_newStatus_SETUP_STARTING_CARD_SIDE($inGame="Alice~Bob", $server=Server)
 
 |||
 
 $selectSide_req(Alice)
 alt
-    $selectSide_res_OK(Alice)
-    $event_updateChosenSideList(Alice)
-    $event_updateChosenSideList(Bob)
-
-    $event_seq_updatePlayArea(Alice, $inGame="Alice~Bob")
+    $selectSide_res_OK("Alice~Bob")
+    $event_seq_updatePlayArea("Alice~Bob", Alice)
     opt all players have selected a side
         event_seq_newStatus_SETUP_COLOR("Alice~Bob")
     end
 else this player has already chosen the starting card side
-    Alice <-- Server: KO, sideAlreadyChosen()
+    Alice <<- Server: KO, sideAlreadyChosen()
 else the selected side is not a valid option
-    Alice <-- Server: KO, invalidSide()
+    Alice <<- Server: KO, invalidSide()
 end
 
 @enduml

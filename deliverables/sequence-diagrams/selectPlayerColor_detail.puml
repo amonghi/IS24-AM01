@@ -4,24 +4,24 @@
 !include events.puml
 
 !procedure $selectColor_req($client, $server=Server)
-    $client -> $server: selectColor(color)
+    $client ->> $server: selectColor(color)
 !endprocedure
 
-!procedure $selectColor_res_OK_contended($client, $server=Server)
-    $client <-- $server: OK, contended()
-!endprocedure
-
-!procedure $selectColor_res_OK_notContended($client, $server=Server)
-    $client <-- $server: OK, notContended()
-!endprocedure
-
-!procedure $selectColor_seq($client, $inGame="", $server=Server)
-    $selectColor_req($client)
-    $selectColor_res_OK_notContended($client)
-
-    !foreach $other in %splitstr($inGame, "~")
-        $event_updateColor($other)
+!procedure $selectColor_res_OK_contended($inGame, $server=Server, $player="player")
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateColor($player, chosenColor, <font:monospace><b>CONTENDED</b></font>)
     !endfor
+!endprocedure
+
+!procedure $selectColor_res_OK_notContended($inGame="", $server=Server, $player="player")
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateColor($player, chosenColor, <font:monospace><b>NOT_CONTENDED</b></font>)
+    !endfor
+!endprocedure
+
+!procedure $selectColor_res_seq_OK_notContended($client, $inGame="", $server=Server, $player)
+    $selectColor_req($client)
+    $selectColor_res_OK_notContended($inGame, $player=$player)
 !endprocedure
 
 !endsub
@@ -41,17 +41,14 @@ $event_updateGameStatus(SETUP_COLOR, Bob)
 
 $selectColor_req(Alice)
 alt
-    $selectColor_res_OK_notContended(Alice)
-    $event_seq_updateColor("Alice~Bob")
-
+    $selectColor_res_OK_notContended($player="<font:monospace><b>Alice</b></font>","Alice~Bob")
     opt all players have selected a color
         event_seq_newStatus_SETUP_OBJECTIVE("Alice~Bob")
     end
 else color has been already chosen by someone else
-    $selectColor_res_OK_contended(Alice)
-    $event_seq_updateColor("Alice~Bob")
-else invalid color
-    Alice <-- Server: KO, invalidColor()
-end
+    $selectColor_res_OK_contended("Alice~Bob", $player="<font:monospace><b>Alice</b></font>")
 
+else invalid color
+    Alice <<- Server: KO, invalidColor()
+end
 @enduml
