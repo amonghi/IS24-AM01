@@ -431,6 +431,7 @@ package game {
 
         - setFirstPlayer() void
         + join(PlayerProfile pp) void
+        + startGame() void
         - setUpChoices() void
         + selectStartingCardSide(PlayerProfile pp, Side s) void
         + selectColor(PlayerProfile pp, PlayerColor pc) SelectionResult
