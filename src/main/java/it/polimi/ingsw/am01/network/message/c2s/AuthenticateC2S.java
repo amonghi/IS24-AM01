@@ -18,10 +18,10 @@ public record AuthenticateC2S(String playerName) implements C2SNetworkMessage {
     }
 
     @Override
-    public void execute(ProtocolState protocolState, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, Controller controller) {
+    public void execute(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, ProtocolState state) {
         try {
             PlayerProfile profile = controller.authenticate(playerName);
-            protocolState.setPlayerName(profile.getName());
+            state.setPlayerName(profile.getName());
             connection.send(new SetPlayerNameS2C(profile.getName()));
         } catch (IllegalArgumentException e) {
             connection.send(new NameAlreadyTakenS2C(this.playerName));

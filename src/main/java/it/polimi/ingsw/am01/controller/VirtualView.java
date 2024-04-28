@@ -18,6 +18,6 @@ public class VirtualView {
     }
 
     private void onMessage(C2SNetworkMessage message) {
-        message.execute(protocolState, connection, controller);
+        message.execute(controller, connection, protocolState);
     }
 }
