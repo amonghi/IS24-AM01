@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.event;
+package it.polimi.ingsw.am01.eventemitter;
 
 import java.util.ArrayList;
 import java.util.List;

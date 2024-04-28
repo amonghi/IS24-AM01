@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.event;
+package it.polimi.ingsw.am01.eventemitter;
 
 /**
  * A listener is an object that can receive events emitted by an {@link EventEmitter}.

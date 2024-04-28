@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.event;
+package it.polimi.ingsw.am01.eventemitter;
 
 /**
  * Interface that marks an event class.

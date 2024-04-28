@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.event;
+package it.polimi.ingsw.am01.eventemitter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
