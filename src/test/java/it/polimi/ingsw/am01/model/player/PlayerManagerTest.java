@@ -25,7 +25,7 @@ class PlayerManagerTest {
         pm.createProfile("Alice");
         assertTrue(pm.getProfile("Alice").isPresent());
 
-        assertThrows(IllegalStateException.class, () -> pm.createProfile("Alice"));
+        assertThrows(IllegalArgumentException.class, () -> pm.createProfile("Alice"));
     }
 
     @Test

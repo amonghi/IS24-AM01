@@ -23,7 +23,7 @@ public record AuthenticateC2S(String playerName) implements C2SNetworkMessage {
             PlayerProfile profile = controller.authenticate(playerName);
             protocolState.setPlayerName(profile.getName());
             connection.send(new SetPlayerNameS2C(profile.getName()));
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             connection.send(new NameAlreadyTakenS2C(this.playerName));
         }
     }

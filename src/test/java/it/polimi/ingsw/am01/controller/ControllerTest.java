@@ -55,7 +55,7 @@ class ControllerTest {
             controller.authenticate("Alice");
             assertTrue(pm.getProfile("Alice").isPresent());
 
-            assertThrows(IllegalStateException.class, () -> controller.authenticate("Alice"));
+            assertThrows(IllegalArgumentException.class, () -> controller.authenticate("Alice"));
         }
     }
 
