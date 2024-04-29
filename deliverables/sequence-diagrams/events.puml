@@ -58,7 +58,7 @@
 
 !procedure event_seq_newStatus_SETUP_STARTING_CARD_SIDE($inGame="", $server=Server)
     !foreach $c in %splitstr($inGame, "~")
-        $c <<- $server: updateGameStatus(<font:monospace><b>SETUP_STARTING_CARD_SIDE</b></font>, startingCard)
+        $c <<- $server: updateGameStatusAndSetupStartingCard(<font:monospace><b>SETUP_STARTING_CARD_SIDE</b></font>, startingCard)
     !endfor
 !endprocedure
 
@@ -74,13 +74,13 @@
 
 !procedure event_seq_newStatus_SETUP_OBJECTIVE($inGame="", $server=Server)
     !foreach $c in %splitstr($inGame, "~")
-        $c <<- $server: updateGameStatus(<font:monospace><b>SETUP_OBJECTIVE</b></font>, objective1, objective2)
+        $c <<- $server: updateGameStatusAndSetupObjectives(<font:monospace><b>SETUP_OBJECTIVE</b></font>, objective1, objective2)
     !endfor
 !endprocedure
 
 !procedure event_seq_newStatus_FINISHED($inGame="", $server=Server)
     !foreach $client in %splitstr($inGame, "~")
-        $client <<- $server: updateGameStatus(<font:monospace><b>FINISHED</b></font>, playerScore1, playerScore2, ...)
+        $client <<- $server: updateGameStatusFinishedGame(<font:monospace><b>FINISHED</b></font>, playerScore1, playerScore2, ...)
     !endfor
 !endprocedure
 
