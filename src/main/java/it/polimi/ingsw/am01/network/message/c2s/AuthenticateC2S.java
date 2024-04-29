@@ -10,7 +10,7 @@ import it.polimi.ingsw.am01.network.message.s2c.NameAlreadyTakenS2C;
 import it.polimi.ingsw.am01.network.message.s2c.SetPlayerNameS2C;
 
 public record AuthenticateC2S(String playerName) implements C2SNetworkMessage {
-    private static final String ID = "AUTHENTICATE";
+    public static final String ID = "AUTHENTICATE";
 
     @Override
     public String getId() {
