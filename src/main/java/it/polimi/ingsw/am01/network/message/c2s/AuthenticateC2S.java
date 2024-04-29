@@ -6,11 +6,16 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
+import it.polimi.ingsw.am01.network.message.json.NetworkMessageTypeAdapterFactory;
 import it.polimi.ingsw.am01.network.message.s2c.NameAlreadyTakenS2C;
 import it.polimi.ingsw.am01.network.message.s2c.SetPlayerNameS2C;
 
 public record AuthenticateC2S(String playerName) implements C2SNetworkMessage {
     public static final String ID = "AUTHENTICATE";
+
+    static {
+        NetworkMessageTypeAdapterFactory.register(ID, AuthenticateC2S.class);
+    }
 
     @Override
     public String getId() {
