@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.network.message.json;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -26,7 +27,7 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
 
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
-        if (typeToken.getType() != NetworkMessage.class) {
+        if (!NetworkMessage.class.isAssignableFrom(typeToken.getRawType())) {
             return null;
         }
 
@@ -43,13 +44,11 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
 
                 jsonWriter.beginObject();
                 jsonWriter.name("id").value(data.getId());
-                System.out.println("A");
                 jsonWriter.name("data");
 
-                TypeAdapter<NetworkMessage> adapter = (TypeAdapter<NetworkMessage>) gson.getAdapter(TypeToken.get(type));
+                TypeAdapter<NetworkMessage> adapter = (TypeAdapter<NetworkMessage>) gson.getDelegateAdapter(NetworkMessageTypeAdapterFactory.this, TypeToken.get(type));
                 adapter.write(jsonWriter, data);
                 jsonWriter.endObject();
-
             }
 
             @Override
@@ -60,8 +59,22 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
                 }
 
                 jsonReader.beginObject();
-                String id = jsonReader.nextName();
-                Object data = gson.getAdapter(TypeToken.get(idToType.get(id))).read(jsonReader);
+
+                // TODO: allow properties to be in different order
+                String name = jsonReader.nextName();
+                if (!name.equals("id")) {
+                    throw new JsonParseException("Expected 'id' but found " + name);
+                }
+
+                String id = jsonReader.nextString();
+                Class<? extends NetworkMessage> type = idToType.get(id);
+
+                name = jsonReader.nextName();
+                if (!name.equals("data")) {
+                    throw new JsonParseException("Expected 'data' but found " + name);
+                }
+
+                NetworkMessage data = gson.getDelegateAdapter(NetworkMessageTypeAdapterFactory.this, TypeToken.get(type)).read(jsonReader);
                 jsonReader.endObject();
 
                 return (T) data;

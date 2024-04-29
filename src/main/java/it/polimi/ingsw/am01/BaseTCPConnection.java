@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
+import it.polimi.ingsw.am01.network.message.json.NetworkMessageTypeAdapterFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,15 +13,18 @@ import java.util.Scanner;
 
 public abstract class BaseTCPConnection<S extends NetworkMessage, R extends NetworkMessage> implements Connection<S, R> {
     private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(new NetworkMessageTypeAdapterFactory())
             .create();
     private final Class<S> sendType;
     private final Class<R> receiveType;
+    protected final Socket socket;
     private final Scanner in;
     private final PrintWriter out;
 
     public BaseTCPConnection(Class<S> sendType, Class<R> receiveType, Socket socket) throws IOException {
         this.sendType = sendType;
         this.receiveType = receiveType;
+        this.socket = socket;
         this.in = new Scanner(socket.getInputStream());
         this.out = new PrintWriter(socket.getOutputStream(), true);
     }

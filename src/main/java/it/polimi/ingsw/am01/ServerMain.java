@@ -40,5 +40,6 @@ public class ServerMain {
             }
         }).start();
 
+        System.out.println("Server started. Listening on " + HOSTNAME + ":" + TCP_PORT);
     }
 }
