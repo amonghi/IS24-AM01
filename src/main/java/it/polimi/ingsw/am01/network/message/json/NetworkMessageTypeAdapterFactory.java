@@ -9,18 +9,21 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
+import it.polimi.ingsw.am01.network.message.c2s.AuthenticateC2S;
+import it.polimi.ingsw.am01.network.message.s2c.NameAlreadyTakenS2C;
+import it.polimi.ingsw.am01.network.message.s2c.SetPlayerNameS2C;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
 
-    private static final Map<String, Class<? extends NetworkMessage>> ID_TO_TYPE = new HashMap<>();
+    Map<String, Class<? extends NetworkMessage>> idToType = Map.ofEntries(
+            Map.entry(AuthenticateC2S.ID, AuthenticateC2S.class),
+            Map.entry(SetPlayerNameS2C.ID, SetPlayerNameS2C.class),
+            Map.entry(NameAlreadyTakenS2C.ID, NameAlreadyTakenS2C.class)
+    );
 
-    public static void register(String id, Class<? extends NetworkMessage> messageClass) {
-        ID_TO_TYPE.put(id, messageClass);
-    }
 
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
@@ -37,7 +40,7 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
                 }
 
                 NetworkMessage data = (NetworkMessage) value;
-                Class<? extends NetworkMessage> type = ID_TO_TYPE.get(data.getId());
+                Class<? extends NetworkMessage> type = idToType.get(data.getId());
 
                 jsonWriter.beginObject();
                 jsonWriter.name("id").value(data.getId());
@@ -64,7 +67,7 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
                 }
 
                 String id = jsonReader.nextString();
-                Class<? extends NetworkMessage> type = ID_TO_TYPE.get(id);
+                Class<? extends NetworkMessage> type = idToType.get(id);
 
                 name = jsonReader.nextName();
                 if (!name.equals("data")) {
