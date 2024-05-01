@@ -7,11 +7,10 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
+import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
 import it.polimi.ingsw.am01.model.json.*;
-import it.polimi.ingsw.am01.model.objective.DifferentCollectibleObjective;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.objective.PatternObjective;
-import it.polimi.ingsw.am01.model.objective.SameCollectibleObjective;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.io.*;
@@ -90,7 +89,7 @@ public class GameManager {
      * @param maxPlayers the maximum amount of players allowed in that game
      * @return a reference to the created game
      */
-    public synchronized Game createGame(int maxPlayers) {
+    public synchronized Game createGame(int maxPlayers) throws InvalidMaxPlayersException {
         Game newGame = new Game(nextId, maxPlayers);
         nextId++;
         games.add(newGame);

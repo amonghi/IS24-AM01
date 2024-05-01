@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am01.model.player;
 
+import it.polimi.ingsw.am01.model.exception.NameAlreadyTakenException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -19,9 +21,9 @@ public class PlayerManager {
      * @return The created profile
      * @throws IllegalArgumentException if a profile with that same name already exists
      */
-    public synchronized PlayerProfile createProfile(String name) {
+    public synchronized PlayerProfile createProfile(String name) throws NameAlreadyTakenException {
         if (this.profiles.containsKey(name)) {
-            throw new IllegalArgumentException("A player with that name already exists");
+            throw new NameAlreadyTakenException(name);
         }
 
         PlayerProfile newProfile = new PlayerProfile(name);

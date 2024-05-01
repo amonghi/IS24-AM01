@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.network.message.c2s;
 
 import it.polimi.ingsw.am01.controller.Controller;
 import it.polimi.ingsw.am01.controller.ProtocolState;
+import it.polimi.ingsw.am01.model.exception.NameAlreadyTakenException;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
@@ -23,7 +24,7 @@ public record AuthenticateC2S(String playerName) implements C2SNetworkMessage {
             PlayerProfile profile = controller.authenticate(playerName);
             state.setPlayerName(profile.getName());
             connection.send(new SetPlayerNameS2C(profile.getName()));
-        } catch (IllegalArgumentException e) {
+        } catch (NameAlreadyTakenException e) {
             connection.send(new NameAlreadyTakenS2C(this.playerName));
         }
     }

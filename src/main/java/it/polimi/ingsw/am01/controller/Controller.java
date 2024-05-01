@@ -3,6 +3,9 @@ package it.polimi.ingsw.am01.controller;
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
+import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
+import it.polimi.ingsw.am01.model.exception.NameAlreadyTakenException;
+import it.polimi.ingsw.am01.model.exception.PlayerAlreadyPlayingException;
 import it.polimi.ingsw.am01.model.game.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -29,13 +32,13 @@ public class Controller {
      * @return the player profile
      * @see PlayerManager#createProfile(String)
      */
-    public PlayerProfile authenticate(String name) {
+    public PlayerProfile authenticate(String name) throws NameAlreadyTakenException {
         return this.playerManager.createProfile(name);
     }
 
-    private void ensureNotInGame(PlayerProfile player) {
+    private void ensureNotInGame(PlayerProfile player) throws PlayerAlreadyPlayingException {
         if (this.gameManager.getGameWhereIsPlaying(player).isPresent()) {
-            throw new IllegalArgumentException("This player is already playing a game.");
+            throw new PlayerAlreadyPlayingException(player.getName());
         }
     }
 
@@ -47,7 +50,7 @@ public class Controller {
      * @return the created game
      * @throws IllegalArgumentException if the specified player is already in a game
      */
-    public Game createAndJoinGame(int maxPlayers, String playerName) {
+    public Game createAndJoinGame(int maxPlayers, String playerName) throws PlayerAlreadyPlayingException, InvalidMaxPlayersException {
         PlayerProfile player = this.playerManager.getProfile(playerName)
                 .orElseThrow();
         ensureNotInGame(player);
@@ -64,7 +67,7 @@ public class Controller {
      * @param playerName the name of the player that will join the game
      * @see Game#join(PlayerProfile)
      */
-    public void joinGame(int gameId, String playerName) {
+    public void joinGame(int gameId, String playerName) throws PlayerAlreadyPlayingException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow();
         PlayerProfile player = this.playerManager.getProfile(playerName)

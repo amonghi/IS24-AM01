@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.model.choice.Choice;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.MultiChoice;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
+import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerData;
@@ -53,15 +54,15 @@ public class Game {
 
     /**
      * Constructs a new {@code Game} and set id and maxPlayers fields. {@link Board} is set with standard decks (40 cards per each deck).
-     * It throws an {@code IllegalArgumentException} if {@code maxPlayers} is not between 2 and 4
      *
      * @param id         the unique id of the game
      * @param maxPlayers the maximum number of players that can play this game
+     * @throws InvalidMaxPlayersException if {@code maxPlayers} is not between 2 and 4
      * @see it.polimi.ingsw.am01.model.game.Board
      */
-    public Game(int id, int maxPlayers) {
+    public Game(int id, int maxPlayers) throws InvalidMaxPlayersException {
         if (maxPlayers < 2 || maxPlayers > 4) {
-            throw new IllegalArgumentException("maxPlayers must be between 2 and 4");
+            throw new InvalidMaxPlayersException(maxPlayers);
         }
 
         this.id = id;
@@ -90,11 +91,12 @@ public class Game {
      * @param id         the unique id of the game
      * @param maxPlayers the maximum number of players that can play this game
      * @param board      the board of the game, that includes all {@link FaceUpCard} and {@link Deck}
+     * @throws InvalidMaxPlayersException if {@code maxPlayers} is not between 2 and 4
      * @see it.polimi.ingsw.am01.model.game.Board
      */
-    public Game(int id, int maxPlayers, Board board) {
+    public Game(int id, int maxPlayers, Board board) throws InvalidMaxPlayersException {
         if (maxPlayers < 2 || maxPlayers > 4) {
-            throw new IllegalArgumentException("maxPlayers must be between 2 and 4");
+            throw new InvalidMaxPlayersException(maxPlayers);
         }
 
         this.id = id;

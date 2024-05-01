@@ -4,6 +4,8 @@ import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
+import it.polimi.ingsw.am01.model.exception.NameAlreadyTakenException;
+import it.polimi.ingsw.am01.model.exception.PlayerAlreadyPlayingException;
 import it.polimi.ingsw.am01.model.game.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -42,20 +44,24 @@ class ControllerTest {
     class Authenticate {
         @Test
         void authenticatesPlayer() {
-            assertFalse(pm.getProfile("Alice").isPresent());
+            assertDoesNotThrow(() -> {
+                assertFalse(pm.getProfile("Alice").isPresent());
 
-            PlayerProfile aProfile = controller.authenticate("Alice");
-            assertEquals("Alice", aProfile.getName());
+                PlayerProfile aProfile = controller.authenticate("Alice");
+                assertEquals("Alice", aProfile.getName());
 
-            assertTrue(pm.getProfile("Alice").isPresent());
+                assertTrue(pm.getProfile("Alice").isPresent());
+            });
+
         }
 
         @Test
         void cannotAuthenticateIfPlayerWithSameNameAlreadyExists() {
-            controller.authenticate("Alice");
-            assertTrue(pm.getProfile("Alice").isPresent());
-
-            assertThrows(IllegalArgumentException.class, () -> controller.authenticate("Alice"));
+            assertDoesNotThrow(() -> {
+                controller.authenticate("Alice");
+                assertTrue(pm.getProfile("Alice").isPresent());
+                assertThrows(NameAlreadyTakenException.class, () -> controller.authenticate("Alice"));
+            });
         }
     }
 
@@ -68,19 +74,22 @@ class ControllerTest {
 
         @BeforeEach
         void init() {
-            this.alice = controller.authenticate("Alice");
-            assertTrue(pm.getProfile("Alice").isPresent());
-            assertTrue(gm.getGames().isEmpty());
+            assertDoesNotThrow(() -> {
+                this.alice = controller.authenticate("Alice");
+                assertTrue(pm.getProfile("Alice").isPresent());
+                assertTrue(gm.getGames().isEmpty());
+            });
         }
 
         @Test
         void canCreateGame() {
-            Game aGame = controller.createAndJoinGame(4, "Alice");
-            assertEquals(1, gm.getGames().size());
-
-            Optional<Game> gameWhereIsPlaying = gm.getGameWhereIsPlaying(alice);
-            assertTrue(gameWhereIsPlaying.isPresent());
-            assertEquals(aGame, gameWhereIsPlaying.get());
+            assertDoesNotThrow(() ->{
+                Game aGame = controller.createAndJoinGame(4, "Alice");
+                assertEquals(1, gm.getGames().size());
+                Optional<Game> gameWhereIsPlaying = gm.getGameWhereIsPlaying(alice);
+                assertTrue(gameWhereIsPlaying.isPresent());
+                assertEquals(aGame, gameWhereIsPlaying.get());
+            });
         }
 
         @Test
@@ -91,11 +100,12 @@ class ControllerTest {
 
         @Test
         void cannotCreateGameIfAlreadyPlaying() {
-            controller.createAndJoinGame(3, "Alice");
-            assertEquals(1, gm.getGames().size());
-            assertTrue(gm.getGameWhereIsPlaying(alice).isPresent());
-
-            assertThrows(IllegalArgumentException.class, () -> controller.createAndJoinGame(4, "Alice"));
+            assertDoesNotThrow(() -> {
+                controller.createAndJoinGame(3, "Alice");
+                assertEquals(1, gm.getGames().size());
+                assertTrue(gm.getGameWhereIsPlaying(alice).isPresent());
+                assertThrows(PlayerAlreadyPlayingException.class, () -> controller.createAndJoinGame(4, "Alice"));
+            });
         }
     }
 
@@ -105,20 +115,23 @@ class ControllerTest {
         Game game;
 
         void prepare_AWAITING_PLAYERS() {
-            this.alice = controller.authenticate("Alice");
-            this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(2, "Alice");
-            assertEquals(1, gm.getGames().size());
-            assertEquals(1, game.getPlayerProfiles().size());
-            assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
+          assertDoesNotThrow(() -> {
+                this.alice = controller.authenticate("Alice");
+                this.bob = controller.authenticate("Bob");
+                this.game = controller.createAndJoinGame(2, "Alice");
+                assertEquals(1, gm.getGames().size());
+                assertEquals(1, game.getPlayerProfiles().size());
+                assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
+            });
         }
 
         void prepare_SETUP_STARTING_CARD_SIDE() {
             this.prepare_AWAITING_PLAYERS();
-
-            controller.joinGame(this.game.getId(), "Bob");
-            assertEquals(2, game.getPlayerProfiles().size());
-            assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
+            assertDoesNotThrow(() -> {
+                controller.joinGame(this.game.getId(), "Bob");
+                assertEquals(2, game.getPlayerProfiles().size());
+                assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
+            });
         }
 
         void prepare_SETUP_COLOR() {
@@ -193,8 +206,10 @@ class ControllerTest {
 
         @Test
         void canJoinGame() {
-            controller.joinGame(game.getId(), "Bob");
-            assertEquals(2, game.getPlayerProfiles().size());
+            assertDoesNotThrow(() -> {
+                controller.joinGame(game.getId(), "Bob");
+                assertEquals(2, game.getPlayerProfiles().size());
+            });
         }
 
         @Test
@@ -211,10 +226,12 @@ class ControllerTest {
 
         @Test
         void cannotJoinGameIfAlreadyPlaying() {
-            Game game2 = controller.createAndJoinGame(4, "Bob");
+            assertDoesNotThrow(() -> {
+                Game game2 = controller.createAndJoinGame(4, "Bob");
 
-            assertThrows(IllegalArgumentException.class, () -> controller.joinGame(game2.getId(), "Alice"));
-            assertThrows(IllegalArgumentException.class, () -> controller.joinGame(game.getId(), "Bob"));
+                assertThrows(PlayerAlreadyPlayingException.class, () -> controller.joinGame(game2.getId(), "Alice"));
+                assertThrows(PlayerAlreadyPlayingException.class, () -> controller.joinGame(game.getId(), "Bob"));
+            });
         }
     }
 
