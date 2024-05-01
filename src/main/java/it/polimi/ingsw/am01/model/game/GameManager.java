@@ -55,7 +55,7 @@ public class GameManager {
     /**
      * @return an unmodifiable list of the games that are currently running
      */
-    public List<Game> getGames() {
+    public synchronized List<Game> getGames() {
         return Collections.unmodifiableList(games);
     }
 
@@ -65,7 +65,7 @@ public class GameManager {
      * @param id the id of the game
      * @return the game with the given ID, i such a game exists
      */
-    public Optional<Game> getGame(int id) {
+    public synchronized Optional<Game> getGame(int id) {
         return this.games.stream()
                 .filter(game -> game.getId() == id)
                 .findAny();
@@ -77,7 +77,7 @@ public class GameManager {
      * @param pp the profile of the player whose current game we want to find
      * @return The game where the player is currently playing, if such a game exists
      */
-    public Optional<Game> getGameWhereIsPlaying(PlayerProfile pp) {
+    public synchronized Optional<Game> getGameWhereIsPlaying(PlayerProfile pp) {
         // a player cannot be in more than one game at a time
         return this.games.stream()
                 .filter(game -> game.getPlayerProfiles().stream().anyMatch(profile -> profile.equals(pp)))
@@ -90,7 +90,7 @@ public class GameManager {
      * @param maxPlayers the maximum amount of players allowed in that game
      * @return a reference to the created game
      */
-    public Game createGame(int maxPlayers) {
+    public synchronized Game createGame(int maxPlayers) {
         Game newGame = new Game(nextId, maxPlayers);
         nextId++;
         games.add(newGame);
@@ -102,7 +102,7 @@ public class GameManager {
      *
      * @param game a reference of the selected game
      */
-    public void deleteGame(Game game) {
+    public synchronized void deleteGame(Game game) {
         games.remove(game);
         // Delete json if save() has been already called
         if (loadSavedGamesIds().contains(game.getId())) {
@@ -156,7 +156,7 @@ public class GameManager {
      *
      * @param game a reference to the game
      */
-    public void saveGame(Game game) {
+    public synchronized void saveGame(Game game) {
         //noinspection ResultOfMethodCallIgnored
         dataDir.toFile().mkdir();
         File file = dataDir.resolve(game.getId() + ".json").toFile();

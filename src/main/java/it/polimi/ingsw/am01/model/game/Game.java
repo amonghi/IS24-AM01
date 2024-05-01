@@ -118,7 +118,7 @@ public class Game {
      * @param pp the {@link PlayerProfile} associated to player whose objective choices are required
      * @return an unmodifiable set of {@link Objective} that represents all possible options that player {@code pp} could choose
      */
-    public Set<Objective> getObjectiveOptions(PlayerProfile pp) {
+    public synchronized Set<Objective> getObjectiveOptions(PlayerProfile pp) {
         if (!playerProfiles.contains(pp)) {
             throw new IllegalArgumentException("Player is not in this game");
         }
@@ -129,14 +129,14 @@ public class Game {
     /**
      * @return the id of the game
      */
-    public int getId() {
+    public synchronized int getId() {
         return id;
     }
 
     /**
      * @return an unmodifiable list of {@link PlayerProfile} that have joined in game already
      */
-    public List<PlayerProfile> getPlayerProfiles() {
+    public synchronized List<PlayerProfile> getPlayerProfiles() {
         return Collections.unmodifiableList(playerProfiles);
     }
 
@@ -145,7 +145,7 @@ public class Game {
      * @return the {@link PlayerData} of {@code pp}
      * @see it.polimi.ingsw.am01.model.player.PlayerData
      */
-    public PlayerData getPlayerData(PlayerProfile pp) {
+    public synchronized PlayerData getPlayerData(PlayerProfile pp) {
         if (!playerProfiles.contains(pp)) {
             throw new IllegalArgumentException("Player is not in this game");
         }
@@ -158,7 +158,7 @@ public class Game {
      * @return the {@link PlayArea} of {@code pp}
      * @see it.polimi.ingsw.am01.model.game.PlayArea
      */
-    public PlayArea getPlayArea(PlayerProfile pp) {
+    public synchronized PlayArea getPlayArea(PlayerProfile pp) {
         if (!playerProfiles.contains(pp)) {
             throw new IllegalArgumentException("Player is not in this game");
         }
@@ -170,14 +170,14 @@ public class Game {
      * @return the {@link Board} of this game
      * @see it.polimi.ingsw.am01.model.game.Board
      */
-    public Board getBoard() {
+    public synchronized Board getBoard() {
         return board;
     }
 
     /**
      * @return the {@link PlayerProfile} that has to play at this moment of the game
      */
-    public PlayerProfile getCurrentPlayer() {
+    public synchronized PlayerProfile getCurrentPlayer() {
         if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
             throw new IllegalMoveException();
         }
@@ -189,7 +189,7 @@ public class Game {
      * @return an unmodifiable set of common {@link Objective} of the game.
      * Those {@link Objective} are available for everyone
      */
-    public Set<Objective> getCommonObjectives() {
+    public synchronized Set<Objective> getCommonObjectives() {
         return Collections.unmodifiableSet(commonObjectives);
     }
 
@@ -197,7 +197,7 @@ public class Game {
      * @return the current macro-phase of the game
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
-    public GameStatus getStatus() {
+    public synchronized GameStatus getStatus() {
         return status;
     }
 
@@ -205,7 +205,7 @@ public class Game {
      * @return the current {@link TurnPhase}: placing or drawing
      * @see it.polimi.ingsw.am01.model.game.TurnPhase
      */
-    public TurnPhase getTurnPhase() {
+    public synchronized TurnPhase getTurnPhase() {
         if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
             throw new IllegalMoveException();
         }
@@ -228,14 +228,14 @@ public class Game {
      * @see it.polimi.ingsw.am01.model.chat.ChatManager
      * @see it.polimi.ingsw.am01.model.chat.Message
      */
-    public ChatManager getChatManager() {
+    public synchronized ChatManager getChatManager() {
         return chatManager;
     }
 
     /**
      * @return the maximum number of players that can play this game
      */
-    public int getMaxPlayers() {
+    public synchronized int getMaxPlayers() {
         return maxPlayers;
     }
 
@@ -280,7 +280,7 @@ public class Game {
      *
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
-    public void pauseGame() {
+    public synchronized void pauseGame() {
         if (status == GameStatus.SUSPENDED) {
             throw new IllegalMoveException();
         }
@@ -294,7 +294,7 @@ public class Game {
      *
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
-    public void resumeGame() {
+    public synchronized void resumeGame() {
         if (status != GameStatus.SUSPENDED) {
             throw new IllegalMoveException();
         }
@@ -358,7 +358,7 @@ public class Game {
      *
      * @param pp the {@link PlayerProfile} of new player
      */
-    public void join(PlayerProfile pp) {
+    public synchronized void join(PlayerProfile pp) {
         if (status != GameStatus.AWAITING_PLAYERS) {
             throw new IllegalMoveException();
         }
@@ -379,7 +379,7 @@ public class Game {
      * despite there aren't yet connected {@code maxPlayers} players.
      * Game starts automatically as soon as the maximum threshold of connected players is reached
      */
-    public void startGame() {
+    public synchronized void startGame() {
         if (status != GameStatus.AWAITING_PLAYERS) {
             throw new IllegalMoveException();
         }
@@ -401,7 +401,7 @@ public class Game {
      * @throws DoubleChoiceException if player has already chosen starting card side
      * @see it.polimi.ingsw.am01.model.choice.Choice
      */
-    public void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException {
+    public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException {
         if (status != GameStatus.SETUP_STARTING_CARD_SIDE) {
             throw new IllegalMoveException();
         }
@@ -428,7 +428,7 @@ public class Game {
      * @see it.polimi.ingsw.am01.model.choice.SelectionResult
      * @see it.polimi.ingsw.am01.model.choice.MultiChoice
      */
-    public SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) {
+    public synchronized SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) {
         if (status != GameStatus.SETUP_COLOR) {
             throw new IllegalMoveException();
         }
@@ -451,7 +451,7 @@ public class Game {
      * @param o  the {@link Objective} chosen by player {@code pp}
      * @see it.polimi.ingsw.am01.model.choice.Choice
      */
-    public void selectObjective(PlayerProfile pp, Objective o) {
+    public synchronized void selectObjective(PlayerProfile pp, Objective o) {
         if (status != GameStatus.SETUP_OBJECTIVE) {
             throw new IllegalMoveException();
         }
@@ -482,7 +482,7 @@ public class Game {
      * @see it.polimi.ingsw.am01.model.game.TurnPhase
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
-    public DrawResult drawCard(PlayerProfile pp, DrawSource ds) {
+    public synchronized DrawResult drawCard(PlayerProfile pp, DrawSource ds) {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN) || turnPhase != TurnPhase.DRAWING) {
             throw new IllegalMoveException();
         }
@@ -547,7 +547,7 @@ public class Game {
      * @see it.polimi.ingsw.am01.model.game.PlayArea
      * @see it.polimi.ingsw.am01.model.game.PlayArea.CardPlacement
      */
-    public void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) {
+    public synchronized void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN)
                 || turnPhase != TurnPhase.PLACING) {
 
@@ -601,7 +601,7 @@ public class Game {
      * @see Game#getTotalScores() getTotalScores
      * @see it.polimi.ingsw.am01.model.game.GameStatus
      */
-    public List<PlayerProfile> getWinners() {
+    public synchronized List<PlayerProfile> getWinners() {
         Map<PlayerProfile, Integer> scores = getTotalScores();
         int maxScore = scores.values().stream().mapToInt(s -> s).max().orElse(0);
 
@@ -616,7 +616,7 @@ public class Game {
      *
      * @return a map that contains all total scores
      */
-    public Map<PlayerProfile, Integer> getTotalScores() {
+    public synchronized Map<PlayerProfile, Integer> getTotalScores() {
         if (status != GameStatus.FINISHED) {
             throw new IllegalMoveException();
         }
@@ -633,7 +633,7 @@ public class Game {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return "Game{" +
                 "\n\tid=" + id +
                 ",\n\tplayerProfiles=" + playerProfiles +
@@ -658,7 +658,7 @@ public class Game {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object other) {
+    public synchronized boolean equals(Object other) {
         if (this == other) return true;
         if (other == null || getClass() != other.getClass()) return false;
         Game game = (Game) other;
@@ -669,7 +669,7 @@ public class Game {
      * {@inheritDoc}
      */
     @Override
-    public int hashCode() {
-        return Objects.hash(id, playerProfiles, chatManager, startingCardSideChoices, startingCards, colorChoices, objectiveChoices, playersData, playAreas, commonObjectives, maxPlayers, board, status, turnPhase, recoverStatus, currentPlayer);
+    public synchronized int hashCode() {
+        return Objects.hash(id);
     }
 }

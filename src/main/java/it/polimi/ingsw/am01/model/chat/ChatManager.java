@@ -23,7 +23,7 @@ public class ChatManager {
      *
      * @param message The message to send
      */
-    public void send(Message message) {
+    public synchronized void send(Message message) {
         messages.add(message);
     }
 
@@ -31,7 +31,7 @@ public class ChatManager {
      * @param pp The {@code PlayerProfile} for which to return the mailbox
      * @return The {@code List} of messages for which the specified {@link PlayerProfile} is recipient
      */
-    public List<Message> getMailbox(PlayerProfile pp) {
+    public synchronized List<Message> getMailbox(PlayerProfile pp) {
         return messages.stream()
                 .filter(m -> m.isRecipient(pp))
                 .toList();
@@ -41,7 +41,7 @@ public class ChatManager {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return "ChatManager{" +
                 messages +
                 '}';
@@ -51,7 +51,7 @@ public class ChatManager {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object o) {
+    public synchronized boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -63,7 +63,7 @@ public class ChatManager {
      * {@inheritDoc}
      */
     @Override
-    public int hashCode() {
+    public synchronized int hashCode() {
         return messages.hashCode();
     }
 }
