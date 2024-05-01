@@ -24,8 +24,8 @@ public class VirtualView implements Runnable {
         this.playerProfile = null;
     }
 
-    public Optional<GameManager> getGameManager() {
-        return Optional.ofNullable(gameManager);
+    public GameManager getGameManager() {
+        return this.gameManager;
     }
 
     public Optional<Game> getGame() {
