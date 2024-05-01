@@ -10,7 +10,7 @@ import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.collectible.Resource;
-import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
+import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
@@ -28,18 +28,16 @@ class GameTest {
     PlayerProfile p1, p2, p3, p4;
 
     @BeforeEach
-    public void setUp() {
-        assertDoesNotThrow(() -> {
-             standardGame = new Game(1, 4);
-             p1 = new PlayerProfile("Mattew");
-             p2 = new PlayerProfile("Giuly");
-             p3 = new PlayerProfile("David");
-             p4 = new PlayerProfile("George");
-        });
+    public void setUp() throws InvalidMaxPlayersException {
+        standardGame = new Game(1, 4);
+        p1 = new PlayerProfile("Mattew");
+        p2 = new PlayerProfile("Giuly");
+        p3 = new PlayerProfile("David");
+        p4 = new PlayerProfile("George");
     }
 
     @Test
-    public void testMaxPlayers() {
+    public void testMaxPlayers() throws IllegalGameStateException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         assertEquals(GameStatus.AWAITING_PLAYERS, standardGame.getStatus());
         standardGame.join(p2);
@@ -52,7 +50,7 @@ class GameTest {
     }
 
     @Test
-    public void testGameDoubleChoiceSide() {
+    public void testGameDoubleChoiceSide() throws IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -66,7 +64,7 @@ class GameTest {
     }
 
     @Test
-    public void testOneTurnPerPlayerWithPause() {
+    public void testOneTurnPerPlayerWithPause() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -189,259 +187,255 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameDeckEmpty() {
-        assertDoesNotThrow(() -> {
-            Game shortGame1 = new Game(2, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(9).toList()),
-                    new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
-    
-            shortGame1.join(p1);
-            shortGame1.join(p2);
-            shortGame1.join(p3);
-    
-            shortGame1.selectStartingCardSide(p1, Side.FRONT);
-            shortGame1.selectStartingCardSide(p2, Side.FRONT);
-            shortGame1.selectStartingCardSide(p3, Side.FRONT);
-    
-            shortGame1.selectColor(p1, PlayerColor.RED);
-            shortGame1.selectColor(p2, PlayerColor.BLUE);
-            shortGame1.selectColor(p3, PlayerColor.YELLOW);
-    
-            Objective o1 = shortGame1.getObjectiveOptions(p1).stream().findAny().orElse(null);
-            shortGame1.selectObjective(p1, o1);
-    
-            Objective o2 = shortGame1.getObjectiveOptions(p2).stream().findAny().orElse(null);
-            shortGame1.selectObjective(p2, o2);
-    
-            Objective o3 = shortGame1.getObjectiveOptions(p3).stream().findAny().orElse(null);
-            shortGame1.selectObjective(p3, o3);
-    
-    
-            assertEquals(GameStatus.PLAY, shortGame1.getStatus());
-            assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
-    
-            // -- FIRST TURNS --
-    
-            // FIRST PLAYER
-            PlayerProfile first = shortGame1.getPlayerProfiles().getFirst();
-            assertEquals(first, shortGame1.getCurrentPlayer());
-            Card c1 = shortGame1.getPlayerData(first).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame1.placeCard(first, c1, Side.FRONT, 1, 0));
-    
-            assertEquals(c1.id(), shortGame1.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-    
-            assertEquals(GameStatus.PLAY, shortGame1.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame1.getTurnPhase());
-    
-            assertEquals(DrawResult.OK, shortGame1.drawCard(first, shortGame1.getBoard().getResourceCardDeck()));
-            // remains just one card into decks (golden card on "golden deck")
-    
-            assertEquals(3, shortGame1.getPlayerData(first).getHand().size());
-    
-            // SECOND PLAYER
-            PlayerProfile second = shortGame1.getPlayerProfiles().get(1);
-            assertEquals(second, shortGame1.getCurrentPlayer());
-            Card c2 = shortGame1.getPlayerData(second).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame1.placeCard(second, c2, Side.FRONT, 1, 0));
-    
-            assertEquals(c2.id(), shortGame1.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-    
-            assertEquals(GameStatus.PLAY, shortGame1.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame1.getTurnPhase());
-    
-            assertEquals(DrawResult.OK, shortGame1.drawCard(second, shortGame1.getBoard().getGoldenCardDeck()));
-            // decks are empty --> new phase: SECOND_LAST_TURN
-            assertEquals(GameStatus.SECOND_LAST_TURN, shortGame1.getStatus());
-            assertEquals(3, shortGame1.getPlayerData(second).getHand().size());
-    
-            // THIRD PLAYER
-            PlayerProfile third = shortGame1.getPlayerProfiles().get(2);
-            assertEquals(third, shortGame1.getCurrentPlayer());
-            Card c3 = shortGame1.getPlayerData(third).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame1.placeCard(third, c3, Side.FRONT, 1, 0));
-    
-            assertEquals(c3.id(), shortGame1.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-    
-            assertEquals(GameStatus.SECOND_LAST_TURN, shortGame1.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame1.getTurnPhase());
-    
-            assertEquals(DrawResult.OK, shortGame1.drawCard(third, shortGame1.getBoard().getFaceUpCards().stream().findAny().orElse(null)));
-            assertEquals(3, shortGame1.getPlayerData(third).getHand().size());
-    
-            // SECOND_LAST_TURN is finished --> new phase: LAST_TURN
-            assertEquals(GameStatus.LAST_TURN, shortGame1.getStatus());
-    
-            // -- SECOND TURNS --
-            // FIRST PLAYER
-            assertEquals(first, shortGame1.getCurrentPlayer());
-            Card c11 = shortGame1.getPlayerData(first).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame1.placeCard(first, c11, Side.FRONT, 0, 1));
-    
-            assertEquals(c11.id(), shortGame1.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
-    
-    
-            assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
-            assertEquals(2, shortGame1.getPlayerData(first).getHand().size());
-    
-            // SECOND PLAYER
-            assertEquals(second, shortGame1.getCurrentPlayer());
-            Card c21 = shortGame1.getPlayerData(second).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame1.placeCard(second, c21, Side.FRONT, 0, 1));
-    
-            assertEquals(c21.id(), shortGame1.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
-    
-    
-            assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
-            assertEquals(2, shortGame1.getPlayerData(second).getHand().size());
-    
-            // THIRD PLAYER
-            assertEquals(third, shortGame1.getCurrentPlayer());
-            Card c31 = shortGame1.getPlayerData(third).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame1.placeCard(third, c31, Side.FRONT, 0, 1));
-    
-            assertEquals(c31.id(), shortGame1.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
-    
-    
-            assertEquals(2, shortGame1.getPlayerData(third).getHand().size());
-    
-            assertEquals(GameStatus.FINISHED, shortGame1.getStatus());
-            
-            assertTrue(shortGame1.getTotalScores().size() == shortGame1.getPlayerProfiles().size() && !shortGame1.getWinners().isEmpty());
-        });
+    public void firstTestEndGameDeckEmpty() throws IllegalGameStateException, InvalidMaxPlayersException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+        Game shortGame1 = new Game(2, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(9).toList()),
+                new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
+
+        shortGame1.join(p1);
+        shortGame1.join(p2);
+        shortGame1.join(p3);
+
+        shortGame1.selectStartingCardSide(p1, Side.FRONT);
+        shortGame1.selectStartingCardSide(p2, Side.FRONT);
+        shortGame1.selectStartingCardSide(p3, Side.FRONT);
+
+        shortGame1.selectColor(p1, PlayerColor.RED);
+        shortGame1.selectColor(p2, PlayerColor.BLUE);
+        shortGame1.selectColor(p3, PlayerColor.YELLOW);
+
+        Objective o1 = shortGame1.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        shortGame1.selectObjective(p1, o1);
+
+        Objective o2 = shortGame1.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        shortGame1.selectObjective(p2, o2);
+
+        Objective o3 = shortGame1.getObjectiveOptions(p3).stream().findAny().orElse(null);
+        shortGame1.selectObjective(p3, o3);
+
+
+        assertEquals(GameStatus.PLAY, shortGame1.getStatus());
+        assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
+
+        // -- FIRST TURNS --
+
+        // FIRST PLAYER
+        PlayerProfile first = shortGame1.getPlayerProfiles().getFirst();
+        assertEquals(first, shortGame1.getCurrentPlayer());
+        Card c1 = shortGame1.getPlayerData(first).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame1.placeCard(first, c1, Side.FRONT, 1, 0));
+
+        assertEquals(c1.id(), shortGame1.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.PLAY, shortGame1.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame1.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame1.drawCard(first, shortGame1.getBoard().getResourceCardDeck()));
+        // remains just one card into decks (golden card on "golden deck")
+
+        assertEquals(3, shortGame1.getPlayerData(first).getHand().size());
+
+        // SECOND PLAYER
+        PlayerProfile second = shortGame1.getPlayerProfiles().get(1);
+        assertEquals(second, shortGame1.getCurrentPlayer());
+        Card c2 = shortGame1.getPlayerData(second).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame1.placeCard(second, c2, Side.FRONT, 1, 0));
+
+        assertEquals(c2.id(), shortGame1.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.PLAY, shortGame1.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame1.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame1.drawCard(second, shortGame1.getBoard().getGoldenCardDeck()));
+        // decks are empty --> new phase: SECOND_LAST_TURN
+        assertEquals(GameStatus.SECOND_LAST_TURN, shortGame1.getStatus());
+        assertEquals(3, shortGame1.getPlayerData(second).getHand().size());
+
+        // THIRD PLAYER
+        PlayerProfile third = shortGame1.getPlayerProfiles().get(2);
+        assertEquals(third, shortGame1.getCurrentPlayer());
+        Card c3 = shortGame1.getPlayerData(third).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame1.placeCard(third, c3, Side.FRONT, 1, 0));
+
+        assertEquals(c3.id(), shortGame1.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.SECOND_LAST_TURN, shortGame1.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame1.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame1.drawCard(third, shortGame1.getBoard().getFaceUpCards().stream().findAny().orElse(null)));
+        assertEquals(3, shortGame1.getPlayerData(third).getHand().size());
+
+        // SECOND_LAST_TURN is finished --> new phase: LAST_TURN
+        assertEquals(GameStatus.LAST_TURN, shortGame1.getStatus());
+
+        // -- SECOND TURNS --
+        // FIRST PLAYER
+        assertEquals(first, shortGame1.getCurrentPlayer());
+        Card c11 = shortGame1.getPlayerData(first).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame1.placeCard(first, c11, Side.FRONT, 0, 1));
+
+        assertEquals(c11.id(), shortGame1.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
+        assertEquals(2, shortGame1.getPlayerData(first).getHand().size());
+
+        // SECOND PLAYER
+        assertEquals(second, shortGame1.getCurrentPlayer());
+        Card c21 = shortGame1.getPlayerData(second).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame1.placeCard(second, c21, Side.FRONT, 0, 1));
+
+        assertEquals(c21.id(), shortGame1.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(TurnPhase.PLACING, shortGame1.getTurnPhase());
+        assertEquals(2, shortGame1.getPlayerData(second).getHand().size());
+
+        // THIRD PLAYER
+        assertEquals(third, shortGame1.getCurrentPlayer());
+        Card c31 = shortGame1.getPlayerData(third).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame1.placeCard(third, c31, Side.FRONT, 0, 1));
+
+        assertEquals(c31.id(), shortGame1.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(2, shortGame1.getPlayerData(third).getHand().size());
+
+        assertEquals(GameStatus.FINISHED, shortGame1.getStatus());
+
+        assertTrue(shortGame1.getTotalScores().size() == shortGame1.getPlayerProfiles().size() && !shortGame1.getWinners().isEmpty());
     }
 
     @Test
-    public void secondTestEndGameDeckEmpty() {
-        assertDoesNotThrow(() -> {
-            Game shortGame2 = new Game(3, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(10).toList()),
-                    new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
+    public void secondTestEndGameDeckEmpty() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, InvalidMaxPlayersException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+        Game shortGame2 = new Game(3, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(10).toList()),
+                new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
-            shortGame2.join(p1);
-            shortGame2.join(p2);
-            shortGame2.join(p3);
+        shortGame2.join(p1);
+        shortGame2.join(p2);
+        shortGame2.join(p3);
 
-            shortGame2.selectStartingCardSide(p1, Side.FRONT);
-            shortGame2.selectStartingCardSide(p2, Side.FRONT);
-            shortGame2.selectStartingCardSide(p3, Side.FRONT);
+        shortGame2.selectStartingCardSide(p1, Side.FRONT);
+        shortGame2.selectStartingCardSide(p2, Side.FRONT);
+        shortGame2.selectStartingCardSide(p3, Side.FRONT);
 
-            shortGame2.selectColor(p1, PlayerColor.RED);
-            shortGame2.selectColor(p2, PlayerColor.BLUE);
-            shortGame2.selectColor(p3, PlayerColor.YELLOW);
+        shortGame2.selectColor(p1, PlayerColor.RED);
+        shortGame2.selectColor(p2, PlayerColor.BLUE);
+        shortGame2.selectColor(p3, PlayerColor.YELLOW);
 
-            Objective o1 = shortGame2.getObjectiveOptions(p1).stream().findAny().orElse(null);
-            shortGame2.selectObjective(p1, o1);
+        Objective o1 = shortGame2.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        shortGame2.selectObjective(p1, o1);
 
-            Objective o2 = shortGame2.getObjectiveOptions(p2).stream().findAny().orElse(null);
-            shortGame2.selectObjective(p2, o2);
+        Objective o2 = shortGame2.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        shortGame2.selectObjective(p2, o2);
 
-            Objective o3 = shortGame2.getObjectiveOptions(p3).stream().findAny().orElse(null);
-            shortGame2.selectObjective(p3, o3);
-
-
-            assertEquals(GameStatus.PLAY, shortGame2.getStatus());
-            assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
-
-            // -- FIRST TURNS --
-
-            // FIRST PLAYER
-            PlayerProfile first = shortGame2.getPlayerProfiles().getFirst();
-            assertEquals(first, shortGame2.getCurrentPlayer());
-            Card c1 = shortGame2.getPlayerData(first).getHand().getFirst(); // resource card
-
-            assertDoesNotThrow(() -> shortGame2.placeCard(first, c1, Side.FRONT, 1, 0));
-
-            assertEquals(c1.id(), shortGame2.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-
-            assertEquals(GameStatus.PLAY, shortGame2.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame2.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame2.drawCard(first, shortGame2.getBoard().getResourceCardDeck()));
-            // remains two card into decks (one golden and one resource)
-
-            assertEquals(3, shortGame2.getPlayerData(first).getHand().size());
-
-            // SECOND PLAYER
-            PlayerProfile second = shortGame2.getPlayerProfiles().get(1);
-            assertEquals(second, shortGame2.getCurrentPlayer());
-            Card c2 = shortGame2.getPlayerData(second).getHand().getFirst(); // resource card
-
-            assertDoesNotThrow(() -> shortGame2.placeCard(second, c2, Side.FRONT, 1, 0));
-
-            assertEquals(c2.id(), shortGame2.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-
-            assertEquals(GameStatus.PLAY, shortGame2.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame2.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame2.drawCard(second, shortGame2.getBoard().getGoldenCardDeck()));
-            // remains just one card into decks (resource card on "golden deck")
-            assertEquals(3, shortGame2.getPlayerData(second).getHand().size());
-
-            // THIRD PLAYER
-            PlayerProfile third = shortGame2.getPlayerProfiles().get(2);
-            assertEquals(third, shortGame2.getCurrentPlayer());
-            Card c3 = shortGame2.getPlayerData(third).getHand().getFirst(); // resource card
-
-            assertDoesNotThrow(() -> shortGame2.placeCard(third, c3, Side.FRONT, 1, 0));
-
-            assertEquals(c3.id(), shortGame2.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-
-            assertEquals(GameStatus.PLAY, shortGame2.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame2.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame2.drawCard(third, shortGame2.getBoard().getResourceCardDeck()));
-            assertEquals(3, shortGame2.getPlayerData(third).getHand().size());
-
-            // decks are empty and this is the last player --> new phase: LAST_TURN
-            assertEquals(GameStatus.LAST_TURN, shortGame2.getStatus());
-
-            // -- SECOND TURNS --
-            // FIRST PLAYER
-            assertEquals(first, shortGame2.getCurrentPlayer());
-            Card c11 = shortGame2.getPlayerData(first).getHand().getFirst(); // resource card
-
-            assertDoesNotThrow(() -> shortGame2.placeCard(first, c11, Side.FRONT, 0, 1));
-
-            assertEquals(c11.id(), shortGame2.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        Objective o3 = shortGame2.getObjectiveOptions(p3).stream().findAny().orElse(null);
+        shortGame2.selectObjective(p3, o3);
 
 
-            assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
-            assertEquals(2, shortGame2.getPlayerData(first).getHand().size());
+        assertEquals(GameStatus.PLAY, shortGame2.getStatus());
+        assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
 
-            // SECOND PLAYER
-            assertEquals(second, shortGame2.getCurrentPlayer());
-            Card c21 = shortGame2.getPlayerData(second).getHand().getFirst(); // resource card
+        // -- FIRST TURNS --
 
-            assertDoesNotThrow(() -> shortGame2.placeCard(second, c21, Side.FRONT, 0, 1));
+        // FIRST PLAYER
+        PlayerProfile first = shortGame2.getPlayerProfiles().getFirst();
+        assertEquals(first, shortGame2.getCurrentPlayer());
+        Card c1 = shortGame2.getPlayerData(first).getHand().getFirst(); // resource card
 
-            assertEquals(c21.id(), shortGame2.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        assertDoesNotThrow(() -> shortGame2.placeCard(first, c1, Side.FRONT, 1, 0));
+
+        assertEquals(c1.id(), shortGame2.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.PLAY, shortGame2.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame2.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame2.drawCard(first, shortGame2.getBoard().getResourceCardDeck()));
+        // remains two card into decks (one golden and one resource)
+
+        assertEquals(3, shortGame2.getPlayerData(first).getHand().size());
+
+        // SECOND PLAYER
+        PlayerProfile second = shortGame2.getPlayerProfiles().get(1);
+        assertEquals(second, shortGame2.getCurrentPlayer());
+        Card c2 = shortGame2.getPlayerData(second).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame2.placeCard(second, c2, Side.FRONT, 1, 0));
+
+        assertEquals(c2.id(), shortGame2.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.PLAY, shortGame2.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame2.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame2.drawCard(second, shortGame2.getBoard().getGoldenCardDeck()));
+        // remains just one card into decks (resource card on "golden deck")
+        assertEquals(3, shortGame2.getPlayerData(second).getHand().size());
+
+        // THIRD PLAYER
+        PlayerProfile third = shortGame2.getPlayerProfiles().get(2);
+        assertEquals(third, shortGame2.getCurrentPlayer());
+        Card c3 = shortGame2.getPlayerData(third).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame2.placeCard(third, c3, Side.FRONT, 1, 0));
+
+        assertEquals(c3.id(), shortGame2.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.PLAY, shortGame2.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame2.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame2.drawCard(third, shortGame2.getBoard().getResourceCardDeck()));
+        assertEquals(3, shortGame2.getPlayerData(third).getHand().size());
+
+        // decks are empty and this is the last player --> new phase: LAST_TURN
+        assertEquals(GameStatus.LAST_TURN, shortGame2.getStatus());
+
+        // -- SECOND TURNS --
+        // FIRST PLAYER
+        assertEquals(first, shortGame2.getCurrentPlayer());
+        Card c11 = shortGame2.getPlayerData(first).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame2.placeCard(first, c11, Side.FRONT, 0, 1));
+
+        assertEquals(c11.id(), shortGame2.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-            assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
-            assertEquals(2, shortGame2.getPlayerData(second).getHand().size());
+        assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
+        assertEquals(2, shortGame2.getPlayerData(first).getHand().size());
 
-            // THIRD PLAYER
-            assertEquals(third, shortGame2.getCurrentPlayer());
-            Card c31 = shortGame2.getPlayerData(third).getHand().getFirst(); // resource card
+        // SECOND PLAYER
+        assertEquals(second, shortGame2.getCurrentPlayer());
+        Card c21 = shortGame2.getPlayerData(second).getHand().getFirst(); // resource card
 
-            assertDoesNotThrow(() -> shortGame2.placeCard(third, c31, Side.FRONT, 0, 1));
+        assertDoesNotThrow(() -> shortGame2.placeCard(second, c21, Side.FRONT, 0, 1));
 
-            assertEquals(c31.id(), shortGame2.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        assertEquals(c21.id(), shortGame2.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-            assertEquals(2, shortGame2.getPlayerData(third).getHand().size());
+        assertEquals(TurnPhase.PLACING, shortGame2.getTurnPhase());
+        assertEquals(2, shortGame2.getPlayerData(second).getHand().size());
 
-            assertEquals(GameStatus.FINISHED, shortGame2.getStatus());
-            assertTrue(shortGame2.getTotalScores().size() == shortGame2.getPlayerProfiles().size() && !shortGame2.getWinners().isEmpty());
-        });
+        // THIRD PLAYER
+        assertEquals(third, shortGame2.getCurrentPlayer());
+        Card c31 = shortGame2.getPlayerData(third).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame2.placeCard(third, c31, Side.FRONT, 0, 1));
+
+        assertEquals(c31.id(), shortGame2.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(2, shortGame2.getPlayerData(third).getHand().size());
+
+        assertEquals(GameStatus.FINISHED, shortGame2.getStatus());
+        assertTrue(shortGame2.getTotalScores().size() == shortGame2.getPlayerProfiles().size() && !shortGame2.getWinners().isEmpty());
     }
 
     @Test
-    public void firstTestEndGameTwentyPoints() {
+    public void firstTestEndGameTwentyPoints() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, InvalidMaxPlayersException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -466,129 +460,129 @@ class GameTest {
                     )
             ));
         }
-        
-        assertDoesNotThrow(() -> {
-            Game shortGame3 = new Game(3, 3, new Board(new Deck(cards), new Deck(GameAssets.getInstance().getGoldenCards())));
-    
-            shortGame3.join(p1);
-            shortGame3.join(p2);
-            shortGame3.join(p3);
-    
-            shortGame3.selectStartingCardSide(p1, Side.FRONT);
-            shortGame3.selectStartingCardSide(p2, Side.FRONT);
-            shortGame3.selectStartingCardSide(p3, Side.FRONT);
-    
-            shortGame3.selectColor(p1, PlayerColor.RED);
-            shortGame3.selectColor(p2, PlayerColor.BLUE);
-            shortGame3.selectColor(p3, PlayerColor.YELLOW);
-    
-            Objective o1 = shortGame3.getObjectiveOptions(p1).stream().findAny().orElse(null);
-            shortGame3.selectObjective(p1, o1);
-    
-            Objective o2 = shortGame3.getObjectiveOptions(p2).stream().findAny().orElse(null);
-            shortGame3.selectObjective(p2, o2);
-    
-            Objective o3 = shortGame3.getObjectiveOptions(p3).stream().findAny().orElse(null);
-            shortGame3.selectObjective(p3, o3);
-    
-    
-            assertEquals(GameStatus.PLAY, shortGame3.getStatus());
-            assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
-    
-            // -- FIRST TURNS --
-            // FIRST PLAYER
-            PlayerProfile first = shortGame3.getPlayerProfiles().getFirst();
-            assertEquals(first, shortGame3.getCurrentPlayer());
-            Card c1 = shortGame3.getPlayerData(first).getHand().get(2); // gold card
-    
-            assertDoesNotThrow(() -> shortGame3.placeCard(first, c1, Side.BACK, 1, 0));
-    
-            assertEquals(c1.id(), shortGame3.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-    
-            assertEquals(GameStatus.PLAY, shortGame3.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame3.getTurnPhase());
-    
-            assertEquals(DrawResult.OK, shortGame3.drawCard(first, shortGame3.getBoard().getResourceCardDeck()));
-            assertEquals(3, shortGame3.getPlayerData(first).getHand().size());
-    
-            // SECOND PLAYER
-            PlayerProfile second = shortGame3.getPlayerProfiles().get(1);
-            assertEquals(second, shortGame3.getCurrentPlayer());
-            Card c2 = shortGame3.getPlayerData(second).getHand().getFirst(); // resource card --> 20 points earned --> SECOND_LAST_TURN phase
-    
-            assertDoesNotThrow(() -> shortGame3.placeCard(second, c2, Side.FRONT, 1, 0));
-            assertEquals(GameStatus.SECOND_LAST_TURN, shortGame3.getStatus());
-    
-            assertEquals(c2.id(), shortGame3.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-    
-            assertEquals(TurnPhase.DRAWING, shortGame3.getTurnPhase());
-    
-            assertEquals(DrawResult.OK, shortGame3.drawCard(second, shortGame3.getBoard().getGoldenCardDeck()));
-            assertEquals(3, shortGame3.getPlayerData(second).getHand().size());
-    
-            // THIRD PLAYER
-            PlayerProfile third = shortGame3.getPlayerProfiles().get(2);
-            assertEquals(third, shortGame3.getCurrentPlayer());
-            Card c3 = shortGame3.getPlayerData(third).getHand().get(2); // gold card
-    
-            assertDoesNotThrow(() -> shortGame3.placeCard(third, c3, Side.BACK, 1, 0));
-    
-            assertEquals(c3.id(), shortGame3.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-    
-            assertEquals(GameStatus.SECOND_LAST_TURN, shortGame3.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame3.getTurnPhase());
-    
-            assertEquals(DrawResult.OK, shortGame3.drawCard(third, shortGame3.getBoard().getResourceCardDeck()));
-            assertEquals(3, shortGame3.getPlayerData(third).getHand().size());
-    
-            // a player has reached 20 points and this is the last player's turn --> LAST_TURN phase
-            assertEquals(GameStatus.LAST_TURN, shortGame3.getStatus());
-    
-    
-            // -- SECOND TURNS --
-            // FIRST PLAYER
-            assertEquals(first, shortGame3.getCurrentPlayer());
-            Card c11 = shortGame3.getPlayerData(first).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame3.placeCard(first, c11, Side.FRONT, 0, 1));
-    
-            assertEquals(c11.id(), shortGame3.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
-    
-    
-            assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
-            assertEquals(2, shortGame3.getPlayerData(first).getHand().size());
-    
-            // SECOND PLAYER
-            assertEquals(second, shortGame3.getCurrentPlayer());
-            Card c21 = shortGame3.getPlayerData(second).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame3.placeCard(second, c21, Side.FRONT, 0, 1));
-    
-            assertEquals(c21.id(), shortGame3.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
-    
-    
-            assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
-            assertEquals(2, shortGame3.getPlayerData(second).getHand().size());
-    
-            // THIRD PLAYER
-            assertEquals(third, shortGame3.getCurrentPlayer());
-            Card c31 = shortGame3.getPlayerData(third).getHand().getFirst(); // resource card
-    
-            assertDoesNotThrow(() -> shortGame3.placeCard(third, c31, Side.FRONT, 0, 1));
-    
-            assertEquals(c31.id(), shortGame3.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
-    
-    
-            assertEquals(2, shortGame3.getPlayerData(third).getHand().size());
-    
-            assertEquals(GameStatus.FINISHED, shortGame3.getStatus());
-            assertTrue(shortGame3.getTotalScores().size() == shortGame3.getPlayerProfiles().size() && !shortGame3.getWinners().isEmpty());
-        });
+
+
+        Game shortGame3 = new Game(3, 3, new Board(new Deck(cards), new Deck(GameAssets.getInstance().getGoldenCards())));
+
+        shortGame3.join(p1);
+        shortGame3.join(p2);
+        shortGame3.join(p3);
+
+        shortGame3.selectStartingCardSide(p1, Side.FRONT);
+        shortGame3.selectStartingCardSide(p2, Side.FRONT);
+        shortGame3.selectStartingCardSide(p3, Side.FRONT);
+
+        shortGame3.selectColor(p1, PlayerColor.RED);
+        shortGame3.selectColor(p2, PlayerColor.BLUE);
+        shortGame3.selectColor(p3, PlayerColor.YELLOW);
+
+        Objective o1 = shortGame3.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        shortGame3.selectObjective(p1, o1);
+
+        Objective o2 = shortGame3.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        shortGame3.selectObjective(p2, o2);
+
+        Objective o3 = shortGame3.getObjectiveOptions(p3).stream().findAny().orElse(null);
+        shortGame3.selectObjective(p3, o3);
+
+
+        assertEquals(GameStatus.PLAY, shortGame3.getStatus());
+        assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
+
+        // -- FIRST TURNS --
+        // FIRST PLAYER
+        PlayerProfile first = shortGame3.getPlayerProfiles().getFirst();
+        assertEquals(first, shortGame3.getCurrentPlayer());
+        Card c1 = shortGame3.getPlayerData(first).getHand().get(2); // gold card
+
+        assertDoesNotThrow(() -> shortGame3.placeCard(first, c1, Side.BACK, 1, 0));
+
+        assertEquals(c1.id(), shortGame3.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.PLAY, shortGame3.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame3.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame3.drawCard(first, shortGame3.getBoard().getResourceCardDeck()));
+        assertEquals(3, shortGame3.getPlayerData(first).getHand().size());
+
+        // SECOND PLAYER
+        PlayerProfile second = shortGame3.getPlayerProfiles().get(1);
+        assertEquals(second, shortGame3.getCurrentPlayer());
+        Card c2 = shortGame3.getPlayerData(second).getHand().getFirst(); // resource card --> 20 points earned --> SECOND_LAST_TURN phase
+
+        assertDoesNotThrow(() -> shortGame3.placeCard(second, c2, Side.FRONT, 1, 0));
+        assertEquals(GameStatus.SECOND_LAST_TURN, shortGame3.getStatus());
+
+        assertEquals(c2.id(), shortGame3.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(TurnPhase.DRAWING, shortGame3.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame3.drawCard(second, shortGame3.getBoard().getGoldenCardDeck()));
+        assertEquals(3, shortGame3.getPlayerData(second).getHand().size());
+
+        // THIRD PLAYER
+        PlayerProfile third = shortGame3.getPlayerProfiles().get(2);
+        assertEquals(third, shortGame3.getCurrentPlayer());
+        Card c3 = shortGame3.getPlayerData(third).getHand().get(2); // gold card
+
+        assertDoesNotThrow(() -> shortGame3.placeCard(third, c3, Side.BACK, 1, 0));
+
+        assertEquals(c3.id(), shortGame3.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.SECOND_LAST_TURN, shortGame3.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame3.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame3.drawCard(third, shortGame3.getBoard().getResourceCardDeck()));
+        assertEquals(3, shortGame3.getPlayerData(third).getHand().size());
+
+        // a player has reached 20 points and this is the last player's turn --> LAST_TURN phase
+        assertEquals(GameStatus.LAST_TURN, shortGame3.getStatus());
+
+
+        // -- SECOND TURNS --
+        // FIRST PLAYER
+        assertEquals(first, shortGame3.getCurrentPlayer());
+        Card c11 = shortGame3.getPlayerData(first).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame3.placeCard(first, c11, Side.FRONT, 0, 1));
+
+        assertEquals(c11.id(), shortGame3.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
+        assertEquals(2, shortGame3.getPlayerData(first).getHand().size());
+
+        // SECOND PLAYER
+        assertEquals(second, shortGame3.getCurrentPlayer());
+        Card c21 = shortGame3.getPlayerData(second).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame3.placeCard(second, c21, Side.FRONT, 0, 1));
+
+        assertEquals(c21.id(), shortGame3.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(TurnPhase.PLACING, shortGame3.getTurnPhase());
+        assertEquals(2, shortGame3.getPlayerData(second).getHand().size());
+
+        // THIRD PLAYER
+        assertEquals(third, shortGame3.getCurrentPlayer());
+        Card c31 = shortGame3.getPlayerData(third).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame3.placeCard(third, c31, Side.FRONT, 0, 1));
+
+        assertEquals(c31.id(), shortGame3.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(2, shortGame3.getPlayerData(third).getHand().size());
+
+        assertEquals(GameStatus.FINISHED, shortGame3.getStatus());
+        assertTrue(shortGame3.getTotalScores().size() == shortGame3.getPlayerProfiles().size() && !shortGame3.getWinners().isEmpty());
+
         
     }
 
     @Test
-    public void secondTestEndGameTwentyPoints() {
+    public void secondTestEndGameTwentyPoints() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -613,129 +607,129 @@ class GameTest {
                     )
             ));
         }
-        assertDoesNotThrow(() -> {
-            Game shortGame4 = new Game(3, 3, new Board(new Deck(cards), new Deck(GameAssets.getInstance().getGoldenCards())));
 
-            shortGame4.join(p1);
-            shortGame4.join(p2);
-            shortGame4.join(p3);
+        Game shortGame4 = new Game(3, 3, new Board(new Deck(cards), new Deck(GameAssets.getInstance().getGoldenCards())));
 
-            shortGame4.selectStartingCardSide(p1, Side.FRONT);
-            shortGame4.selectStartingCardSide(p2, Side.FRONT);
-            shortGame4.selectStartingCardSide(p3, Side.FRONT);
+        shortGame4.join(p1);
+        shortGame4.join(p2);
+        shortGame4.join(p3);
 
-            shortGame4.selectColor(p1, PlayerColor.RED);
-            shortGame4.selectColor(p2, PlayerColor.BLUE);
-            shortGame4.selectColor(p3, PlayerColor.YELLOW);
+        shortGame4.selectStartingCardSide(p1, Side.FRONT);
+        shortGame4.selectStartingCardSide(p2, Side.FRONT);
+        shortGame4.selectStartingCardSide(p3, Side.FRONT);
 
-            Objective o1 = shortGame4.getObjectiveOptions(p1).stream().findAny().orElse(null);
-            shortGame4.selectObjective(p1, o1);
+        shortGame4.selectColor(p1, PlayerColor.RED);
+        shortGame4.selectColor(p2, PlayerColor.BLUE);
+        shortGame4.selectColor(p3, PlayerColor.YELLOW);
 
-            Objective o2 = shortGame4.getObjectiveOptions(p2).stream().findAny().orElse(null);
-            shortGame4.selectObjective(p2, o2);
+        Objective o1 = shortGame4.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        shortGame4.selectObjective(p1, o1);
 
-            Objective o3 = shortGame4.getObjectiveOptions(p3).stream().findAny().orElse(null);
-            shortGame4.selectObjective(p3, o3);
+        Objective o2 = shortGame4.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        shortGame4.selectObjective(p2, o2);
 
-
-            assertEquals(GameStatus.PLAY, shortGame4.getStatus());
-            assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
-
-            // -- FIRST TURNS --
-            // FIRST PLAYER
-            PlayerProfile first = shortGame4.getPlayerProfiles().getFirst();
-            assertEquals(first, shortGame4.getCurrentPlayer());
-            Card c1 = shortGame4.getPlayerData(first).getHand().get(2); // gold card
-
-            assertDoesNotThrow(() -> shortGame4.placeCard(first, c1, Side.BACK, 1, 0));
-
-            assertEquals(c1.id(), shortGame4.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-
-            assertEquals(GameStatus.PLAY, shortGame4.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame4.drawCard(first, shortGame4.getBoard().getResourceCardDeck()));
-            assertEquals(3, shortGame4.getPlayerData(first).getHand().size());
-
-            // SECOND PLAYER
-            PlayerProfile second = shortGame4.getPlayerProfiles().get(1);
-            assertEquals(second, shortGame4.getCurrentPlayer());
-            Card c2 = shortGame4.getPlayerData(second).getHand().get(2); // golden card
-
-            assertDoesNotThrow(() -> shortGame4.placeCard(second, c2, Side.BACK, 1, 0));
-            assertEquals(GameStatus.PLAY, shortGame4.getStatus());
-
-            assertEquals(c2.id(), shortGame4.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-
-            assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame4.drawCard(second, shortGame4.getBoard().getGoldenCardDeck()));
-            assertEquals(3, shortGame4.getPlayerData(second).getHand().size());
-
-            // THIRD PLAYER
-            PlayerProfile third = shortGame4.getPlayerProfiles().get(2);
-            assertEquals(third, shortGame4.getCurrentPlayer());
-            Card c3 = shortGame4.getPlayerData(third).getHand().getFirst(); // resource card --> 20 points earned and last player of rounds
-
-            assertDoesNotThrow(() -> shortGame4.placeCard(third, c3, Side.FRONT, 1, 0));
-            assertEquals(c3.id(), shortGame4.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-            assertEquals(GameStatus.SECOND_LAST_TURN, shortGame4.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame4.drawCard(third, shortGame4.getBoard().getResourceCardDeck()));
-            assertEquals(GameStatus.LAST_TURN, shortGame4.getStatus());
-            assertEquals(3, shortGame4.getPlayerData(third).getHand().size());
+        Objective o3 = shortGame4.getObjectiveOptions(p3).stream().findAny().orElse(null);
+        shortGame4.selectObjective(p3, o3);
 
 
-            // -- SECOND TURNS --
-            // FIRST PLAYER
-            assertEquals(first, shortGame4.getCurrentPlayer());
-            Card c11 = shortGame4.getPlayerData(first).getHand().getFirst(); // resource card
+        assertEquals(GameStatus.PLAY, shortGame4.getStatus());
+        assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
 
-            assertDoesNotThrow(() -> shortGame4.placeCard(first, c11, Side.FRONT, 0, 1));
+        // -- FIRST TURNS --
+        // FIRST PLAYER
+        PlayerProfile first = shortGame4.getPlayerProfiles().getFirst();
+        assertEquals(first, shortGame4.getCurrentPlayer());
+        Card c1 = shortGame4.getPlayerData(first).getHand().get(2); // gold card
 
-            assertEquals(c11.id(), shortGame4.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        assertDoesNotThrow(() -> shortGame4.placeCard(first, c1, Side.BACK, 1, 0));
+
+        assertEquals(c1.id(), shortGame4.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.PLAY, shortGame4.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame4.drawCard(first, shortGame4.getBoard().getResourceCardDeck()));
+        assertEquals(3, shortGame4.getPlayerData(first).getHand().size());
+
+        // SECOND PLAYER
+        PlayerProfile second = shortGame4.getPlayerProfiles().get(1);
+        assertEquals(second, shortGame4.getCurrentPlayer());
+        Card c2 = shortGame4.getPlayerData(second).getHand().get(2); // golden card
+
+        assertDoesNotThrow(() -> shortGame4.placeCard(second, c2, Side.BACK, 1, 0));
+        assertEquals(GameStatus.PLAY, shortGame4.getStatus());
+
+        assertEquals(c2.id(), shortGame4.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame4.drawCard(second, shortGame4.getBoard().getGoldenCardDeck()));
+        assertEquals(3, shortGame4.getPlayerData(second).getHand().size());
+
+        // THIRD PLAYER
+        PlayerProfile third = shortGame4.getPlayerProfiles().get(2);
+        assertEquals(third, shortGame4.getCurrentPlayer());
+        Card c3 = shortGame4.getPlayerData(third).getHand().getFirst(); // resource card --> 20 points earned and last player of rounds
+
+        assertDoesNotThrow(() -> shortGame4.placeCard(third, c3, Side.FRONT, 1, 0));
+        assertEquals(c3.id(), shortGame4.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+        assertEquals(GameStatus.SECOND_LAST_TURN, shortGame4.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame4.drawCard(third, shortGame4.getBoard().getResourceCardDeck()));
+        assertEquals(GameStatus.LAST_TURN, shortGame4.getStatus());
+        assertEquals(3, shortGame4.getPlayerData(third).getHand().size());
 
 
-            assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
-            assertEquals(2, shortGame4.getPlayerData(first).getHand().size());
+        // -- SECOND TURNS --
+        // FIRST PLAYER
+        assertEquals(first, shortGame4.getCurrentPlayer());
+        Card c11 = shortGame4.getPlayerData(first).getHand().getFirst(); // resource card
 
-            // SECOND PLAYER
-            assertEquals(second, shortGame4.getCurrentPlayer());
-            Card c21 = shortGame4.getPlayerData(second).getHand().getFirst(); // resource card
+        assertDoesNotThrow(() -> shortGame4.placeCard(first, c11, Side.FRONT, 0, 1));
 
-            assertDoesNotThrow(() -> shortGame4.placeCard(second, c21, Side.FRONT, 0, 1));
-
-            assertEquals(c21.id(), shortGame4.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        assertEquals(c11.id(), shortGame4.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-            assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
-            assertEquals(2, shortGame4.getPlayerData(second).getHand().size());
+        assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
+        assertEquals(2, shortGame4.getPlayerData(first).getHand().size());
 
-            // THIRD PLAYER
-            assertEquals(third, shortGame4.getCurrentPlayer());
-            Card c31 = shortGame4.getPlayerData(third).getHand().getFirst(); // resource card
+        // SECOND PLAYER
+        assertEquals(second, shortGame4.getCurrentPlayer());
+        Card c21 = shortGame4.getPlayerData(second).getHand().getFirst(); // resource card
 
-            assertDoesNotThrow(() -> shortGame4.placeCard(third, c31, Side.FRONT, 0, 1));
+        assertDoesNotThrow(() -> shortGame4.placeCard(second, c21, Side.FRONT, 0, 1));
 
-            assertEquals(c31.id(), shortGame4.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        assertEquals(c21.id(), shortGame4.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-            assertEquals(2, shortGame4.getPlayerData(third).getHand().size());
+        assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
+        assertEquals(2, shortGame4.getPlayerData(second).getHand().size());
 
-            assertEquals(GameStatus.FINISHED, shortGame4.getStatus());
-            assertTrue(shortGame4.getTotalScores().size() == shortGame4.getPlayerProfiles().size() && !shortGame4.getWinners().isEmpty());
-        });
+        // THIRD PLAYER
+        assertEquals(third, shortGame4.getCurrentPlayer());
+        Card c31 = shortGame4.getPlayerData(third).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame4.placeCard(third, c31, Side.FRONT, 0, 1));
+
+        assertEquals(c31.id(), shortGame4.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(2, shortGame4.getPlayerData(third).getHand().size());
+
+        assertEquals(GameStatus.FINISHED, shortGame4.getStatus());
+        assertTrue(shortGame4.getTotalScores().size() == shortGame4.getPlayerProfiles().size() && !shortGame4.getWinners().isEmpty());
+
     }
 
     @Test
-    public void testPlayerHasAlreadyJoined() {
+    public void testPlayerHasAlreadyJoined() throws IllegalGameStateException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         standardGame.join(p2);
-        assertThrows(IllegalArgumentException.class, () -> standardGame.join(p1));
+        assertThrows(PlayerAlreadyPlayingException.class, () -> standardGame.join(p1));
 
         PlayerProfile p5 = new PlayerProfile("Mattew");
-        assertThrows(IllegalArgumentException.class, () -> standardGame.join(p5));
+        assertThrows(PlayerAlreadyPlayingException.class, () -> standardGame.join(p5));
     }
 
     @Test
@@ -749,7 +743,7 @@ class GameTest {
     }
 
     @Test
-    public void testNotPlayerTurn() {
+    public void testNotPlayerTurn() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, CardNotInHandException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException, IllegalPlacementException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -806,7 +800,7 @@ class GameTest {
     }
 
     @Test
-    public void testCardNotInHand() {
+    public void testCardNotInHand() throws IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -840,76 +834,72 @@ class GameTest {
         PlayerProfile second = standardGame.getPlayerProfiles().get(1);
         Card c2 = standardGame.getPlayerData(second).getHand().getFirst();
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.placeCard(first, c2, Side.FRONT, 1, 0));
+        assertThrows(CardNotInHandException.class, () -> standardGame.placeCard(first, c2, Side.FRONT, 1, 0));
     }
 
     @Test
-    public void testNotEnoughCards() {
-        assertDoesNotThrow(() -> {
-            Game notValidGame1 = new Game(8, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(4).toList()),
-                    new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(20).toList())));
+    public void testNotEnoughCards() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+        Game notValidGame1 = new Game(8, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(4).toList()),
+                new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(20).toList())));
 
-            notValidGame1.join(p1);
-            notValidGame1.join(p2);
+        notValidGame1.join(p1);
+        notValidGame1.join(p2);
 
-            notValidGame1.selectStartingCardSide(p1, Side.BACK);
-            notValidGame1.selectStartingCardSide(p2, Side.BACK);
+        notValidGame1.selectStartingCardSide(p1, Side.BACK);
+        notValidGame1.selectStartingCardSide(p2, Side.BACK);
 
-            notValidGame1.selectColor(p1, PlayerColor.RED);
-            notValidGame1.selectColor(p2, PlayerColor.BLUE);
+        notValidGame1.selectColor(p1, PlayerColor.RED);
+        notValidGame1.selectColor(p2, PlayerColor.BLUE);
 
-            Objective o1 = notValidGame1.getObjectiveOptions(p1).stream().findAny().orElse(null);
-            notValidGame1.selectObjective(p1, o1);
+        Objective o1 = notValidGame1.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        notValidGame1.selectObjective(p1, o1);
 
-            assertThrows(NotEnoughGameResourcesException.class, () -> notValidGame1.selectObjective(p2, notValidGame1.getObjectiveOptions(p2).stream().findAny().orElse(null)));
+        assertThrows(NotEnoughGameResourcesException.class, () -> notValidGame1.selectObjective(p2, notValidGame1.getObjectiveOptions(p2).stream().findAny().orElse(null)));
 
 
-            Game notValidGame2 = new Game(9, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(20).toList()),
-                    new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(3).toList())));
+        Game notValidGame2 = new Game(9, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(20).toList()),
+                new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(3).toList())));
 
-            notValidGame2.join(p1);
-            notValidGame2.join(p2);
+        notValidGame2.join(p1);
+        notValidGame2.join(p2);
 
-            notValidGame2.selectStartingCardSide(p1, Side.BACK);
-            notValidGame2.selectStartingCardSide(p2, Side.BACK);
+        notValidGame2.selectStartingCardSide(p1, Side.BACK);
+        notValidGame2.selectStartingCardSide(p2, Side.BACK);
 
-            notValidGame2.selectColor(p1, PlayerColor.RED);
-            notValidGame2.selectColor(p2, PlayerColor.BLUE);
+        notValidGame2.selectColor(p1, PlayerColor.RED);
+        notValidGame2.selectColor(p2, PlayerColor.BLUE);
 
-            o1 = notValidGame2.getObjectiveOptions(p1).stream().findAny().orElse(null);
-            notValidGame2.selectObjective(p1, o1);
+        o1 = notValidGame2.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        notValidGame2.selectObjective(p1, o1);
 
-            assertThrows(NotEnoughGameResourcesException.class, () -> notValidGame2.selectObjective(p2, notValidGame2.getObjectiveOptions(p2).stream().findAny().orElse(null)));
-        });
+        assertThrows(NotEnoughGameResourcesException.class, () -> notValidGame2.selectObjective(p2, notValidGame2.getObjectiveOptions(p2).stream().findAny().orElse(null)));
     }
 
     @Test
-    public void testDecksAreEmptyOnStarting() {
-        assertDoesNotThrow(() -> {
-            Game shortGame5 = new Game(11, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(6).toList()),
-                    new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(4).toList())));
-    
-            shortGame5.join(p1);
-            shortGame5.join(p2);
-    
-            shortGame5.selectStartingCardSide(p1, Side.BACK);
-            shortGame5.selectStartingCardSide(p2, Side.BACK);
-    
-            shortGame5.selectColor(p1, PlayerColor.RED);
-            shortGame5.selectColor(p2, PlayerColor.BLUE);
-    
-            Objective o1 = shortGame5.getObjectiveOptions(p1).stream().findAny().orElse(null);
-            shortGame5.selectObjective(p1, o1);
-    
-            Objective o2 = shortGame5.getObjectiveOptions(p2).stream().findAny().orElse(null);
-            shortGame5.selectObjective(p2, o2);
-    
-            assertEquals(GameStatus.LAST_TURN, shortGame5.getStatus());
-        });
+    public void testDecksAreEmptyOnStarting() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+        Game shortGame5 = new Game(11, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(6).toList()),
+                new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(4).toList())));
+
+        shortGame5.join(p1);
+        shortGame5.join(p2);
+
+        shortGame5.selectStartingCardSide(p1, Side.BACK);
+        shortGame5.selectStartingCardSide(p2, Side.BACK);
+
+        shortGame5.selectColor(p1, PlayerColor.RED);
+        shortGame5.selectColor(p2, PlayerColor.BLUE);
+
+        Objective o1 = shortGame5.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        shortGame5.selectObjective(p1, o1);
+
+        Objective o2 = shortGame5.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        shortGame5.selectObjective(p2, o2);
+
+        assertEquals(GameStatus.LAST_TURN, shortGame5.getStatus());
     }
 
     @Test
-    public void testPlayerIsNotInGame() {
+    public void testPlayerIsNotInGame() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException, IllegalPlacementException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -917,21 +907,21 @@ class GameTest {
 
         PlayerProfile playerNotInGame = new PlayerProfile("Hacker");
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.selectStartingCardSide(playerNotInGame, Side.BACK));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.selectStartingCardSide(playerNotInGame, Side.BACK));
 
         standardGame.selectStartingCardSide(p1, Side.BACK);
         standardGame.selectStartingCardSide(p2, Side.BACK);
         standardGame.selectStartingCardSide(p3, Side.BACK);
         standardGame.selectStartingCardSide(p4, Side.BACK);
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.selectColor(playerNotInGame, PlayerColor.RED));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.selectColor(playerNotInGame, PlayerColor.RED));
         standardGame.selectColor(p1, PlayerColor.RED);
         standardGame.selectColor(p2, PlayerColor.BLUE);
         standardGame.selectColor(p3, PlayerColor.YELLOW);
         standardGame.selectColor(p4, PlayerColor.GREEN);
 
         Objective o1 = standardGame.getObjectiveOptions(p1).stream().findAny().orElse(null);
-        assertThrows(IllegalArgumentException.class, () -> standardGame.selectObjective(playerNotInGame, o1));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.selectObjective(playerNotInGame, o1));
 
         standardGame.selectObjective(p1, o1);
 
@@ -949,14 +939,14 @@ class GameTest {
         PlayerProfile first = standardGame.getPlayerProfiles().getFirst();
         Card c1 = standardGame.getPlayerData(first).getHand().getFirst();
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.placeCard(playerNotInGame, c1, Side.FRONT, 1, 0));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.placeCard(playerNotInGame, c1, Side.FRONT, 1, 0));
         standardGame.placeCard(first, c1, Side.FRONT, 1, 0);
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.drawCard(playerNotInGame, standardGame.getBoard().getFaceUpCards().stream().findAny().orElse(null)));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.drawCard(playerNotInGame, standardGame.getBoard().getFaceUpCards().stream().findAny().orElse(null)));
     }
 
     @Test
-    public void testEarlyStart() {
+    public void testEarlyStart() throws IllegalGameStateException, NotEnoughPlayersException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         standardGame.join(p2);
 
@@ -965,14 +955,14 @@ class GameTest {
     }
 
     @Test
-    public void testEarlyStartFailures() {
-        assertThrows(IllegalMoveException.class, () -> standardGame.startGame());
+    public void testEarlyStartFailures() throws IllegalGameStateException, PlayerAlreadyPlayingException {
+        assertThrows(NotEnoughPlayersException.class, () -> standardGame.startGame());
         standardGame.join(p1);
-        assertThrows(IllegalMoveException.class, () -> standardGame.startGame());
+        assertThrows(NotEnoughPlayersException.class, () -> standardGame.startGame());
     }
 
     @Test
-    public void firstTestDoubleStart() {
+    public void firstTestDoubleStart() throws IllegalGameStateException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -983,7 +973,7 @@ class GameTest {
     }
 
     @Test
-    public void secondTestDoubleStart() {
+    public void secondTestDoubleStart() throws IllegalGameStateException, NotEnoughPlayersException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -995,7 +985,7 @@ class GameTest {
     }
 
     @Test
-    public void testEndGameTwentyPointsWithEarlyStart() {
+    public void testEndGameTwentyPointsWithEarlyStart() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, NotEnoughPlayersException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -1020,120 +1010,118 @@ class GameTest {
                     )
             ));
         }
-        assertDoesNotThrow(() -> {
-            Game shortGame4 = new Game(12, 4, new Board(new Deck(cards), new Deck(GameAssets.getInstance().getGoldenCards())));
+        Game shortGame4 = new Game(12, 4, new Board(new Deck(cards), new Deck(GameAssets.getInstance().getGoldenCards())));
 
-            shortGame4.join(p1);
-            shortGame4.join(p2);
-            shortGame4.join(p3);
+        shortGame4.join(p1);
+        shortGame4.join(p2);
+        shortGame4.join(p3);
 
-            shortGame4.startGame();
+        shortGame4.startGame();
 
-            shortGame4.selectStartingCardSide(p1, Side.FRONT);
-            shortGame4.selectStartingCardSide(p2, Side.FRONT);
-            shortGame4.selectStartingCardSide(p3, Side.FRONT);
+        shortGame4.selectStartingCardSide(p1, Side.FRONT);
+        shortGame4.selectStartingCardSide(p2, Side.FRONT);
+        shortGame4.selectStartingCardSide(p3, Side.FRONT);
 
-            shortGame4.selectColor(p1, PlayerColor.RED);
-            shortGame4.selectColor(p2, PlayerColor.BLUE);
-            shortGame4.selectColor(p3, PlayerColor.YELLOW);
+        shortGame4.selectColor(p1, PlayerColor.RED);
+        shortGame4.selectColor(p2, PlayerColor.BLUE);
+        shortGame4.selectColor(p3, PlayerColor.YELLOW);
 
-            Objective o1 = shortGame4.getObjectiveOptions(p1).stream().findAny().orElse(null);
-            shortGame4.selectObjective(p1, o1);
+        Objective o1 = shortGame4.getObjectiveOptions(p1).stream().findAny().orElse(null);
+        shortGame4.selectObjective(p1, o1);
 
-            Objective o2 = shortGame4.getObjectiveOptions(p2).stream().findAny().orElse(null);
-            shortGame4.selectObjective(p2, o2);
+        Objective o2 = shortGame4.getObjectiveOptions(p2).stream().findAny().orElse(null);
+        shortGame4.selectObjective(p2, o2);
 
-            Objective o3 = shortGame4.getObjectiveOptions(p3).stream().findAny().orElse(null);
-            shortGame4.selectObjective(p3, o3);
-
-
-            assertEquals(GameStatus.PLAY, shortGame4.getStatus());
-            assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
-
-            // -- FIRST TURNS --
-            // FIRST PLAYER
-            PlayerProfile first = shortGame4.getPlayerProfiles().getFirst();
-            assertEquals(first, shortGame4.getCurrentPlayer());
-            Card c1 = shortGame4.getPlayerData(first).getHand().get(2); // gold card
-
-            assertDoesNotThrow(() -> shortGame4.placeCard(first, c1, Side.BACK, 1, 0));
-
-            assertEquals(c1.id(), shortGame4.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-
-            assertEquals(GameStatus.PLAY, shortGame4.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame4.drawCard(first, shortGame4.getBoard().getResourceCardDeck()));
-            assertEquals(3, shortGame4.getPlayerData(first).getHand().size());
-
-            // SECOND PLAYER
-            PlayerProfile second = shortGame4.getPlayerProfiles().get(1);
-            assertEquals(second, shortGame4.getCurrentPlayer());
-            Card c2 = shortGame4.getPlayerData(second).getHand().get(2); // golden card
-
-            assertDoesNotThrow(() -> shortGame4.placeCard(second, c2, Side.BACK, 1, 0));
-            assertEquals(GameStatus.PLAY, shortGame4.getStatus());
-
-            assertEquals(c2.id(), shortGame4.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-
-            assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame4.drawCard(second, shortGame4.getBoard().getGoldenCardDeck()));
-            assertEquals(3, shortGame4.getPlayerData(second).getHand().size());
-
-            // THIRD PLAYER
-            PlayerProfile third = shortGame4.getPlayerProfiles().get(2);
-            assertEquals(third, shortGame4.getCurrentPlayer());
-            Card c3 = shortGame4.getPlayerData(third).getHand().getFirst(); // resource card --> 20 points earned and last player of rounds
-
-            assertDoesNotThrow(() -> shortGame4.placeCard(third, c3, Side.FRONT, 1, 0));
-            assertEquals(c3.id(), shortGame4.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
-            assertEquals(GameStatus.SECOND_LAST_TURN, shortGame4.getStatus());
-            assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
-
-            assertEquals(DrawResult.OK, shortGame4.drawCard(third, shortGame4.getBoard().getResourceCardDeck()));
-            assertEquals(GameStatus.LAST_TURN, shortGame4.getStatus());
-            assertEquals(3, shortGame4.getPlayerData(third).getHand().size());
+        Objective o3 = shortGame4.getObjectiveOptions(p3).stream().findAny().orElse(null);
+        shortGame4.selectObjective(p3, o3);
 
 
-            // -- SECOND TURNS --
-            // FIRST PLAYER
-            assertEquals(first, shortGame4.getCurrentPlayer());
-            Card c11 = shortGame4.getPlayerData(first).getHand().getFirst(); // resource card
+        assertEquals(GameStatus.PLAY, shortGame4.getStatus());
+        assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
 
-            assertDoesNotThrow(() -> shortGame4.placeCard(first, c11, Side.FRONT, 0, 1));
+        // -- FIRST TURNS --
+        // FIRST PLAYER
+        PlayerProfile first = shortGame4.getPlayerProfiles().getFirst();
+        assertEquals(first, shortGame4.getCurrentPlayer());
+        Card c1 = shortGame4.getPlayerData(first).getHand().get(2); // gold card
 
-            assertEquals(c11.id(), shortGame4.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        assertDoesNotThrow(() -> shortGame4.placeCard(first, c1, Side.BACK, 1, 0));
+
+        assertEquals(c1.id(), shortGame4.getPlayArea(first).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(GameStatus.PLAY, shortGame4.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame4.drawCard(first, shortGame4.getBoard().getResourceCardDeck()));
+        assertEquals(3, shortGame4.getPlayerData(first).getHand().size());
+
+        // SECOND PLAYER
+        PlayerProfile second = shortGame4.getPlayerProfiles().get(1);
+        assertEquals(second, shortGame4.getCurrentPlayer());
+        Card c2 = shortGame4.getPlayerData(second).getHand().get(2); // golden card
+
+        assertDoesNotThrow(() -> shortGame4.placeCard(second, c2, Side.BACK, 1, 0));
+        assertEquals(GameStatus.PLAY, shortGame4.getStatus());
+
+        assertEquals(c2.id(), shortGame4.getPlayArea(second).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+
+        assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame4.drawCard(second, shortGame4.getBoard().getGoldenCardDeck()));
+        assertEquals(3, shortGame4.getPlayerData(second).getHand().size());
+
+        // THIRD PLAYER
+        PlayerProfile third = shortGame4.getPlayerProfiles().get(2);
+        assertEquals(third, shortGame4.getCurrentPlayer());
+        Card c3 = shortGame4.getPlayerData(third).getHand().getFirst(); // resource card --> 20 points earned and last player of rounds
+
+        assertDoesNotThrow(() -> shortGame4.placeCard(third, c3, Side.FRONT, 1, 0));
+        assertEquals(c3.id(), shortGame4.getPlayArea(third).getAt(1, 0).map(cp -> cp.getCard().id()).orElse(null));
+        assertEquals(GameStatus.SECOND_LAST_TURN, shortGame4.getStatus());
+        assertEquals(TurnPhase.DRAWING, shortGame4.getTurnPhase());
+
+        assertEquals(DrawResult.OK, shortGame4.drawCard(third, shortGame4.getBoard().getResourceCardDeck()));
+        assertEquals(GameStatus.LAST_TURN, shortGame4.getStatus());
+        assertEquals(3, shortGame4.getPlayerData(third).getHand().size());
 
 
-            assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
-            assertEquals(2, shortGame4.getPlayerData(first).getHand().size());
+        // -- SECOND TURNS --
+        // FIRST PLAYER
+        assertEquals(first, shortGame4.getCurrentPlayer());
+        Card c11 = shortGame4.getPlayerData(first).getHand().getFirst(); // resource card
 
-            // SECOND PLAYER
-            assertEquals(second, shortGame4.getCurrentPlayer());
-            Card c21 = shortGame4.getPlayerData(second).getHand().getFirst(); // resource card
+        assertDoesNotThrow(() -> shortGame4.placeCard(first, c11, Side.FRONT, 0, 1));
 
-            assertDoesNotThrow(() -> shortGame4.placeCard(second, c21, Side.FRONT, 0, 1));
-
-            assertEquals(c21.id(), shortGame4.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        assertEquals(c11.id(), shortGame4.getPlayArea(first).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-            assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
-            assertEquals(2, shortGame4.getPlayerData(second).getHand().size());
+        assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
+        assertEquals(2, shortGame4.getPlayerData(first).getHand().size());
 
-            // THIRD PLAYER
-            assertEquals(third, shortGame4.getCurrentPlayer());
-            Card c31 = shortGame4.getPlayerData(third).getHand().getFirst(); // resource card
+        // SECOND PLAYER
+        assertEquals(second, shortGame4.getCurrentPlayer());
+        Card c21 = shortGame4.getPlayerData(second).getHand().getFirst(); // resource card
 
-            assertDoesNotThrow(() -> shortGame4.placeCard(third, c31, Side.FRONT, 0, 1));
+        assertDoesNotThrow(() -> shortGame4.placeCard(second, c21, Side.FRONT, 0, 1));
 
-            assertEquals(c31.id(), shortGame4.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+        assertEquals(c21.id(), shortGame4.getPlayArea(second).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
 
 
-            assertEquals(2, shortGame4.getPlayerData(third).getHand().size());
+        assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
+        assertEquals(2, shortGame4.getPlayerData(second).getHand().size());
 
-            assertEquals(GameStatus.FINISHED, shortGame4.getStatus());
-            assertTrue(shortGame4.getTotalScores().size() == shortGame4.getPlayerProfiles().size() && !shortGame4.getWinners().isEmpty());
-        });
+        // THIRD PLAYER
+        assertEquals(third, shortGame4.getCurrentPlayer());
+        Card c31 = shortGame4.getPlayerData(third).getHand().getFirst(); // resource card
+
+        assertDoesNotThrow(() -> shortGame4.placeCard(third, c31, Side.FRONT, 0, 1));
+
+        assertEquals(c31.id(), shortGame4.getPlayArea(third).getAt(0, 1).map(cp -> cp.getCard().id()).orElse(null));
+
+
+        assertEquals(2, shortGame4.getPlayerData(third).getHand().size());
+
+        assertEquals(GameStatus.FINISHED, shortGame4.getStatus());
+        assertTrue(shortGame4.getTotalScores().size() == shortGame4.getPlayerProfiles().size() && !shortGame4.getWinners().isEmpty());
     }
 }

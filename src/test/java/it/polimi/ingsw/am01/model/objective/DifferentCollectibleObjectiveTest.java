@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.model.objective;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
@@ -34,13 +35,13 @@ class DifferentCollectibleObjectiveTest {
         assertEquals(0, objective.getEarnedPoints(pa));
     }
     @Test
-    void oneItem() {
+    void oneItem() throws IllegalPlacementException {
         pa.placeAt(1,0,card25,Side.FRONT);
         assertEquals(0, objective.getEarnedPoints(pa));
     }
 
     @Test
-    void threeIdenticalItems() {
+    void threeIdenticalItems() throws IllegalPlacementException {
         pa.placeAt(1,0,card25,Side.FRONT);
         pa.placeAt(0,-1,card16,Side.FRONT);
         pa.placeAt(-1,0,card6,Side.FRONT);
@@ -48,20 +49,20 @@ class DifferentCollectibleObjectiveTest {
     }
 
     @Test
-    void twoOutOfThree() {
+    void twoOutOfThree() throws IllegalPlacementException {
         pa.placeAt(1,0,card16,Side.FRONT);
         pa.placeAt(2,0,card5,Side.FRONT);
         assertEquals(0, objective.getEarnedPoints(pa));
     }
     @Test
-    void completeSet() {
+    void completeSet() throws IllegalPlacementException {
         pa.placeAt(0,1,card16,Side.FRONT);
         pa.placeAt(0,-1,card7,Side.FRONT);
         pa.placeAt(-1,0,card5,Side.FRONT);
         assertEquals(3, objective.getEarnedPoints(pa));
     }
     @Test
-    void oneExceedingElement() {
+    void oneExceedingElement() throws IllegalPlacementException {
         pa.placeAt(1,0,card6,Side.FRONT);
         pa.placeAt(-1,0,card5,Side.FRONT);
         pa.placeAt(0,1,card16,Side.FRONT);
@@ -70,7 +71,7 @@ class DifferentCollectibleObjectiveTest {
     }
 
     @Test
-    void twoExceedingElements() {
+    void twoExceedingElements() throws IllegalPlacementException {
         pa.placeAt(1,0,card6,Side.FRONT);
         pa.placeAt(-1,0,card5,Side.FRONT);
         pa.placeAt(0,1,card16,Side.FRONT);
@@ -80,7 +81,7 @@ class DifferentCollectibleObjectiveTest {
     }
 
     @Test
-    void twoCompleteSet() {
+    void twoCompleteSet() throws IllegalPlacementException {
         pa.placeAt(1,0,card6,Side.FRONT);
         pa.placeAt(-1,0,card5,Side.FRONT);
         pa.placeAt(0,1,card16,Side.FRONT);

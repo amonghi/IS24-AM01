@@ -1,9 +1,10 @@
 package it.polimi.ingsw.am01.network.message.c2s;
 
 import it.polimi.ingsw.am01.controller.Controller;
-import it.polimi.ingsw.am01.controller.ProtocolState;
-import it.polimi.ingsw.am01.controller.ProtocolStatus;
+import it.polimi.ingsw.am01.controller.VirtualView;
+import it.polimi.ingsw.am01.model.exception.IllegalGameStateException;
 import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
+import it.polimi.ingsw.am01.model.exception.NotAuthenticatedException;
 import it.polimi.ingsw.am01.model.exception.PlayerAlreadyPlayingException;
 import it.polimi.ingsw.am01.model.game.Game;
 import it.polimi.ingsw.am01.model.game.GameStatus;
@@ -22,18 +23,19 @@ public record CreateGameAndJoinC2S(int maxPlayers) implements C2SNetworkMessage 
     }
 
     @Override
-    public void execute(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, ProtocolState state) {
+    public void execute(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, VirtualView virtualView) {
         try{
-            Game game = controller.createAndJoinGame(maxPlayers, state.getPlayerName().orElse(null)); // TODO: Manage unhandled exceptions
+            Game game = controller.createAndJoinGame(maxPlayers, virtualView.getPlayerProfile().orElseThrow().getName());
             connection.send(new GameJoinedS2C(game.getId(), GameStatus.AWAITING_PLAYERS));
-            state.setGameId(game.getId());
-            state.setStatus(ProtocolStatus.IN_GAME); // TODO:
-        }catch(InvalidMaxPlayersException e){
+            virtualView.setGame(game);
+        } catch (InvalidMaxPlayersException e) {
             connection.send(new InvalidMaxPlayersS2C(maxPlayers));
         } catch (PlayerAlreadyPlayingException e) {
             throw new RuntimeException(e); // TODO: disconnect player
+        } catch (IllegalGameStateException e) {
+            throw new RuntimeException(e);
+        } catch (NotAuthenticatedException e) {
+            throw new RuntimeException(e);
         }
     }
-
-
 }

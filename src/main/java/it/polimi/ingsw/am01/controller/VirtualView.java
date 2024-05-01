@@ -1,25 +1,54 @@
 package it.polimi.ingsw.am01.controller;
 
+import it.polimi.ingsw.am01.model.game.Game;
+import it.polimi.ingsw.am01.model.game.GameManager;
+import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
+import java.util.Optional;
+
 public class VirtualView implements Runnable {
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
-    private final ProtocolState protocolState;
+    private final GameManager gameManager;
+    private Game game;
+    private PlayerProfile playerProfile;
 
-    public VirtualView(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection) {
+    public VirtualView(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, GameManager gameManager) {
         this.controller = controller;
         this.connection = connection;
-        this.protocolState = new ProtocolState();
+        this.gameManager = gameManager;
+        this.game = null;
+        this.playerProfile = null;
+    }
+
+    public Optional<GameManager> getGameManager() {
+        return Optional.ofNullable(gameManager);
+    }
+
+    public Optional<Game> getGame() {
+        return Optional.ofNullable(game);
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public Optional<PlayerProfile> getPlayerProfile() {
+        return Optional.ofNullable(playerProfile);
+    }
+
+    public void setPlayerProfile(PlayerProfile playerProfile) {
+        this.playerProfile = playerProfile;
     }
 
     @Override
     public void run() {
         while (true) {
             C2SNetworkMessage message = this.connection.receive();
-            message.execute(controller, connection, protocolState);
+            message.execute(controller, connection, this);
         }
     }
 }

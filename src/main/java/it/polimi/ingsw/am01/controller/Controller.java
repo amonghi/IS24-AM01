@@ -2,10 +2,9 @@ package it.polimi.ingsw.am01.controller;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
-import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
-import it.polimi.ingsw.am01.model.exception.NameAlreadyTakenException;
-import it.polimi.ingsw.am01.model.exception.PlayerAlreadyPlayingException;
+import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -50,9 +49,9 @@ public class Controller {
      * @return the created game
      * @throws IllegalArgumentException if the specified player is already in a game
      */
-    public Game createAndJoinGame(int maxPlayers, String playerName) throws PlayerAlreadyPlayingException, InvalidMaxPlayersException {
+    public Game createAndJoinGame(int maxPlayers, String playerName) throws PlayerAlreadyPlayingException, InvalidMaxPlayersException, IllegalGameStateException, NotAuthenticatedException {
         PlayerProfile player = this.playerManager.getProfile(playerName)
-                .orElseThrow();
+                .orElseThrow(NotAuthenticatedException::new);
         ensureNotInGame(player);
 
         Game game = this.gameManager.createGame(maxPlayers);
@@ -67,11 +66,11 @@ public class Controller {
      * @param playerName the name of the player that will join the game
      * @see Game#join(PlayerProfile)
      */
-    public void joinGame(int gameId, String playerName) throws PlayerAlreadyPlayingException {
+    public void joinGame(int gameId, String playerName) throws PlayerAlreadyPlayingException, IllegalGameStateException, GameNotFoundException, NotAuthenticatedException {
         Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
+                .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
-                .orElseThrow();
+                .orElseThrow(NotAuthenticatedException::new);
         ensureNotInGame(player);
 
         game.join(player);
@@ -82,9 +81,9 @@ public class Controller {
      *
      * @param gameId the ID of the game that have to start
      */
-    public void startGame(int gameId) {
+    public void startGame(int gameId) throws IllegalGameStateException, NotEnoughPlayersException, GameNotFoundException {
         Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
+                .orElseThrow(() -> new GameNotFoundException(gameId));
 
         game.startGame();
     }
@@ -97,11 +96,11 @@ public class Controller {
      * @param side       the side on which the card will be placed
      * @see Game#selectStartingCardSide(PlayerProfile, Side)
      */
-    public void selectStartingCardSide(int gameId, String playerName, Side side) {
+    public void selectStartingCardSide(int gameId, String playerName, Side side) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, DoubleChoiceException, InvalidSideException {
         Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
+                .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
-                .orElseThrow();
+                .orElseThrow(NotAuthenticatedException::new);
 
         game.selectStartingCardSide(player, side);
     }
@@ -115,11 +114,11 @@ public class Controller {
      * @return {@link SelectionResult#CONTENDED} if there is some other player that also wants the same color, {@link SelectionResult#OK} otherwise
      * @see Game#selectColor(PlayerProfile, PlayerColor)
      */
-    public SelectionResult selectPlayerColor(int gameId, String playerName, PlayerColor color) {
+    public SelectionResult selectPlayerColor(int gameId, String playerName, PlayerColor color) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, InvalidColorException {
         Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
+                .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
-                .orElseThrow();
+                .orElseThrow(NotAuthenticatedException::new);
 
         return game.selectColor(player, color);
     }
@@ -134,13 +133,13 @@ public class Controller {
      * @see Game#selectObjective(PlayerProfile, Objective)
      * @see Game#getObjectiveOptions(PlayerProfile)
      */
-    public void selectSecretObjective(int gameId, String playerName, int objectiveId) {
+    public void selectSecretObjective(int gameId, String playerName, int objectiveId) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, InvalidObjectiveException, DoubleChoiceException {
         Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
+                .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
-                .orElseThrow();
+                .orElseThrow(NotAuthenticatedException::new);
         Objective objective = GameAssets.getInstance().getObjectiveById(objectiveId)
-                .orElseThrow();
+                .orElseThrow(InvalidObjectiveException::new);
 
         game.selectObjective(player, objective);
     }
@@ -154,11 +153,11 @@ public class Controller {
      * @return {@link DrawResult#EMPTY} if the deck was empty and thus the action had no effect, {@link DrawResult#OK} otherwise
      * @see Game#drawCard(PlayerProfile, DrawSource)
      */
-    public DrawResult drawCardFromDeck(int gameId, String playerName, DeckLocation deckLocation) {
+    public DrawResult drawCardFromDeck(int gameId, String playerName, DeckLocation deckLocation) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException {
         Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
+                .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
-                .orElseThrow();
+                .orElseThrow(NotAuthenticatedException::new);
 
         Deck deck = switch (deckLocation) {
             case RESOURCE_CARD_DECK -> game.getBoard().getResourceCardDeck();
@@ -178,16 +177,16 @@ public class Controller {
      * @return always {@link DrawResult#OK} because, since the specified card must exist, it can always be put in the player's hand
      * @see Game#drawCard(PlayerProfile, DrawSource)
      */
-    public DrawResult drawCardFromFaceUpCards(int gameId, String playerName, int cardId) {
+    public DrawResult drawCardFromFaceUpCards(int gameId, String playerName, int cardId) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, InvalidCardException {
         Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
+                .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
-                .orElseThrow();
+                .orElseThrow(NotAuthenticatedException::new);
 
         FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream()
                 .filter(fuc -> fuc.getCard().map(card -> card.id() == cardId).orElse(false))
                 .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("That card is not among the cards that are facing up"));
+                .orElseThrow(InvalidCardException::new);
 
         return game.drawCard(player, faceUpCard);
     }
@@ -204,13 +203,13 @@ public class Controller {
      * @param j          the {@code j} coordinate on which to place the card
      * @see Game#placeCard(PlayerProfile, Card, Side, int, int)
      */
-    public void placeCard(int gameId, String playerName, int cardId, Side side, int i, int j) {
+    public void placeCard(int gameId, String playerName, int cardId, Side side, int i, int j) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, InvalidCardException, IllegalPlacementException {
         Game game = this.gameManager.getGame(gameId)
-                .orElseThrow();
+                .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
-                .orElseThrow();
+                .orElseThrow(NotAuthenticatedException::new);
         Card toPlace = GameAssets.getInstance().getCardById(cardId)
-                .orElseThrow();
+                .orElseThrow(InvalidCardException::new);
 
         game.placeCard(player, toPlace, side, i, j);
     }
