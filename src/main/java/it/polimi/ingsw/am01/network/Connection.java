@@ -5,5 +5,5 @@ import it.polimi.ingsw.am01.network.message.NetworkMessage;
 public interface Connection<S extends NetworkMessage, R extends NetworkMessage> {
     void send(S message);
 
-    R receive();
+    R receive() throws ReceiveNetworkException;
 }

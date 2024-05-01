@@ -4,6 +4,7 @@ module it.polimi.ingsw.am01 {
 
     requires org.controlsfx.controls;
     requires com.google.gson;
+    requires java.rmi;
 
     opens it.polimi.ingsw.am01 to javafx.fxml;
     opens it.polimi.ingsw.am01.model.card to com.google.gson;
@@ -23,6 +24,7 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.network.message.c2s to com.google.gson;
 
 
-
     exports it.polimi.ingsw.am01;
+    exports it.polimi.ingsw.am01.network.rmi to java.rmi;
+    exports it.polimi.ingsw.am01.network.rmi.server to java.rmi;
 }

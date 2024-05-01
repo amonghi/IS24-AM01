@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.network.server;
 
 import it.polimi.ingsw.am01.network.Connection;
+import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
@@ -18,8 +19,13 @@ public class TCPServer implements Server {
     }
 
     @Override
-    public Connection<S2CNetworkMessage, C2SNetworkMessage> accept() throws IOException {
-        Socket socket = serverSocket.accept();
-        return new ServerTCPConnection(socket);
+    public Connection<S2CNetworkMessage, C2SNetworkMessage> accept() throws OpenConnectionNetworkException {
+        Socket socket = null;
+        try {
+            socket = serverSocket.accept();
+            return new ServerTCPConnection(socket);
+        } catch (IOException e) {
+            throw new OpenConnectionNetworkException(e);
+        }
     }
 }

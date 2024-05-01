@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.controller;
 
 import it.polimi.ingsw.am01.network.Connection;
+import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
@@ -18,8 +19,13 @@ public class VirtualView implements Runnable {
     @Override
     public void run() {
         while (true) {
-            C2SNetworkMessage message = this.connection.receive();
-            message.execute(controller, connection, protocolState);
+            try {
+                C2SNetworkMessage message = this.connection.receive();
+                message.execute(controller, connection, protocolState);
+            } catch (ReceiveNetworkException e) {
+                // TODO: better handling
+                e.printStackTrace();
+            }
         }
     }
 }
