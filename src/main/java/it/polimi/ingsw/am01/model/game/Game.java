@@ -1,13 +1,19 @@
 package it.polimi.ingsw.am01.model.game;
 
 
+import it.polimi.ingsw.am01.eventemitter.EventEmitter;
+import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
+import it.polimi.ingsw.am01.eventemitter.EventListener;
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.chat.ChatManager;
+import it.polimi.ingsw.am01.model.chat.Message;
 import it.polimi.ingsw.am01.model.choice.Choice;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.MultiChoice;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
+import it.polimi.ingsw.am01.model.event.GameEvent;
+import it.polimi.ingsw.am01.model.event.UpdatePlayerListEvent;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -20,12 +26,15 @@ import java.util.*;
  * It manages an entire game: from player joining to decreeing winners.
  * It defines {@link PlayerData} for each {@link PlayerProfile} by looking on choices made.
  *
- * @see it.polimi.ingsw.am01.model.player.PlayerData
- * @see it.polimi.ingsw.am01.model.player.PlayerProfile
- * @see it.polimi.ingsw.am01.model.choice.Choice
- * @see it.polimi.ingsw.am01.model.choice.MultiChoice
+ * @see PlayerData
+ * @see PlayerProfile
+ * @see Choice
+ * @see MultiChoice
  */
-public class Game {
+public class Game implements EventEmitter<GameEvent> {
+
+    private final EventEmitterImpl<GameEvent> emitter;
+
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
@@ -58,12 +67,13 @@ public class Game {
      * @param id         the unique id of the game
      * @param maxPlayers the maximum number of players that can play this game
      * @throws InvalidMaxPlayersException if {@code maxPlayers} is not between 2 and 4
-     * @see it.polimi.ingsw.am01.model.game.Board
+     * @see Board
      */
     public Game(int id, int maxPlayers) throws InvalidMaxPlayersException {
         if (maxPlayers < 2 || maxPlayers > 4) {
             throw new InvalidMaxPlayersException(maxPlayers);
         }
+
 
         this.id = id;
         this.maxPlayers = maxPlayers;
@@ -81,6 +91,7 @@ public class Game {
         this.turnPhase = TurnPhase.PLACING;
         this.board = Board.createShuffled(new Deck(GameAssets.getInstance().getResourceCards()),
                 new Deck(GameAssets.getInstance().getGoldenCards()));
+        emitter = new EventEmitterImpl<>();
     }
 
     /**
@@ -92,7 +103,7 @@ public class Game {
      * @param maxPlayers the maximum number of players that can play this game
      * @param board      the board of the game, that includes all {@link FaceUpCard} and {@link Deck}
      * @throws InvalidMaxPlayersException if {@code maxPlayers} is not between 2 and 4
-     * @see it.polimi.ingsw.am01.model.game.Board
+     * @see Board
      */
     public Game(int id, int maxPlayers, Board board) throws InvalidMaxPlayersException {
         if (maxPlayers < 2 || maxPlayers > 4) {
@@ -114,6 +125,7 @@ public class Game {
         this.currentPlayer = 0;
         this.turnPhase = TurnPhase.PLACING;
         this.board = board;
+        this.emitter = new EventEmitterImpl<>();
     }
 
     /**
@@ -145,7 +157,7 @@ public class Game {
     /**
      * @param pp the {@link PlayerProfile} associated to player whose {@link PlayerData} is required
      * @return the {@link PlayerData} of {@code pp}
-     * @see it.polimi.ingsw.am01.model.player.PlayerData
+     * @see PlayerData
      */
     public synchronized PlayerData getPlayerData(PlayerProfile pp) {
         if (!playerProfiles.contains(pp)) {
@@ -158,7 +170,7 @@ public class Game {
     /**
      * @param pp the {@link PlayerProfile} associated to player whose {@link PlayArea} is required
      * @return the {@link PlayArea} of {@code pp}
-     * @see it.polimi.ingsw.am01.model.game.PlayArea
+     * @see PlayArea
      */
     public synchronized PlayArea getPlayArea(PlayerProfile pp) {
         if (!playerProfiles.contains(pp)) {
@@ -170,7 +182,7 @@ public class Game {
 
     /**
      * @return the {@link Board} of this game
-     * @see it.polimi.ingsw.am01.model.game.Board
+     * @see Board
      */
     public synchronized Board getBoard() {
         return board;
@@ -197,7 +209,7 @@ public class Game {
 
     /**
      * @return the current macro-phase of the game
-     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     * @see GameStatus
      */
     public synchronized GameStatus getStatus() {
         return status;
@@ -205,7 +217,7 @@ public class Game {
 
     /**
      * @return the current {@link TurnPhase}: placing or drawing
-     * @see it.polimi.ingsw.am01.model.game.TurnPhase
+     * @see TurnPhase
      */
     public synchronized TurnPhase getTurnPhase() throws IllegalGameStateException {
         if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
@@ -219,7 +231,7 @@ public class Game {
      * This method permits to set the current turn phase
      *
      * @param turnPhase the new {@link TurnPhase} to be set.
-     * @see it.polimi.ingsw.am01.model.game.TurnPhase
+     * @see TurnPhase
      */
     private void setTurnPhase(TurnPhase turnPhase) {
         this.turnPhase = turnPhase;
@@ -227,8 +239,8 @@ public class Game {
 
     /**
      * @return the {@link ChatManager} of this game, that manages messages sent by each player
-     * @see it.polimi.ingsw.am01.model.chat.ChatManager
-     * @see it.polimi.ingsw.am01.model.chat.Message
+     * @see ChatManager
+     * @see Message
      */
     public synchronized ChatManager getChatManager() {
         return chatManager;
@@ -245,7 +257,7 @@ public class Game {
      * This method permits to prepare and start the turn-based phase of the game, after choices phase.
      * It throws a {@code NotEnoughGameResourcesException} if there are not enough resource or golden cards into decks
      *
-     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     * @see GameStatus
      */
     private void setupAndStartTurnPhase() {
         for (PlayerProfile player : playerProfiles) {
@@ -280,7 +292,7 @@ public class Game {
      * This method permits to pause the game, if it is not already {@code SUSPENDED}.
      * No action will be performed while {@code SUSPENDED} status is set.
      *
-     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     * @see GameStatus
      */
     public synchronized void pauseGame() throws IllegalGameStateException {
         if (status == GameStatus.SUSPENDED) {
@@ -294,7 +306,7 @@ public class Game {
      * This method permits to resume the game, if it is {@code SUSPENDED}. The previous valid status will be recovered.
      * No action will be performed while {@code SUSPENDED} status is not set.
      *
-     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     * @see GameStatus
      */
     public synchronized void resumeGame() throws IllegalGameStateException {
         if (status != GameStatus.SUSPENDED) {
@@ -307,7 +319,7 @@ public class Game {
      * This method set game's status. It permits to perform status' transition
      *
      * @param nextStatus the new current status
-     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     * @see GameStatus
      */
     private void transition(GameStatus nextStatus) {
         this.status = nextStatus;
@@ -318,8 +330,8 @@ public class Game {
      * It throws a {@code NotEnoughGameResourcesException} if there are not enough starting or objective cards
      * It requires that all players have already joined the game, with {@link Game#join(PlayerProfile) join} method.
      *
-     * @see it.polimi.ingsw.am01.model.choice.Choice
-     * @see it.polimi.ingsw.am01.model.choice.MultiChoice
+     * @see Choice
+     * @see MultiChoice
      */
     private void setUpChoices() {
         // Setup starter card choices
@@ -370,6 +382,8 @@ public class Game {
 
         playerProfiles.add(pp);
 
+        emitter.emit(new UpdatePlayerListEvent(playerProfiles));
+
         if (playerProfiles.size() == maxPlayers) {
             transition(GameStatus.SETUP_STARTING_CARD_SIDE);
             setUpChoices();
@@ -401,7 +415,7 @@ public class Game {
      * @param pp the {@link PlayerProfile} of player tha want to choose
      * @param s  the chosen side of starting card
      * @throws DoubleChoiceException if player has already chosen starting card side
-     * @see it.polimi.ingsw.am01.model.choice.Choice
+     * @see Choice
      */
     public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException, IllegalGameStateException, PlayerNotInGameException, InvalidSideException {
         if (status != GameStatus.SETUP_STARTING_CARD_SIDE) {
@@ -431,8 +445,8 @@ public class Game {
      * @param pp the {@link PlayerProfile} of player that want to choose
      * @param pc the {@link PlayerColor} chosen by player {@code pp}
      * @return the {@link SelectionResult} referred to the choice made
-     * @see it.polimi.ingsw.am01.model.choice.SelectionResult
-     * @see it.polimi.ingsw.am01.model.choice.MultiChoice
+     * @see SelectionResult
+     * @see MultiChoice
      */
     public synchronized SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException, InvalidColorException {
         if (status != GameStatus.SETUP_COLOR) {
@@ -460,7 +474,7 @@ public class Game {
      *
      * @param pp the {@link PlayerProfile} of player that want to choose
      * @param o  the {@link Objective} chosen by player {@code pp}
-     * @see it.polimi.ingsw.am01.model.choice.Choice
+     * @see Choice
      */
     public synchronized void selectObjective(PlayerProfile pp, Objective o) throws IllegalGameStateException, PlayerNotInGameException, DoubleChoiceException, InvalidObjectiveException {
         if (status != GameStatus.SETUP_OBJECTIVE) {
@@ -492,10 +506,10 @@ public class Game {
      * @param pp the {@link PlayerProfile} of player that want to draw
      * @param ds the {@link DrawSource} from where to get the card
      * @return the result of drawing
-     * @see it.polimi.ingsw.am01.model.game.DrawSource
-     * @see it.polimi.ingsw.am01.model.game.DrawResult
-     * @see it.polimi.ingsw.am01.model.game.TurnPhase
-     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     * @see DrawSource
+     * @see DrawResult
+     * @see TurnPhase
+     * @see GameStatus
      */
     public synchronized DrawResult drawCard(PlayerProfile pp, DrawSource ds) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN) || turnPhase != TurnPhase.DRAWING) {
@@ -556,11 +570,11 @@ public class Game {
      * @param s  the visible {@link Side} of the placement
      * @param i  the coordinate i of the placement
      * @param j  the coordinate j of the placement
-     * @see it.polimi.ingsw.am01.model.game.TurnPhase
-     * @see it.polimi.ingsw.am01.model.game.GameStatus
-     * @see it.polimi.ingsw.am01.model.player.PlayerData
-     * @see it.polimi.ingsw.am01.model.game.PlayArea
-     * @see it.polimi.ingsw.am01.model.game.PlayArea.CardPlacement
+     * @see TurnPhase
+     * @see GameStatus
+     * @see PlayerData
+     * @see PlayArea
+     * @see PlayArea.CardPlacement
      */
     public synchronized void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) throws IllegalTurnException, PlayerNotInGameException, IllegalGameStateException, CardNotInHandException, IllegalPlacementException {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN)
@@ -613,7 +627,7 @@ public class Game {
      *
      * @return a list that contains all winners of the game. It is based on total scores
      * @see Game#getTotalScores() getTotalScores
-     * @see it.polimi.ingsw.am01.model.game.GameStatus
+     * @see GameStatus
      */
     public synchronized List<PlayerProfile> getWinners() throws IllegalGameStateException {
         Map<PlayerProfile, Integer> scores = getTotalScores();
@@ -685,5 +699,20 @@ public class Game {
     @Override
     public synchronized int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public Registration onAny(EventListener<GameEvent> listener) {
+        return emitter.onAny(listener);
+    }
+
+    @Override
+    public <T extends GameEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
+        return emitter.on(eventClass, listener);
+    }
+
+    @Override
+    public boolean unregister(Registration registration) {
+        return emitter.unregister(registration);
     }
 }

@@ -22,6 +22,7 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.network.message.s2c to com.google.gson;
     opens it.polimi.ingsw.am01.network.message.c2s to com.google.gson;
     opens it.polimi.ingsw.am01.model.exception to com.google.gson;
+    opens it.polimi.ingsw.am01.eventemitter to com.google.gson;
 
 
     exports it.polimi.ingsw.am01;

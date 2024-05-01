@@ -2,11 +2,15 @@ package it.polimi.ingsw.am01.model.game;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.polimi.ingsw.am01.eventemitter.EventEmitter;
+import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
+import it.polimi.ingsw.am01.eventemitter.EventListener;
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
+import it.polimi.ingsw.am01.model.event.UpdateGameListEvent;
 import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
 import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -21,7 +25,10 @@ import java.util.stream.Collectors;
 /**
  * Manages multiple {@link Game} instances at once and allows to save the current status in a json file
  */
-public class GameManager {
+public class GameManager implements EventEmitter<UpdateGameListEvent> {
+
+    private final EventEmitterImpl<UpdateGameListEvent> emitter;
+
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Corner.class, new CornerSerDes())
             .registerTypeAdapter(Points.class, new PointsSerDes())
@@ -42,12 +49,16 @@ public class GameManager {
      * @param dataDir the path of the directory in which the saved games will be stored
      */
     public GameManager(Path dataDir) {
+        this.emitter = new EventEmitterImpl<>();
         this.games = new ArrayList<>();
         this.dataDir = dataDir;
         List<Integer> savedGamesIds = loadSavedGamesIds();
         nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(0);
         for (int id : savedGamesIds) {
             games.add(loadGame(id));
+        }
+        if (!games.isEmpty()) {
+            emitter.emit(new UpdateGameListEvent(games));
         }
     }
 
@@ -93,6 +104,7 @@ public class GameManager {
         Game newGame = new Game(nextId, maxPlayers);
         nextId++;
         games.add(newGame);
+        emitter.emit(new UpdateGameListEvent(games));
         return newGame;
     }
 
@@ -111,6 +123,7 @@ public class GameManager {
                 throw new RuntimeException("Failed to delete file " + game.getId() + ".json");
             }
         }
+        emitter.emit(new UpdateGameListEvent(games));
     }
 
     /**
@@ -184,5 +197,20 @@ public class GameManager {
      */
     private Game deserializeGame(String json) {
         return gson.fromJson(json, Game.class);
+    }
+
+    @Override
+    public Registration onAny(EventListener<UpdateGameListEvent> listener) {
+        return emitter.onAny(listener);
+    }
+
+    @Override
+    public <T extends UpdateGameListEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
+        return emitter.on(eventClass, listener);
+    }
+
+    @Override
+    public boolean unregister(Registration registration) {
+        return emitter.unregister(registration);
     }
 }
