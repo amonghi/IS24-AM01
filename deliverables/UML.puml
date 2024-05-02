@@ -571,6 +571,7 @@ package game {
         + getPosition() PlayArea.Position
         + getCard() Card
         + getSide() Side
+        + getSeq() int
         + getVisibleFace() CardFace
         + getPoints() int
         + getRelative(CornerPosition cp) Optional<CardPlacement>

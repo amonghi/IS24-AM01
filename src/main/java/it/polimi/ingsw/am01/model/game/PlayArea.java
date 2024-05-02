@@ -387,6 +387,15 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         }
 
         /**
+         * Provides the sequence number of this placement on {@link PlayArea}
+         *
+         * @return The sequence number
+         */
+        public int getSeq() {
+            return seq;
+        }
+
+        /**
          * Provides the visible CardFace of the placed card
          *
          * @return The visible CardFace of card
