@@ -4,7 +4,7 @@ import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
-import it.polimi.ingsw.am01.network.server.Server;
+import it.polimi.ingsw.am01.network.Server;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;

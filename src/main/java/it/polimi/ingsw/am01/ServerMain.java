@@ -9,8 +9,8 @@ import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.rmi.server.RMIServer;
-import it.polimi.ingsw.am01.network.server.Server;
-import it.polimi.ingsw.am01.network.server.TCPServer;
+import it.polimi.ingsw.am01.network.Server;
+import it.polimi.ingsw.am01.network.tcp.server.TCPServer;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -3,7 +3,7 @@ package it.polimi.ingsw.am01;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
-import it.polimi.ingsw.am01.network.client.ClientTCPConnection;
+import it.polimi.ingsw.am01.network.tcp.client.ClientTCPConnection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.AuthenticateC2S;

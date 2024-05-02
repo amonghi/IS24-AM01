@@ -1,7 +1,8 @@
-package it.polimi.ingsw.am01.network.server;
+package it.polimi.ingsw.am01.network.tcp.server;
 
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
+import it.polimi.ingsw.am01.network.Server;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 

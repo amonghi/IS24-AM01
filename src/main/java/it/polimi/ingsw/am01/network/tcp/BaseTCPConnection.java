@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01;
+package it.polimi.ingsw.am01.network.tcp;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

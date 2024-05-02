@@ -1,6 +1,6 @@
-package it.polimi.ingsw.am01.network.client;
+package it.polimi.ingsw.am01.network.tcp.client;
 
-import it.polimi.ingsw.am01.BaseTCPConnection;
+import it.polimi.ingsw.am01.network.tcp.BaseTCPConnection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 

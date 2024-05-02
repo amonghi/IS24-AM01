@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.network.server;
+package it.polimi.ingsw.am01.network;
 
 public class NetworkException extends Exception {
     public NetworkException(String message) {
