@@ -30,30 +30,26 @@ public class ServerMain {
         PlayerManager playerManager = new PlayerManager();
         GameManager gameManager = new GameManager(dataPath);
         Controller controller = new Controller(playerManager, gameManager);
-
-        String serverType = "rmi";
-
-        // TODO: run both together
-        Server server = switch (serverType) {
-            case "tcp" -> new TCPServer(InetAddress.getByName(HOSTNAME), TCP_PORT);
-            case "rmi" -> new RMIServer(RMI_PORT);
-            default -> throw new IllegalArgumentException("Unknown server type: " + serverType);
-        };
-
         ExecutorService executorService = Executors.newCachedThreadPool();
 
-        new Thread(() -> {
-            while (true) {
-                try {
-                    Connection<S2CNetworkMessage, C2SNetworkMessage> connection = server.accept();
-                    VirtualView virtualView = new VirtualView(controller, connection);
-                    executorService.submit(virtualView);
-                } catch (OpenConnectionNetworkException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).start();
+        TCPServer tcpServer = new TCPServer(InetAddress.getByName(HOSTNAME), TCP_PORT);
+        new Thread(() -> acceptConnections(tcpServer, controller, executorService)).start();
+
+        RMIServer rmiServer = new RMIServer(RMI_PORT);
+        new Thread(() -> acceptConnections(rmiServer, controller, executorService)).start();
 
         System.out.println("Server started.");
+    }
+
+    private static void acceptConnections(Server server, Controller controller, ExecutorService executorService) {
+        while (true) {
+            try {
+                Connection<S2CNetworkMessage, C2SNetworkMessage> connection = server.accept();
+                VirtualView virtualView = new VirtualView(controller, connection);
+                executorService.submit(virtualView);
+            } catch (OpenConnectionNetworkException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
