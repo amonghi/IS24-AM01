@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.controller;
+package it.polimi.ingsw.am01.network;
 
 import java.util.Optional;
 

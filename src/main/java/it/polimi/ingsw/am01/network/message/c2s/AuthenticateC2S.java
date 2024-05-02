@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.network.message.c2s;
 
 import it.polimi.ingsw.am01.controller.Controller;
-import it.polimi.ingsw.am01.controller.ProtocolState;
+import it.polimi.ingsw.am01.network.ProtocolState;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;

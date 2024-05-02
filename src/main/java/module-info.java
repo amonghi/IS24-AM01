@@ -23,6 +23,11 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.network.message.c2s to com.google.gson;
 
     exports it.polimi.ingsw.am01;
+    exports it.polimi.ingsw.am01.network to java.rmi;
     exports it.polimi.ingsw.am01.network.rmi to java.rmi;
     exports it.polimi.ingsw.am01.network.rmi.server to java.rmi;
+    exports it.polimi.ingsw.am01.network.rmi.client to java.rmi;
+    exports it.polimi.ingsw.am01.network.message to java.rmi;
+    exports it.polimi.ingsw.am01.network.message.c2s to java.rmi;
+    exports it.polimi.ingsw.am01.network.message.s2c to java.rmi;
 }

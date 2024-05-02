@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.controller;
 
 import it.polimi.ingsw.am01.network.Connection;
+import it.polimi.ingsw.am01.network.ProtocolState;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
