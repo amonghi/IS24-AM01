@@ -21,9 +21,8 @@ public class TCPServer implements Server {
 
     @Override
     public Connection<S2CNetworkMessage, C2SNetworkMessage> accept() throws OpenConnectionNetworkException {
-        Socket socket = null;
         try {
-            socket = serverSocket.accept();
+            Socket socket = serverSocket.accept();
             return new ServerTCPConnection(socket);
         } catch (IOException e) {
             throw new OpenConnectionNetworkException(e);
