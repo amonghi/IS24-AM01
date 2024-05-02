@@ -25,6 +25,8 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(PlaceCardC2S.ID, PlaceCardC2S.class),
             Map.entry(SelectStartingCardSideC2S.ID, SelectStartingCardSideC2S.class),
             Map.entry(StartGameC2S.ID, StartGameC2S.class),
+            Map.entry(SelectColorC2S.ID, SelectColorC2S.class),
+
 
             // S2C messages
             Map.entry(DoubleSideChoiceS2C.ID, DoubleSideChoiceS2C.class),
@@ -42,9 +44,11 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(SetPlayerNameS2C.ID, SetPlayerNameS2C.class),
             Map.entry(SetStartingCardS2C.ID, SetStartingCardS2C.class),
             Map.entry(UpdateGameListS2C.ID, UpdateGameListS2C.class),
+            Map.entry(UpdateGameStatusAndSetupObjectiveS2C.ID, UpdateGameStatusAndSetupObjectiveS2C.class),
             Map.entry(UpdateGameStatusAndTurnS2C.ID, UpdateGameStatusAndTurnS2C.class),
             Map.entry(UpdateGameStatusS2C.ID, UpdateGameStatusS2C.class),
             Map.entry(UpdatePlayAreaS2C.ID, UpdatePlayAreaS2C.class),
+            Map.entry(UpdatePlayerColorS2C.ID, UpdatePlayerColorS2C.class),
             Map.entry(UpdatePlayerListS2C.ID, UpdatePlayerListS2C.class)
     );
 

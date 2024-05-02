@@ -454,22 +454,19 @@ public class Game implements EventEmitter<GameEvent> {
      * @see SelectionResult
      * @see MultiChoice
      */
-    public synchronized SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException, InvalidColorException {
+    public synchronized SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_COLOR) {
             throw new IllegalGameStateException();
         }
         if (!playerProfiles.contains(pp)) {
             throw new PlayerNotInGameException();
         }
-        SelectionResult sr;
-        try {
-            sr = colorChoices.get(pp).select(pc);
-        } catch (NoSuchElementException e) {
-            throw new InvalidColorException();
-        }
+        SelectionResult sr = colorChoices.get(pp).select(pc);
+        emitter.emit(new PlayerChangedColorChoiceEvent(pp, pc, sr));
 
         if (colorChoices.get(pp).isSettled()) { // FIXME: MultiChoice class
             transition(GameStatus.SETUP_OBJECTIVE);
+            emitter.emit(new AllColorChoicesSettledEvent());
         }
         return sr;
     }

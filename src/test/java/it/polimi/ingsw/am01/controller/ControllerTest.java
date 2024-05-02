@@ -131,14 +131,14 @@ class ControllerTest {
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
         }
 
-        void prepare_SETUP_OBJECTIVE() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidColorException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void prepare_SETUP_OBJECTIVE() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_SETUP_COLOR();
             controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
             assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
         }
 
-        void prepare_PLAY_PLACING() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidColorException, InvalidObjectiveException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void prepare_PLAY_PLACING() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidObjectiveException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_SETUP_OBJECTIVE();
 
             controller.selectSecretObjective(game.getId(), "Alice",
@@ -149,7 +149,7 @@ class ControllerTest {
             assertEquals(TurnPhase.PLACING, game.getTurnPhase());
         }
 
-        void prepare_PLAY_DRAWING() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidColorException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void prepare_PLAY_DRAWING() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_PLAY_PLACING();
 
             // place a card so now we can draw
@@ -274,7 +274,7 @@ class ControllerTest {
         }
 
         @Test
-        void canSelectColor() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidColorException {
+        void canSelectColor() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
             SelectionResult aResult = controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             assertEquals(SelectionResult.OK, aResult);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
@@ -285,7 +285,7 @@ class ControllerTest {
         }
 
         @Test
-        void canChangeColorUntilEveryoneHasChosen() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidColorException {
+        void canChangeColorUntilEveryoneHasChosen() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
             for (PlayerColor color : new PlayerColor[]{PlayerColor.RED, PlayerColor.GREEN, PlayerColor.BLUE}) {
                 SelectionResult result = controller.selectPlayerColor(game.getId(), "Alice", color);
                 assertEquals(SelectionResult.OK, result);
@@ -303,7 +303,7 @@ class ControllerTest {
         }
 
         @Test
-        void playersCanContendColor() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidColorException {
+        void playersCanContendColor() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
             SelectionResult aResult = controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             assertEquals(SelectionResult.OK, aResult);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
@@ -337,7 +337,7 @@ class ControllerTest {
     class SelectSecretObjective extends WithUtils {
 
         @BeforeEach
-        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidColorException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_SETUP_OBJECTIVE();
         }
 
@@ -394,7 +394,7 @@ class ControllerTest {
     class PlaceCard extends WithUtils {
 
         @BeforeEach
-        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidColorException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_PLAY_PLACING();
         }
 
@@ -453,7 +453,7 @@ class ControllerTest {
     class DrawCard extends WithUtils {
 
         @BeforeEach
-        void init() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidColorException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_PLAY_DRAWING();
         }
 

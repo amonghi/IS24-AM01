@@ -5,16 +5,14 @@ import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
 import it.polimi.ingsw.am01.model.game.Game;
 import it.polimi.ingsw.am01.model.game.GameManager;
+import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class VirtualView implements Runnable {
@@ -53,7 +51,9 @@ public class VirtualView implements Runnable {
                 game.on(AllPlayersJoinedEvent.class, this::allPlayersJoined),
                 game.on(CardPlacedEvent.class, this::updatePlayArea),
                 game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
-                game.on(GameFinishedEvent.class, this::gameFinished)
+                game.on(GameFinishedEvent.class, this::gameFinished),
+                game.on(AllColorChoicesSettledEvent.class, this::updateGameStatusAndSetupObjective),
+                game.on(PlayerChangedColorChoiceEvent.class, this::updatePlayerColor)
         ));
     }
 
@@ -114,6 +114,25 @@ public class VirtualView implements Runnable {
                         event.getGameStatus(),
                         event.getPlayerScores().entrySet().stream()
                                 .collect(Collectors.toMap(e -> e.getKey().getName(), Map.Entry::getValue))
+                )
+        );
+    }
+
+    private void updateGameStatusAndSetupObjective(AllColorChoicesSettledEvent event) {
+        List<Objective> objectiveOptions = new ArrayList<>(game.getObjectiveOptions(playerProfile));
+        connection.send(
+                new UpdateGameStatusAndSetupObjectiveS2C(
+                        objectiveOptions.getFirst().getId(),
+                        objectiveOptions.getLast().getId()
+                )
+        );
+    }
+
+    private void updatePlayerColor(PlayerChangedColorChoiceEvent event) {
+        connection.send(
+                new UpdatePlayerColorS2C(
+                        playerProfile.getName(),
+                        event.getPlayerColor()
                 )
         );
     }
