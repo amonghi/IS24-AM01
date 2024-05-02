@@ -147,6 +147,13 @@ public class Game implements EventEmitter<GameEvent> {
     }
 
     /**
+     * @return all players' starting cards
+     */
+    public synchronized Map<PlayerProfile, Card> getStartingCards(){
+        return Collections.unmodifiableMap(startingCards);
+    }
+
+    /**
      * @return an unmodifiable list of {@link PlayerProfile} that have joined in game already
      */
     public synchronized List<PlayerProfile> getPlayerProfiles() {
@@ -363,6 +370,7 @@ public class Game implements EventEmitter<GameEvent> {
             secretObjectives.add(objectiveList.removeFirst());
             objectiveChoices.put(player, new Choice<>(secretObjectives));
         }
+        emitter.emit(new AllPlayersJoinedEvent());
     }
 
     /**
@@ -416,7 +424,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws DoubleChoiceException if player has already chosen starting card side
      * @see Choice
      */
-    public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException, IllegalGameStateException, PlayerNotInGameException, InvalidSideException {
+    public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException, IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_STARTING_CARD_SIDE) {
             throw new IllegalGameStateException();
         }
@@ -424,16 +432,15 @@ public class Game implements EventEmitter<GameEvent> {
             throw new PlayerNotInGameException();
         }
 
-        try {
-            startingCardSideChoices.get(pp).select(s);
-        } catch (NoSuchElementException e) {
-            throw new InvalidSideException();
-        }
+        startingCardSideChoices.get(pp).select(s);
 
         playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
 
+        emitter.emit(new CardPlacedEvent(pp.getName(), playAreas.get(pp).getAt(PlayArea.Position.ORIGIN).orElse(null)));
+
         if (startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
             transition(GameStatus.SETUP_COLOR);
+            emitter.emit(new AllPlayersChoseStartingCardSideEvent());
         }
     }
 

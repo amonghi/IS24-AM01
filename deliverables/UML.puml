@@ -413,6 +413,7 @@ package game {
         + getPlayerData(PlayerProfile pp) PlayerData
         + getPlayArea(PlayerProfile pp) PlayArea
         + getBoard() Board
+        + getStartingCards() Map<PlayerProfile, Card>
         + getCurrentPlayer() PlayerProfile
         + getCommonObjectives() Set<Objective>
         + getStatus() GameStatus

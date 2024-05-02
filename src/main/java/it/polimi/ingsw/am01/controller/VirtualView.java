@@ -49,6 +49,8 @@ public class VirtualView implements Runnable {
 
         gameRegistrations.addAll(List.of(
                 game.on(PlayerJoinedEvent.class, this::updatePlayerList),
+                game.on(AllPlayersChoseStartingCardSideEvent.class, this::allPlayersChoseSide),
+                game.on(AllPlayersJoinedEvent.class, this::allPlayersJoined),
                 game.on(CardPlacedEvent.class, this::updatePlayArea),
                 game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
                 game.on(GameFinishedEvent.class, this::gameFinished)
@@ -120,9 +122,23 @@ public class VirtualView implements Runnable {
         connection.send(
                 new UpdateGameListS2C(
                         event.getGamesList().stream()
-                                .collect(Collectors.toMap(Game::getId, Game::getMaxPlayers))
+                                .collect(Collectors.toMap(
+                                        Game::getId,
+                                        g -> List.of(g.getPlayerProfiles().size(), g.getMaxPlayers())
+                                ))
                 )
         );
     }
 
+    private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event){
+        connection.send(
+                new UpdateGameStatusS2C(event.getGameStatus())
+        );
+    }
+
+    private void allPlayersJoined(AllPlayersJoinedEvent event){
+        connection.send(
+            new SetStartingCardS2C(game.getStartingCards().get(playerProfile).id())
+        );
+    }
 }

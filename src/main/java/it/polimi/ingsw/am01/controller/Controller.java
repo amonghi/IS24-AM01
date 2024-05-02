@@ -96,7 +96,7 @@ public class Controller {
      * @param side       the side on which the card will be placed
      * @see Game#selectStartingCardSide(PlayerProfile, Side)
      */
-    public void selectStartingCardSide(int gameId, String playerName, Side side) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, DoubleChoiceException, InvalidSideException {
+    public void selectStartingCardSide(int gameId, String playerName, Side side) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, DoubleChoiceException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
