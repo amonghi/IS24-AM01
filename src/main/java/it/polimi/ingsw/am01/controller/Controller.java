@@ -114,7 +114,7 @@ public class Controller {
      * @return {@link SelectionResult#CONTENDED} if there is some other player that also wants the same color, {@link SelectionResult#OK} otherwise
      * @see Game#selectColor(PlayerProfile, PlayerColor)
      */
-    public SelectionResult selectPlayerColor(int gameId, String playerName, PlayerColor color) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, InvalidColorException {
+    public SelectionResult selectPlayerColor(int gameId, String playerName, PlayerColor color) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)

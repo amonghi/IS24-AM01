@@ -8,13 +8,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import it.polimi.ingsw.am01.model.event.UpdateGameStatusAndTurnEvent;
-import it.polimi.ingsw.am01.model.exception.GameNotFoundException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
-import it.polimi.ingsw.am01.network.message.c2s.AuthenticateC2S;
-import it.polimi.ingsw.am01.network.message.c2s.CreateGameAndJoinC2S;
-import it.polimi.ingsw.am01.network.message.c2s.JoinGameC2S;
-import it.polimi.ingsw.am01.network.message.c2s.PlaceCardC2S;
+import it.polimi.ingsw.am01.network.message.c2s.*;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
 import java.io.IOException;
@@ -28,6 +23,8 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(CreateGameAndJoinC2S.ID, CreateGameAndJoinC2S.class),
             Map.entry(JoinGameC2S.ID, JoinGameC2S.class),
             Map.entry(PlaceCardC2S.ID, PlaceCardC2S.class),
+            Map.entry(SelectColorC2S.ID, SelectColorC2S.class),
+
 
             // S2C messages
             Map.entry(GameAlreadyStartedS2C.ID, GameAlreadyStartedS2C.class),
@@ -42,9 +39,11 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(PlayerNotInGameS2C.ID, PlayerNotInGameS2C.class),
             Map.entry(SetPlayerNameS2C.ID, SetPlayerNameS2C.class),
             Map.entry(UpdateGameListS2C.ID, UpdateGameListS2C.class),
+            Map.entry(UpdateGameStatusAndSetupObjectiveS2C.ID, UpdateGameStatusAndSetupObjectiveS2C.class),
             Map.entry(UpdateGameStatusAndTurnS2C.ID, UpdateGameStatusAndTurnS2C.class),
             Map.entry(UpdateGameStatusS2C.ID, UpdateGameStatusS2C.class),
             Map.entry(UpdatePlayAreaS2C.ID, UpdatePlayAreaS2C.class),
+            Map.entry(UpdatePlayerColorS2C.ID, UpdatePlayerColorS2C.class),
             Map.entry(UpdatePlayerListS2C.ID, UpdatePlayerListS2C.class)
     );
 
