@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.controller;
 
+import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
 import it.polimi.ingsw.am01.model.game.Game;
@@ -10,6 +11,8 @@ import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,6 +23,7 @@ public class VirtualView implements Runnable {
     private final GameManager gameManager;
     private Game game;
     private PlayerProfile playerProfile;
+    private final List<EventEmitter.Registration> gameRegistrations;
 
     public VirtualView(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, GameManager gameManager) {
         this.controller = controller;
@@ -27,9 +31,9 @@ public class VirtualView implements Runnable {
         this.gameManager = gameManager;
         this.game = null;
         this.playerProfile = null;
+        this.gameRegistrations = new ArrayList<>();
 
-        gameManager.on(UpdateGameListEvent.class, event ->
-                connection.send(new UpdateGameListS2C(event.getGamesList().stream().collect(Collectors.toMap(Game::getId, Game::getMaxPlayers)))));
+        gameManager.on(GameManagerEvent.class, this::updateGameList);
     }
 
     public GameManager getGameManager() {
@@ -43,22 +47,12 @@ public class VirtualView implements Runnable {
     public void setGame(Game game) {
         this.game = game;
 
-        game.on(UpdatePlayerListEvent.class, event ->
-                connection.send(new UpdatePlayerListS2C(event.getPlayerList().stream().map(PlayerProfile::getName).toList())));
-
-        game.on(CardPlacedEvent.class, event -> {
-            connection.send(new UpdatePlayAreaS2C(event.getPlayerName(), event.getCardPlacement().getPosition().i(),
-                    event.getCardPlacement().getPosition().j(), event.getCardPlacement().getCard().id(), event.getCardPlacement().getSide(),
-                    event.getCardPlacement().getSeq(), event.getCardPlacement().getPoints()));
-        });
-
-        game.on(UpdateGameStatusAndTurnEvent.class, event -> {
-            connection.send(new UpdateGameStatusAndTurnS2C(event.getGameStatus(), event.getTurnPhase(), event.getCurrentPlayer().getName()));
-        });
-
-        game.on(GameFinishedEvent.class, event -> {
-            connection.send(new GameFinishedS2C(event.getGameStatus(), event.getPlayerScores().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getName(), Map.Entry::getValue))));
-        });
+        gameRegistrations.addAll(List.of(
+                game.on(PlayerJoinedEvent.class, this::updatePlayerList),
+                game.on(CardPlacedEvent.class, this::updatePlayArea),
+                game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
+                game.on(GameFinishedEvent.class, this::gameFinished)
+        ));
     }
 
     public Optional<PlayerProfile> getPlayerProfile() {
@@ -80,4 +74,55 @@ public class VirtualView implements Runnable {
             }
         }
     }
+
+    private void updatePlayerList(PlayerJoinedEvent event) {
+        connection.send(
+                new UpdatePlayerListS2C(
+                        event.getPlayerList().stream().map(PlayerProfile::getName).toList()
+                )
+        );
+    }
+
+    private void updatePlayArea(CardPlacedEvent event) {
+        connection.send(
+                new UpdatePlayAreaS2C(
+                        event.getPlayerName(),
+                        event.getCardPlacement().getPosition().i(),
+                        event.getCardPlacement().getPosition().j(),
+                        event.getCardPlacement().getCard().id(),
+                        event.getCardPlacement().getSide(),
+                        event.getCardPlacement().getSeq(),
+                        event.getCardPlacement().getPoints()
+                )
+        );
+    }
+
+    private void updateGameStatusAndTurn(UpdateGameStatusAndTurnEvent event) {
+        connection.send(
+                new UpdateGameStatusAndTurnS2C(
+                        event.getGameStatus(),
+                        event.getTurnPhase(),
+                        event.getCurrentPlayer().getName())
+        );
+    }
+
+    private void gameFinished(GameFinishedEvent event) {
+        connection.send(
+                new GameFinishedS2C(
+                        event.getGameStatus(),
+                        event.getPlayerScores().entrySet().stream()
+                                .collect(Collectors.toMap(e -> e.getKey().getName(), Map.Entry::getValue))
+                )
+        );
+    }
+
+    private void updateGameList(GameManagerEvent event){
+        connection.send(
+                new UpdateGameListS2C(
+                        event.getGamesList().stream()
+                                .collect(Collectors.toMap(Game::getId, Game::getMaxPlayers))
+                )
+        );
+    }
+
 }

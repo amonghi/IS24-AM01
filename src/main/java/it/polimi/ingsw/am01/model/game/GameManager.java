@@ -10,7 +10,9 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.event.UpdateGameListEvent;
+import it.polimi.ingsw.am01.model.event.GameCreatedEvent;
+import it.polimi.ingsw.am01.model.event.GameDeletedEvent;
+import it.polimi.ingsw.am01.model.event.GameManagerEvent;
 import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
 import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -25,9 +27,9 @@ import java.util.stream.Collectors;
 /**
  * Manages multiple {@link Game} instances at once and allows to save the current status in a json file
  */
-public class GameManager implements EventEmitter<UpdateGameListEvent> {
+public class GameManager implements EventEmitter<GameManagerEvent> {
 
-    private final EventEmitterImpl<UpdateGameListEvent> emitter;
+    private final EventEmitterImpl<GameManagerEvent> emitter;
 
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Corner.class, new CornerSerDes())
@@ -58,7 +60,7 @@ public class GameManager implements EventEmitter<UpdateGameListEvent> {
             games.add(loadGame(id));
         }
         if (!games.isEmpty()) {
-            emitter.emit(new UpdateGameListEvent(games));
+            emitter.emit(new GameManagerEvent(games));
         }
     }
 
@@ -104,7 +106,7 @@ public class GameManager implements EventEmitter<UpdateGameListEvent> {
         Game newGame = new Game(nextId, maxPlayers);
         nextId++;
         games.add(newGame);
-        emitter.emit(new UpdateGameListEvent(games));
+        emitter.emit(new GameCreatedEvent(games));
         return newGame;
     }
 
@@ -123,7 +125,7 @@ public class GameManager implements EventEmitter<UpdateGameListEvent> {
                 throw new RuntimeException("Failed to delete file " + game.getId() + ".json");
             }
         }
-        emitter.emit(new UpdateGameListEvent(games));
+        emitter.emit(new GameCreatedEvent(games));
     }
 
     /**
@@ -200,12 +202,12 @@ public class GameManager implements EventEmitter<UpdateGameListEvent> {
     }
 
     @Override
-    public Registration onAny(EventListener<UpdateGameListEvent> listener) {
+    public Registration onAny(EventListener<GameManagerEvent> listener) {
         return emitter.onAny(listener);
     }
 
     @Override
-    public <T extends UpdateGameListEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
+    public <T extends GameManagerEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return emitter.on(eventClass, listener);
     }
 
