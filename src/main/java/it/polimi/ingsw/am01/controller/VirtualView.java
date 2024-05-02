@@ -131,7 +131,7 @@ public class VirtualView implements Runnable {
     private void updatePlayerColor(PlayerChangedColorChoiceEvent event) {
         connection.send(
                 new UpdatePlayerColorS2C(
-                        playerProfile.getName(),
+                        event.getPlayer().getName(),
                         event.getPlayerColor()
                 )
         );
