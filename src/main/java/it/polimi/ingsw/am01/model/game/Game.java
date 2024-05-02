@@ -12,8 +12,7 @@ import it.polimi.ingsw.am01.model.choice.Choice;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.MultiChoice;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
-import it.polimi.ingsw.am01.model.event.GameEvent;
-import it.polimi.ingsw.am01.model.event.UpdatePlayerListEvent;
+import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -592,7 +591,7 @@ public class Game implements EventEmitter<GameEvent> {
         }
 
         //place on play area
-        playAreas.get(pp).placeAt(i, j, c, s);
+        PlayArea.CardPlacement cardPlacement = playAreas.get(pp).placeAt(i, j, c, s);
 
         //delete card from hand
         playersData.get(pp).getHand().remove(c);
@@ -604,22 +603,31 @@ public class Game implements EventEmitter<GameEvent> {
                     transition(GameStatus.SECOND_LAST_TURN);
                 }
                 setTurnPhase(TurnPhase.DRAWING);
+
+                emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
                 break;
 
             case GameStatus.SECOND_LAST_TURN:
                 setTurnPhase(TurnPhase.DRAWING);
+
+                emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
                 break;
 
             case GameStatus.LAST_TURN:
                 if (currentPlayer == playerProfiles.size() - 1) {
                     //this player is the last one -> game is finished. It's useless drawing a card. This is the only one point from where finishing game
                     transition(GameStatus.FINISHED);
+
+                    emitter.emit(new GameFinishedEvent(getTotalScores()));
                 } else {
                     //change current player (state and turn phase are not updated because in this phase it's useless to draw card)
                     changeCurrentPlayer();
+
+                    emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
                 }
                 break;
         }
+        emitter.emit(new CardPlacedEvent(pp.getName(), cardPlacement));
     }
 
     /**

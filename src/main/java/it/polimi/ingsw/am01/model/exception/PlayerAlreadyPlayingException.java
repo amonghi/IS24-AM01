@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.model.exception;
 
-public class PlayerAlreadyPlayingException extends Exception{
+public class PlayerAlreadyPlayingException extends IllegalMoveException{
     private final String playerAlreadyPlaying;
 
     public PlayerAlreadyPlayingException(String playerAlreadyPlaying) {

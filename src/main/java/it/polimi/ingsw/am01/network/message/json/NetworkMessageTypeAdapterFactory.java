@@ -8,10 +8,14 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import it.polimi.ingsw.am01.model.event.UpdateGameStatusAndTurnEvent;
+import it.polimi.ingsw.am01.model.exception.GameNotFoundException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.AuthenticateC2S;
-import it.polimi.ingsw.am01.network.message.s2c.NameAlreadyTakenS2C;
-import it.polimi.ingsw.am01.network.message.s2c.SetPlayerNameS2C;
+import it.polimi.ingsw.am01.network.message.c2s.CreateGameAndJoinC2S;
+import it.polimi.ingsw.am01.network.message.c2s.JoinGameC2S;
+import it.polimi.ingsw.am01.network.message.c2s.PlaceCardC2S;
+import it.polimi.ingsw.am01.network.message.s2c.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -19,9 +23,29 @@ import java.util.Map;
 public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
 
     Map<String, Class<? extends NetworkMessage>> idToType = Map.ofEntries(
+            // C2S messages
             Map.entry(AuthenticateC2S.ID, AuthenticateC2S.class),
+            Map.entry(CreateGameAndJoinC2S.ID, CreateGameAndJoinC2S.class),
+            Map.entry(JoinGameC2S.ID, JoinGameC2S.class),
+            Map.entry(PlaceCardC2S.ID, PlaceCardC2S.class),
+
+            // S2C messages
+            Map.entry(GameAlreadyStartedS2C.ID, GameAlreadyStartedS2C.class),
+            Map.entry(GameFinishedS2C.ID, GameFinishedS2C.class),
+            Map.entry(GameJoinedS2C.ID, GameJoinedS2C.class),
+            Map.entry(GameNotFoundS2C.ID, GameNotFoundS2C.class),
+            Map.entry(InvalidCardS2C.ID, InvalidCardS2C.class),
+            Map.entry(InvalidGameStateS2C.ID, InvalidGameStateS2C.class),
+            Map.entry(InvalidMaxPlayersS2C.ID, InvalidMaxPlayersS2C.class),
+            Map.entry(InvalidPlacementS2C.ID, InvalidPlacementS2C.class),
+            Map.entry(NameAlreadyTakenS2C.ID, NameAlreadyTakenS2C.class),
+            Map.entry(PlayerNotInGameS2C.ID, PlayerNotInGameS2C.class),
             Map.entry(SetPlayerNameS2C.ID, SetPlayerNameS2C.class),
-            Map.entry(NameAlreadyTakenS2C.ID, NameAlreadyTakenS2C.class)
+            Map.entry(UpdateGameListS2C.ID, UpdateGameListS2C.class),
+            Map.entry(UpdateGameStatusAndTurnS2C.ID, UpdateGameStatusAndTurnS2C.class),
+            Map.entry(UpdateGameStatusS2C.ID, UpdateGameStatusS2C.class),
+            Map.entry(UpdatePlayAreaS2C.ID, UpdatePlayAreaS2C.class),
+            Map.entry(UpdatePlayerListS2C.ID, UpdatePlayerListS2C.class)
     );
 
 
@@ -40,6 +64,10 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
                 }
 
                 NetworkMessage data = (NetworkMessage) value;
+                if(!idToType.containsKey(data.getId())) {
+                    throw new JsonParseException("Unknown class message: " + data.getId());
+                }
+
                 Class<? extends NetworkMessage> type = idToType.get(data.getId());
 
                 jsonWriter.beginObject();
@@ -67,6 +95,10 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
                 }
 
                 String id = jsonReader.nextString();
+
+                if(!idToType.containsKey(id)) {
+                    throw new JsonParseException("Unknown class message: " + id);
+                }
                 Class<? extends NetworkMessage> type = idToType.get(id);
 
                 name = jsonReader.nextName();
