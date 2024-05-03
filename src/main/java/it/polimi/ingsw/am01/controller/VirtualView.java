@@ -34,7 +34,8 @@ public class VirtualView implements Runnable {
         this.playerProfile = null;
         this.gameRegistrations = new ArrayList<>();
 
-        gameManager.on(GameManagerEvent.class, this::updateGameList);
+        gameManager.on(GameCreatedEvent.class, this::gameListChanged);
+        gameManager.on(GameDeletedEvent.class, this::gameListChanged);
     }
 
     public GameManager getGameManager() {
@@ -140,16 +141,13 @@ public class VirtualView implements Runnable {
         );
     }
 
-    private void updateGameList(GameManagerEvent event) {
-        connection.send(
-                new UpdateGameListS2C(
-                        event.getGamesList().stream()
-                                .collect(Collectors.toMap(
-                                        Game::getId,
-                                        g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
-                                ))
-                )
-        );
+    private void gameListChanged(GameManagerEvent event) {
+        connection.send(new UpdateGameListS2C(
+                gameManager.getGames().stream().collect(Collectors.toMap(
+                        Game::getId,
+                        game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
+                ))
+        ));
     }
 
     private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event) {
