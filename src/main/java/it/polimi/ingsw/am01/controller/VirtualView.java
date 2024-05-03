@@ -67,7 +67,9 @@ public class VirtualView implements Runnable {
                 game.on(SetUpPhaseFinishedEvent.class, this::setBoardAndHand),
                 game.on(GameFinishedEvent.class, this::gameFinished),
                 game.on(AllColorChoicesSettledEvent.class, this::updateGameStatusAndSetupObjective),
-                game.on(PlayerChangedColorChoiceEvent.class, this::updatePlayerColor)
+                game.on(PlayerChangedColorChoiceEvent.class, this::updatePlayerColor),
+                game.on(GamePausedEvent.class, this::gamePaused),
+                game.on(GameResumedEvent.class, this::gameResumed)
         ));
     }
 
@@ -210,6 +212,20 @@ public class VirtualView implements Runnable {
     private void allPlayersJoined(AllPlayersJoinedEvent event) {
         connection.send(
                 new SetStartingCardS2C(game.getStartingCards().get(playerProfile).id())
+        );
+    }
+
+    private void gamePaused(GamePausedEvent event){
+        connection.send(
+                new SetGamePauseS2C()
+        );
+    }
+
+    private void gameResumed(GameResumedEvent event){
+        connection.send(
+                new SetRecoverStatusS2C(
+                        event.recoverStatus()
+                )
         );
     }
 }

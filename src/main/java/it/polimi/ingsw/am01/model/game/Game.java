@@ -312,6 +312,7 @@ public class Game implements EventEmitter<GameEvent> {
         }
         recoverStatus = status;
         status = GameStatus.SUSPENDED;
+        emitter.emit(new GamePausedEvent());
     }
 
     /**
@@ -325,6 +326,7 @@ public class Game implements EventEmitter<GameEvent> {
             throw new IllegalGameStateException();
         }
         status = recoverStatus;
+        emitter.emit(new GameResumedEvent(status));
     }
 
     /**
