@@ -13,7 +13,6 @@ import it.polimi.ingsw.am01.network.message.s2c.NameAlreadyTakenS2C;
 import it.polimi.ingsw.am01.network.message.s2c.SetPlayerNameS2C;
 import it.polimi.ingsw.am01.network.message.s2c.UpdateGameListS2C;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 public record AuthenticateC2S(String playerName) implements C2SNetworkMessage {
@@ -32,7 +31,7 @@ public record AuthenticateC2S(String playerName) implements C2SNetworkMessage {
             connection.send(new SetPlayerNameS2C(profile.getName()));
             connection.send(new UpdateGameListS2C(virtualView.getGameManager().getGames().stream().collect(Collectors.toMap(
                     Game::getId,
-                    g -> List.of(g.getPlayerProfiles().size(), g.getMaxPlayers())
+                    g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
             ))));
         } catch (NameAlreadyTakenException e) {
             connection.send(new NameAlreadyTakenS2C(this.playerName));

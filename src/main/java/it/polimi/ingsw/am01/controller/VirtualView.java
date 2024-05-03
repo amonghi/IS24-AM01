@@ -12,16 +12,19 @@ import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class VirtualView implements Runnable {
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
     private final GameManager gameManager;
+    private final List<EventEmitter.Registration> gameRegistrations;
     private Game game;
     private PlayerProfile playerProfile;
-    private final List<EventEmitter.Registration> gameRegistrations;
 
     public VirtualView(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, GameManager gameManager) {
         this.controller = controller;
@@ -137,27 +140,27 @@ public class VirtualView implements Runnable {
         );
     }
 
-    private void updateGameList(GameManagerEvent event){
+    private void updateGameList(GameManagerEvent event) {
         connection.send(
                 new UpdateGameListS2C(
                         event.getGamesList().stream()
                                 .collect(Collectors.toMap(
                                         Game::getId,
-                                        g -> List.of(g.getPlayerProfiles().size(), g.getMaxPlayers())
+                                        g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
                                 ))
                 )
         );
     }
 
-    private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event){
+    private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event) {
         connection.send(
                 new UpdateGameStatusS2C(event.getGameStatus())
         );
     }
 
-    private void allPlayersJoined(AllPlayersJoinedEvent event){
+    private void allPlayersJoined(AllPlayersJoinedEvent event) {
         connection.send(
-            new SetStartingCardS2C(game.getStartingCards().get(playerProfile).id())
+                new SetStartingCardS2C(game.getStartingCards().get(playerProfile).id())
         );
     }
 }
