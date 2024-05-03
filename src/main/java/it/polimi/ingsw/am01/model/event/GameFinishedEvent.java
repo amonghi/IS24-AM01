@@ -5,7 +5,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.util.Map;
 
-public class GameFinishedEvent extends GameEvent {
+public class GameFinishedEvent implements GameEvent {
     private final GameStatus gameStatus = GameStatus.FINISHED;
     private final Map<PlayerProfile, Integer> playerScores;
 

@@ -1,5 +1,5 @@
 package it.polimi.ingsw.am01.model.event;
 
-public class AllColorChoicesSettledEvent extends GameEvent {
+public class AllColorChoicesSettledEvent implements GameEvent {
 
 }

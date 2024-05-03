@@ -395,7 +395,7 @@ public class Game implements EventEmitter<GameEvent> {
 
         playerProfiles.add(pp);
 
-        emitter.emit(new PlayerJoinedEvent(playerProfiles));
+        emitter.emit(new PlayerJoinedEvent(this, pp));
 
         if (playerProfiles.size() == maxPlayers) {
             transition(GameStatus.SETUP_STARTING_CARD_SIDE);
