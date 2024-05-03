@@ -20,6 +20,7 @@ import it.polimi.ingsw.am01.model.player.PlayerData;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * It manages an entire game: from player joining to decreeing winners.
@@ -91,6 +92,10 @@ public class Game implements EventEmitter<GameEvent> {
         this.board = Board.createShuffled(new Deck(GameAssets.getInstance().getResourceCards()),
                 new Deck(GameAssets.getInstance().getGoldenCards()));
         emitter = new EventEmitterImpl<>();
+        /* FIXME: problem with loading game (deserialization) */
+            for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
+                emitter.bubble(faceUpCard);
+            }
     }
 
     /**
@@ -125,6 +130,11 @@ public class Game implements EventEmitter<GameEvent> {
         this.turnPhase = TurnPhase.PLACING;
         this.board = board;
         this.emitter = new EventEmitterImpl<>();
+        /* FIXME
+        for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
+            emitter.bubble(faceUpCard);
+        }
+        */
     }
 
     /**
@@ -144,6 +154,13 @@ public class Game implements EventEmitter<GameEvent> {
      */
     public synchronized int getId() {
         return id;
+    }
+
+    /**
+     * @return all players' starting cards
+     */
+    public synchronized Map<PlayerProfile, Card> getStartingCards() {
+        return Collections.unmodifiableMap(startingCards);
     }
 
     /**
@@ -393,6 +410,7 @@ public class Game implements EventEmitter<GameEvent> {
      * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
      * despite there aren't yet connected {@code maxPlayers} players.
      * Game starts automatically as soon as the maximum threshold of connected players is reached
+     *
      */
     public synchronized void startGame() throws IllegalGameStateException, NotEnoughPlayersException {
         if (status != GameStatus.AWAITING_PLAYERS) {
@@ -416,7 +434,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws DoubleChoiceException if player has already chosen starting card side
      * @see Choice
      */
-    public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException, IllegalGameStateException, PlayerNotInGameException, InvalidSideException {
+    public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException, IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_STARTING_CARD_SIDE) {
             throw new IllegalGameStateException();
         }
@@ -424,11 +442,7 @@ public class Game implements EventEmitter<GameEvent> {
             throw new PlayerNotInGameException();
         }
 
-        try {
-            startingCardSideChoices.get(pp).select(s);
-        } catch (NoSuchElementException e) {
-            throw new InvalidSideException();
-        }
+        startingCardSideChoices.get(pp).select(s);
 
         playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
 
@@ -447,19 +461,14 @@ public class Game implements EventEmitter<GameEvent> {
      * @see SelectionResult
      * @see MultiChoice
      */
-    public synchronized SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException, InvalidColorException {
+    public synchronized SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_COLOR) {
             throw new IllegalGameStateException();
         }
         if (!playerProfiles.contains(pp)) {
             throw new PlayerNotInGameException();
         }
-        SelectionResult sr;
-        try {
-            sr = colorChoices.get(pp).select(pc);
-        } catch (NoSuchElementException e) {
-            throw new InvalidColorException();
-        }
+        SelectionResult sr = colorChoices.get(pp).select(pc);
 
         if (colorChoices.get(pp).isSettled()) { // FIXME: MultiChoice class
             transition(GameStatus.SETUP_OBJECTIVE);
@@ -485,12 +494,18 @@ public class Game implements EventEmitter<GameEvent> {
 
         try {
             objectiveChoices.get(pp).select(o);
+            emitter.emit(new SecretObjectiveChosenEvent(objectiveChoices.keySet().stream()
+                            .filter(playerProfile -> objectiveChoices.get(playerProfile).getSelected().isPresent())
+                            .collect(Collectors.toSet())));
         } catch (NoSuchElementException e) {
             throw new InvalidObjectiveException();
         }
         if (objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
             //all players had chosen their objective -> go to the next state (start "turn phase")
             setupAndStartTurnPhase();
+
+            emitter.emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+            emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
         }
     }
 
@@ -524,8 +539,11 @@ public class Game implements EventEmitter<GameEvent> {
         Optional<Card> card = ds.draw();
         card.ifPresent(c -> playersData.get(pp).getHand().add(c));
         if (card.isEmpty()) {
+            emitter.emit(new CardDrawnFromEmptySourceEvent(ds));
             return DrawResult.EMPTY;
         }
+
+        emitter.emit(new CardDrawnFromDeckEvent(getBoard().getResourceCardDeck(), getBoard().getGoldenCardDeck()));
 
         switch (status) {
             case GameStatus.PLAY -> {
@@ -548,6 +566,9 @@ public class Game implements EventEmitter<GameEvent> {
         }
         setTurnPhase(TurnPhase.PLACING);
         changeCurrentPlayer();
+
+        emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+
         return DrawResult.OK;
     }
 

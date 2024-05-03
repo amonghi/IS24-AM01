@@ -1,20 +1,21 @@
 package it.polimi.ingsw.am01.controller;
 
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
+import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
+import it.polimi.ingsw.am01.model.game.FaceUpCard;
 import it.polimi.ingsw.am01.model.game.Game;
 import it.polimi.ingsw.am01.model.game.GameManager;
+import it.polimi.ingsw.am01.model.game.GameStatus;
+import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class VirtualView implements Runnable {
@@ -47,11 +48,20 @@ public class VirtualView implements Runnable {
     public void setGame(Game game) {
         this.game = game;
 
+        for(FaceUpCard fuc : game.getBoard().getFaceUpCards()) {
+            fuc.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards);
+        }
+
         gameRegistrations.addAll(List.of(
                 game.on(PlayerJoinedEvent.class, this::updatePlayerList),
                 game.on(CardPlacedEvent.class, this::updatePlayArea),
                 game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
-                game.on(GameFinishedEvent.class, this::gameFinished)
+                game.on(GameFinishedEvent.class, this::gameFinished),
+                //game.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards),
+                game.on(CardDrawnFromDeckEvent.class, this::updateDeckStatus),
+                game.on(CardDrawnFromEmptySourceEvent.class, this::notifyOfEmptySource),
+                game.on(SecretObjectiveChosenEvent.class, this::updateChosenObjectiveList),
+                game.on(SetUpPhaseFinishedEvent.class, this::setBoardAndHand)
         ));
     }
 
@@ -98,9 +108,10 @@ public class VirtualView implements Runnable {
     }
 
     private void updateGameStatusAndTurn(UpdateGameStatusAndTurnEvent event) {
+        GameStatus status = event.getGameStatus() == GameStatus.SECOND_LAST_TURN ? GameStatus.PLAY : event.getGameStatus();
         connection.send(
                 new UpdateGameStatusAndTurnS2C(
-                        event.getGameStatus(),
+                        status,
                         event.getTurnPhase(),
                         event.getCurrentPlayer().getName())
         );
@@ -125,4 +136,44 @@ public class VirtualView implements Runnable {
         );
     }
 
+    private void updateFaceUpCards(FaceUpCardReplacedEvent event) {
+        connection.send(
+                new UpdateFaceUpCardsS2C(
+                        game.getBoard().getFaceUpCards().stream()
+                                .map(fuc -> Objects.requireNonNull(fuc.getCard().orElse(null)).id())
+                                    .collect(Collectors.toUnmodifiableSet())
+                )
+        );
+    }
+
+    private void updateDeckStatus(CardDrawnFromDeckEvent event) {
+        connection.send(
+                new UpdateDeckStatusS2C(event.getResourceCardDeck().isEmpty(), event.getGoldenCardDeck().isEmpty()));
+    }
+
+    private void notifyOfEmptySource(CardDrawnFromEmptySourceEvent event) {
+        connection.send(
+                new EmptySourceS2C(event.getDrawSource()
+                )
+        );
+    }
+
+    private void updateChosenObjectiveList(SecretObjectiveChosenEvent event) {
+        connection.send(
+                new UpdateObjectiveSelectedS2C(Collections.unmodifiableSet(
+                        event.getPlayersHaveChosen().stream()
+                            .map(PlayerProfile::getName)
+                                .collect(Collectors.toSet()))
+                )
+        );
+    }
+
+    private void setBoardAndHand(SetUpPhaseFinishedEvent event) {
+        Set<Integer> commonObjectives = event.getCommonObjective().stream().map(Objective::getId).collect(Collectors.toUnmodifiableSet());
+        Set<Integer> faceUpCards = event.getFaceUpCards().stream()
+                .map(fuc -> Objects.requireNonNull(fuc.getCard().orElse(null)).id())
+                .collect(Collectors.toUnmodifiableSet());
+        Set<Integer> hand = event.getHands().get(this.playerProfile).getHand().stream().map(Card::id).collect(Collectors.toUnmodifiableSet());
+        connection.send(new SetBoardAndHandS2C(commonObjectives, faceUpCards, hand));
+    }
 }

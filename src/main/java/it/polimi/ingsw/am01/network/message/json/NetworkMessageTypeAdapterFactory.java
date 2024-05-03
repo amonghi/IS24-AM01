@@ -8,13 +8,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import it.polimi.ingsw.am01.model.event.UpdateGameStatusAndTurnEvent;
-import it.polimi.ingsw.am01.model.exception.GameNotFoundException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
-import it.polimi.ingsw.am01.network.message.c2s.AuthenticateC2S;
-import it.polimi.ingsw.am01.network.message.c2s.CreateGameAndJoinC2S;
-import it.polimi.ingsw.am01.network.message.c2s.JoinGameC2S;
-import it.polimi.ingsw.am01.network.message.c2s.PlaceCardC2S;
+import it.polimi.ingsw.am01.network.message.c2s.*;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
 import java.io.IOException;
@@ -28,6 +23,9 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(CreateGameAndJoinC2S.ID, CreateGameAndJoinC2S.class),
             Map.entry(JoinGameC2S.ID, JoinGameC2S.class),
             Map.entry(PlaceCardC2S.ID, PlaceCardC2S.class),
+            Map.entry(SelectSecretObjectiveC2S.ID, SelectSecretObjectiveC2S.class),
+            Map.entry(DrawCardFromDeckC2S.ID, DrawCardFromDeckC2S.class),
+            Map.entry(DrawCardFromFaceUpCardsC2S.ID, DrawCardFromFaceUpCardsC2S.class),
 
             // S2C messages
             Map.entry(GameAlreadyStartedS2C.ID, GameAlreadyStartedS2C.class),
@@ -45,7 +43,14 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(UpdateGameStatusAndTurnS2C.ID, UpdateGameStatusAndTurnS2C.class),
             Map.entry(UpdateGameStatusS2C.ID, UpdateGameStatusS2C.class),
             Map.entry(UpdatePlayAreaS2C.ID, UpdatePlayAreaS2C.class),
-            Map.entry(UpdatePlayerListS2C.ID, UpdatePlayerListS2C.class)
+            Map.entry(UpdatePlayerListS2C.ID, UpdatePlayerListS2C.class),
+            Map.entry(DoubleChoiceS2C.ID, DoubleChoiceS2C.class),
+            Map.entry(EmptySourceS2C.ID, EmptySourceS2C.class),
+            Map.entry(InvalidObjectiveSelectionS2C.ID, InvalidObjectiveSelectionS2C.class),
+            Map.entry(SetBoardAndHandS2C.ID, SetBoardAndHandS2C.class),
+            Map.entry(UpdateDeckStatusS2C.ID, UpdateDeckStatusS2C.class),
+            Map.entry(UpdateFaceUpCardsS2C.ID, UpdateFaceUpCardsS2C.class),
+            Map.entry(UpdateObjectiveSelectedS2C.ID, UpdateObjectiveSelectedS2C.class)
     );
 
 

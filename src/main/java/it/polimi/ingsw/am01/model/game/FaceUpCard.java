@@ -1,6 +1,10 @@
 package it.polimi.ingsw.am01.model.game;
 
+import it.polimi.ingsw.am01.eventemitter.EventEmitter;
+import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
+import it.polimi.ingsw.am01.eventemitter.EventListener;
 import it.polimi.ingsw.am01.model.card.Card;
+import it.polimi.ingsw.am01.model.event.FaceUpCardReplacedEvent;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -8,7 +12,8 @@ import java.util.Optional;
 /**
  * Represents a slot that contains a completely visible Card and that replenish itself from source "mainSource" when drawn. In case mainSource is empty, the card will be taken from "auxiliarySource"
  */
-public class FaceUpCard implements DrawSource {
+public class FaceUpCard implements DrawSource, EventEmitter<FaceUpCardReplacedEvent> {
+    private final EventEmitterImpl<FaceUpCardReplacedEvent> emitter;
     private final Deck mainSource;
     private final Deck auxiliarySource;
     private Card card;
@@ -20,6 +25,7 @@ public class FaceUpCard implements DrawSource {
      * @param auxiliarySource The auxiliary deck where from where the cards are drawn to replenish the slot (when main deck is empty)
      */
     public FaceUpCard(Deck mainSource, Deck auxiliarySource) {
+        this.emitter = new EventEmitterImpl<>();
         this.mainSource = mainSource;
         this.auxiliarySource = auxiliarySource;
         this.card = drawFromDecks();
@@ -35,6 +41,7 @@ public class FaceUpCard implements DrawSource {
     public Optional<Card> draw() {
         Optional<Card> drawnCard = Optional.ofNullable(card);
         card = drawFromDecks();
+        emitter.emit(new FaceUpCardReplacedEvent(this));
         return drawnCard;
     }
 
@@ -86,5 +93,20 @@ public class FaceUpCard implements DrawSource {
     @Override
     public int hashCode() {
         return Objects.hash(card, mainSource, auxiliarySource);
+    }
+
+    @Override
+    public Registration onAny(EventListener<FaceUpCardReplacedEvent> listener) {
+        return emitter.onAny(listener);
+    }
+
+    @Override
+    public <T extends FaceUpCardReplacedEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
+        return emitter.on(eventClass, listener);
+    }
+
+    @Override
+    public boolean unregister(Registration registration) {
+        return emitter.unregister(registration);
     }
 }

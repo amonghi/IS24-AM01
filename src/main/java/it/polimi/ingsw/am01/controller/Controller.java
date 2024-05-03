@@ -47,7 +47,6 @@ public class Controller {
      * @param maxPlayers the maximum amount of players that will be allowed to join the game
      * @param playerName the name of the creator of the game
      * @return the created game
-     * @throws IllegalArgumentException if the specified player is already in a game
      */
     public Game createAndJoinGame(int maxPlayers, String playerName) throws PlayerAlreadyPlayingException, InvalidMaxPlayersException, IllegalGameStateException, NotAuthenticatedException {
         PlayerProfile player = this.playerManager.getProfile(playerName)
@@ -96,7 +95,7 @@ public class Controller {
      * @param side       the side on which the card will be placed
      * @see Game#selectStartingCardSide(PlayerProfile, Side)
      */
-    public void selectStartingCardSide(int gameId, String playerName, Side side) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, DoubleChoiceException, InvalidSideException {
+    public void selectStartingCardSide(int gameId, String playerName, Side side) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, DoubleChoiceException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
@@ -114,7 +113,7 @@ public class Controller {
      * @return {@link SelectionResult#CONTENDED} if there is some other player that also wants the same color, {@link SelectionResult#OK} otherwise
      * @see Game#selectColor(PlayerProfile, PlayerColor)
      */
-    public SelectionResult selectPlayerColor(int gameId, String playerName, PlayerColor color) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, InvalidColorException {
+    public SelectionResult selectPlayerColor(int gameId, String playerName, PlayerColor color) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
