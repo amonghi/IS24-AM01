@@ -444,7 +444,7 @@ public class Game implements EventEmitter<GameEvent> {
 
         playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
 
-        emitter.emit(new CardPlacedEvent(pp.getName(), playAreas.get(pp).getAt(PlayArea.Position.ORIGIN).orElse(null)));
+        emitter.emit(new CardPlacedEvent(pp, playAreas.get(pp).getAt(PlayArea.Position.ORIGIN).orElse(null)));
 
         if (startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
             transition(GameStatus.SETUP_COLOR);
@@ -617,6 +617,8 @@ public class Game implements EventEmitter<GameEvent> {
         //place on play area
         PlayArea.CardPlacement cardPlacement = playAreas.get(pp).placeAt(i, j, c, s);
 
+        emitter.emit(new CardPlacedEvent(pp, cardPlacement));
+
         //delete card from hand
         playersData.get(pp).getHand().remove(c);
 
@@ -651,7 +653,6 @@ public class Game implements EventEmitter<GameEvent> {
                 }
                 break;
         }
-        emitter.emit(new CardPlacedEvent(pp.getName(), cardPlacement));
     }
 
     /**

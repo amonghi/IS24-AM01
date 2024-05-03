@@ -104,7 +104,7 @@ public class VirtualView implements Runnable {
     private void updatePlayArea(CardPlacedEvent event) {
         connection.send(
                 new UpdatePlayAreaS2C(
-                        event.playerName(),
+                        event.player().getName(),
                         event.cardPlacement().getPosition().i(),
                         event.cardPlacement().getPosition().j(),
                         event.cardPlacement().getCard().id(),
