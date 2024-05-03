@@ -92,10 +92,6 @@ public class Game implements EventEmitter<GameEvent> {
         this.board = Board.createShuffled(new Deck(GameAssets.getInstance().getResourceCards()),
                 new Deck(GameAssets.getInstance().getGoldenCards()));
         emitter = new EventEmitterImpl<>();
-        /* FIXME: problem with loading game (deserialization) */
-            for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
-                emitter.bubble(faceUpCard);
-            }
     }
 
     /**
@@ -159,7 +155,7 @@ public class Game implements EventEmitter<GameEvent> {
     /**
      * @return all players' starting cards
      */
-    public synchronized Map<PlayerProfile, Card> getStartingCards() {
+    public synchronized Map<PlayerProfile, Card> getStartingCards(){
         return Collections.unmodifiableMap(startingCards);
     }
 
@@ -380,6 +376,7 @@ public class Game implements EventEmitter<GameEvent> {
             secretObjectives.add(objectiveList.removeFirst());
             objectiveChoices.put(player, new Choice<>(secretObjectives));
         }
+        emitter.emit(new AllPlayersJoinedEvent());
     }
 
     /**
@@ -410,7 +407,6 @@ public class Game implements EventEmitter<GameEvent> {
      * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
      * despite there aren't yet connected {@code maxPlayers} players.
      * Game starts automatically as soon as the maximum threshold of connected players is reached
-     *
      */
     public synchronized void startGame() throws IllegalGameStateException, NotEnoughPlayersException {
         if (status != GameStatus.AWAITING_PLAYERS) {
@@ -446,8 +442,11 @@ public class Game implements EventEmitter<GameEvent> {
 
         playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
 
+        emitter.emit(new CardPlacedEvent(pp.getName(), playAreas.get(pp).getAt(PlayArea.Position.ORIGIN).orElse(null)));
+
         if (startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
             transition(GameStatus.SETUP_COLOR);
+            emitter.emit(new AllPlayersChoseStartingCardSideEvent());
         }
     }
 
@@ -469,9 +468,11 @@ public class Game implements EventEmitter<GameEvent> {
             throw new PlayerNotInGameException();
         }
         SelectionResult sr = colorChoices.get(pp).select(pc);
+        emitter.emit(new PlayerChangedColorChoiceEvent(pp, pc, sr));
 
         if (colorChoices.get(pp).isSettled()) { // FIXME: MultiChoice class
             transition(GameStatus.SETUP_OBJECTIVE);
+            emitter.emit(new AllColorChoicesSettledEvent());
         }
         return sr;
     }

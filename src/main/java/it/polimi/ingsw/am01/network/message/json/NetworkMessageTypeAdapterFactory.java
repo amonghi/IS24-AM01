@@ -26,8 +26,13 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(SelectSecretObjectiveC2S.ID, SelectSecretObjectiveC2S.class),
             Map.entry(DrawCardFromDeckC2S.ID, DrawCardFromDeckC2S.class),
             Map.entry(DrawCardFromFaceUpCardsC2S.ID, DrawCardFromFaceUpCardsC2S.class),
+            Map.entry(SelectStartingCardSideC2S.ID, SelectStartingCardSideC2S.class),
+            Map.entry(StartGameC2S.ID, StartGameC2S.class),
+            Map.entry(SelectColorC2S.ID, SelectColorC2S.class),
+
 
             // S2C messages
+            Map.entry(DoubleSideChoiceS2C.ID, DoubleSideChoiceS2C.class),
             Map.entry(GameAlreadyStartedS2C.ID, GameAlreadyStartedS2C.class),
             Map.entry(GameFinishedS2C.ID, GameFinishedS2C.class),
             Map.entry(GameJoinedS2C.ID, GameJoinedS2C.class),
@@ -37,9 +42,12 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(InvalidMaxPlayersS2C.ID, InvalidMaxPlayersS2C.class),
             Map.entry(InvalidPlacementS2C.ID, InvalidPlacementS2C.class),
             Map.entry(NameAlreadyTakenS2C.ID, NameAlreadyTakenS2C.class),
+            Map.entry(NotEnoughPlayersS2C.ID, NotEnoughPlayersS2C.class),
             Map.entry(PlayerNotInGameS2C.ID, PlayerNotInGameS2C.class),
             Map.entry(SetPlayerNameS2C.ID, SetPlayerNameS2C.class),
+            Map.entry(SetStartingCardS2C.ID, SetStartingCardS2C.class),
             Map.entry(UpdateGameListS2C.ID, UpdateGameListS2C.class),
+            Map.entry(UpdateGameStatusAndSetupObjectiveS2C.ID, UpdateGameStatusAndSetupObjectiveS2C.class),
             Map.entry(UpdateGameStatusAndTurnS2C.ID, UpdateGameStatusAndTurnS2C.class),
             Map.entry(UpdateGameStatusS2C.ID, UpdateGameStatusS2C.class),
             Map.entry(UpdatePlayAreaS2C.ID, UpdatePlayAreaS2C.class),
@@ -50,7 +58,8 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(SetBoardAndHandS2C.ID, SetBoardAndHandS2C.class),
             Map.entry(UpdateDeckStatusS2C.ID, UpdateDeckStatusS2C.class),
             Map.entry(UpdateFaceUpCardsS2C.ID, UpdateFaceUpCardsS2C.class),
-            Map.entry(UpdateObjectiveSelectedS2C.ID, UpdateObjectiveSelectedS2C.class)
+            Map.entry(UpdateObjectiveSelectedS2C.ID, UpdateObjectiveSelectedS2C.class),
+            Map.entry(UpdatePlayerColorS2C.ID, UpdatePlayerColorS2C.class)
     );
 
 

@@ -50,7 +50,7 @@ class GameTest {
     }
 
     @Test
-    public void testGameDoubleChoiceSide() throws IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException {
+    public void testGameDoubleChoiceSide() throws IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -64,7 +64,7 @@ class GameTest {
     }
 
     @Test
-    public void testOneTurnPerPlayerWithPause() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void testOneTurnPerPlayerWithPause() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -187,7 +187,7 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameDeckEmpty() throws IllegalGameStateException, InvalidMaxPlayersException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void firstTestEndGameDeckEmpty() throws IllegalGameStateException, InvalidMaxPlayersException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         Game shortGame1 = new Game(2, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(9).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
@@ -312,7 +312,7 @@ class GameTest {
     }
 
     @Test
-    public void secondTestEndGameDeckEmpty() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, InvalidMaxPlayersException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void secondTestEndGameDeckEmpty() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, InvalidMaxPlayersException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         Game shortGame2 = new Game(3, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(10).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
@@ -435,7 +435,7 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameTwentyPoints() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, InvalidMaxPlayersException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void firstTestEndGameTwentyPoints() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, InvalidMaxPlayersException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -582,7 +582,7 @@ class GameTest {
     }
 
     @Test
-    public void secondTestEndGameTwentyPoints() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void secondTestEndGameTwentyPoints() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -743,7 +743,7 @@ class GameTest {
     }
 
     @Test
-    public void testNotPlayerTurn() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, CardNotInHandException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException, IllegalPlacementException {
+    public void testNotPlayerTurn() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, CardNotInHandException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException, IllegalPlacementException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -800,7 +800,7 @@ class GameTest {
     }
 
     @Test
-    public void testCardNotInHand() throws IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void testCardNotInHand() throws IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -838,7 +838,7 @@ class GameTest {
     }
 
     @Test
-    public void testNotEnoughCards() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void testNotEnoughCards() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         Game notValidGame1 = new Game(8, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(4).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(20).toList())));
 
@@ -876,7 +876,7 @@ class GameTest {
     }
 
     @Test
-    public void testDecksAreEmptyOnStarting() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void testDecksAreEmptyOnStarting() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         Game shortGame5 = new Game(11, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(6).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(4).toList())));
 
@@ -899,7 +899,7 @@ class GameTest {
     }
 
     @Test
-    public void testPlayerIsNotInGame() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException, IllegalPlacementException {
+    public void testPlayerIsNotInGame() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException, IllegalPlacementException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -985,7 +985,7 @@ class GameTest {
     }
 
     @Test
-    public void testEndGameTwentyPointsWithEarlyStart() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, NotEnoughPlayersException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidSideException, InvalidColorException, InvalidObjectiveException {
+    public void testEndGameTwentyPointsWithEarlyStart() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, NotEnoughPlayersException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {

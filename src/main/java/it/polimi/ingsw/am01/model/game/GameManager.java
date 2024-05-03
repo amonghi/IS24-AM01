@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
  */
 public class GameManager implements EventEmitter<GameManagerEvent> {
 
-    private final EventEmitterImpl<GameManagerEvent> emitter;
-
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Corner.class, new CornerSerDes())
             .registerTypeAdapter(Points.class, new PointsSerDes())
@@ -41,6 +39,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
             .registerTypeAdapter(Card.class, new IDCardSerDes())
             .registerTypeAdapter(Objective.class, new IDObjectiveSerDes())
             .create();
+    private final EventEmitterImpl<GameManagerEvent> emitter;
     private final List<Game> games;
     private final Path dataDir;
     private int nextId;
@@ -58,9 +57,6 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(0);
         for (int id : savedGamesIds) {
             games.add(loadGame(id));
-        }
-        if (!games.isEmpty()) {
-            emitter.emit(new GameManagerEvent(games));
         }
     }
 
@@ -106,7 +102,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         Game newGame = new Game(nextId, maxPlayers);
         nextId++;
         games.add(newGame);
-        emitter.emit(new GameCreatedEvent(games));
+        emitter.emit(new GameCreatedEvent(newGame));
         return newGame;
     }
 
@@ -125,7 +121,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
                 throw new RuntimeException("Failed to delete file " + game.getId() + ".json");
             }
         }
-        emitter.emit(new GameCreatedEvent(games));
+        emitter.emit(new GameDeletedEvent(game.getId()));
     }
 
     /**

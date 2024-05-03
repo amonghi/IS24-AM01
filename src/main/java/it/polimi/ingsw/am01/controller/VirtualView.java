@@ -22,9 +22,9 @@ public class VirtualView implements Runnable {
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
     private final GameManager gameManager;
+    private final List<EventEmitter.Registration> gameRegistrations;
     private Game game;
     private PlayerProfile playerProfile;
-    private final List<EventEmitter.Registration> gameRegistrations;
 
     public VirtualView(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, GameManager gameManager) {
         this.controller = controller;
@@ -34,7 +34,8 @@ public class VirtualView implements Runnable {
         this.playerProfile = null;
         this.gameRegistrations = new ArrayList<>();
 
-        gameManager.on(GameManagerEvent.class, this::updateGameList);
+        gameManager.on(GameCreatedEvent.class, this::gameListChanged);
+        gameManager.on(GameDeletedEvent.class, this::gameListChanged);
     }
 
     public GameManager getGameManager() {
@@ -54,14 +55,19 @@ public class VirtualView implements Runnable {
 
         gameRegistrations.addAll(List.of(
                 game.on(PlayerJoinedEvent.class, this::updatePlayerList),
+                game.on(AllPlayersChoseStartingCardSideEvent.class, this::allPlayersChoseSide),
+                game.on(AllPlayersJoinedEvent.class, this::allPlayersJoined),
                 game.on(CardPlacedEvent.class, this::updatePlayArea),
                 game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
                 game.on(GameFinishedEvent.class, this::gameFinished),
-                //game.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards),
+                //game.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards), //FIXME: see Game constructor
                 game.on(CardDrawnFromDeckEvent.class, this::updateDeckStatus),
                 game.on(CardDrawnFromEmptySourceEvent.class, this::notifyOfEmptySource),
                 game.on(SecretObjectiveChosenEvent.class, this::updateChosenObjectiveList),
-                game.on(SetUpPhaseFinishedEvent.class, this::setBoardAndHand)
+                game.on(SetUpPhaseFinishedEvent.class, this::setBoardAndHand),
+                game.on(GameFinishedEvent.class, this::gameFinished),
+                game.on(AllColorChoicesSettledEvent.class, this::updateGameStatusAndSetupObjective),
+                game.on(PlayerChangedColorChoiceEvent.class, this::updatePlayerColor)
         ));
     }
 
@@ -127,11 +133,21 @@ public class VirtualView implements Runnable {
         );
     }
 
-    private void updateGameList(GameManagerEvent event){
+    private void updateGameStatusAndSetupObjective(AllColorChoicesSettledEvent event) {
+        List<Objective> objectiveOptions = new ArrayList<>(game.getObjectiveOptions(playerProfile));
         connection.send(
-                new UpdateGameListS2C(
-                        event.getGamesList().stream()
-                                .collect(Collectors.toMap(Game::getId, Game::getMaxPlayers))
+                new UpdateGameStatusAndSetupObjectiveS2C(
+                        objectiveOptions.getFirst().getId(),
+                        objectiveOptions.getLast().getId()
+                )
+        );
+    }
+
+    private void updatePlayerColor(PlayerChangedColorChoiceEvent event) {
+        connection.send(
+                new UpdatePlayerColorS2C(
+                        event.getPlayer().getName(),
+                        event.getPlayerColor()
                 )
         );
     }
@@ -175,5 +191,25 @@ public class VirtualView implements Runnable {
                 .collect(Collectors.toUnmodifiableSet());
         Set<Integer> hand = event.getHands().get(this.playerProfile).getHand().stream().map(Card::id).collect(Collectors.toUnmodifiableSet());
         connection.send(new SetBoardAndHandS2C(commonObjectives, faceUpCards, hand));
+    }
+    private void gameListChanged(GameManagerEvent event) {
+        connection.send(new UpdateGameListS2C(
+                gameManager.getGames().stream().collect(Collectors.toMap(
+                        Game::getId,
+                        game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
+                ))
+        ));
+    }
+
+    private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event) {
+        connection.send(
+                new UpdateGameStatusS2C(event.getGameStatus())
+        );
+    }
+
+    private void allPlayersJoined(AllPlayersJoinedEvent event) {
+        connection.send(
+                new SetStartingCardS2C(game.getStartingCards().get(playerProfile).id())
+        );
     }
 }
