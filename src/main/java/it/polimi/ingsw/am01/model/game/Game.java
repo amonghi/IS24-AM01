@@ -155,7 +155,7 @@ public class Game implements EventEmitter<GameEvent> {
     /**
      * @return all players' starting cards
      */
-    public synchronized Map<PlayerProfile, Card> getStartingCards(){
+    public synchronized Map<PlayerProfile, Card> getStartingCards() {
         return Collections.unmodifiableMap(startingCards);
     }
 
@@ -202,6 +202,7 @@ public class Game implements EventEmitter<GameEvent> {
 
     /**
      * @return the {@link PlayerProfile} that has to play at this moment of the game
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not a playing status
      */
     public synchronized PlayerProfile getCurrentPlayer() throws IllegalGameStateException {
         if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
@@ -229,6 +230,7 @@ public class Game implements EventEmitter<GameEvent> {
 
     /**
      * @return the current {@link TurnPhase}: placing or drawing
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not a playing status
      * @see TurnPhase
      */
     public synchronized TurnPhase getTurnPhase() throws IllegalGameStateException {
@@ -304,6 +306,7 @@ public class Game implements EventEmitter<GameEvent> {
      * This method permits to pause the game, if it is not already {@code SUSPENDED}.
      * No action will be performed while {@code SUSPENDED} status is set.
      *
+     * @throws IllegalGameStateException is the current {@link GameStatus} is already {@link GameStatus#SUSPENDED}
      * @see GameStatus
      */
     public synchronized void pauseGame() throws IllegalGameStateException {
@@ -319,6 +322,7 @@ public class Game implements EventEmitter<GameEvent> {
      * This method permits to resume the game, if it is {@code SUSPENDED}. The previous valid status will be recovered.
      * No action will be performed while {@code SUSPENDED} status is not set.
      *
+     * @throws IllegalGameStateException is the current {@link GameStatus} is not {@link GameStatus#SUSPENDED}
      * @see GameStatus
      */
     public synchronized void resumeGame() throws IllegalGameStateException {
@@ -383,9 +387,10 @@ public class Game implements EventEmitter<GameEvent> {
 
     /**
      * This method add a new {@link PlayerProfile} to game, and performs status transition if there are {@code maxPlayers} players joined.
-     * It throws an {@code IllegalArgumentException} if player is already in game
      *
      * @param pp the {@link PlayerProfile} of new player
+     * @throws IllegalGameStateException     if the current {@link GameStatus} is not {@link GameStatus#AWAITING_PLAYERS}
+     * @throws PlayerAlreadyPlayingException if the specified {@link PlayerProfile} try to join a game in which he is already playing
      */
     public synchronized void join(PlayerProfile pp) throws IllegalGameStateException, PlayerAlreadyPlayingException {
         if (status != GameStatus.AWAITING_PLAYERS) {
@@ -409,6 +414,9 @@ public class Game implements EventEmitter<GameEvent> {
      * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
      * despite there aren't yet connected {@code maxPlayers} players.
      * Game starts automatically as soon as the maximum threshold of connected players is reached
+     *
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#AWAITING_PLAYERS}
+     * @throws NotEnoughPlayersException if someone try to start a game with only 1 player
      */
     public synchronized void startGame() throws IllegalGameStateException, NotEnoughPlayersException {
         if (status != GameStatus.AWAITING_PLAYERS) {
@@ -429,7 +437,9 @@ public class Game implements EventEmitter<GameEvent> {
      *
      * @param pp the {@link PlayerProfile} of player tha want to choose
      * @param s  the chosen side of starting card
-     * @throws DoubleChoiceException if player has already chosen starting card side
+     * @throws DoubleChoiceException     if the player has already chosen the starting card side
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_STARTING_CARD_SIDE}
+     * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
      * @see Choice
      */
     public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException, IllegalGameStateException, PlayerNotInGameException {
@@ -459,6 +469,8 @@ public class Game implements EventEmitter<GameEvent> {
      * @param pp the {@link PlayerProfile} of player that want to choose
      * @param pc the {@link PlayerColor} chosen by player {@code pp}
      * @return the {@link SelectionResult} referred to the choice made
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_COLOR}
+     * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
      * @see SelectionResult
      * @see MultiChoice
      */
@@ -485,6 +497,10 @@ public class Game implements EventEmitter<GameEvent> {
      *
      * @param pp the {@link PlayerProfile} of player that want to choose
      * @param o  the {@link Objective} chosen by player {@code pp}
+     * @throws DoubleChoiceException     if the player has already chosen the secret objective
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_OBJECTIVE}
+     * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
+     * @throws InvalidObjectiveException if the specified {@link Objective} is not a possible choice
      * @see Choice
      */
     public synchronized void selectObjective(PlayerProfile pp, Objective o) throws IllegalGameStateException, PlayerNotInGameException, DoubleChoiceException, InvalidObjectiveException {
@@ -498,8 +514,8 @@ public class Game implements EventEmitter<GameEvent> {
         try {
             objectiveChoices.get(pp).select(o);
             emitter.emit(new SecretObjectiveChosenEvent(objectiveChoices.keySet().stream()
-                            .filter(playerProfile -> objectiveChoices.get(playerProfile).getSelected().isPresent())
-                            .collect(Collectors.toSet())));
+                    .filter(playerProfile -> objectiveChoices.get(playerProfile).getSelected().isPresent())
+                    .collect(Collectors.toSet())));
         } catch (NoSuchElementException e) {
             throw new InvalidObjectiveException();
         }
@@ -523,6 +539,10 @@ public class Game implements EventEmitter<GameEvent> {
      * @param pp the {@link PlayerProfile} of player that want to draw
      * @param ds the {@link DrawSource} from where to get the card
      * @return the result of drawing
+     * @throws IllegalTurnException      if it's not the turn of the specified {@link PlayerProfile}
+     * @throws IllegalGameStateException if the current {@link GameStatus} is neither {@link GameStatus#PLAY} nor {@link GameStatus#SECOND_LAST_TURN}
+     *                                   or the current {@link TurnPhase} is not {@link TurnPhase#DRAWING}
+     * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
      * @see DrawSource
      * @see DrawResult
      * @see TurnPhase
@@ -593,6 +613,11 @@ public class Game implements EventEmitter<GameEvent> {
      * @param s  the visible {@link Side} of the placement
      * @param i  the coordinate i of the placement
      * @param j  the coordinate j of the placement
+     * @throws IllegalTurnException      if it's not the turn of the specified {@link PlayerProfile}
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not a playing state or the current {@link TurnPhase} is not {@link TurnPhase#PLACING}
+     * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
+     * @throws CardNotInHandException    if the player does not have the specified {@link Card} in his hand
+     * @throws IllegalPlacementException if the specified position is not a playable position
      * @see TurnPhase
      * @see GameStatus
      * @see PlayerData
@@ -659,6 +684,7 @@ public class Game implements EventEmitter<GameEvent> {
      * This method provides winners, only if game status is set to {@code FINISHED}
      *
      * @return a list that contains all winners of the game. It is based on total scores
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#FINISHED}
      * @see Game#getTotalScores() getTotalScores
      * @see GameStatus
      */
@@ -676,6 +702,7 @@ public class Game implements EventEmitter<GameEvent> {
      * This method provides total score for each player, only if game status is set to {@code FINISHED}
      *
      * @return a map that contains all total scores
+     * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#FINISHED}
      */
     public synchronized Map<PlayerProfile, Integer> getTotalScores() throws IllegalGameStateException {
         if (status != GameStatus.FINISHED) {
