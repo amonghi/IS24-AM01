@@ -21,7 +21,6 @@ public record JoinGameC2S(int gameId) implements C2SNetworkMessage {
     public void execute(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, VirtualView virtualView) throws IllegalMoveException {
         try {
             controller.joinGame(gameId, virtualView.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
-            virtualView.setGame(virtualView.getGameManager().getGame(gameId).orElseThrow(() -> new GameNotFoundException(gameId)));
             connection.send(new GameJoinedS2C(gameId, GameStatus.AWAITING_PLAYERS));
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(gameId));

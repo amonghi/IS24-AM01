@@ -10,9 +10,7 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.event.GameCreatedEvent;
-import it.polimi.ingsw.am01.model.event.GameDeletedEvent;
-import it.polimi.ingsw.am01.model.event.GameManagerEvent;
+import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
 import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -42,6 +40,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
     private final EventEmitterImpl<GameManagerEvent> emitter;
     private final List<Game> games;
     private final Path dataDir;
+    private final Map<Game, List<EventEmitter.Registration>> gamesRegistrations;
     private int nextId;
 
     /**
@@ -58,6 +57,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         for (int id : savedGamesIds) {
             games.add(loadGame(id));
         }
+        gamesRegistrations = new HashMap<>();
     }
 
     /**
@@ -103,7 +103,18 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         nextId++;
         games.add(newGame);
         emitter.emit(new GameCreatedEvent(newGame));
+        gamesRegistrations.put(newGame, List.of(
+                newGame.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e, newGame))
+        ));
         return newGame;
+    }
+
+    private void playerJoinedInGame(PlayerJoinedEvent event, Game game) {
+        emitter.emit(
+                new PlayerJoinedInGameEvent(
+                        event.player(), game
+                )
+        );
     }
 
     /**
@@ -112,6 +123,9 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
      * @param game a reference of the selected game
      */
     public synchronized void deleteGame(Game game) {
+        gamesRegistrations.get(game).forEach(game::unregister);
+        gamesRegistrations.remove(game);
+
         games.remove(game);
         // Delete json if save() has been already called
         if (loadSavedGamesIds().contains(game.getId())) {

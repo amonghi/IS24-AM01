@@ -2,7 +2,9 @@ package it.polimi.ingsw.am01.network.message.c2s;
 
 import it.polimi.ingsw.am01.controller.Controller;
 import it.polimi.ingsw.am01.controller.VirtualView;
-import it.polimi.ingsw.am01.model.exception.*;
+import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
+import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
+import it.polimi.ingsw.am01.model.exception.NotAuthenticatedException;
 import it.polimi.ingsw.am01.model.game.Game;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.network.Connection;
@@ -21,9 +23,8 @@ public record CreateGameAndJoinC2S(int maxPlayers) implements C2SNetworkMessage 
 
     @Override
     public void execute(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, VirtualView virtualView) throws IllegalMoveException {
-        try{
+        try {
             Game game = controller.createAndJoinGame(maxPlayers, virtualView.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
-            virtualView.setGame(game);
             connection.send(new GameJoinedS2C(game.getId(), GameStatus.AWAITING_PLAYERS));
         } catch (InvalidMaxPlayersException e) {
             connection.send(new InvalidMaxPlayersS2C(maxPlayers));

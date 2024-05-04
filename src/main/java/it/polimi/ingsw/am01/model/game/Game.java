@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  */
 public class Game implements EventEmitter<GameEvent> {
 
-    private final EventEmitterImpl<GameEvent> emitter;
+    transient private final EventEmitterImpl<GameEvent> emitter;
 
     private final int id;
     private final List<PlayerProfile> playerProfiles;
@@ -402,7 +402,7 @@ public class Game implements EventEmitter<GameEvent> {
 
         playerProfiles.add(pp);
 
-        emitter.emit(new PlayerJoinedEvent(this, pp));
+        emitter.emit(new PlayerJoinedEvent(pp));
 
         if (playerProfiles.size() == maxPlayers) {
             transition(GameStatus.SETUP_STARTING_CARD_SIDE);

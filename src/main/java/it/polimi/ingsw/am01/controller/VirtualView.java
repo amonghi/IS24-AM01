@@ -39,6 +39,7 @@ public class VirtualView implements Runnable {
 
         this.gameManager.on(GameCreatedEvent.class, this::gameListChanged);
         this.gameManager.on(GameDeletedEvent.class, this::gameListChanged);
+        this.gameManager.on(PlayerJoinedInGameEvent.class, this::playerJoined);
         this.playerManager.on(PlayerAuthenitcatedEvent.class, this::setPlayerProfile);
 
     }
@@ -55,15 +56,14 @@ public class VirtualView implements Runnable {
         return Optional.ofNullable(game);
     }
 
-    public void setGame(Game game) {
+    private void setGame(Game game) {
         this.game = game;
 
-        for(FaceUpCard fuc : game.getBoard().getFaceUpCards()) {
+        for (FaceUpCard fuc : game.getBoard().getFaceUpCards()) {
             fuc.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards);
         }
 
         gameRegistrations.addAll(List.of(
-                game.on(PlayerJoinedEvent.class, this::updatePlayerList),
                 game.on(AllPlayersChoseStartingCardSideEvent.class, this::allPlayersChoseSide),
                 game.on(AllPlayersJoinedEvent.class, this::allPlayersJoined),
                 game.on(CardPlacedEvent.class, this::updatePlayArea),
@@ -87,6 +87,13 @@ public class VirtualView implements Runnable {
         return Optional.ofNullable(playerProfile);
     }
 
+    private void setPlayerProfile(PlayerAuthenitcatedEvent event) {
+        //FIXME: what if multiple virtualviews have playerProfile = null?
+        if (playerProfile == null) {
+            this.playerProfile = event.playerProfile();
+        }
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -97,18 +104,6 @@ public class VirtualView implements Runnable {
                 throw new RuntimeException(e); // TODO: disconnect player
             }
         }
-    }
-
-    private void setPlayerProfile(PlayerAuthenitcatedEvent event) {
-        this.playerProfile = event.playerProfile();
-    }
-
-    private void updatePlayerList(PlayerJoinedEvent event) {
-        connection.send(
-                new UpdatePlayerListS2C(
-                        game.getPlayerProfiles().stream().map(PlayerProfile::getName).collect(Collectors.toList())
-                )
-        );
     }
 
     private void updatePlayArea(CardPlacedEvent event) {
@@ -169,7 +164,7 @@ public class VirtualView implements Runnable {
                 new UpdateFaceUpCardsS2C(
                         game.getBoard().getFaceUpCards().stream()
                                 .map(fuc -> Objects.requireNonNull(fuc.getCard().orElse(null)).id())
-                                    .collect(Collectors.toUnmodifiableSet())
+                                .collect(Collectors.toUnmodifiableSet())
                 )
         );
     }
@@ -190,7 +185,7 @@ public class VirtualView implements Runnable {
         connection.send(
                 new UpdateObjectiveSelectedS2C(Collections.unmodifiableSet(
                         event.playersHaveChosen().stream()
-                            .map(PlayerProfile::getName)
+                                .map(PlayerProfile::getName)
                                 .collect(Collectors.toSet()))
                 )
         );
@@ -232,17 +227,37 @@ public class VirtualView implements Runnable {
         );
     }
 
-    private void gamePaused(GamePausedEvent event){
+    private void gamePaused(GamePausedEvent event) {
         connection.send(
                 new SetGamePauseS2C()
         );
     }
 
-    private void gameResumed(GameResumedEvent event){
+    private void gameResumed(GameResumedEvent event) {
         connection.send(
                 new SetRecoverStatusS2C(
                         event.recoverStatus()
                 )
         );
+    }
+
+    private void playerJoined(PlayerJoinedInGameEvent event) {
+        if (event.playerProfile().equals(playerProfile)) {
+            setGame(event.game());
+        }
+        if (game != null && game.equals(event.game())) {
+            connection.send(
+                    new UpdatePlayerListS2C(
+                            game.getPlayerProfiles().stream().map(PlayerProfile::getName).collect(Collectors.toList())
+                    )
+            );
+        } else {
+            connection.send(new UpdateGameListS2C(
+                    gameManager.getGames().stream().collect(Collectors.toMap(
+                            Game::getId,
+                            game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
+                    ))
+            ));
+        }
     }
 }

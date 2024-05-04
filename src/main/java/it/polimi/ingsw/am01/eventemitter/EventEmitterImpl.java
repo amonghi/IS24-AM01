@@ -10,10 +10,6 @@ import java.util.List;
  */
 public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
 
-    private interface RegistrationInternal<V extends Event> extends Registration {
-        void notifyIfInterested(V event);
-    }
-
     private final List<RegistrationInternal<E>> registrations;
 
     public EventEmitterImpl() {
@@ -60,7 +56,9 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
      * @param event the event to emit.
      */
     public void emit(E event) {
-        for (RegistrationInternal<E> registration : this.registrations) {
+        ArrayList<RegistrationInternal<E>> registrationInternals = new ArrayList<>(registrations);
+
+        for (RegistrationInternal<E> registration : registrationInternals) {
             registration.notifyIfInterested(event);
         }
     }
@@ -73,5 +71,9 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
      */
     public <T extends E> void bubble(EventEmitter<T> source) {
         source.onAny(this::emit);
+    }
+
+    private interface RegistrationInternal<V extends Event> extends Registration {
+        void notifyIfInterested(V event);
     }
 }
