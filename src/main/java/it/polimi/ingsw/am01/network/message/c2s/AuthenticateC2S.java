@@ -27,7 +27,6 @@ public record AuthenticateC2S(String playerName) implements C2SNetworkMessage {
     public void execute(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, VirtualView virtualView) throws IllegalMoveException {
         try {
             PlayerProfile profile = controller.authenticate(playerName);
-            virtualView.setPlayerProfile(profile);
             connection.send(new SetPlayerNameS2C(profile.getName()));
             connection.send(new UpdateGameListS2C(virtualView.getGameManager().getGames().stream().collect(Collectors.toMap(
                     Game::getId,

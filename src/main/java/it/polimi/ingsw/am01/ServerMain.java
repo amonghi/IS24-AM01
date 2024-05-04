@@ -32,7 +32,7 @@ public class ServerMain {
             while (true) {
                 try {
                     Connection<S2CNetworkMessage, C2SNetworkMessage> connection = tcpServer.accept();
-                    VirtualView virtualView = new VirtualView(controller, connection, gameManager);
+                    VirtualView virtualView = new VirtualView(controller, connection, gameManager, playerManager);
                     executorService.submit(virtualView);
                 } catch (IOException e) {
                     throw new RuntimeException(e);

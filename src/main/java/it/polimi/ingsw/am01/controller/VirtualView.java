@@ -9,6 +9,7 @@ import it.polimi.ingsw.am01.model.game.Game;
 import it.polimi.ingsw.am01.model.game.GameManager;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.objective.Objective;
+import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
@@ -22,20 +23,24 @@ public class VirtualView implements Runnable {
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
     private final GameManager gameManager;
+    private final PlayerManager playerManager;
     private final List<EventEmitter.Registration> gameRegistrations;
     private Game game;
     private PlayerProfile playerProfile;
 
-    public VirtualView(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, GameManager gameManager) {
+    public VirtualView(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, GameManager gameManager, PlayerManager playerManager) {
         this.controller = controller;
         this.connection = connection;
         this.gameManager = gameManager;
+        this.playerManager = playerManager;
         this.game = null;
         this.playerProfile = null;
         this.gameRegistrations = new ArrayList<>();
 
         gameManager.on(GameCreatedEvent.class, this::gameListChanged);
         gameManager.on(GameDeletedEvent.class, this::gameListChanged);
+        playerManager.on(PlayerAuthenitcatedEvent.class, this::setPlayerProfile);
+
     }
 
     public GameManager getGameManager() {
@@ -77,10 +82,6 @@ public class VirtualView implements Runnable {
         return Optional.ofNullable(playerProfile);
     }
 
-    public void setPlayerProfile(PlayerProfile playerProfile) {
-        this.playerProfile = playerProfile;
-    }
-
     @Override
     public void run() {
         while (true) {
@@ -91,6 +92,10 @@ public class VirtualView implements Runnable {
                 throw new RuntimeException(e); // TODO: disconnect player
             }
         }
+    }
+
+    private void setPlayerProfile(PlayerAuthenitcatedEvent event) {
+        this.playerProfile = event.playerProfile();
     }
 
     private void updatePlayerList(PlayerJoinedEvent event) {
