@@ -61,7 +61,8 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(UpdateObjectiveSelectedS2C.ID, UpdateObjectiveSelectedS2C.class),
             Map.entry(UpdatePlayerColorS2C.ID, UpdatePlayerColorS2C.class),
             Map.entry(SetGamePauseS2C.ID, SetGamePauseS2C.class),
-            Map.entry(SetRecoverStatusS2C.ID, SetRecoverStatusS2C.class)
+            Map.entry(SetRecoverStatusS2C.ID, SetRecoverStatusS2C.class),
+            Map.entry(UpdatePlayerHandS2C.ID, UpdatePlayerHandS2C.class)
     );
 
 

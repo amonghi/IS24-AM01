@@ -77,6 +77,7 @@ public class VirtualView implements Runnable {
                 game.on(GameFinishedEvent.class, this::gameFinished),
                 game.on(AllColorChoicesSettledEvent.class, this::updateGameStatusAndSetupObjective),
                 game.on(PlayerChangedColorChoiceEvent.class, this::updatePlayerColor),
+                game.on(HandChangedEvent.class, this::updatePlayerHand),
                 game.on(GamePausedEvent.class, this::gamePaused),
                 game.on(GameResumedEvent.class, this::gameResumed)
         ));
@@ -203,6 +204,13 @@ public class VirtualView implements Runnable {
         Set<Integer> hand = event.hands().get(this.playerProfile).getHand().stream().map(Card::id).collect(Collectors.toUnmodifiableSet());
         connection.send(new SetBoardAndHandS2C(commonObjectives, faceUpCards, hand));
     }
+
+    private void updatePlayerHand(HandChangedEvent event) {
+        connection.send(
+                new UpdatePlayerHandS2C(event.currentHand().stream().map(Card::id).collect(Collectors.toUnmodifiableSet()))
+        );
+    }
+
     private void gameListChanged(GameManagerEvent event) {
         connection.send(new UpdateGameListS2C(
                 gameManager.getGames().stream().collect(Collectors.toMap(

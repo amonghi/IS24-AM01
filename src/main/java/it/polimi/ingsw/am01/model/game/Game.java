@@ -566,6 +566,7 @@ public class Game implements EventEmitter<GameEvent> {
             return DrawResult.EMPTY;
         }
 
+        emitter.emit(new HandChangedEvent(new HashSet<>(playersData.get(pp).getHand())));
         emitter.emit(new CardDrawnFromDeckEvent(getBoard().getResourceCardDeck(), getBoard().getGoldenCardDeck()));
 
         switch (status) {
