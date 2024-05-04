@@ -4,10 +4,10 @@ import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
-import it.polimi.ingsw.am01.model.game.FaceUpCard;
 import it.polimi.ingsw.am01.model.game.Game;
 import it.polimi.ingsw.am01.model.game.GameManager;
 import it.polimi.ingsw.am01.model.game.GameStatus;
+import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
@@ -124,6 +124,17 @@ public class VirtualView implements Runnable {
                         event.turnPhase(),
                         event.currentPlayer().getName())
         );
+        if (event.currentPlayer().equals(playerProfile) && event.turnPhase() == TurnPhase.PLACING) {
+            connection.send(
+                    new SetPlayablePositionsS2C(
+                            game.getPlayArea(playerProfile).getPlayablePositions().stream().map(
+                                    position -> new SetPlayablePositionsS2C.PlayablePosition(
+                                            position.i(),
+                                            position.j())
+                            ).collect(Collectors.toList())
+                    )
+            );
+        }
     }
 
     private void gameFinished(GameFinishedEvent event) {
