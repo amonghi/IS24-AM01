@@ -13,7 +13,7 @@ import java.util.Optional;
  * Represents a slot that contains a completely visible Card and that replenish itself from source "mainSource" when drawn. In case mainSource is empty, the card will be taken from "auxiliarySource"
  */
 public class FaceUpCard implements DrawSource, EventEmitter<FaceUpCardReplacedEvent> {
-    private final EventEmitterImpl<FaceUpCardReplacedEvent> emitter;
+    transient private final EventEmitterImpl<FaceUpCardReplacedEvent> emitter;
     private final Deck mainSource;
     private final Deck auxiliarySource;
     private Card card;

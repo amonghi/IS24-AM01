@@ -92,6 +92,9 @@ public class Game implements EventEmitter<GameEvent> {
         this.board = Board.createShuffled(new Deck(GameAssets.getInstance().getResourceCards()),
                 new Deck(GameAssets.getInstance().getGoldenCards()));
         emitter = new EventEmitterImpl<>();
+        for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
+            emitter.bubble(faceUpCard);
+        }
     }
 
     /**
@@ -126,11 +129,9 @@ public class Game implements EventEmitter<GameEvent> {
         this.turnPhase = TurnPhase.PLACING;
         this.board = board;
         this.emitter = new EventEmitterImpl<>();
-        /* FIXME
         for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
             emitter.bubble(faceUpCard);
         }
-        */
     }
 
     /**

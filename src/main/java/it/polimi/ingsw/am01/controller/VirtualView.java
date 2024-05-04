@@ -59,17 +59,13 @@ public class VirtualView implements Runnable {
     private void setGame(Game game) {
         this.game = game;
 
-        for (FaceUpCard fuc : game.getBoard().getFaceUpCards()) {
-            fuc.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards);
-        }
-
         gameRegistrations.addAll(List.of(
                 game.on(AllPlayersChoseStartingCardSideEvent.class, this::allPlayersChoseSide),
                 game.on(AllPlayersJoinedEvent.class, this::allPlayersJoined),
                 game.on(CardPlacedEvent.class, this::updatePlayArea),
                 game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
                 game.on(GameFinishedEvent.class, this::gameFinished),
-                //game.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards), //FIXME: see Game constructor
+                game.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards),
                 game.on(CardDrawnFromDeckEvent.class, this::updateDeckStatus),
                 game.on(CardDrawnFromEmptySourceEvent.class, this::notifyOfEmptySource),
                 game.on(SecretObjectiveChosenEvent.class, this::updateChosenObjectiveList),
