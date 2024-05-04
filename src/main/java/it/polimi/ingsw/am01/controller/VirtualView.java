@@ -37,14 +37,18 @@ public class VirtualView implements Runnable {
         this.playerProfile = null;
         this.gameRegistrations = new ArrayList<>();
 
-        gameManager.on(GameCreatedEvent.class, this::gameListChanged);
-        gameManager.on(GameDeletedEvent.class, this::gameListChanged);
-        playerManager.on(PlayerAuthenitcatedEvent.class, this::setPlayerProfile);
+        this.gameManager.on(GameCreatedEvent.class, this::gameListChanged);
+        this.gameManager.on(GameDeletedEvent.class, this::gameListChanged);
+        this.playerManager.on(PlayerAuthenitcatedEvent.class, this::setPlayerProfile);
 
     }
 
     public GameManager getGameManager() {
         return this.gameManager;
+    }
+
+    public PlayerManager getPlayerManager() {
+        return this.playerManager;
     }
 
     public Optional<Game> getGame() {
