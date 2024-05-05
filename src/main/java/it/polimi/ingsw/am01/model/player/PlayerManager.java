@@ -1,10 +1,5 @@
 package it.polimi.ingsw.am01.model.player;
 
-import it.polimi.ingsw.am01.eventemitter.Event;
-import it.polimi.ingsw.am01.eventemitter.EventEmitter;
-import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
-import it.polimi.ingsw.am01.eventemitter.EventListener;
-import it.polimi.ingsw.am01.model.event.PlayerAuthenitcatedEvent;
 import it.polimi.ingsw.am01.model.exception.NameAlreadyTakenException;
 
 import java.util.HashMap;
@@ -12,13 +7,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class PlayerManager implements EventEmitter<Event> {
-    private final EventEmitterImpl<Event> emitter;
+public class PlayerManager {
     private final Map<String, PlayerProfile> profiles;
 
     public PlayerManager() {
         profiles = new HashMap<>();
-        emitter = new EventEmitterImpl<>();
     }
 
     /**
@@ -35,8 +28,6 @@ public class PlayerManager implements EventEmitter<Event> {
 
         PlayerProfile newProfile = new PlayerProfile(name);
         this.profiles.put(name, newProfile);
-
-        emitter.emit(new PlayerAuthenitcatedEvent(newProfile));
 
         return newProfile;
     }
@@ -61,20 +52,5 @@ public class PlayerManager implements EventEmitter<Event> {
         }
 
         this.profiles.remove(profile.getName());
-    }
-
-    @Override
-    public Registration onAny(EventListener<Event> listener) {
-        return emitter.onAny(listener);
-    }
-
-    @Override
-    public <T extends Event> Registration on(Class<T> eventClass, EventListener<T> listener) {
-        return emitter.on(eventClass, listener);
-    }
-
-    @Override
-    public boolean unregister(Registration registration) {
-        return emitter.unregister(registration);
     }
 }

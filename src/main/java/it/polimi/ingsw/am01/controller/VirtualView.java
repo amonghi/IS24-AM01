@@ -2,8 +2,9 @@ package it.polimi.ingsw.am01.controller;
 
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.model.card.Card;
+import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.event.*;
-import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
+import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.Game;
 import it.polimi.ingsw.am01.model.game.GameManager;
 import it.polimi.ingsw.am01.model.game.GameStatus;
@@ -13,13 +14,15 @@ import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
+import it.polimi.ingsw.am01.network.message.MessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
+import it.polimi.ingsw.am01.network.message.c2s.*;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class VirtualView implements Runnable {
+public class VirtualView implements Runnable, MessageVisitor {
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
     private final GameManager gameManager;
@@ -40,8 +43,6 @@ public class VirtualView implements Runnable {
         this.gameManager.on(GameCreatedEvent.class, this::gameListChanged);
         this.gameManager.on(GameDeletedEvent.class, this::gameListChanged);
         this.gameManager.on(PlayerJoinedInGameEvent.class, this::playerJoined);
-        this.playerManager.on(PlayerAuthenitcatedEvent.class, this::setPlayerProfile);
-
     }
 
     public GameManager getGameManager() {
@@ -83,11 +84,8 @@ public class VirtualView implements Runnable {
         return Optional.ofNullable(playerProfile);
     }
 
-    private void setPlayerProfile(PlayerAuthenitcatedEvent event) {
-        //FIXME: what if multiple virtualviews have playerProfile = null?
-        if (playerProfile == null) {
-            this.playerProfile = event.playerProfile();
-        }
+    private void setPlayerProfile(PlayerProfile playerProfile) {
+        this.playerProfile = playerProfile;
     }
 
     @Override
@@ -95,7 +93,7 @@ public class VirtualView implements Runnable {
         while (true) {
             C2SNetworkMessage message = this.connection.receive();
             try {
-                message.execute(controller, connection, this);
+                message.accept(this);
             } catch (IllegalMoveException e) {
                 throw new RuntimeException(e); // TODO: disconnect player
             }
@@ -251,6 +249,7 @@ public class VirtualView implements Runnable {
     private void playerJoined(PlayerJoinedInGameEvent event) {
         if (event.playerProfile().equals(playerProfile)) {
             setGame(event.game());
+            connection.send(new GameJoinedS2C(event.game().getId(), GameStatus.AWAITING_PLAYERS));
         }
         if (game != null && game.equals(event.game())) {
             connection.send(
@@ -265,6 +264,147 @@ public class VirtualView implements Runnable {
                             game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
                     ))
             ));
+        }
+    }
+
+    @Override
+    public void visit(AuthenticateC2S message) throws IllegalMoveException {
+        try {
+            PlayerProfile profile = controller.authenticate(message.playerName());
+            setPlayerProfile(profile);
+            connection.send(new SetPlayerNameS2C(profile.getName()));
+            connection.send(new UpdateGameListS2C(this.getGameManager().getGames().stream().collect(Collectors.toMap(
+                    Game::getId,
+                    g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
+            ))));
+        } catch (NameAlreadyTakenException e) {
+            connection.send(new NameAlreadyTakenS2C(message.playerName()));
+        }
+    }
+
+    @Override
+    public void visit(CreateGameAndJoinC2S message) throws IllegalMoveException {
+        try {
+            controller.createAndJoinGame(message.maxPlayers(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
+        } catch (InvalidMaxPlayersException e) {
+            connection.send(new InvalidMaxPlayersS2C(message.maxPlayers()));
+        }
+    }
+
+    @Override
+    public void visit(DrawCardFromDeckC2S message) throws IllegalMoveException {
+        try {
+            controller.drawCardFromDeck(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.deckLocation());
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        }
+    }
+
+    @Override
+    public void visit(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException {
+        try {
+            //FIXME: should we need to send back drawResult?
+            controller.drawCardFromFaceUpCards(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.cardId());
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        } catch (InvalidCardException e) {
+            connection.send(new InvalidCardS2C(message.cardId()));
+        }
+    }
+
+    @Override
+    public void visit(JoinGameC2S message) throws IllegalMoveException {
+        try {
+            controller.joinGame(message.gameId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(message.gameId()));
+        } catch (IllegalGameStateException e) {
+            connection.send(new GameAlreadyStartedS2C(message.gameId()));
+        }
+    }
+
+    @Override
+    public void visit(PlaceCardC2S message) throws IllegalMoveException {
+        try {
+            controller.placeCard(
+                    this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    message.cardId(), message.side(), message.i(), message.j()
+            );
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+        } catch (IllegalGameStateException e) { //TODO: maybe remove
+            connection.send(new InvalidGameStateS2C());
+        } catch (IllegalPlacementException e) {
+            connection.send(new InvalidPlacementS2C(message.cardId(), message.side(), message.i(), message.j()));
+        } catch (InvalidCardException e) {
+            connection.send(new InvalidCardS2C(message.cardId()));
+        }
+    }
+
+    @Override
+    public void visit(SelectColorC2S message) throws IllegalMoveException {
+        try {
+            controller.selectPlayerColor(
+                    this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    message.color()
+            );
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        }
+    }
+
+    @Override
+    public void visit(SelectSecretObjectiveC2S message) throws IllegalMoveException {
+        try {
+            controller.selectSecretObjective(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.objective());
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+        } catch (InvalidObjectiveException e) {
+            connection.send(new InvalidObjectiveSelectionS2C(message.objective()));
+        } catch (DoubleChoiceException e) {
+            connection.send(new DoubleChoiceS2C());
+        }
+    }
+
+    @Override
+    public void visit(SelectStartingCardSideC2S message) throws IllegalMoveException {
+        try {
+            controller.selectStartingCardSide(
+                    this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    message.side()
+            );
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        } catch (DoubleChoiceException e) {
+            connection.send(new DoubleSideChoiceS2C(message.side()));
+        }
+    }
+
+    @Override
+    public void visit(StartGameC2S message) throws IllegalMoveException {
+        try {
+            controller.startGame(this.getGame().orElseThrow(PlayerNotInGameException::new).getId());
+        } catch (NotEnoughPlayersException e) {
+            connection.send(new NotEnoughPlayersS2C(Objects.requireNonNull(this.getGame().orElse(null)).getPlayerProfiles().size()));
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
         }
     }
 }
