@@ -13,7 +13,7 @@ import java.util.Set;
  * @see it.polimi.ingsw.am01.model.game.FaceUpCard
  */
 public class Board {
-    private final Set<FaceUpCard> faceUpCards;
+    transient private final Set<FaceUpCard> faceUpCards;
     private final Deck resourceCardDeck;
     private final Deck goldenCardDeck;
 

@@ -14,7 +14,6 @@ import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
 import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
-import it.polimi.ingsw.am01.model.objective.PatternObjective;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.io.*;
@@ -28,14 +27,16 @@ import java.util.stream.Collectors;
 public class GameManager implements EventEmitter<GameManagerEvent> {
 
     private static final Gson gson = new GsonBuilder()
+            .enableComplexMapKeySerialization()
             .registerTypeAdapter(Corner.class, new CornerSerDes())
             .registerTypeAdapter(Points.class, new PointsSerDes())
             .registerTypeAdapter(Collectible.class, new CollectibleDeserializer())
             .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerDes())
-            .registerTypeAdapter(Objective.class, new ObjectiveSerDes())
-            .registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer())
             .registerTypeAdapter(Card.class, new IDCardSerDes())
             .registerTypeAdapter(Objective.class, new IDObjectiveSerDes())
+            .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerDes())
+            .registerTypeAdapter(PlayArea.Position.class, new PositionSerDes())
+            .registerTypeAdapter(Board.class, new BoardSerDes())
             .create();
     private final EventEmitterImpl<GameManagerEvent> emitter;
     private final List<Game> games;
@@ -104,7 +105,8 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         games.add(newGame);
         emitter.emit(new GameCreatedEvent(newGame));
         gamesRegistrations.put(newGame, List.of(
-                newGame.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e, newGame))
+                newGame.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e, newGame)),
+                newGame.on(GameEvent.class, e -> this.saveGame(newGame))
         ));
         return newGame;
     }
