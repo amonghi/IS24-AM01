@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.model.game;
 
+import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.Card;
 
 import java.util.*;
@@ -9,6 +10,7 @@ import java.util.*;
  */
 public class Deck implements DrawSource {
     private final List<Card> cards;
+    private final DeckLocation deckLocation;
 
     /**
      * Constructs a new Deck from a list of Cards
@@ -18,6 +20,11 @@ public class Deck implements DrawSource {
 
     public Deck(List<Card> cards) {
         this.cards = new ArrayList<>(cards);
+        this.deckLocation = cards.getFirst().isGold() ? DeckLocation.GOLDEN_CARD_DECK : DeckLocation.RESOURCE_CARD_DECK;
+    }
+
+    public DeckLocation getDeckLocation() {
+        return deckLocation;
     }
 
     /**

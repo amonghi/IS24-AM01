@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  */
 public class Game implements EventEmitter<GameEvent> {
 
-    transient private final EventEmitterImpl<GameEvent> emitter;
+    transient private EventEmitterImpl<GameEvent> emitter;
 
     private final int id;
     private final List<PlayerProfile> playerProfiles;
@@ -132,6 +132,16 @@ public class Game implements EventEmitter<GameEvent> {
         for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
             emitter.bubble(faceUpCard);
         }
+    }
+
+    private EventEmitterImpl<GameEvent> getEmitter() {
+        if(emitter != null){
+            emitter = new EventEmitterImpl<>();
+            for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
+                emitter.bubble(faceUpCard);
+            }
+        }
+        return emitter;
     }
 
     /**
@@ -316,7 +326,7 @@ public class Game implements EventEmitter<GameEvent> {
         }
         recoverStatus = status;
         status = GameStatus.SUSPENDED;
-        emitter.emit(new GamePausedEvent());
+        getEmitter().emit(new GamePausedEvent());
     }
 
     /**
@@ -331,7 +341,7 @@ public class Game implements EventEmitter<GameEvent> {
             throw new IllegalGameStateException();
         }
         status = recoverStatus;
-        emitter.emit(new GameResumedEvent(status));
+        getEmitter().emit(new GameResumedEvent(status));
     }
 
     /**
@@ -383,7 +393,7 @@ public class Game implements EventEmitter<GameEvent> {
             secretObjectives.add(objectiveList.removeFirst());
             objectiveChoices.put(player, new Choice<>(secretObjectives));
         }
-        emitter.emit(new AllPlayersJoinedEvent());
+        getEmitter().emit(new AllPlayersJoinedEvent());
     }
 
     /**
@@ -403,7 +413,7 @@ public class Game implements EventEmitter<GameEvent> {
 
         playerProfiles.add(pp);
 
-        emitter.emit(new PlayerJoinedEvent(pp));
+        getEmitter().emit(new PlayerJoinedEvent(pp));
 
         if (playerProfiles.size() == maxPlayers) {
             transition(GameStatus.SETUP_STARTING_CARD_SIDE);
@@ -455,11 +465,11 @@ public class Game implements EventEmitter<GameEvent> {
 
         playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
 
-        emitter.emit(new CardPlacedEvent(pp, playAreas.get(pp).getAt(PlayArea.Position.ORIGIN).orElse(null)));
+        getEmitter().emit(new CardPlacedEvent(pp, playAreas.get(pp).getAt(PlayArea.Position.ORIGIN).orElse(null)));
 
         if (startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
             transition(GameStatus.SETUP_COLOR);
-            emitter.emit(new AllPlayersChoseStartingCardSideEvent());
+            getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
         }
     }
 
@@ -483,11 +493,11 @@ public class Game implements EventEmitter<GameEvent> {
             throw new PlayerNotInGameException();
         }
         SelectionResult sr = colorChoices.get(pp).select(pc);
-        emitter.emit(new PlayerChangedColorChoiceEvent(pp, pc, sr));
+        getEmitter().emit(new PlayerChangedColorChoiceEvent(pp, pc, sr));
 
         if (colorChoices.get(pp).isSettled()) { // FIXME: MultiChoice class
             transition(GameStatus.SETUP_OBJECTIVE);
-            emitter.emit(new AllColorChoicesSettledEvent());
+            getEmitter().emit(new AllColorChoicesSettledEvent());
         }
         return sr;
     }
@@ -514,7 +524,7 @@ public class Game implements EventEmitter<GameEvent> {
 
         try {
             objectiveChoices.get(pp).select(o);
-            emitter.emit(new SecretObjectiveChosenEvent(objectiveChoices.keySet().stream()
+            getEmitter().emit(new SecretObjectiveChosenEvent(objectiveChoices.keySet().stream()
                     .filter(playerProfile -> objectiveChoices.get(playerProfile).getSelected().isPresent())
                     .collect(Collectors.toSet())));
         } catch (NoSuchElementException e) {
@@ -524,8 +534,8 @@ public class Game implements EventEmitter<GameEvent> {
             //all players had chosen their objective -> go to the next state (start "turn phase")
             setupAndStartTurnPhase();
 
-            emitter.emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
-            emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+            getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+            getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
         }
     }
 
@@ -563,12 +573,12 @@ public class Game implements EventEmitter<GameEvent> {
         Optional<Card> card = ds.draw();
         card.ifPresent(c -> playersData.get(pp).getHand().add(c));
         if (card.isEmpty()) {
-            emitter.emit(new CardDrawnFromEmptySourceEvent(ds));
+            getEmitter().emit(new CardDrawnFromEmptySourceEvent(ds));
             return DrawResult.EMPTY;
         }
 
-        emitter.emit(new HandChangedEvent(new HashSet<>(playersData.get(pp).getHand())));
-        emitter.emit(new CardDrawnFromDeckEvent(getBoard().getResourceCardDeck(), getBoard().getGoldenCardDeck()));
+        getEmitter().emit(new HandChangedEvent(new HashSet<>(playersData.get(pp).getHand())));
+        getEmitter().emit(new CardDrawnFromDeckEvent(getBoard().getResourceCardDeck(), getBoard().getGoldenCardDeck()));
 
         switch (status) {
             case GameStatus.PLAY -> {
@@ -592,7 +602,7 @@ public class Game implements EventEmitter<GameEvent> {
         setTurnPhase(TurnPhase.PLACING);
         changeCurrentPlayer();
 
-        emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+        getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
 
         return DrawResult.OK;
     }
@@ -644,7 +654,7 @@ public class Game implements EventEmitter<GameEvent> {
         //place on play area
         PlayArea.CardPlacement cardPlacement = playAreas.get(pp).placeAt(i, j, c, s);
 
-        emitter.emit(new CardPlacedEvent(pp, cardPlacement));
+        getEmitter().emit(new CardPlacedEvent(pp, cardPlacement));
 
         //delete card from hand
         playersData.get(pp).getHand().remove(c);
@@ -657,13 +667,13 @@ public class Game implements EventEmitter<GameEvent> {
                 }
                 setTurnPhase(TurnPhase.DRAWING);
 
-                emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+                getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
                 break;
 
             case GameStatus.SECOND_LAST_TURN:
                 setTurnPhase(TurnPhase.DRAWING);
 
-                emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+                getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
                 break;
 
             case GameStatus.LAST_TURN:
@@ -671,12 +681,12 @@ public class Game implements EventEmitter<GameEvent> {
                     //this player is the last one -> game is finished. It's useless drawing a card. This is the only one point from where finishing game
                     transition(GameStatus.FINISHED);
 
-                    emitter.emit(new GameFinishedEvent(getTotalScores()));
+                    getEmitter().emit(new GameFinishedEvent(getTotalScores()));
                 } else {
                     //change current player (state and turn phase are not updated because in this phase it's useless to draw card)
                     changeCurrentPlayer();
 
-                    emitter.emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+                    getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
                 }
                 break;
         }
@@ -765,16 +775,16 @@ public class Game implements EventEmitter<GameEvent> {
 
     @Override
     public Registration onAny(EventListener<GameEvent> listener) {
-        return emitter.onAny(listener);
+        return getEmitter().onAny(listener);
     }
 
     @Override
     public <T extends GameEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
-        return emitter.on(eventClass, listener);
+        return getEmitter().on(eventClass, listener);
     }
 
     @Override
     public boolean unregister(Registration registration) {
-        return emitter.unregister(registration);
+        return getEmitter().unregister(registration);
     }
 }
