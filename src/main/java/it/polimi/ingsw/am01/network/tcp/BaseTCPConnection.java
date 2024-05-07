@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
+import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
 import it.polimi.ingsw.am01.network.message.json.NetworkMessageTypeAdapterFactory;
 
@@ -30,14 +31,14 @@ public abstract class BaseTCPConnection<S extends NetworkMessage, R extends Netw
     }
 
     @Override
-    public void send(S message) {
+    public void send(S message) throws SendNetworkException {
         try {
             String json = gson.toJson(message, sendType);
             out.write(json);
             out.newLine();
             out.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new SendNetworkException(e);
         }
     }
 

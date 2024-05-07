@@ -3,11 +3,12 @@ package it.polimi.ingsw.am01;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
-import it.polimi.ingsw.am01.network.tcp.client.ClientTCPConnection;
+import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.AuthenticateC2S;
 import it.polimi.ingsw.am01.network.rmi.client.ClientRMIConnection;
+import it.polimi.ingsw.am01.network.tcp.client.ClientTCPConnection;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -17,7 +18,7 @@ public class ClientMain {
     private static final int RMI_PORT = 7777;
     private static final String HOSTNAME = "0.0.0.0";
 
-    public static void main(String[] args) throws IOException, ReceiveNetworkException, OpenConnectionNetworkException {
+    public static void main(String[] args) throws IOException, ReceiveNetworkException, OpenConnectionNetworkException, SendNetworkException {
         String clientType = "rmi".toLowerCase();
 
         Connection<C2SNetworkMessage, S2CNetworkMessage> connection = switch (clientType) {
