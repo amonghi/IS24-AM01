@@ -139,7 +139,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @return The event emitter
      */
     private EventEmitterImpl<GameEvent> getEmitter() {
-        if(emitter != null){
+        if(emitter == null){
             emitter = new EventEmitterImpl<>();
             for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
                 emitter.bubble(faceUpCard);
