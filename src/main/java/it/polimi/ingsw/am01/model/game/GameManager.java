@@ -53,12 +53,17 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         this.emitter = new EventEmitterImpl<>();
         this.games = new ArrayList<>();
         this.dataDir = dataDir;
+        this.gamesRegistrations = new HashMap<>();
         List<Integer> savedGamesIds = loadSavedGamesIds();
         nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(0);
         for (int id : savedGamesIds) {
-            games.add(loadGame(id));
+            Game game = loadGame(id);
+            games.add(game);
+            gamesRegistrations.put(game, List.of(
+                    game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e, game)),
+                    game.on(GameEvent.class, e -> this.saveGame(game))
+            ));
         }
-        gamesRegistrations = new HashMap<>();
     }
 
     /**
