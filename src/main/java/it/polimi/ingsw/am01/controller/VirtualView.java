@@ -206,9 +206,11 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void updatePlayerHand(HandChangedEvent event) {
-        connection.send(
-                new UpdatePlayerHandS2C(event.currentHand().stream().map(Card::id).collect(Collectors.toUnmodifiableSet()))
-        );
+        if (event.playerProfile().equals(playerProfile)) {
+            connection.send(
+                    new UpdatePlayerHandS2C(event.currentHand().stream().map(Card::id).collect(Collectors.toUnmodifiableSet()))
+            );
+        }
     }
 
     private void gameListChanged(GameManagerEvent event) {

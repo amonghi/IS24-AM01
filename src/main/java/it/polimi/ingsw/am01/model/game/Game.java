@@ -33,8 +33,6 @@ import java.util.stream.Collectors;
  */
 public class Game implements EventEmitter<GameEvent> {
 
-    transient private EventEmitterImpl<GameEvent> emitter;
-
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
@@ -47,6 +45,7 @@ public class Game implements EventEmitter<GameEvent> {
     private final Set<Objective> commonObjectives;
     private final int maxPlayers;
     private final Board board;
+    transient private EventEmitterImpl<GameEvent> emitter;
     private GameStatus status;
     private TurnPhase turnPhase;
     /**
@@ -139,7 +138,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @return The event emitter
      */
     private EventEmitterImpl<GameEvent> getEmitter() {
-        if(emitter == null){
+        if (emitter == null) {
             emitter = new EventEmitterImpl<>();
             for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
                 emitter.bubble(faceUpCard);
@@ -581,7 +580,7 @@ public class Game implements EventEmitter<GameEvent> {
             return DrawResult.EMPTY;
         }
 
-        getEmitter().emit(new HandChangedEvent(new HashSet<>(playersData.get(pp).getHand())));
+        getEmitter().emit(new HandChangedEvent(pp, new HashSet<>(playersData.get(pp).getHand())));
         getEmitter().emit(new CardDrawnFromDeckEvent(getBoard().getResourceCardDeck(), getBoard().getGoldenCardDeck()));
 
         switch (status) {
@@ -655,13 +654,15 @@ public class Game implements EventEmitter<GameEvent> {
             throw new CardNotInHandException();
         }
 
+        //delete card from hand
+        playersData.get(pp).getHand().remove(c);
+
+        getEmitter().emit(new HandChangedEvent(pp, new HashSet<>(playersData.get(pp).getHand())));
+
         //place on play area
         PlayArea.CardPlacement cardPlacement = playAreas.get(pp).placeAt(i, j, c, s);
 
         getEmitter().emit(new CardPlacedEvent(pp, cardPlacement));
-
-        //delete card from hand
-        playersData.get(pp).getHand().remove(c);
 
         switch (status) {
             case GameStatus.PLAY:
