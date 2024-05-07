@@ -134,6 +134,10 @@ public class Game implements EventEmitter<GameEvent> {
         }
     }
 
+    /**
+     * Implements the event emitter if null
+     * @return The event emitter
+     */
     private EventEmitterImpl<GameEvent> getEmitter() {
         if(emitter != null){
             emitter = new EventEmitterImpl<>();

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am01.model.game;
 
-import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
@@ -32,6 +31,10 @@ public class FaceUpCard implements DrawSource, EventEmitter<FaceUpCardReplacedEv
         this.card = drawFromDecks();
     }
 
+    /**
+     * Implements the event emitter if null
+     * @return The event emitter
+     */
     private EventEmitterImpl<FaceUpCardReplacedEvent> getEmitter() {
         if (emitter == null) {
             emitter = new EventEmitterImpl<>();
@@ -70,14 +73,6 @@ public class FaceUpCard implements DrawSource, EventEmitter<FaceUpCardReplacedEv
      */
     private Card drawFromDecks() {
         return mainSource.draw().or(auxiliarySource::draw).orElse(null);
-    }
-
-    public DeckLocation getMainSourceLocation() {
-        return mainSource.getDeckLocation();
-    }
-
-    public DeckLocation getAuxiliarySourceLocation() {
-        return auxiliarySource.getDeckLocation();
     }
 
     /**
