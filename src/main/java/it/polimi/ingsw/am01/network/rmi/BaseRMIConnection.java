@@ -4,12 +4,12 @@ import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
 
-public class RMIConnection<S extends NetworkMessage, R extends NetworkMessage> implements Connection<S, R> {
+public abstract class BaseRMIConnection<S extends NetworkMessage, R extends NetworkMessage> implements Connection<S, R> {
 
     private final Sender<S> sender;
     private final ReceiverImpl<R> receiver;
 
-    public RMIConnection(Sender<S> sender, ReceiverImpl<R> receiver) {
+    public BaseRMIConnection(Sender<S> sender, ReceiverImpl<R> receiver) {
         this.sender = sender;
         this.receiver = receiver;
     }

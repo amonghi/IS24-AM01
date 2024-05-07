@@ -3,10 +3,7 @@ package it.polimi.ingsw.am01.network.rmi.server;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
-import it.polimi.ingsw.am01.network.rmi.RMIConnection;
-import it.polimi.ingsw.am01.network.rmi.Receiver;
-import it.polimi.ingsw.am01.network.rmi.ReceiverImpl;
-import it.polimi.ingsw.am01.network.rmi.Sender;
+import it.polimi.ingsw.am01.network.rmi.*;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -23,7 +20,7 @@ public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements
     }
 
     // takes a connection from the queue or blocks if there are none yet
-    public RMIConnection<S2CNetworkMessage, C2SNetworkMessage> takeConnection() throws InterruptedException {
+    public BaseRMIConnection<S2CNetworkMessage, C2SNetworkMessage> takeConnection() throws InterruptedException {
         PendingConnection pendingConnection = pendingConnections.take();
 
         // unlock remote call when accepting connection
@@ -39,7 +36,7 @@ public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements
 
         ReceiverImpl<C2SNetworkMessage> receiver = new ReceiverImpl<>();
 
-        PendingConnection pendingConnection = new PendingConnection(new RMIConnection<>(clientSender, receiver),
+        PendingConnection pendingConnection = new PendingConnection(new ServerRMIConnection<>(clientSender, receiver),
                 new Semaphore(0));
         pendingConnections.add(pendingConnection);
 
@@ -55,7 +52,7 @@ public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements
     }
 
     // represents an incoming connection that hasn't been accepted yet
-    private record PendingConnection(RMIConnection<S2CNetworkMessage, C2SNetworkMessage> connection,
+    private record PendingConnection(BaseRMIConnection<S2CNetworkMessage, C2SNetworkMessage> connection,
                                      Semaphore semaphore) {
     }
 }

@@ -3,7 +3,7 @@ package it.polimi.ingsw.am01.network.rmi.client;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
-import it.polimi.ingsw.am01.network.rmi.RMIConnection;
+import it.polimi.ingsw.am01.network.rmi.BaseRMIConnection;
 import it.polimi.ingsw.am01.network.rmi.Receiver;
 import it.polimi.ingsw.am01.network.rmi.ReceiverImpl;
 import it.polimi.ingsw.am01.network.rmi.Sender;
@@ -15,7 +15,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class ClientRMIConnection extends RMIConnection<C2SNetworkMessage, S2CNetworkMessage> {
+public class ClientRMIConnection extends BaseRMIConnection<C2SNetworkMessage, S2CNetworkMessage> {
     private ClientRMIConnection(Sender<C2SNetworkMessage> sender, ReceiverImpl<S2CNetworkMessage> receiver) {
         super(sender, receiver);
     }
