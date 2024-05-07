@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.network.rmi;
 
+import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
 
 import java.rmi.RemoteException;
@@ -20,7 +21,13 @@ public class ReceiverImpl<M extends NetworkMessage> extends UnicastRemoteObject 
     }
 
     @Override
-    public void receive(M message) throws RemoteException {
-        receiveQueue.add(message);
+    public void receive(M message) throws RemoteException, SendNetworkException {
+        try {
+            receiveQueue.put(message);
+        } catch (InterruptedException e) {
+            // we throw a SendNetworkException inside a receive()
+            // because this method is called remotely to send a message
+            throw new SendNetworkException(e);
+        }
     }
 }

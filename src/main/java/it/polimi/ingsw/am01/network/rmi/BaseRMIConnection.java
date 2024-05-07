@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.network.rmi;
 
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
+import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
 
 public abstract class BaseRMIConnection<S extends NetworkMessage, R extends NetworkMessage> implements Connection<S, R> {
@@ -15,7 +16,7 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
     }
 
     @Override
-    public void send(S message) {
+    public void send(S message) throws SendNetworkException {
         this.sender.send(message);
     }
 
