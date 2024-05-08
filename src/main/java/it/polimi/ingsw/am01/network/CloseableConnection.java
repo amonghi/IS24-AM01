@@ -17,5 +17,5 @@ public interface CloseableConnection<S extends NetworkMessage, R extends Network
      *     <li>any messages that have been previously received, can still be retrieved by calling {@link #receive()}</li>
      * </ul>
      */
-    void close();
+    void close() throws CloseNetworkException;
 }
