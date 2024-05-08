@@ -12,6 +12,8 @@ import it.polimi.ingsw.am01.network.tcp.client.ClientTCPConnection;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientMain {
     private static final int TCP_PORT = 8888;
@@ -21,9 +23,11 @@ public class ClientMain {
     public static void main(String[] args) throws IOException, ReceiveNetworkException, OpenConnectionNetworkException, SendNetworkException {
         String clientType = "rmi".toLowerCase();
 
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
         Connection<C2SNetworkMessage, S2CNetworkMessage> connection = switch (clientType) {
             case "tcp" -> new ClientTCPConnection(InetAddress.getByName(HOSTNAME), TCP_PORT);
-            case "rmi" -> ClientRMIConnection.connect("localhost", RMI_PORT);
+            case "rmi" -> ClientRMIConnection.connect(executorService, "localhost", RMI_PORT);
             default -> throw new IllegalArgumentException("Unknown server type: " + clientType);
         };
 

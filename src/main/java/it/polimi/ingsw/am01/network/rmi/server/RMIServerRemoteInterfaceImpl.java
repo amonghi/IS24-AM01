@@ -5,7 +5,6 @@ import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.rmi.BaseRMIConnection;
 import it.polimi.ingsw.am01.network.rmi.Receiver;
-import it.polimi.ingsw.am01.network.rmi.Sender;
 import it.polimi.ingsw.am01.network.rmi.ServerRMIConnection;
 
 import java.rmi.RemoteException;
@@ -34,11 +33,8 @@ public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements
 
     @Override
     public Receiver<C2SNetworkMessage> swapReceivers(Receiver<S2CNetworkMessage> clientReceiver) throws RemoteException, OpenConnectionNetworkException {
-        ServerRMIConnection connection = new ServerRMIConnection();
-
-        Sender<S2CNetworkMessage> clientSender = new Sender<>(clientReceiver);
-        executorService.submit(clientSender);
-        connection.connect(clientSender);
+        ServerRMIConnection connection = new ServerRMIConnection(executorService);
+        connection.connect(clientReceiver);
 
         PendingConnection pendingConnection = new PendingConnection(connection, new Semaphore(0));
         pendingConnections.add(pendingConnection);

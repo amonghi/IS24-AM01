@@ -8,27 +8,31 @@ import it.polimi.ingsw.am01.network.message.NetworkMessage;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class BaseRMIConnection<S extends NetworkMessage, R extends NetworkMessage>
         extends UnicastRemoteObject
         implements Connection<S, R>, Receiver<R> {
 
+    private final ExecutorService executorService;
+    private final BlockingQueue<S> sendQueue;
     private final BlockingQueue<R> receiveQueue;
-    private Sender<S> sender;
     private RMIConnectionStatus connectionStatus;
+    private Receiver<S> remoteReceiver;
 
-    public BaseRMIConnection() throws RemoteException {
+    public BaseRMIConnection(ExecutorService executorService) throws RemoteException {
         super();
+        this.executorService = executorService;
+        this.sendQueue = new LinkedBlockingQueue<>();
         this.receiveQueue = new LinkedBlockingQueue<>();
-        this.sender = null;
         this.connectionStatus = RMIConnectionStatus.DISCONNECTED;
     }
 
-    public void connect(Sender<S> sender) {
-        // TODO: accept remote receiver
-        this.sender = sender;
+    public void connect(Receiver<S> remoteReceiver) {
+        this.remoteReceiver = remoteReceiver;
         this.connectionStatus = RMIConnectionStatus.OPEN;
+        this.executorService.submit(this::messageSenderWorker);
     }
 
     @Override
@@ -39,7 +43,11 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
             throw new IllegalStateException("Connection is not open");
         }
 
-        this.sender.send(message);
+        try {
+            this.sendQueue.put(message);
+        } catch (InterruptedException e) {
+            throw new SendNetworkException(e);
+        }
     }
 
     @Override
@@ -65,6 +73,18 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
             // we throw a SendNetworkException inside a receive()
             // because this method is called remotely to send a message
             throw new SendNetworkException(e);
+        }
+    }
+
+    private void messageSenderWorker() {
+        while (true) {
+            try {
+                S message = this.sendQueue.take();
+                this.remoteReceiver.transmit(message);
+            } catch (InterruptedException | SendNetworkException | RemoteException e) {
+                // TODO: handle exceptions
+                throw new RuntimeException(e);
+            }
         }
     }
 
