@@ -31,13 +31,14 @@ public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements
 
     @Override
     public Receiver<C2SNetworkMessage> connect(Receiver<S2CNetworkMessage> clientReceiver) throws RemoteException, OpenConnectionNetworkException {
+        ReceiverImpl<C2SNetworkMessage> receiver = new ReceiverImpl<>();
+        ServerRMIConnection connection = new ServerRMIConnection(receiver);
+
         Sender<S2CNetworkMessage> clientSender = new Sender<>(clientReceiver);
         executorService.submit(clientSender);
+        connection.connect(clientSender);
 
-        ReceiverImpl<C2SNetworkMessage> receiver = new ReceiverImpl<>();
-
-        PendingConnection pendingConnection = new PendingConnection(new ServerRMIConnection(clientSender, receiver),
-                new Semaphore(0));
+        PendingConnection pendingConnection = new PendingConnection(connection, new Semaphore(0));
         pendingConnections.add(pendingConnection);
 
         // block remote call until the server accepts this connection

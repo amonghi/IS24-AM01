@@ -16,8 +16,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class ClientRMIConnection extends BaseRMIConnection<C2SNetworkMessage, S2CNetworkMessage> {
-    private ClientRMIConnection(Sender<C2SNetworkMessage> sender, ReceiverImpl<S2CNetworkMessage> receiver) {
-        super(sender, receiver);
+    private ClientRMIConnection(ReceiverImpl<S2CNetworkMessage> receiver) {
+        super(receiver);
     }
 
     public static ClientRMIConnection connect(String host, int port) throws OpenConnectionNetworkException {
@@ -32,7 +32,10 @@ public class ClientRMIConnection extends BaseRMIConnection<C2SNetworkMessage, S2
             // FIXME: is this the best place to create this thread?
             new Thread(serverSender).start();
 
-            return new ClientRMIConnection(serverSender, clientReceiver);
+            ClientRMIConnection connection = new ClientRMIConnection(clientReceiver);
+            connection.connect(serverSender);
+
+            return connection;
         } catch (RemoteException | NotBoundException e) {
             throw new OpenConnectionNetworkException(e);
         }
