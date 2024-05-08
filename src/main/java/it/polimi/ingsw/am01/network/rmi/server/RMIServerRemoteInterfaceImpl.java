@@ -36,7 +36,7 @@ public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements
 
         ReceiverImpl<C2SNetworkMessage> receiver = new ReceiverImpl<>();
 
-        PendingConnection pendingConnection = new PendingConnection(new ServerRMIConnection<>(clientSender, receiver),
+        PendingConnection pendingConnection = new PendingConnection(new ServerRMIConnection(clientSender, receiver),
                 new Semaphore(0));
         pendingConnections.add(pendingConnection);
 
