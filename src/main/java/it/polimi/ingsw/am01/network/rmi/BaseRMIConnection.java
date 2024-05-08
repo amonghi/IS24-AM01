@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.network.rmi;
 
 import it.polimi.ingsw.am01.network.AlreadyClosedException;
-import it.polimi.ingsw.am01.network.CloseableConnection;
+import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
@@ -14,7 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class BaseRMIConnection<S extends NetworkMessage, R extends NetworkMessage>
         extends UnicastRemoteObject
-        implements CloseableConnection<S, R>, Receiver<R> {
+        implements Connection<S, R>, Receiver<R> {
 
     private final ExecutorService executorService;
     private final BlockingQueue<S> sendQueue;

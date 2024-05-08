@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import it.polimi.ingsw.am01.network.CloseNetworkException;
-import it.polimi.ingsw.am01.network.CloseableConnection;
+import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
@@ -14,7 +14,7 @@ import java.io.*;
 import java.net.Socket;
 
 public abstract class BaseTCPConnection<S extends NetworkMessage, R extends NetworkMessage>
-        implements CloseableConnection<S, R> {
+        implements Connection<S, R> {
 
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapterFactory(new NetworkMessageTypeAdapterFactory())
