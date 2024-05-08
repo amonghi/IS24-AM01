@@ -1,6 +1,9 @@
 package it.polimi.ingsw.am01.network;
 
 public class NetworkException extends Exception {
+    public NetworkException() {
+    }
+
     public NetworkException(String message) {
         super(message);
     }

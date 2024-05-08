@@ -26,6 +26,7 @@ public class VirtualView implements Runnable {
             } catch (NetworkException e) {
                 // TODO: better handling
                 e.printStackTrace();
+                return;
             }
         }
     }
