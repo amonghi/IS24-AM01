@@ -9,5 +9,5 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RMIServerRemoteInterface extends Remote {
-    Receiver<C2SNetworkMessage> connect(Receiver<S2CNetworkMessage> clientReceiver) throws RemoteException, OpenConnectionNetworkException;
+    Receiver<C2SNetworkMessage> swapReceivers(Receiver<S2CNetworkMessage> clientReceiver) throws RemoteException, OpenConnectionNetworkException;
 }

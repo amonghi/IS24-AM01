@@ -3,7 +3,10 @@ package it.polimi.ingsw.am01.network.rmi.server;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
-import it.polimi.ingsw.am01.network.rmi.*;
+import it.polimi.ingsw.am01.network.rmi.BaseRMIConnection;
+import it.polimi.ingsw.am01.network.rmi.Receiver;
+import it.polimi.ingsw.am01.network.rmi.Sender;
+import it.polimi.ingsw.am01.network.rmi.ServerRMIConnection;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -30,9 +33,8 @@ public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements
     }
 
     @Override
-    public Receiver<C2SNetworkMessage> connect(Receiver<S2CNetworkMessage> clientReceiver) throws RemoteException, OpenConnectionNetworkException {
-        ReceiverImpl<C2SNetworkMessage> receiver = new ReceiverImpl<>();
-        ServerRMIConnection connection = new ServerRMIConnection(receiver);
+    public Receiver<C2SNetworkMessage> swapReceivers(Receiver<S2CNetworkMessage> clientReceiver) throws RemoteException, OpenConnectionNetworkException {
+        ServerRMIConnection connection = new ServerRMIConnection();
 
         Sender<S2CNetworkMessage> clientSender = new Sender<>(clientReceiver);
         executorService.submit(clientSender);
@@ -49,7 +51,7 @@ public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements
             throw new OpenConnectionNetworkException(e);
         }
 
-        return receiver;
+        return pendingConnection.connection;
     }
 
     // represents an incoming connection that hasn't been accepted yet

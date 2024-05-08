@@ -7,5 +7,5 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface Receiver<M extends NetworkMessage> extends Remote {
-    void receive(M message) throws RemoteException, SendNetworkException;
+    void transmit(M message) throws RemoteException, SendNetworkException;
 }

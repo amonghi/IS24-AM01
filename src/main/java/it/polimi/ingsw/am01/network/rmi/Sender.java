@@ -30,7 +30,7 @@ public class Sender<M extends NetworkMessage> implements Runnable {
         while (true) {
             try {
                 M message = this.sendQueue.take();
-                this.receiver.receive(message);
+                this.receiver.transmit(message);
             } catch (InterruptedException | SendNetworkException | RemoteException e) {
                 // TODO: handle exceptions
                 throw new RuntimeException(e);
