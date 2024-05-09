@@ -20,3 +20,4 @@ public interface Connection<S extends NetworkMessage, R extends NetworkMessage> 
      */
     void close() throws CloseNetworkException;
 }
+
