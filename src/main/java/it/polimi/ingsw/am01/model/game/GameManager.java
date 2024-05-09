@@ -61,7 +61,8 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
             games.add(game);
             gamesRegistrations.put(game, List.of(
                     game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e, game)),
-                    game.on(GameEvent.class, e -> this.saveGame(game))
+                    game.on(GameEvent.class, e -> this.saveGame(game)),
+                    game.on(GameClosedEvent.class, e -> this.deleteGame(game))
             ));
         }
     }
@@ -111,7 +112,8 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         emitter.emit(new GameCreatedEvent(newGame));
         gamesRegistrations.put(newGame, List.of(
                 newGame.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e, newGame)),
-                newGame.on(GameEvent.class, e -> this.saveGame(newGame))
+                newGame.on(GameEvent.class, e -> this.saveGame(newGame)),
+                newGame.on(GameClosedEvent.class, e -> this.deleteGame(newGame))
         ));
         return newGame;
     }

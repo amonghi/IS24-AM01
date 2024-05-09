@@ -687,6 +687,7 @@ public class Game implements EventEmitter<GameEvent> {
                     transition(GameStatus.FINISHED);
 
                     getEmitter().emit(new GameFinishedEvent(getTotalScores()));
+                    getEmitter().emit(new GameClosedEvent());
                 } else {
                     //change current player (state and turn phase are not updated because in this phase it's useless to draw card)
                     changeCurrentPlayer();

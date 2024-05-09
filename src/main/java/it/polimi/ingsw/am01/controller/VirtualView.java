@@ -58,30 +58,31 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void setGame(Game game) {
-        if (game != null){
+        if (this.game != null) {
             gameRegistrations.forEach(this.game::unregister);
             gameRegistrations.clear();
         }
         this.game = game;
 
-        gameRegistrations.addAll(List.of(
-                game.on(AllPlayersChoseStartingCardSideEvent.class, this::allPlayersChoseSide),
-                game.on(AllPlayersJoinedEvent.class, this::allPlayersJoined),
-                game.on(CardPlacedEvent.class, this::updatePlayArea),
-                game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
-                game.on(GameFinishedEvent.class, this::gameFinished),
-                game.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards),
-                game.on(CardDrawnFromDeckEvent.class, this::updateDeckStatus),
-                game.on(CardDrawnFromEmptySourceEvent.class, this::notifyOfEmptySource),
-                game.on(SecretObjectiveChosenEvent.class, this::updateChosenObjectiveList),
-                game.on(SetUpPhaseFinishedEvent.class, this::setBoardAndHand),
-                game.on(GameFinishedEvent.class, this::gameFinished),
-                game.on(AllColorChoicesSettledEvent.class, this::updateGameStatusAndSetupObjective),
-                game.on(PlayerChangedColorChoiceEvent.class, this::updatePlayerColor),
-                game.on(HandChangedEvent.class, this::updatePlayerHand),
-                game.on(GamePausedEvent.class, this::gamePaused),
-                game.on(GameResumedEvent.class, this::gameResumed)
-        ));
+        if (this.game != null) {
+            gameRegistrations.addAll(List.of(
+                    game.on(AllPlayersChoseStartingCardSideEvent.class, this::allPlayersChoseSide),
+                    game.on(AllPlayersJoinedEvent.class, this::allPlayersJoined),
+                    game.on(CardPlacedEvent.class, this::updatePlayArea),
+                    game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
+                    game.on(GameFinishedEvent.class, this::leaveGame),
+                    game.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards),
+                    game.on(CardDrawnFromDeckEvent.class, this::updateDeckStatus),
+                    game.on(CardDrawnFromEmptySourceEvent.class, this::notifyOfEmptySource),
+                    game.on(SecretObjectiveChosenEvent.class, this::updateChosenObjectiveList),
+                    game.on(SetUpPhaseFinishedEvent.class, this::setBoardAndHand),
+                    game.on(AllColorChoicesSettledEvent.class, this::updateGameStatusAndSetupObjective),
+                    game.on(PlayerChangedColorChoiceEvent.class, this::updatePlayerColor),
+                    game.on(HandChangedEvent.class, this::updatePlayerHand),
+                    game.on(GamePausedEvent.class, this::gamePaused),
+                    game.on(GameResumedEvent.class, this::gameResumed)
+            ));
+        }
     }
 
     public Optional<PlayerProfile> getPlayerProfile() {
@@ -139,14 +140,15 @@ public class VirtualView implements Runnable, MessageVisitor {
         }
     }
 
-    private void gameFinished(GameFinishedEvent event) {
+    private void leaveGame(GameFinishedEvent event) {
         connection.send(
                 new GameFinishedS2C(
-                        event.getGameStatus(),
-                        event.getPlayerScores().entrySet().stream()
+                        event.playersScores().entrySet().stream()
                                 .collect(Collectors.toMap(e -> e.getKey().getName(), Map.Entry::getValue))
                 )
         );
+
+        setGame(null);
     }
 
     private void updateGameStatusAndSetupObjective(AllColorChoicesSettledEvent event) {
@@ -218,6 +220,10 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void gameListChanged(GameManagerEvent event) {
+        if (game != null) {
+            return;
+        }
+
         connection.send(new UpdateGameListS2C(
                 gameManager.getGames().stream().collect(Collectors.toMap(
                         Game::getId,

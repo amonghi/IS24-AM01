@@ -1,11 +1,10 @@
 package it.polimi.ingsw.am01.network.message.s2c;
 
-import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
 import java.util.Map;
 
-public record GameFinishedS2C(GameStatus gameStatus, Map<String, Integer> finalScores) implements S2CNetworkMessage {
+public record GameFinishedS2C(Map<String, Integer> finalScores) implements S2CNetworkMessage {
     public static final String ID = "GAME_FINISHED";
 
     @Override
