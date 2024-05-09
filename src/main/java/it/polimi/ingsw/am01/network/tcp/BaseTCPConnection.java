@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.network.tcp;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import it.polimi.ingsw.am01.network.CloseNetworkException;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
@@ -12,7 +13,9 @@ import it.polimi.ingsw.am01.network.message.json.NetworkMessageTypeAdapterFactor
 import java.io.*;
 import java.net.Socket;
 
-public abstract class BaseTCPConnection<S extends NetworkMessage, R extends NetworkMessage> implements Connection<S, R> {
+public abstract class BaseTCPConnection<S extends NetworkMessage, R extends NetworkMessage>
+        implements Connection<S, R> {
+
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapterFactory(new NetworkMessageTypeAdapterFactory())
             .create();
@@ -49,6 +52,15 @@ public abstract class BaseTCPConnection<S extends NetworkMessage, R extends Netw
             return gson.fromJson(json, receiveType);
         } catch (IOException | JsonParseException e) {
             throw new ReceiveNetworkException(e);
+        }
+    }
+
+    @Override
+    public void close() throws CloseNetworkException {
+        try {
+            this.socket.close();
+        } catch (IOException e) {
+            throw new CloseNetworkException(e);
         }
     }
 }
