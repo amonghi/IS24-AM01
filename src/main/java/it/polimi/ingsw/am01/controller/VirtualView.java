@@ -58,6 +58,10 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void setGame(Game game) {
+        if (game != null){
+            gameRegistrations.forEach(this.game::unregister);
+            gameRegistrations.clear();
+        }
         this.game = game;
 
         gameRegistrations.addAll(List.of(
