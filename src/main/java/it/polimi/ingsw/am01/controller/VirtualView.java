@@ -174,47 +174,63 @@ public class VirtualView implements Runnable, MessageVisitor {
         connection.send(
                 new UpdateFaceUpCardsS2C(
                         game.getBoard().getFaceUpCards().stream()
-                                .map(fuc -> Objects.requireNonNull(fuc.getCard().orElse(null)).id())
-                                .collect(Collectors.toUnmodifiableSet())
+                                .filter(fuc -> fuc.getCard().isPresent())
+                                .map(fuc -> fuc.getCard().get().id())
+                                .collect(Collectors.toSet())
                 )
         );
     }
 
     private void updateDeckStatus(CardDrawnFromDeckEvent event) {
         connection.send(
-                new UpdateDeckStatusS2C(event.resourceCardDeck().isEmpty(), event.goldenCardDeck().isEmpty()));
+                new UpdateDeckStatusS2C(
+                        event.resourceCardDeck().isEmpty(),
+                        event.goldenCardDeck().isEmpty()
+                )
+        );
     }
 
     private void notifyOfEmptySource(CardDrawnFromEmptySourceEvent event) {
         connection.send(
-                new EmptySourceS2C(event.drawSource()
+                new EmptySourceS2C(
+                        event.drawSource()
                 )
         );
     }
 
     private void updateChosenObjectiveList(SecretObjectiveChosenEvent event) {
         connection.send(
-                new UpdateObjectiveSelectedS2C(Collections.unmodifiableSet(
+                new UpdateObjectiveSelectedS2C(
                         event.playersHaveChosen().stream()
                                 .map(PlayerProfile::getName)
-                                .collect(Collectors.toSet()))
+                                .collect(Collectors.toSet())
                 )
         );
     }
 
     private void setBoardAndHand(SetUpPhaseFinishedEvent event) {
-        Set<Integer> commonObjectives = event.commonObjective().stream().map(Objective::getId).collect(Collectors.toUnmodifiableSet());
+        Set<Integer> commonObjectives = event.commonObjective().stream().map(Objective::getId).collect(Collectors.toSet());
         Set<Integer> faceUpCards = event.faceUpCards().stream()
-                .map(fuc -> Objects.requireNonNull(fuc.getCard().orElse(null)).id())
-                .collect(Collectors.toUnmodifiableSet());
-        Set<Integer> hand = event.hands().get(this.playerProfile).getHand().stream().map(Card::id).collect(Collectors.toUnmodifiableSet());
-        connection.send(new SetBoardAndHandS2C(commonObjectives, faceUpCards, hand));
+                .filter(fuc -> fuc.getCard().isPresent())
+                .map(fuc -> fuc.getCard().get().id())
+                .collect(Collectors.toSet());
+        Set<Integer> hand = event.hands().get(this.playerProfile).getHand().stream().map(Card::id).collect(Collectors.toSet());
+
+        connection.send(
+                new SetBoardAndHandS2C(
+                        commonObjectives,
+                        faceUpCards,
+                        hand
+                )
+        );
     }
 
     private void updatePlayerHand(HandChangedEvent event) {
         if (event.playerProfile().equals(playerProfile)) {
             connection.send(
-                    new UpdatePlayerHandS2C(event.currentHand().stream().map(Card::id).collect(Collectors.toUnmodifiableSet()))
+                    new UpdatePlayerHandS2C(
+                            event.currentHand().stream().map(Card::id).collect(Collectors.toSet())
+                    )
             );
         }
     }
@@ -227,20 +243,27 @@ public class VirtualView implements Runnable, MessageVisitor {
         connection.send(new UpdateGameListS2C(
                 gameManager.getGames().stream().collect(Collectors.toMap(
                         Game::getId,
-                        game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
+                        game -> new UpdateGameListS2C.GameStat(
+                                game.getPlayerProfiles().size(),
+                                game.getMaxPlayers()
+                        )
                 ))
         ));
     }
 
     private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event) {
         connection.send(
-                new UpdateGameStatusS2C(event.getGameStatus())
+                new UpdateGameStatusS2C(
+                        event.getGameStatus()
+                )
         );
     }
 
     private void allPlayersJoined(AllPlayersJoinedEvent event) {
         connection.send(
-                new SetStartingCardS2C(game.getStartingCards().get(playerProfile).id())
+                new SetStartingCardS2C(
+                        game.getStartingCards().get(playerProfile).id()
+                )
         );
     }
 
@@ -261,14 +284,22 @@ public class VirtualView implements Runnable, MessageVisitor {
     private void playerJoined(PlayerJoinedInGameEvent event) {
         if (event.playerProfile().equals(playerProfile)) {
             setGame(event.game());
-            connection.send(new GameJoinedS2C(event.game().getId(), GameStatus.AWAITING_PLAYERS));
-        }
-        if (game != null && game.equals(event.game())) {
             connection.send(
-                    new UpdatePlayerListS2C(
-                            game.getPlayerProfiles().stream().map(PlayerProfile::getName).collect(Collectors.toList())
+                    new GameJoinedS2C(
+                            event.game().getId(),
+                            GameStatus.AWAITING_PLAYERS
                     )
             );
+        }
+
+        if (game != null) {
+            if (game.equals(event.game())) {
+                connection.send(
+                        new UpdatePlayerListS2C(
+                                game.getPlayerProfiles().stream().map(PlayerProfile::getName).collect(Collectors.toList())
+                        )
+                );
+            }
         } else {
             connection.send(new UpdateGameListS2C(
                     gameManager.getGames().stream().collect(Collectors.toMap(
@@ -284,11 +315,14 @@ public class VirtualView implements Runnable, MessageVisitor {
         try {
             PlayerProfile profile = controller.authenticate(message.playerName());
             setPlayerProfile(profile);
-            connection.send(new SetPlayerNameS2C(profile.getName()));
-            connection.send(new UpdateGameListS2C(this.getGameManager().getGames().stream().collect(Collectors.toMap(
-                    Game::getId,
-                    g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
-            ))));
+            connection.send(
+                    new SetPlayerNameS2C(profile.getName())
+            );
+            connection.send(
+                    new UpdateGameListS2C(this.getGameManager().getGames().stream().collect(Collectors.toMap(
+                            Game::getId,
+                            g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
+                    ))));
         } catch (NameAlreadyTakenException e) {
             connection.send(new NameAlreadyTakenS2C(message.playerName()));
         }
