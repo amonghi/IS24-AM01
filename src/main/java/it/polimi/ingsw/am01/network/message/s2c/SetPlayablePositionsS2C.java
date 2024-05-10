@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.network.message.s2c;
 
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
+import java.io.Serializable;
 import java.util.List;
 
 public record SetPlayablePositionsS2C(List<PlayablePosition> playablePositions) implements S2CNetworkMessage {
@@ -12,6 +13,6 @@ public record SetPlayablePositionsS2C(List<PlayablePosition> playablePositions) 
         return ID;
     }
 
-    public record PlayablePosition(int i, int j) {
+    public record PlayablePosition(int i, int j) implements Serializable {
     }
 }
