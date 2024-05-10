@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.network.message.c2s;
 
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
+import it.polimi.ingsw.am01.network.NetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.MessageVisitor;
 
@@ -14,7 +15,7 @@ public record PlaceCardC2S(int cardId, Side side, int i, int j) implements C2SNe
     }
 
     @Override
-    public void accept(MessageVisitor messageVisitor) throws IllegalMoveException {
+    public void accept(MessageVisitor messageVisitor) throws IllegalMoveException, NetworkException {
         messageVisitor.visit(this);
     }
 }

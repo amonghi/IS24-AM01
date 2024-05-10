@@ -20,7 +20,7 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
      * {@inheritDoc}
      */
     @Override
-    public EventEmitter.Registration onAny(EventListener<E> listener) {
+    public synchronized EventEmitter.Registration onAny(EventListener<E> listener) {
         RegistrationInternal<E> registration = listener::onEvent;
         this.registrations.add(registration);
         return registration;
@@ -30,7 +30,7 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
      * {@inheritDoc}
      */
     @Override
-    public <T extends E> Registration on(Class<T> eventClass, EventListener<T> listener) {
+    public synchronized <T extends E> Registration on(Class<T> eventClass, EventListener<T> listener) {
         RegistrationInternal<E> registration = event -> {
             if (eventClass.isInstance(event)) {
                 T castEvent = eventClass.cast(event);
@@ -45,7 +45,7 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
      * {@inheritDoc}
      */
     @Override
-    public boolean unregister(Registration registration) {
+    public synchronized boolean unregister(Registration registration) {
         //noinspection SuspiciousMethodCalls
         return this.registrations.remove(registration);
     }
@@ -56,9 +56,12 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
      * @param event the event to emit.
      */
     public void emit(E event) {
-        ArrayList<RegistrationInternal<E>> registrationInternals = new ArrayList<>(registrations);
+        ArrayList<RegistrationInternal<E>> registrations;
+        synchronized (this) {
+            registrations = new ArrayList<>(this.registrations);
+        }
 
-        for (RegistrationInternal<E> registration : registrationInternals) {
+        for (RegistrationInternal<E> registration : registrations) {
             registration.notifyIfInterested(event);
         }
     }
@@ -69,7 +72,7 @@ public class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
      * @param source source of the events to re-emit.
      * @param <T>    the type of the events emitted from the source.
      */
-    public <T extends E> void bubble(EventEmitter<T> source) {
+    public synchronized  <T extends E> void bubble(EventEmitter<T> source) {
         source.onAny(this::emit);
     }
 

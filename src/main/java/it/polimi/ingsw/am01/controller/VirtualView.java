@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am01.controller;
 
+import it.polimi.ingsw.am01.eventemitter.Event;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
+import it.polimi.ingsw.am01.eventemitter.EventListener;
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.event.*;
@@ -12,7 +14,9 @@ import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
+import it.polimi.ingsw.am01.network.CloseNetworkException;
 import it.polimi.ingsw.am01.network.Connection;
+import it.polimi.ingsw.am01.network.NetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.MessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
@@ -40,9 +44,9 @@ public class VirtualView implements Runnable, MessageVisitor {
         this.playerProfile = null;
         this.gameRegistrations = new ArrayList<>();
 
-        this.gameManager.on(GameCreatedEvent.class, this::gameListChanged);
-        this.gameManager.on(GameDeletedEvent.class, this::gameListChanged);
-        this.gameManager.on(PlayerJoinedInGameEvent.class, this::playerJoined);
+        this.gameManager.on(GameCreatedEvent.class, exceptionFilter(this::gameListChanged));
+        this.gameManager.on(GameDeletedEvent.class, exceptionFilter(this::gameListChanged));
+        this.gameManager.on(PlayerJoinedInGameEvent.class, exceptionFilter(this::playerJoined));
     }
 
     public GameManager getGameManager() {
@@ -66,21 +70,21 @@ public class VirtualView implements Runnable, MessageVisitor {
 
         if (this.game != null) {
             gameRegistrations.addAll(List.of(
-                    game.on(AllPlayersChoseStartingCardSideEvent.class, this::allPlayersChoseSide),
-                    game.on(AllPlayersJoinedEvent.class, this::allPlayersJoined),
-                    game.on(CardPlacedEvent.class, this::updatePlayArea),
-                    game.on(UpdateGameStatusAndTurnEvent.class, this::updateGameStatusAndTurn),
-                    game.on(GameFinishedEvent.class, this::leaveGame),
-                    game.on(FaceUpCardReplacedEvent.class, this::updateFaceUpCards),
-                    game.on(CardDrawnFromDeckEvent.class, this::updateDeckStatus),
-                    game.on(CardDrawnFromEmptySourceEvent.class, this::notifyOfEmptySource),
-                    game.on(SecretObjectiveChosenEvent.class, this::updateChosenObjectiveList),
-                    game.on(SetUpPhaseFinishedEvent.class, this::setBoardAndHand),
-                    game.on(AllColorChoicesSettledEvent.class, this::updateGameStatusAndSetupObjective),
-                    game.on(PlayerChangedColorChoiceEvent.class, this::updatePlayerColor),
-                    game.on(HandChangedEvent.class, this::updatePlayerHand),
-                    game.on(GamePausedEvent.class, this::gamePaused),
-                    game.on(GameResumedEvent.class, this::gameResumed)
+                    game.on(AllPlayersChoseStartingCardSideEvent.class, exceptionFilter(this::allPlayersChoseSide)),
+                    game.on(AllPlayersJoinedEvent.class, exceptionFilter(this::allPlayersJoined)),
+                    game.on(CardPlacedEvent.class, exceptionFilter(this::updatePlayArea)),
+                    game.on(UpdateGameStatusAndTurnEvent.class, exceptionFilter(this::updateGameStatusAndTurn)),
+                    game.on(GameFinishedEvent.class, exceptionFilter(this::leaveGame)),
+                    game.on(FaceUpCardReplacedEvent.class, exceptionFilter(this::updateFaceUpCards)),
+                    game.on(CardDrawnFromDeckEvent.class, exceptionFilter(this::updateDeckStatus)),
+                    game.on(CardDrawnFromEmptySourceEvent.class, exceptionFilter(this::notifyOfEmptySource)),
+                    game.on(SecretObjectiveChosenEvent.class, exceptionFilter(this::updateChosenObjectiveList)),
+                    game.on(SetUpPhaseFinishedEvent.class, exceptionFilter(this::setBoardAndHand)),
+                    game.on(AllColorChoicesSettledEvent.class, exceptionFilter(this::updateGameStatusAndSetupObjective)),
+                    game.on(PlayerChangedColorChoiceEvent.class, exceptionFilter(this::updatePlayerColor)),
+                    game.on(HandChangedEvent.class, exceptionFilter(this::updatePlayerHand)),
+                    game.on(GamePausedEvent.class, exceptionFilter(this::gamePaused)),
+                    game.on(GameResumedEvent.class, exceptionFilter(this::gameResumed))
             ));
         }
     }
@@ -96,16 +100,39 @@ public class VirtualView implements Runnable, MessageVisitor {
     @Override
     public void run() {
         while (true) {
-            C2SNetworkMessage message = this.connection.receive();
             try {
+                C2SNetworkMessage message = this.connection.receive();
                 message.accept(this);
-            } catch (IllegalMoveException e) {
+            } catch (IllegalMoveException | NetworkException e) {
                 throw new RuntimeException(e); // TODO: disconnect player
             }
         }
     }
 
-    private void updatePlayArea(CardPlacedEvent event) {
+    private void disconnect() {
+        try {
+            this.connection.close();
+        } catch (CloseNetworkException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private interface NetworkEventListener<E extends Event> {
+        void onEvent(E event) throws NetworkException;
+    }
+
+    private <E extends Event> EventListener<E> exceptionFilter(NetworkEventListener<E> listener) {
+        return (E event) -> {
+            try {
+                listener.onEvent(event);
+            } catch (NetworkException e) {
+                e.printStackTrace();
+                disconnect();
+            }
+        };
+    }
+
+    private void updatePlayArea(CardPlacedEvent event) throws NetworkException {
         connection.send(
                 new UpdatePlayAreaS2C(
                         event.player().getName(),
@@ -119,7 +146,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void updateGameStatusAndTurn(UpdateGameStatusAndTurnEvent event) {
+    private void updateGameStatusAndTurn(UpdateGameStatusAndTurnEvent event) throws NetworkException {
         GameStatus status = event.gameStatus() == GameStatus.SECOND_LAST_TURN ? GameStatus.PLAY : event.gameStatus();
         connection.send(
                 new UpdateGameStatusAndTurnS2C(
@@ -140,7 +167,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         }
     }
 
-    private void leaveGame(GameFinishedEvent event) {
+    private void leaveGame(GameFinishedEvent event) throws NetworkException {
         connection.send(
                 new GameFinishedS2C(
                         event.playersScores().entrySet().stream()
@@ -151,7 +178,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         setGame(null);
     }
 
-    private void updateGameStatusAndSetupObjective(AllColorChoicesSettledEvent event) {
+    private void updateGameStatusAndSetupObjective(AllColorChoicesSettledEvent event) throws NetworkException {
         List<Objective> objectiveOptions = new ArrayList<>(game.getObjectiveOptions(playerProfile));
         connection.send(
                 new UpdateGameStatusAndSetupObjectiveS2C(
@@ -161,7 +188,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void updatePlayerColor(PlayerChangedColorChoiceEvent event) {
+    private void updatePlayerColor(PlayerChangedColorChoiceEvent event) throws NetworkException {
         connection.send(
                 new UpdatePlayerColorS2C(
                         event.player().getName(),
@@ -170,7 +197,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void updateFaceUpCards(FaceUpCardReplacedEvent event) {
+    private void updateFaceUpCards(FaceUpCardReplacedEvent event) throws NetworkException {
         connection.send(
                 new UpdateFaceUpCardsS2C(
                         game.getBoard().getFaceUpCards().stream()
@@ -181,7 +208,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void updateDeckStatus(CardDrawnFromDeckEvent event) {
+    private void updateDeckStatus(CardDrawnFromDeckEvent event) throws NetworkException {
         connection.send(
                 new UpdateDeckStatusS2C(
                         event.resourceCardDeck().isEmpty(),
@@ -190,7 +217,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void notifyOfEmptySource(CardDrawnFromEmptySourceEvent event) {
+    private void notifyOfEmptySource(CardDrawnFromEmptySourceEvent event) throws NetworkException {
         connection.send(
                 new EmptySourceS2C(
                         event.drawSource()
@@ -198,7 +225,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void updateChosenObjectiveList(SecretObjectiveChosenEvent event) {
+    private void updateChosenObjectiveList(SecretObjectiveChosenEvent event) throws NetworkException {
         connection.send(
                 new UpdateObjectiveSelectedS2C(
                         event.playersHaveChosen().stream()
@@ -208,7 +235,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void setBoardAndHand(SetUpPhaseFinishedEvent event) {
+    private void setBoardAndHand(SetUpPhaseFinishedEvent event) throws NetworkException {
         Set<Integer> commonObjectives = event.commonObjective().stream().map(Objective::getId).collect(Collectors.toSet());
         Set<Integer> faceUpCards = event.faceUpCards().stream()
                 .filter(fuc -> fuc.getCard().isPresent())
@@ -225,7 +252,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void updatePlayerHand(HandChangedEvent event) {
+    private void updatePlayerHand(HandChangedEvent event) throws NetworkException {
         if (event.playerProfile().equals(playerProfile)) {
             connection.send(
                     new UpdatePlayerHandS2C(
@@ -235,7 +262,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         }
     }
 
-    private void gameListChanged(GameManagerEvent event) {
+    private void gameListChanged(GameManagerEvent event) throws NetworkException {
         if (game != null) {
             return;
         }
@@ -251,7 +278,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         ));
     }
 
-    private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event) {
+    private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event) throws NetworkException {
         connection.send(
                 new UpdateGameStatusS2C(
                         event.getGameStatus()
@@ -259,7 +286,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void allPlayersJoined(AllPlayersJoinedEvent event) {
+    private void allPlayersJoined(AllPlayersJoinedEvent event) throws NetworkException {
         connection.send(
                 new SetStartingCardS2C(
                         game.getStartingCards().get(playerProfile).id()
@@ -267,13 +294,13 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void gamePaused(GamePausedEvent event) {
+    private void gamePaused(GamePausedEvent event) throws NetworkException {
         connection.send(
                 new SetGamePauseS2C()
         );
     }
 
-    private void gameResumed(GameResumedEvent event) {
+    private void gameResumed(GameResumedEvent event) throws NetworkException {
         connection.send(
                 new SetRecoverStatusS2C(
                         event.recoverStatus()
@@ -281,7 +308,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
-    private void playerJoined(PlayerJoinedInGameEvent event) {
+    private void playerJoined(PlayerJoinedInGameEvent event) throws NetworkException {
         if (event.playerProfile().equals(playerProfile)) {
             setGame(event.game());
             connection.send(
@@ -311,7 +338,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(AuthenticateC2S message) throws IllegalMoveException {
+    public void visit(AuthenticateC2S message) throws IllegalMoveException, NetworkException {
         try {
             PlayerProfile profile = controller.authenticate(message.playerName());
             setPlayerProfile(profile);
@@ -329,7 +356,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(CreateGameAndJoinC2S message) throws IllegalMoveException {
+    public void visit(CreateGameAndJoinC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.createAndJoinGame(message.maxPlayers(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
         } catch (InvalidMaxPlayersException e) {
@@ -338,7 +365,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(DrawCardFromDeckC2S message) throws IllegalMoveException {
+    public void visit(DrawCardFromDeckC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.drawCardFromDeck(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.deckLocation());
         } catch (PlayerNotInGameException e) {
@@ -349,7 +376,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException {
+    public void visit(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException, NetworkException {
         try {
             //FIXME: should we need to send back drawResult?
             controller.drawCardFromFaceUpCards(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.cardId());
@@ -363,7 +390,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(JoinGameC2S message) throws IllegalMoveException {
+    public void visit(JoinGameC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.joinGame(message.gameId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
         } catch (GameNotFoundException e) {
@@ -374,7 +401,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(PlaceCardC2S message) throws IllegalMoveException {
+    public void visit(PlaceCardC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.placeCard(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
@@ -395,7 +422,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(SelectColorC2S message) throws IllegalMoveException {
+    public void visit(SelectColorC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectPlayerColor(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
@@ -410,7 +437,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(SelectSecretObjectiveC2S message) throws IllegalMoveException {
+    public void visit(SelectSecretObjectiveC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectSecretObjective(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.objective());
         } catch (GameNotFoundException e) {
@@ -425,7 +452,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(SelectStartingCardSideC2S message) throws IllegalMoveException {
+    public void visit(SelectStartingCardSideC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectStartingCardSide(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
@@ -442,7 +469,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     @Override
-    public void visit(StartGameC2S message) throws IllegalMoveException {
+    public void visit(StartGameC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.startGame(this.getGame().orElseThrow(PlayerNotInGameException::new).getId());
         } catch (NotEnoughPlayersException e) {
