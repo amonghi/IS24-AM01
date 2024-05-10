@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.model.objective;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
@@ -26,25 +27,25 @@ class SameCollectibleObjectiveTest {
     PlayArea pa = new PlayArea(card83, Side.FRONT);
 
     @Test
-    void noSufficientResources() {
+    void noSufficientResources() throws IllegalPlacementException {
         pa.placeAt(1,0, card31, Side.BACK);
         assertEquals(0, objectiveResources.getEarnedPoints(pa));
     }
     @Test
-    void exactlyOneMatch() {
+    void exactlyOneMatch() throws IllegalPlacementException {
         pa.placeAt(1,0, card34, Side.BACK);
         pa.placeAt(1,-1, card15, Side.FRONT);
         assertEquals(2, objectiveResources.getEarnedPoints(pa));
     }
     @Test
-    void oneMatch() {
+    void oneMatch() throws IllegalPlacementException {
         pa.placeAt(1,0, card31, Side.BACK);
         pa.placeAt(1,1, card32, Side.BACK);
         pa.placeAt(1,-1,card34,Side.FRONT);
         assertEquals(2, objectiveResources.getEarnedPoints(pa));
     }
     @Test
-    void moreMatches() {
+    void moreMatches() throws IllegalPlacementException {
         pa.placeAt(1,0, card32, Side.BACK);
         pa.placeAt(1,1, card31, Side.FRONT);
         pa.placeAt(1,-1,card34,Side.FRONT);

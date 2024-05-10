@@ -6,6 +6,7 @@ import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
+import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 
 import java.util.*;
 
@@ -38,7 +39,11 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         this.playablePositions = new HashSet<>();
 
         this.playablePositions.add(Position.ORIGIN);
-        this.placeAt(Position.ORIGIN, starterCard, side, true);
+        try {
+            this.placeAt(Position.ORIGIN, starterCard, side, true);
+        } catch (IllegalPlacementException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -52,7 +57,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      * @throws IllegalPlacementException when trying to create an illegal placement
      * @see #placeAt(Position, Card, Side)
      */
-    public CardPlacement placeAt(int i, int j, Card card, Side side) {
+    public CardPlacement placeAt(int i, int j, Card card, Side side) throws IllegalPlacementException {
         return placeAt(new Position(i, j), card, side, false);
     }
 
@@ -72,11 +77,11 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      * @throws IllegalPlacementException when trying to create an illegal placement
      * @see Corner#isSocket()
      */
-    public CardPlacement placeAt(Position position, Card card, Side side) {
+    public CardPlacement placeAt(Position position, Card card, Side side) throws IllegalPlacementException {
         return placeAt(position, card, side, false);
     }
 
-    private CardPlacement placeAt(Position position, Card card, Side side, boolean isFirst) {
+    private CardPlacement placeAt(Position position, Card card, Side side, boolean isFirst) throws IllegalPlacementException {
         int seqNumber = seq++;
         CardPlacement placement = new CardPlacement(position, card, side, seqNumber);
 
@@ -379,6 +384,15 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
          */
         public Side getSide() {
             return side;
+        }
+
+        /**
+         * Provides the sequence number of this placement on {@link PlayArea}
+         *
+         * @return The sequence number
+         */
+        public int getSeq() {
+            return seq;
         }
 
         /**

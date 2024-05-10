@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.model.card.face.BackCardFace;
 import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.collectible.Resource;
+import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
 
@@ -63,7 +64,7 @@ class CornerCoverPointsTest {
             aCardBF
     );
     @Test
-    void canCalculateScoredPoints() {
+    void canCalculateScoredPoints() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         PlayArea.CardPlacement cardPlacement = playArea.placeAt(1, 0, aCard, Side.BACK);
         assertEquals(2, points.calculateScoredPoints(cardPlacement));

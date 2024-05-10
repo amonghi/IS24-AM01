@@ -1,21 +1,15 @@
 package it.polimi.ingsw.am01.model.objective;
 
 import it.polimi.ingsw.am01.model.card.Card;
-import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
-import it.polimi.ingsw.am01.model.card.face.BackCardFace;
-import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
-import it.polimi.ingsw.am01.model.card.face.corner.Corner;
-import it.polimi.ingsw.am01.model.collectible.Resource;
+import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PatternObjectiveTest {
 
@@ -28,7 +22,7 @@ class PatternObjectiveTest {
 
     //TESTS FOR "SEQUENCE PATTERN", ref. card 90
     @Test
-    void noMatchSequence() {
+    void noMatchSequence() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
         pa.placeAt(1,0, resourceCards.get(35), Side.FRONT);
@@ -38,7 +32,7 @@ class PatternObjectiveTest {
         assertEquals(0, objectiveInsect.getEarnedPoints(pa));
     }
     @Test
-    void oneMatchSequence() {
+    void oneMatchSequence() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
         pa.placeAt(1,0, resourceCards.get(35), Side.FRONT);
@@ -51,7 +45,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void overlapSequence() {
+    void overlapSequence() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
         pa.placeAt(1,0, resourceCards.get(35), Side.BACK);
@@ -65,7 +59,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void twoDistinctMatchesSequence() {
+    void twoDistinctMatchesSequence() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
         pa.placeAt(1,0, resourceCards.get(35), Side.BACK);
@@ -80,7 +74,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void twoOverlappingMatchesSequence() {
+    void twoOverlappingMatchesSequence() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(10), Side.FRONT);
         pa.placeAt(1,0, resourceCards.get(35), Side.BACK);
@@ -100,7 +94,7 @@ class PatternObjectiveTest {
     Objective objectiveL = assets.getObjectives().get(6);
 
     @Test
-    void noMatchL() {
+    void noMatchL() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.BACK);
         pa.placeAt(0,1, resourceCards.get(1), Side.FRONT);
         pa.placeAt(1,0, resourceCards.get(21), Side.BACK);
@@ -110,7 +104,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void oneMatchL() {
+    void oneMatchL() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(1), Side.FRONT);
         pa.placeAt(1,0, resourceCards.get(21), Side.BACK);
@@ -120,7 +114,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void twoUseOfSameCard() {
+    void twoUseOfSameCard() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(1), Side.FRONT);
         pa.placeAt(1,0, resourceCards.get(21), Side.BACK);
@@ -132,7 +126,7 @@ class PatternObjectiveTest {
         assertEquals(3, objectiveL.getEarnedPoints(pa));
     }
     @Test
-    void twoMatches() {
+    void twoMatches() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(20), Side.BACK);
         pa.placeAt(1,1,resourceCards.get(1), Side.FRONT);
@@ -147,7 +141,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void twoConsecutiveMatches() {
+    void twoConsecutiveMatches() throws IllegalPlacementException {
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
         pa.placeAt(0,1, resourceCards.get(20), Side.BACK);
         pa.placeAt(1,1,resourceCards.get(1), Side.FRONT);
@@ -170,7 +164,7 @@ class PatternObjectiveTest {
     //L pattern have different relative positions, pattern 93 ALREADY TESTED
 
     @Test
-    void pattern87() {
+    void pattern87() throws IllegalPlacementException {
         Objective objective = assets.getObjectives().get(0);
 
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
@@ -184,7 +178,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void pattern91() {
+    void pattern91() throws IllegalPlacementException {
         Objective objective = assets.getObjectives().get(4);
 
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
@@ -198,7 +192,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void pattern92() {
+    void pattern92() throws IllegalPlacementException {
         Objective objective = assets.getObjectives().get(5);
 
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);
@@ -212,7 +206,7 @@ class PatternObjectiveTest {
     }
 
     @Test
-    void pattern94() {
+    void pattern94() throws IllegalPlacementException {
         Objective objective = assets.getObjectives().get(7);
 
         PlayArea pa = new PlayArea(starterCard, Side.FRONT);

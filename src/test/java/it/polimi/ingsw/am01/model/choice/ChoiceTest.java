@@ -19,7 +19,7 @@ class ChoiceTest {
     }
 
     @Test
-    void canMakeSelection() {
+    void canMakeSelection() throws DoubleChoiceException {
         Set<String> options = Set.of("first", "second", "third");
         Choice<String> choice = new Choice<>(options);
 
@@ -34,7 +34,7 @@ class ChoiceTest {
     }
 
     @Test
-    void cantChangeSelection() {
+    void cantChangeSelection() throws DoubleChoiceException {
         Set<String> options = Set.of("first", "second", "third");
         Choice<String> choice = new Choice<>(options);
 

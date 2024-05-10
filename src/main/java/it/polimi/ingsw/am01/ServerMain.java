@@ -33,19 +33,23 @@ public class ServerMain {
         ExecutorService executorService = Executors.newCachedThreadPool();
 
         TCPServer tcpServer = new TCPServer(InetAddress.getByName(HOSTNAME), TCP_PORT);
-        new Thread(() -> acceptConnections(tcpServer, controller, executorService)).start();
+        new Thread(() -> acceptConnections(tcpServer, executorService, controller, gameManager, playerManager)).start();
 
         RMIServer rmiServer = new RMIServer(RMI_PORT);
-        new Thread(() -> acceptConnections(rmiServer, controller, executorService)).start();
+        new Thread(() -> acceptConnections(rmiServer, executorService, controller, gameManager, playerManager)).start();
 
         System.out.println("Server started.");
     }
 
-    private static void acceptConnections(Server server, Controller controller, ExecutorService executorService) {
+    private static void acceptConnections(Server server,
+                                          ExecutorService executorService,
+                                          Controller controller,
+                                          GameManager gameManager,
+                                          PlayerManager playerManager) {
         while (true) {
             try {
                 Connection<S2CNetworkMessage, C2SNetworkMessage> connection = server.accept();
-                VirtualView virtualView = new VirtualView(controller, connection);
+                VirtualView virtualView = new VirtualView(controller, connection, gameManager, playerManager);
                 executorService.submit(virtualView);
             } catch (OpenConnectionNetworkException e) {
                 throw new RuntimeException(e);

@@ -4,6 +4,7 @@ import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
+import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -42,20 +43,24 @@ class ControllerTest {
     class Authenticate {
         @Test
         void authenticatesPlayer() {
-            assertFalse(pm.getProfile("Alice").isPresent());
+            assertDoesNotThrow(() -> {
+                assertFalse(pm.getProfile("Alice").isPresent());
 
-            PlayerProfile aProfile = controller.authenticate("Alice");
-            assertEquals("Alice", aProfile.getName());
+                PlayerProfile aProfile = controller.authenticate("Alice");
+                assertEquals("Alice", aProfile.getName());
 
-            assertTrue(pm.getProfile("Alice").isPresent());
+                assertTrue(pm.getProfile("Alice").isPresent());
+            });
+
         }
 
         @Test
         void cannotAuthenticateIfPlayerWithSameNameAlreadyExists() {
-            controller.authenticate("Alice");
-            assertTrue(pm.getProfile("Alice").isPresent());
-
-            assertThrows(IllegalArgumentException.class, () -> controller.authenticate("Alice"));
+            assertDoesNotThrow(() -> {
+                controller.authenticate("Alice");
+                assertTrue(pm.getProfile("Alice").isPresent());
+                assertThrows(NameAlreadyTakenException.class, () -> controller.authenticate("Alice"));
+            });
         }
     }
 
@@ -67,17 +72,16 @@ class ControllerTest {
         PlayerProfile alice;
 
         @BeforeEach
-        void init() {
+        void init() throws NameAlreadyTakenException {
             this.alice = controller.authenticate("Alice");
             assertTrue(pm.getProfile("Alice").isPresent());
             assertTrue(gm.getGames().isEmpty());
         }
 
         @Test
-        void canCreateGame() {
+        void canCreateGame() throws NotAuthenticatedException, InvalidMaxPlayersException, IllegalGameStateException, PlayerAlreadyPlayingException {
             Game aGame = controller.createAndJoinGame(4, "Alice");
             assertEquals(1, gm.getGames().size());
-
             Optional<Game> gameWhereIsPlaying = gm.getGameWhereIsPlaying(alice);
             assertTrue(gameWhereIsPlaying.isPresent());
             assertEquals(aGame, gameWhereIsPlaying.get());
@@ -86,16 +90,15 @@ class ControllerTest {
         @Test
         void nonexistentPlayerCannotCreateGame() {
             assertTrue(pm.getProfile("Bob").isEmpty());
-            assertThrows(NoSuchElementException.class, () -> controller.createAndJoinGame(3, "Bob"));
+            assertThrows(NotAuthenticatedException.class, () -> controller.createAndJoinGame(3, "Bob"));
         }
 
         @Test
-        void cannotCreateGameIfAlreadyPlaying() {
+        void cannotCreateGameIfAlreadyPlaying() throws NotAuthenticatedException, InvalidMaxPlayersException, IllegalGameStateException, PlayerAlreadyPlayingException {
             controller.createAndJoinGame(3, "Alice");
             assertEquals(1, gm.getGames().size());
             assertTrue(gm.getGameWhereIsPlaying(alice).isPresent());
-
-            assertThrows(IllegalArgumentException.class, () -> controller.createAndJoinGame(4, "Alice"));
+            assertThrows(PlayerAlreadyPlayingException.class, () -> controller.createAndJoinGame(4, "Alice"));
         }
     }
 
@@ -104,7 +107,7 @@ class ControllerTest {
         PlayerProfile bob;
         Game game;
 
-        void prepare_AWAITING_PLAYERS() {
+        void prepare_AWAITING_PLAYERS() throws NameAlreadyTakenException, NotAuthenticatedException, InvalidMaxPlayersException, IllegalGameStateException, PlayerAlreadyPlayingException {
             this.alice = controller.authenticate("Alice");
             this.bob = controller.authenticate("Bob");
             this.game = controller.createAndJoinGame(2, "Alice");
@@ -113,31 +116,29 @@ class ControllerTest {
             assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
         }
 
-        void prepare_SETUP_STARTING_CARD_SIDE() {
+        void prepare_SETUP_STARTING_CARD_SIDE() throws NotAuthenticatedException, InvalidMaxPlayersException, NameAlreadyTakenException, IllegalGameStateException, PlayerAlreadyPlayingException, GameNotFoundException {
             this.prepare_AWAITING_PLAYERS();
-
             controller.joinGame(this.game.getId(), "Bob");
             assertEquals(2, game.getPlayerProfiles().size());
             assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
+
         }
 
-        void prepare_SETUP_COLOR() {
+        void prepare_SETUP_COLOR() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_SETUP_STARTING_CARD_SIDE();
-
             controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
             controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
         }
 
-        void prepare_SETUP_OBJECTIVE() {
+        void prepare_SETUP_OBJECTIVE() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_SETUP_COLOR();
-
             controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
             assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
         }
 
-        void prepare_PLAY_PLACING() {
+        void prepare_PLAY_PLACING() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidObjectiveException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_SETUP_OBJECTIVE();
 
             controller.selectSecretObjective(game.getId(), "Alice",
@@ -148,7 +149,7 @@ class ControllerTest {
             assertEquals(TurnPhase.PLACING, game.getTurnPhase());
         }
 
-        void prepare_PLAY_DRAWING() {
+        void prepare_PLAY_DRAWING() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_PLAY_PLACING();
 
             // place a card so now we can draw
@@ -187,34 +188,38 @@ class ControllerTest {
     class JoinGame extends WithUtils {
 
         @BeforeEach
-        void init() {
+        void init() throws NotAuthenticatedException, InvalidMaxPlayersException, NameAlreadyTakenException, IllegalGameStateException, PlayerAlreadyPlayingException {
             this.prepare_AWAITING_PLAYERS();
         }
 
         @Test
         void canJoinGame() {
-            controller.joinGame(game.getId(), "Bob");
-            assertEquals(2, game.getPlayerProfiles().size());
+            assertDoesNotThrow(() -> {
+                controller.joinGame(game.getId(), "Bob");
+                assertEquals(2, game.getPlayerProfiles().size());
+            });
         }
 
         @Test
         void nonexistentPlayerCannotJoinGame() {
             assertTrue(pm.getProfile("Carlos").isEmpty());
 
-            assertThrows(NoSuchElementException.class, () -> controller.joinGame(game.getId(), "Carlos"));
+            assertThrows(NotAuthenticatedException.class, () -> controller.joinGame(game.getId(), "Carlos"));
         }
 
         @Test
         void cannotJoinNonexistentGame() {
-            assertThrows(NoSuchElementException.class, () -> controller.joinGame(1234, "Bob"));
+            assertThrows(GameNotFoundException.class, () -> controller.joinGame(1234, "Bob"));
         }
 
         @Test
         void cannotJoinGameIfAlreadyPlaying() {
-            Game game2 = controller.createAndJoinGame(4, "Bob");
+            assertDoesNotThrow(() -> {
+                Game game2 = controller.createAndJoinGame(4, "Bob");
 
-            assertThrows(IllegalArgumentException.class, () -> controller.joinGame(game2.getId(), "Alice"));
-            assertThrows(IllegalArgumentException.class, () -> controller.joinGame(game.getId(), "Bob"));
+                assertThrows(PlayerAlreadyPlayingException.class, () -> controller.joinGame(game2.getId(), "Alice"));
+                assertThrows(PlayerAlreadyPlayingException.class, () -> controller.joinGame(game.getId(), "Bob"));
+            });
         }
     }
 
@@ -225,12 +230,12 @@ class ControllerTest {
     class SelectStartingCardSide extends WithUtils {
 
         @BeforeEach
-        void init() {
+        void init() throws NotAuthenticatedException, InvalidMaxPlayersException, NameAlreadyTakenException, IllegalGameStateException, PlayerAlreadyPlayingException, GameNotFoundException {
             this.prepare_SETUP_STARTING_CARD_SIDE();
         }
 
         @Test
-        void canSelectStartingCardSide() {
+        void canSelectStartingCardSide() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException {
             controller.selectStartingCardSide(game.getId(), "Alice", Side.FRONT);
             assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
             controller.selectStartingCardSide(game.getId(), "Bob", Side.BACK);
@@ -238,7 +243,7 @@ class ControllerTest {
         }
 
         @Test
-        void cannotSelectStartingCardTwice() {
+        void cannotSelectStartingCardTwice() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException {
             controller.selectStartingCardSide(game.getId(), "Alice", Side.FRONT);
             assertThrows(DoubleChoiceException.class,
                     () -> controller.selectStartingCardSide(game.getId(), "Alice", Side.BACK));
@@ -246,13 +251,13 @@ class ControllerTest {
 
         @Test
         void nonexistentPlayerCannotMakeSelection() {
-            assertThrows(NoSuchElementException.class,
+            assertThrows(NotAuthenticatedException.class,
                     () -> controller.selectStartingCardSide(game.getId(), "Carlos", Side.FRONT));
         }
 
         @Test
         void cannotSelectInNonexistentGame() {
-            assertThrows(NoSuchElementException.class,
+            assertThrows(GameNotFoundException.class,
                     () -> controller.selectStartingCardSide(1234, "Alice", Side.FRONT));
         }
     }
@@ -264,12 +269,12 @@ class ControllerTest {
     class SelectPlayerColor extends WithUtils {
 
         @BeforeEach
-        void init() {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_SETUP_COLOR();
         }
 
         @Test
-        void canSelectColor() {
+        void canSelectColor() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
             SelectionResult aResult = controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             assertEquals(SelectionResult.OK, aResult);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
@@ -280,7 +285,7 @@ class ControllerTest {
         }
 
         @Test
-        void canChangeColorUntilEveryoneHasChosen() {
+        void canChangeColorUntilEveryoneHasChosen() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
             for (PlayerColor color : new PlayerColor[]{PlayerColor.RED, PlayerColor.GREEN, PlayerColor.BLUE}) {
                 SelectionResult result = controller.selectPlayerColor(game.getId(), "Alice", color);
                 assertEquals(SelectionResult.OK, result);
@@ -298,7 +303,7 @@ class ControllerTest {
         }
 
         @Test
-        void playersCanContendColor() {
+        void playersCanContendColor() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
             SelectionResult aResult = controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             assertEquals(SelectionResult.OK, aResult);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
@@ -314,13 +319,13 @@ class ControllerTest {
 
         @Test
         void nonexistentPlayerCannotMakeSelection() {
-            assertThrows(NoSuchElementException.class,
+            assertThrows(NotAuthenticatedException.class,
                     () -> controller.selectPlayerColor(game.getId(), "Carlos", PlayerColor.RED));
         }
 
         @Test
         void cannotSelectInNonexistentGame() {
-            assertThrows(NoSuchElementException.class,
+            assertThrows(GameNotFoundException.class,
                     () -> controller.selectPlayerColor(1234, "Alice", PlayerColor.RED));
         }
     }
@@ -332,12 +337,12 @@ class ControllerTest {
     class SelectSecretObjective extends WithUtils {
 
         @BeforeEach
-        void init() {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_SETUP_OBJECTIVE();
         }
 
         @Test
-        void canSelectSecretObjective() {
+        void canSelectSecretObjective() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException {
             Objective aObjective = game.getObjectiveOptions(alice).stream().findAny().orElseThrow();
             controller.selectSecretObjective(game.getId(), "Alice", aObjective.getId());
             assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
@@ -348,7 +353,7 @@ class ControllerTest {
         }
 
         @Test
-        void cannotSelectSecretObjectiveTwice() {
+        void cannotSelectSecretObjectiveTwice() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException {
             Iterator<Objective> iterator = game.getObjectiveOptions(alice).iterator();
 
             Objective objective1 = iterator.next();
@@ -361,14 +366,14 @@ class ControllerTest {
         @Test
         void nonexistentPlayerCannotMakeSelection() {
             Objective objective = game.getObjectiveOptions(alice).stream().findAny().orElseThrow();
-            assertThrows(NoSuchElementException.class,
+            assertThrows(NotAuthenticatedException.class,
                     () -> controller.selectSecretObjective(game.getId(), "Carlos", objective.getId()));
         }
 
         @Test
         void cannotSelectInNonexistentGame() {
             Objective objective = game.getObjectiveOptions(alice).stream().findAny().orElseThrow();
-            assertThrows(NoSuchElementException.class,
+            assertThrows(GameNotFoundException.class,
                     () -> controller.selectSecretObjective(1234, "Alice", objective.getId()));
         }
 
@@ -377,7 +382,7 @@ class ControllerTest {
             Set<Objective> objectiveOptions = game.getObjectiveOptions(alice);
             Objective objective = getObjectiveOutside(objectiveOptions);
 
-            assertThrows(NoSuchElementException.class,
+            assertThrows(InvalidObjectiveException.class,
                     () -> controller.selectSecretObjective(game.getId(), "Alice", objective.getId()));
         }
     }
@@ -389,12 +394,12 @@ class ControllerTest {
     class PlaceCard extends WithUtils {
 
         @BeforeEach
-        void init() {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_PLAY_PLACING();
         }
 
         @Test
-        void canPlaceCard() {
+        void canPlaceCard() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidCardException, IllegalPlacementException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
             Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
@@ -406,36 +411,36 @@ class ControllerTest {
         }
 
         @Test
-        void cannotPlaceCardInNonexistentGame() {
+        void cannotPlaceCardInNonexistentGame() throws IllegalGameStateException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
             Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
 
-            assertThrows(NoSuchElementException.class,
+            assertThrows(GameNotFoundException.class,
                     () -> controller.placeCard(1234, currentPlayer.getName(), aCard.id(), Side.BACK, position.i(), position.j()));
         }
 
         @Test
-        void nonexistentPlayerCannotPlaceCard() {
+        void nonexistentPlayerCannotPlaceCard() throws IllegalGameStateException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
             Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
 
-            assertThrows(NoSuchElementException.class,
+            assertThrows(NotAuthenticatedException.class,
                     () -> controller.placeCard(game.getId(), "Carlos", aCard.id(), Side.BACK, position.i(), position.j()));
         }
 
         @Test
-        void cannotPlaceCardThatIsNotInHand() {
+        void cannotPlaceCardThatIsNotInHand() throws IllegalGameStateException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
             List<Card> hand = game.getPlayerData(currentPlayer).getHand();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
             Card notInHandCard = getCardOutsideOf(hand);
 
-            assertThrows(NoSuchElementException.class,
+            assertThrows(GameNotFoundException.class,
                     () -> controller.placeCard(1234, currentPlayer.getName(), notInHandCard.id(), Side.BACK, position.i(), position.j()));
         }
     }
@@ -448,12 +453,12 @@ class ControllerTest {
     class DrawCard extends WithUtils {
 
         @BeforeEach
-        void init() {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
             this.prepare_PLAY_DRAWING();
         }
 
         @Test
-        void canDrawFromDeck() {
+        void canDrawFromDeck() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException {
             PlayerProfile player = game.getCurrentPlayer();
             controller.drawCardFromDeck(game.getId(), player.getName(), DeckLocation.RESOURCE_CARD_DECK);
             assertEquals(GameStatus.PLAY, game.getStatus());
@@ -463,19 +468,19 @@ class ControllerTest {
 
         @Test
         void nonexistentPlayerCannotDrawFromDeck() {
-            assertThrows(NoSuchElementException.class,
+            assertThrows(NotAuthenticatedException.class,
                     () -> controller.drawCardFromDeck(game.getId(), "Carlos", DeckLocation.GOLDEN_CARD_DECK));
         }
 
         @Test
-        void cannotDrawFromDeckInNonexistentGame() {
+        void cannotDrawFromDeckInNonexistentGame() throws IllegalGameStateException {
             PlayerProfile player = game.getCurrentPlayer();
-            assertThrows(NoSuchElementException.class,
+            assertThrows(GameNotFoundException.class,
                     () -> controller.drawCardFromDeck(1234, player.getName(), DeckLocation.GOLDEN_CARD_DECK));
         }
 
         @Test
-        void canDrawFromFaceUpCards() {
+        void canDrawFromFaceUpCards() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidCardException {
             PlayerProfile player = game.getCurrentPlayer();
             FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
 
@@ -489,27 +494,27 @@ class ControllerTest {
         @Test
         void nonexistentPlayerCannotDrawFromFaceUpCards() {
             FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
-            assertThrows(NoSuchElementException.class,
+            assertThrows(NotAuthenticatedException.class,
                     () -> controller.drawCardFromFaceUpCards(game.getId(), "Carlos", faceUpCard.getCard().orElseThrow().id()));
         }
 
         @Test
-        void cannotDrawFromFaceUpCardNonexistentGame() {
+        void cannotDrawFromFaceUpCardNonexistentGame() throws IllegalGameStateException {
             PlayerProfile player = game.getCurrentPlayer();
             FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
-            assertThrows(NoSuchElementException.class,
+            assertThrows(GameNotFoundException.class,
                     () -> controller.drawCardFromFaceUpCards(1234, player.getName(), faceUpCard.getCard().orElseThrow().id()));
         }
 
         @Test
-        void cannotDrawFaceUpCardThatIsNotPresent() {
+        void cannotDrawFaceUpCardThatIsNotPresent() throws IllegalGameStateException {
             PlayerProfile player = game.getCurrentPlayer();
             Set<Card> availableCards = game.getBoard().getFaceUpCards().stream()
                     .flatMap(faceUpCard -> faceUpCard.getCard().stream())
                     .collect(Collectors.toSet());
             Card notAvailable = getCardOutsideOf(availableCards);
 
-            assertThrows(IllegalArgumentException.class,
+            assertThrows(InvalidCardException.class,
                     () -> controller.drawCardFromFaceUpCards(game.getId(), player.getName(), notAvailable.id()));
         }
     }
