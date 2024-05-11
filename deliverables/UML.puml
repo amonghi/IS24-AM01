@@ -413,6 +413,7 @@ package game {
         + getPlayerData(PlayerProfile pp) PlayerData
         + getPlayArea(PlayerProfile pp) PlayArea
         + getBoard() Board
+        + getStartingCards() Map<PlayerProfile, Card>
         + getCurrentPlayer() PlayerProfile
         + getCommonObjectives() Set<Objective>
         + getStatus() GameStatus
@@ -519,6 +520,7 @@ package game {
         + shuffle() void
         + isEmpty() boolean
         + draw() Optional<Card>
+        + createMergedDeck(List<Card> newCards) Deck
     }
     'Decks are aggregations of Cards
     Card --o Deck
@@ -571,6 +573,7 @@ package game {
         + getPosition() PlayArea.Position
         + getCard() Card
         + getSide() Side
+        + getSeq() int
         + getVisibleFace() CardFace
         + getPoints() int
         + getRelative(CornerPosition cp) Optional<CardPlacement>

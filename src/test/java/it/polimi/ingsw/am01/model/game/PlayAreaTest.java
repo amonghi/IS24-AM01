@@ -4,6 +4,7 @@ import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Resource;
+import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -49,7 +50,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void canPlace() {
+    void canPlace() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
 
         Set<PlayArea.Position> curPlayablePos = new HashSet<>();
@@ -87,7 +88,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void cantPlaceOverFilledCorner() {
+    void cantPlaceOverFilledCorner() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
 
         Set<PlayArea.Position> curPlayablePos = new HashSet<>();
@@ -107,7 +108,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void newPlacementNearMissingCorner() {
+    void newPlacementNearMissingCorner() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.BACK);
         playArea.placeAt(0, 1, bCard, Side.FRONT);
         Set<PlayArea.Position> curPlayablePos = new HashSet<>();
@@ -130,7 +131,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void newPlacementWithMissingCorner() {
+    void newPlacementWithMissingCorner() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.BACK);
 
         playArea.placeAt(-1, 0, aCard, Side.FRONT);
@@ -151,7 +152,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void getAtIjSameAsGetAtPosition() {
+    void getAtIjSameAsGetAtPosition() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         PlayArea.CardPlacement cp = playArea.placeAt(1, 0, aCard, Side.FRONT);
 
@@ -185,7 +186,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void countsResources() {
+    void countsResources() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
 
         assertEquals(0, playArea.getScore());
@@ -214,7 +215,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void placementsHaveRelatives() {
+    void placementsHaveRelatives() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         //noinspection OptionalGetWithoutIsPresent
         PlayArea.CardPlacement cp0 = playArea.getAt(PlayArea.Position.ORIGIN).get();
@@ -228,7 +229,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void newPlacementCoversOld() {
+    void newPlacementCoversOld() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         //noinspection OptionalGetWithoutIsPresent
         PlayArea.CardPlacement cp0 = playArea.getAt(PlayArea.Position.ORIGIN).get();
@@ -250,7 +251,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void placeGoldCard() {
+    void placeGoldCard() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(1, 0, aCard, Side.FRONT);
         playArea.placeAt(0, -1, goldCard, Side.FRONT);
@@ -258,7 +259,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void cantPlaceGoldCard() {
+    void cantPlaceGoldCard() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(1, 0, aCard, Side.FRONT);
         assertThrows(IllegalPlacementException.class, () -> playArea.placeAt(-1, 0, goldCardNotPlaceable, Side.FRONT));

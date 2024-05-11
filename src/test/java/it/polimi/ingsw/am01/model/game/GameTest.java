@@ -10,9 +10,11 @@ import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.collectible.Resource;
+import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -22,14 +24,20 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GameTest {
-    Game standardGame = new Game(1, 4);
-    PlayerProfile p1 = new PlayerProfile("Mattew");
-    PlayerProfile p2 = new PlayerProfile("Giuly");
-    PlayerProfile p3 = new PlayerProfile("David");
-    PlayerProfile p4 = new PlayerProfile("George");
+    Game standardGame;
+    PlayerProfile p1, p2, p3, p4;
+
+    @BeforeEach
+    public void setUp() throws InvalidMaxPlayersException {
+        standardGame = new Game(1, 4);
+        p1 = new PlayerProfile("Mattew");
+        p2 = new PlayerProfile("Giuly");
+        p3 = new PlayerProfile("David");
+        p4 = new PlayerProfile("George");
+    }
 
     @Test
-    public void testMaxPlayers() {
+    public void testMaxPlayers() throws IllegalGameStateException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         assertEquals(GameStatus.AWAITING_PLAYERS, standardGame.getStatus());
         standardGame.join(p2);
@@ -42,7 +50,7 @@ class GameTest {
     }
 
     @Test
-    public void testGameDoubleChoiceSide() {
+    public void testGameDoubleChoiceSide() throws IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -56,7 +64,7 @@ class GameTest {
     }
 
     @Test
-    public void testOneTurnPerPlayerWithPause() {
+    public void testOneTurnPerPlayerWithPause() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -179,7 +187,7 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameDeckEmpty() {
+    public void firstTestEndGameDeckEmpty() throws IllegalGameStateException, InvalidMaxPlayersException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         Game shortGame1 = new Game(2, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(9).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
@@ -299,12 +307,12 @@ class GameTest {
         assertEquals(2, shortGame1.getPlayerData(third).getHand().size());
 
         assertEquals(GameStatus.FINISHED, shortGame1.getStatus());
-        assertTrue(shortGame1.getTotalScores().size() == shortGame1.getPlayerProfiles().size() && !shortGame1.getWinners().isEmpty());
 
+        assertTrue(shortGame1.getTotalScores().size() == shortGame1.getPlayerProfiles().size() && !shortGame1.getWinners().isEmpty());
     }
 
     @Test
-    public void secondTestEndGameDeckEmpty() {
+    public void secondTestEndGameDeckEmpty() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, InvalidMaxPlayersException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         Game shortGame2 = new Game(3, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(10).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
@@ -427,7 +435,7 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameTwentyPoints() {
+    public void firstTestEndGameTwentyPoints() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, InvalidMaxPlayersException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -452,6 +460,8 @@ class GameTest {
                     )
             ));
         }
+
+
         Game shortGame3 = new Game(3, 3, new Board(new Deck(cards), new Deck(GameAssets.getInstance().getGoldenCards())));
 
         shortGame3.join(p1);
@@ -567,10 +577,12 @@ class GameTest {
 
         assertEquals(GameStatus.FINISHED, shortGame3.getStatus());
         assertTrue(shortGame3.getTotalScores().size() == shortGame3.getPlayerProfiles().size() && !shortGame3.getWinners().isEmpty());
+
+        
     }
 
     @Test
-    public void secondTestEndGameTwentyPoints() {
+    public void secondTestEndGameTwentyPoints() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -595,6 +607,7 @@ class GameTest {
                     )
             ));
         }
+
         Game shortGame4 = new Game(3, 3, new Board(new Deck(cards), new Deck(GameAssets.getInstance().getGoldenCards())));
 
         shortGame4.join(p1);
@@ -706,30 +719,31 @@ class GameTest {
 
         assertEquals(GameStatus.FINISHED, shortGame4.getStatus());
         assertTrue(shortGame4.getTotalScores().size() == shortGame4.getPlayerProfiles().size() && !shortGame4.getWinners().isEmpty());
+
     }
 
     @Test
-    public void testPlayerHasAlreadyJoined() {
+    public void testPlayerHasAlreadyJoined() throws IllegalGameStateException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         standardGame.join(p2);
-        assertThrows(IllegalArgumentException.class, () -> standardGame.join(p1));
+        assertThrows(PlayerAlreadyPlayingException.class, () -> standardGame.join(p1));
 
         PlayerProfile p5 = new PlayerProfile("Mattew");
-        assertThrows(IllegalArgumentException.class, () -> standardGame.join(p5));
+        assertThrows(PlayerAlreadyPlayingException.class, () -> standardGame.join(p5));
     }
 
     @Test
     public void testMaxPlayersNotValid() {
-        assertThrows(IllegalArgumentException.class, () -> new Game(4, 1));
-        assertThrows(IllegalArgumentException.class, () -> new Game(5, 5));
+        assertThrows(InvalidMaxPlayersException.class, () -> new Game(4, 1));
+        assertThrows(InvalidMaxPlayersException.class, () -> new Game(5, 5));
 
         Board board = new Board(new Deck(GameAssets.getInstance().getResourceCards()), new Deck(GameAssets.getInstance().getGoldenCards()));
-        assertThrows(IllegalArgumentException.class, () -> new Game(6, 1, board));
-        assertThrows(IllegalArgumentException.class, () -> new Game(7, 5, board));
+        assertThrows(InvalidMaxPlayersException.class, () -> new Game(6, 1, board));
+        assertThrows(InvalidMaxPlayersException.class, () -> new Game(7, 5, board));
     }
 
     @Test
-    public void testNotPlayerTurn() {
+    public void testNotPlayerTurn() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, CardNotInHandException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException, IllegalPlacementException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -786,7 +800,7 @@ class GameTest {
     }
 
     @Test
-    public void testCardNotInHand() {
+    public void testCardNotInHand() throws IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -810,7 +824,7 @@ class GameTest {
 
         Objective o3 = standardGame.getObjectiveOptions(p3).stream().findAny().orElse(null);
         standardGame.selectObjective(p3, o3);
-
+        
         Objective o4 = standardGame.getObjectiveOptions(p4).stream().findAny().orElse(null);
         standardGame.selectObjective(p4, o4);
 
@@ -820,11 +834,11 @@ class GameTest {
         PlayerProfile second = standardGame.getPlayerProfiles().get(1);
         Card c2 = standardGame.getPlayerData(second).getHand().getFirst();
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.placeCard(first, c2, Side.FRONT, 1, 0));
+        assertThrows(CardNotInHandException.class, () -> standardGame.placeCard(first, c2, Side.FRONT, 1, 0));
     }
 
     @Test
-    public void testNotEnoughCards() {
+    public void testNotEnoughCards() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         Game notValidGame1 = new Game(8, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(4).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(20).toList())));
 
@@ -862,7 +876,7 @@ class GameTest {
     }
 
     @Test
-    public void testDecksAreEmptyOnStarting() {
+    public void testDecksAreEmptyOnStarting() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         Game shortGame5 = new Game(11, 2, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(6).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(4).toList())));
 
@@ -885,7 +899,7 @@ class GameTest {
     }
 
     @Test
-    public void testPlayerIsNotInGame() {
+    public void testPlayerIsNotInGame() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException, IllegalPlacementException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -893,21 +907,21 @@ class GameTest {
 
         PlayerProfile playerNotInGame = new PlayerProfile("Hacker");
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.selectStartingCardSide(playerNotInGame, Side.BACK));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.selectStartingCardSide(playerNotInGame, Side.BACK));
 
         standardGame.selectStartingCardSide(p1, Side.BACK);
         standardGame.selectStartingCardSide(p2, Side.BACK);
         standardGame.selectStartingCardSide(p3, Side.BACK);
         standardGame.selectStartingCardSide(p4, Side.BACK);
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.selectColor(playerNotInGame, PlayerColor.RED));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.selectColor(playerNotInGame, PlayerColor.RED));
         standardGame.selectColor(p1, PlayerColor.RED);
         standardGame.selectColor(p2, PlayerColor.BLUE);
         standardGame.selectColor(p3, PlayerColor.YELLOW);
         standardGame.selectColor(p4, PlayerColor.GREEN);
 
         Objective o1 = standardGame.getObjectiveOptions(p1).stream().findAny().orElse(null);
-        assertThrows(IllegalArgumentException.class, () -> standardGame.selectObjective(playerNotInGame, o1));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.selectObjective(playerNotInGame, o1));
 
         standardGame.selectObjective(p1, o1);
 
@@ -925,14 +939,14 @@ class GameTest {
         PlayerProfile first = standardGame.getPlayerProfiles().getFirst();
         Card c1 = standardGame.getPlayerData(first).getHand().getFirst();
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.placeCard(playerNotInGame, c1, Side.FRONT, 1, 0));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.placeCard(playerNotInGame, c1, Side.FRONT, 1, 0));
         standardGame.placeCard(first, c1, Side.FRONT, 1, 0);
 
-        assertThrows(IllegalArgumentException.class, () -> standardGame.drawCard(playerNotInGame, standardGame.getBoard().getFaceUpCards().stream().findAny().orElse(null)));
+        assertThrows(PlayerNotInGameException.class, () -> standardGame.drawCard(playerNotInGame, standardGame.getBoard().getFaceUpCards().stream().findAny().orElse(null)));
     }
 
     @Test
-    public void testEarlyStart() {
+    public void testEarlyStart() throws IllegalGameStateException, NotEnoughPlayersException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         standardGame.join(p2);
 
@@ -941,14 +955,14 @@ class GameTest {
     }
 
     @Test
-    public void testEarlyStartFailures() {
-        assertThrows(IllegalMoveException.class, () -> standardGame.startGame());
+    public void testEarlyStartFailures() throws IllegalGameStateException, PlayerAlreadyPlayingException {
+        assertThrows(NotEnoughPlayersException.class, () -> standardGame.startGame());
         standardGame.join(p1);
-        assertThrows(IllegalMoveException.class, () -> standardGame.startGame());
+        assertThrows(NotEnoughPlayersException.class, () -> standardGame.startGame());
     }
 
     @Test
-    public void firstTestDoubleStart() {
+    public void firstTestDoubleStart() throws IllegalGameStateException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -959,7 +973,7 @@ class GameTest {
     }
 
     @Test
-    public void secondTestDoubleStart() {
+    public void secondTestDoubleStart() throws IllegalGameStateException, NotEnoughPlayersException, PlayerAlreadyPlayingException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -971,7 +985,7 @@ class GameTest {
     }
 
     @Test
-    public void testEndGameTwentyPointsWithEarlyStart() {
+    public void testEndGameTwentyPointsWithEarlyStart() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, NotEnoughPlayersException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {

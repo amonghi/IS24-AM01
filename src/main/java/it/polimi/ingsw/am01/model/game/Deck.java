@@ -49,6 +49,16 @@ public class Deck implements DrawSource {
     }
 
     /**
+     * Creates a copy of {@code this} and queue the cards stored in {@code newCards}
+     * @return Returns a new {@code Deck}
+     */
+    public Deck createMergedDeck(List<Card> newCards) {
+        List<Card> newCardList = new ArrayList<>(cards);
+        newCardList.addAll(cards.size(), newCards);
+        return new Deck(newCardList);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

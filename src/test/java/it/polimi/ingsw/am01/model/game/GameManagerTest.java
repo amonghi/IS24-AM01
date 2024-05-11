@@ -17,7 +17,7 @@ class GameManagerTest {
         GameManager gameManager = new GameManager(dataDir);
         int k = 10;
         for (int i = 0; i < k; i++) {
-            gameManager.createGame(4);
+            assertDoesNotThrow(() -> gameManager.createGame(4));
         }
         gameManager.getGames().forEach(gameManager::saveGame);
         File[] files = dataDir.toFile().listFiles();
@@ -30,7 +30,7 @@ class GameManagerTest {
         GameManager gameManager = new GameManager(dataDir);
         int k = 10;
         for (int i = 0; i < k; i++) {
-            gameManager.saveGame(gameManager.createGame(4));
+            assertDoesNotThrow(() -> gameManager.saveGame(gameManager.createGame(4)));
         }
         GameManager gm1 = new GameManager(dataDir);
         assertEquals(k, gm1.getGames().size());
@@ -42,7 +42,7 @@ class GameManagerTest {
         int k = 10;
         int d = 5;
         for (int i = 0; i < k; i++) {
-            gameManager.saveGame(gameManager.createGame(4));
+            assertDoesNotThrow(() -> gameManager.saveGame(gameManager.createGame(4)));
         }
         for (int i = 0; i < d; i++) {
             gameManager.deleteGame(gameManager.getGames().getFirst());
@@ -57,29 +57,32 @@ class GameManagerTest {
     @Test
     void canGetGameById(@TempDir Path dataDir) {
         GameManager gameManager = new GameManager(dataDir);
-        Game createdGame = gameManager.createGame(3);
+        assertDoesNotThrow(() ->{
+            Game createdGame = gameManager.createGame(3);
+            Optional<Game> foundGame = gameManager.getGame(createdGame.getId());
 
-        Optional<Game> foundGame = gameManager.getGame(createdGame.getId());
-
-        assertTrue(foundGame.isPresent());
-        assertEquals(createdGame, foundGame.get());
+            assertTrue(foundGame.isPresent());
+            assertEquals(createdGame, foundGame.get());
+        });
     }
 
     @Test
     void canGetGameByPlayer(@TempDir Path dataDir) {
-        PlayerManager playerManager = new PlayerManager();
-        PlayerProfile player = playerManager.createProfile("Alice");
+        assertDoesNotThrow(() -> {
+            PlayerManager playerManager = new PlayerManager();
+            PlayerProfile player = playerManager.createProfile("Alice");
 
-        GameManager gameManager = new GameManager(dataDir);
-        Game game = gameManager.createGame(3);
+            GameManager gameManager = new GameManager(dataDir);
+            Game game = gameManager.createGame(3);
 
-        Optional<Game> found1 = gameManager.getGameWhereIsPlaying(player);
-        assertTrue(found1.isEmpty());
+            Optional<Game> found1 = gameManager.getGameWhereIsPlaying(player);
+            assertTrue(found1.isEmpty());
 
-        game.join(player);
+            game.join(player);
 
-        Optional<Game> found2 = gameManager.getGameWhereIsPlaying(player);
-        assertTrue(found2.isPresent());
-        assertEquals(game, found2.get());
+            Optional<Game> found2 = gameManager.getGameWhereIsPlaying(player);
+            assertTrue(found2.isPresent());
+            assertEquals(game, found2.get());
+        });
     }
 }

@@ -6,12 +6,9 @@ import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.card.face.BackCardFace;
 import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
-import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
 import it.polimi.ingsw.am01.model.collectible.Resource;
+import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import it.polimi.ingsw.am01.model.game.PlayArea;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -68,7 +65,7 @@ class PlacementConstraintTest {
     );
 
     @Test
-    void canVerifyIfSatisfied() {
+    void canVerifyIfSatisfied() throws IllegalPlacementException {
         final PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(1, 0, aCard, Side.BACK);
         Map<Resource, Integer> constraintResources = new HashMap<>();
@@ -80,7 +77,7 @@ class PlacementConstraintTest {
     }
 
     @Test
-    void canVerifyIfNotSatisfied() {
+    void canVerifyIfNotSatisfied() throws IllegalPlacementException {
         final PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(1, 0, aCard, Side.BACK);
         Map<Resource, Integer> constraintResources = new HashMap<>();
@@ -90,7 +87,7 @@ class PlacementConstraintTest {
     }
 
     @Test
-    void throwsIfEmptyConstraint() {
+    void throwsIfEmptyConstraint() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(1, 0, aCard, Side.BACK);
         Map<Resource, Integer> constraintResources = new HashMap<>();

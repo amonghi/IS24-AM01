@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.model.player;
 
+import it.polimi.ingsw.am01.model.exception.NameAlreadyTakenException;
 import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
@@ -12,39 +13,44 @@ class PlayerManagerTest {
     void profileCreation() {
         PlayerManager pm = new PlayerManager();
         assertFalse(pm.getProfile("Alice").isPresent());
+        assertDoesNotThrow(() -> {
+            PlayerProfile aProfile = pm.createProfile("Alice");
+            assertEquals("Alice", aProfile.getName());
 
-        PlayerProfile aProfile = pm.createProfile("Alice");
-        assertEquals("Alice", aProfile.getName());
-
+        });
         assertTrue(pm.getProfile("Alice").isPresent());
     }
 
     @Test
     void cannotCreateSecondProfileWithSameName() {
         PlayerManager pm = new PlayerManager();
-        pm.createProfile("Alice");
+        assertDoesNotThrow(() -> {
+            pm.createProfile("Alice");
+        });
         assertTrue(pm.getProfile("Alice").isPresent());
-
-        assertThrows(IllegalStateException.class, () -> pm.createProfile("Alice"));
+        assertThrows(NameAlreadyTakenException.class, () -> pm.createProfile("Alice"));
     }
 
     @Test
     void profileDeletion() {
         PlayerManager pm = new PlayerManager();
-        PlayerProfile aProfile = pm.createProfile("Alice");
-        assertTrue(pm.getProfile("Alice").isPresent());
+        assertDoesNotThrow(() -> {
+            PlayerProfile aProfile = pm.createProfile("Alice");
+            assertTrue(pm.getProfile("Alice").isPresent());
 
-        pm.removeProfile(aProfile);
-        assertFalse(pm.getProfile("Alice").isPresent());
+            pm.removeProfile(aProfile);
+            assertFalse(pm.getProfile("Alice").isPresent());
+        });
     }
 
     @Test
     void cannotDeleteTwice() {
         PlayerManager pm = new PlayerManager();
-        PlayerProfile aProfile = pm.createProfile("Alice");
-        pm.removeProfile(aProfile);
-        assertFalse(pm.getProfile("Alice").isPresent());
-
-        assertThrows(NoSuchElementException.class, () -> pm.removeProfile(aProfile));
+        assertDoesNotThrow(() -> {
+            PlayerProfile aProfile = pm.createProfile("Alice");
+            pm.removeProfile(aProfile);
+            assertFalse(pm.getProfile("Alice").isPresent());
+            assertThrows(NoSuchElementException.class, () -> pm.removeProfile(aProfile));
+        });
     }
 }
