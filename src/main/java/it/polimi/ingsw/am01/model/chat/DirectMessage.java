@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am01.model.chat;
 
+import it.polimi.ingsw.am01.model.exception.MessageSentToThemselvesException;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
@@ -18,9 +20,15 @@ public class DirectMessage extends Message {
      * @param sender    The {@link PlayerProfile} who send the {@code Message}
      * @param recipient The {@link PlayerProfile} who receive the {@code Message}
      * @param content   The content of the {@code Message}
+     * @throws MessageSentToThemselvesException if sender is equal to recipient
      */
-    public DirectMessage(PlayerProfile sender, PlayerProfile recipient, String content) {
+    public DirectMessage(PlayerProfile sender, PlayerProfile recipient, String content) throws MessageSentToThemselvesException {
         super(sender, content);
+
+        if (sender.equals(recipient)) {
+            throw new MessageSentToThemselvesException(sender);
+        }
+
         this.recipient = recipient;
     }
 
@@ -39,8 +47,9 @@ public class DirectMessage extends Message {
     @Override
     public String toString() {
         return "DirectMessage{"
-                + "(" + super.getSender().getName() + " -> " + recipient.getName() + "):"
-                + super.getContent()
+                + getTimestamp().toLocalTime().truncatedTo(ChronoUnit.SECONDS)
+                + " (" + getSender().getName() + " -> " + recipient.getName() + "):"
+                + getContent()
                 + "}";
     }
 
@@ -55,7 +64,8 @@ public class DirectMessage extends Message {
         DirectMessage that = (DirectMessage) o;
         return recipient.equals(that.recipient) &&
                 getSender().equals(that.getSender()) &&
-                getContent().equals(that.getContent());
+                getContent().equals(that.getContent()) &&
+                getTimestamp().equals(that.getTimestamp());
     }
 
     /**
@@ -63,6 +73,6 @@ public class DirectMessage extends Message {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(recipient, getSender(), getContent());
+        return Objects.hash(recipient, getSender(), getContent(), getTimestamp());
     }
 }

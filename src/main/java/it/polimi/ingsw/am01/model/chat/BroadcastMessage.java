@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.model.chat;
 
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
@@ -36,9 +37,10 @@ public class BroadcastMessage extends Message {
      */
     @Override
     public String toString() {
-        return "DirectMessage{"
-                + "(" + super.getSender().getName() + "):"
-                + super.getContent()
+        return "BroadcastMessage{"
+                + getTimestamp().toLocalTime().truncatedTo(ChronoUnit.SECONDS)
+                + " (" + getSender().getName() + "):"
+                + getContent()
                 + "}";
     }
 
@@ -52,7 +54,8 @@ public class BroadcastMessage extends Message {
 
         BroadcastMessage that = (BroadcastMessage) o;
         return getSender().equals(that.getSender()) &&
-                getContent().equals(that.getContent());
+                getContent().equals(that.getContent()) &&
+                getTimestamp().equals(that.getTimestamp());
     }
 
     /**
@@ -60,6 +63,6 @@ public class BroadcastMessage extends Message {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(getSender(), getContent());
+        return Objects.hash(getSender(), getContent(), getTimestamp());
     }
 }

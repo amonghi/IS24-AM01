@@ -320,10 +320,12 @@ package chat {
     abstract class Message {
         - PlayerProfile sender
         - String content
+        - LocalDateTime timestamp
 
         + Message(PlayerProfile sender, String content)
         + getSender() PlayerProfile
         + getContent() String
+        + getTimestamp() LocalDateTime
         + {abstract} isRecipient(PlayerProfile pp) boolean
     }
 

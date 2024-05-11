@@ -18,6 +18,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
 
     private static final Gson gson = new GsonBuilder()
             .enableComplexMapKeySerialization()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerDes())
             .registerTypeAdapter(Corner.class, new CornerSerDes())
             .registerTypeAdapter(Points.class, new PointsSerDes())
             .registerTypeAdapter(Collectible.class, new CollectibleDeserializer())

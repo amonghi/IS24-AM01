@@ -4,6 +4,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The handler of the chat, allowing to send a message and view the MailBox of a specific {@link PlayerProfile}
@@ -29,12 +30,13 @@ public class ChatManager {
 
     /**
      * @param pp The {@code PlayerProfile} for which to return the mailbox
-     * @return The {@code List} of messages for which the specified {@link PlayerProfile} is recipient
+     * @return An ordered {@code List} of messages sent by {@link PlayerProfile} and received by {@link PlayerProfile}.
+     * Message order is based on timestamps
      */
     public synchronized List<Message> getMailbox(PlayerProfile pp) {
         return messages.stream()
-                .filter(m -> m.isRecipient(pp))
-                .toList();
+                .filter(m -> m.isRecipient(pp) || m.getSender().equals(pp))
+                .collect(Collectors.toList());
     }
 
     /**

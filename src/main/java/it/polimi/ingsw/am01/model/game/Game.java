@@ -135,6 +135,7 @@ public class Game implements EventEmitter<GameEvent> {
 
     /**
      * Implements the event emitter if null
+     *
      * @return The event emitter
      */
     private EventEmitterImpl<GameEvent> getEmitter() {
@@ -270,7 +271,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @see ChatManager
      * @see Message
      */
-    public synchronized ChatManager getChatManager() {
+    public ChatManager getChatManager() {
         return chatManager;
     }
 
