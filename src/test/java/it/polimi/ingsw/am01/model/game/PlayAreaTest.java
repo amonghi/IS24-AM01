@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.model.game;
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
+import it.polimi.ingsw.am01.model.collectible.Item;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,13 @@ class PlayAreaTest {
     final Card aCard = assets.getResourceCards().get(0);
     final Card bCard = assets.getResourceCards().get(1);
     final Card cCard = assets.getResourceCards().get(2);
+
+    //Resource cards that give point
+    final Card dCard = assets.getResourceCards().get(7);
+    final Card eCard = assets.getResourceCards().get(8);
+    final Card fCard = assets.getResourceCards().get(9);
+    final Card gCard = assets.getResourceCards().get(14);
+    final Card hCard = assets.getResourceCards().get(16);
 
     //Golden card requiring 2 FUNGI + 1 INSECT
     final Card goldCard = assets.getGoldenCards().get(6);
@@ -263,6 +271,111 @@ class PlayAreaTest {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(1, 0, aCard, Side.FRONT);
         assertThrows(IllegalPlacementException.class, () -> playArea.placeAt(-1, 0, goldCardNotPlaceable, Side.FRONT));
+    }
+
+    @Test
+    void cantRemoveStartingCardPlacement() {
+        PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        playArea.undoPlacement();
+        assertEquals(0, playArea.getScore());
+        assertTrue(playArea.getAt(0, 0).isPresent());
+        assertEquals(starterCard, playArea.getAt(0, 0).get().getCard());
+        assertEquals(
+                Set.of(
+                    new PlayArea.Position(0, 1),
+                    new PlayArea.Position(1, 0),
+                    new PlayArea.Position(0, -1),
+                    new PlayArea.Position(-1, 0)
+                ),
+                playArea.getPlayablePositions()
+        );
+    }
+
+    @Test
+    void canRemovePlacement() throws IllegalPlacementException {
+        PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        playArea.placeAt(0,1,aCard,Side.BACK);
+        assertTrue(playArea.getAt(0, 1).isPresent());
+        assertEquals(aCard, playArea.getAt(0, 1).get().getCard());
+        playArea.undoPlacement();
+        assertTrue(playArea.getAt(0, 1).isEmpty());
+    }
+
+    @Test
+    void canUpdatePlayablePositions() throws IllegalPlacementException {
+        PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        playArea.placeAt(0,1,aCard,Side.FRONT);
+        playArea.placeAt(-1,0,bCard,Side.FRONT);
+        playArea.placeAt(-1,1,cCard,Side.FRONT);
+        assertEquals(
+                Set.of(
+                    new PlayArea.Position(1, 0),
+                    new PlayArea.Position(0, -1),
+                    new PlayArea.Position(1,1),
+                    new PlayArea.Position(0,2),
+                    new PlayArea.Position(-1,-1),
+                    new PlayArea.Position(-1,2),
+                    new PlayArea.Position(-2,1)
+                ),
+                playArea.getPlayablePositions()
+        );
+        playArea.undoPlacement();
+        assertTrue(playArea.getAt(-1, 1).isEmpty());
+        assertEquals(
+                Set.of(
+                    new PlayArea.Position(1, 0),
+                    new PlayArea.Position(0, -1),
+                    new PlayArea.Position(1,1),
+                    new PlayArea.Position(0,2),
+                    new PlayArea.Position(-1,-1),
+                    new PlayArea.Position(-1,1)
+                ),
+                playArea.getPlayablePositions()
+        );
+    }
+
+    @Test
+    void canUpdateScore() throws IllegalPlacementException {
+        PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        playArea.placeAt(0,1,dCard,Side.FRONT);
+        playArea.placeAt(-1,0,eCard,Side.FRONT);
+        playArea.placeAt(-1,1,fCard,Side.FRONT);
+        assertEquals(3, playArea.getScore());
+        playArea.undoPlacement();
+        assertTrue(playArea.getAt(-1, 1).isEmpty());
+        assertEquals(2, playArea.getScore());
+    }
+
+    @Test
+    void canUpdateCollectibleCount() throws IllegalPlacementException {
+        PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        playArea.placeAt(0,1,gCard,Side.FRONT);
+        playArea.placeAt(-1,0,hCard,Side.FRONT);
+        playArea.placeAt(-1,1,fCard,Side.BACK);
+        assertEquals(
+                Map.of(
+                    Resource.FUNGI, 1,
+                    Resource.PLANT, 3,
+                    Resource.INSECT, 1,
+                    Resource.ANIMAL, 2,
+                    Item.QUILL, 0,
+                    Item.MANUSCRIPT, 0
+                ),
+                playArea.getCollectibleCount()
+        );
+        playArea.undoPlacement();
+        assertTrue(playArea.getAt(-1, 1).isEmpty());
+        assertEquals(
+                Map.of(
+                        Resource.FUNGI, 0,
+                        Resource.PLANT, 3,
+                        Resource.INSECT, 1,
+                        Resource.ANIMAL, 2,
+                        Item.QUILL, 1,
+                        Item.MANUSCRIPT, 1
+                ),
+                playArea.getCollectibleCount()
+        );
     }
 
 }

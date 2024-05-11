@@ -136,9 +136,47 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         card.getFace(side).getCenterResources()
                 .forEach((resource, amount) -> collectibleCount.merge(resource, amount, Integer::sum));
 
-        updatePlayablePositions(placement);
+        updatePlayablePositionsAfterPlacing(placement);
 
         return placement;
+    }
+
+    public void undoPlacement() {
+        if (this.seq < 2)
+            return;
+
+        this.cards.values()
+                .stream()
+                .filter(cp -> cp.seq == this.seq - 1)
+                .findFirst()
+                .ifPresent(this::removePlacement);
+    }
+
+    private void removePlacement(CardPlacement cardPlacement) {
+        this.seq--;
+        this.score -= cardPlacement.getPoints();
+
+        //Remove resources and items of the last placement
+        cardPlacement.getCard().getFace(cardPlacement.getSide())
+                .getCenterResources()
+                .forEach((resource, amount) -> collectibleCount.merge(resource, -amount, Integer::sum));
+
+        Arrays.stream(CornerPosition.values())
+                .flatMap(cornerPos -> cardPlacement.getVisibleFace().corner(cornerPos)
+                        .getCollectible()
+                        .stream())
+                .forEach(collectible -> collectibleCount.merge(collectible, -1, Integer::sum));
+
+        this.cards.remove(cardPlacement.getPosition());
+
+        //Re-add collectibles of the placements covered by the one I've just removed
+        cardPlacement.getCovered()
+                .forEach((cornerPosition, placement) ->
+                        placement.getVisibleCollectibleAtCorner(cornerPosition.getOpposite())
+                                .ifPresent(collectible -> collectibleCount.merge(collectible, 1, Integer::sum))
+                );
+
+        updatePlayablePositionsAfterRemoving(cardPlacement);
     }
 
     /**
@@ -147,7 +185,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      * @param placement The {@link CardPlacement} returned by the {@link PlayArea#placeAt(int, int, Card, Side)} method
      * @see PlayArea#placeAt(int, int, Card, Side)
      */
-    private void updatePlayablePositions(CardPlacement placement) {
+    private void updatePlayablePositionsAfterPlacing(CardPlacement placement) {
         int invalidCount;
         playablePositions.remove(placement.getPosition());
         for (CornerPosition cornerPos : CornerPosition.values()) {
@@ -166,6 +204,13 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
                 playablePositions.remove(pos);
             }
         }
+    }
+
+    private void updatePlayablePositionsAfterRemoving(CardPlacement cardPlacement) {
+        playablePositions.add(cardPlacement.getPosition());
+        Arrays.stream(CornerPosition.values()).forEach(cornerPosition ->
+                playablePositions.remove(cardPlacement.getPosition().getRelative(cornerPosition))
+        );
     }
 
     /**
