@@ -289,16 +289,19 @@ class PlayAreaTest {
                 ),
                 playArea.getPlayablePositions()
         );
+        assertEquals(1, playArea.getSeq());
     }
 
     @Test
     void canRemovePlacement() throws IllegalPlacementException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(0,1,aCard,Side.BACK);
+        assertEquals(2, playArea.getSeq());
         assertTrue(playArea.getAt(0, 1).isPresent());
         assertEquals(aCard, playArea.getAt(0, 1).get().getCard());
         playArea.undoPlacement();
         assertTrue(playArea.getAt(0, 1).isEmpty());
+        assertEquals(1, playArea.getSeq());
     }
 
     @Test
@@ -307,6 +310,7 @@ class PlayAreaTest {
         playArea.placeAt(0,1,aCard,Side.FRONT);
         playArea.placeAt(-1,0,bCard,Side.FRONT);
         playArea.placeAt(-1,1,cCard,Side.FRONT);
+        assertEquals(4, playArea.getSeq());
         assertEquals(
                 Set.of(
                     new PlayArea.Position(1, 0),
@@ -320,6 +324,7 @@ class PlayAreaTest {
                 playArea.getPlayablePositions()
         );
         playArea.undoPlacement();
+        assertEquals(3, playArea.getSeq());
         assertTrue(playArea.getAt(-1, 1).isEmpty());
         assertEquals(
                 Set.of(
@@ -340,10 +345,12 @@ class PlayAreaTest {
         playArea.placeAt(0,1,dCard,Side.FRONT);
         playArea.placeAt(-1,0,eCard,Side.FRONT);
         playArea.placeAt(-1,1,fCard,Side.FRONT);
+        assertEquals(4, playArea.getSeq());
         assertEquals(3, playArea.getScore());
         playArea.undoPlacement();
         assertTrue(playArea.getAt(-1, 1).isEmpty());
         assertEquals(2, playArea.getScore());
+        assertEquals(3, playArea.getSeq());
     }
 
     @Test
@@ -352,6 +359,7 @@ class PlayAreaTest {
         playArea.placeAt(0,1,gCard,Side.FRONT);
         playArea.placeAt(-1,0,hCard,Side.FRONT);
         playArea.placeAt(-1,1,fCard,Side.BACK);
+        assertEquals(4, playArea.getSeq());
         assertEquals(
                 Map.of(
                     Resource.FUNGI, 1,
@@ -364,6 +372,7 @@ class PlayAreaTest {
                 playArea.getCollectibleCount()
         );
         playArea.undoPlacement();
+        assertEquals(3, playArea.getSeq());
         assertTrue(playArea.getAt(-1, 1).isEmpty());
         assertEquals(
                 Map.of(
