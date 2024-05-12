@@ -557,6 +557,7 @@ package game {
         + getAt(int i, int j) Optional<PlayArea.CardPlacement>
         + getCollectibleCount() Map<Collectible, Integer>
         + getScore() int
+        + getSeq() int
         + iterator() Iterator<CardPlacement>
     }
     CardPlacement <--* PlayArea : < has many

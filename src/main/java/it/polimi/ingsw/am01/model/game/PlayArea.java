@@ -20,6 +20,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      */
     private final Map<Collectible, Integer> collectibleCount;
     private int score;
+
     private int seq;
 
     /**
@@ -255,6 +256,13 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      */
     public int getScore() {
         return this.score;
+    }
+
+    /**
+     * @return the sequence number of the next {@link CardPlacement}
+     */
+    public int getSeq() {
+        return seq;
     }
 
     @Override
