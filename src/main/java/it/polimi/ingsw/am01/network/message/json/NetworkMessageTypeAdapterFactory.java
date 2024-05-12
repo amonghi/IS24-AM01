@@ -28,10 +28,14 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(SelectColorC2S.ID, SelectColorC2S.class),
             Map.entry(SelectSecretObjectiveC2S.ID, SelectSecretObjectiveC2S.class),
             Map.entry(SelectStartingCardSideC2S.ID, SelectStartingCardSideC2S.class),
+            Map.entry(SendBroadcastMessageC2S.ID, SendBroadcastMessageC2S.class),
+            Map.entry(SendDirectMessageC2S.ID, SendDirectMessageC2S.class),
             Map.entry(StartGameC2S.ID, StartGameC2S.class),
 
 
             // S2C messages
+            Map.entry(BroadcastMessageSentS2C.ID, BroadcastMessageSentS2C.class),
+            Map.entry(DirectMessageSentS2C.ID, DirectMessageSentS2C.class),
             Map.entry(DoubleChoiceS2C.ID, DoubleChoiceS2C.class),
             Map.entry(DoubleSideChoiceS2C.ID, DoubleSideChoiceS2C.class),
             Map.entry(EmptySourceS2C.ID, EmptySourceS2C.class),
@@ -44,7 +48,9 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(InvalidMaxPlayersS2C.ID, InvalidMaxPlayersS2C.class),
             Map.entry(InvalidObjectiveSelectionS2C.ID, InvalidObjectiveSelectionS2C.class),
             Map.entry(InvalidPlacementS2C.ID, InvalidPlacementS2C.class),
+            Map.entry(InvalidRecipientS2C.ID, InvalidRecipientS2C.class),
             Map.entry(NameAlreadyTakenS2C.ID, NameAlreadyTakenS2C.class),
+            Map.entry(NewMessageS2C.ID, NewMessageS2C.class),
             Map.entry(NotEnoughPlayersS2C.ID, NotEnoughPlayersS2C.class),
             Map.entry(PlayerNotInGameS2C.ID, PlayerNotInGameS2C.class),
             Map.entry(SetBoardAndHandS2C.ID, SetBoardAndHandS2C.class),

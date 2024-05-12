@@ -9,6 +9,7 @@ import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.Points;
+import it.polimi.ingsw.am01.model.chat.Message;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
@@ -31,6 +32,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
             .enableComplexMapKeySerialization()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerDes())
             .registerTypeAdapter(Corner.class, new CornerSerDes())
+            .registerTypeAdapter(Message.class, new ChatMessageSerDes())
             .registerTypeAdapter(Points.class, new PointsSerDes())
             .registerTypeAdapter(Collectible.class, new CollectibleDeserializer())
             .registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerDes())

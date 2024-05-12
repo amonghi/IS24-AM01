@@ -94,6 +94,7 @@ public class Game implements EventEmitter<GameEvent> {
         for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
             emitter.bubble(faceUpCard);
         }
+        emitter.bubble(chatManager);
     }
 
     /**
@@ -131,6 +132,7 @@ public class Game implements EventEmitter<GameEvent> {
         for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
             emitter.bubble(faceUpCard);
         }
+        emitter.bubble(chatManager);
     }
 
     /**
@@ -144,6 +146,7 @@ public class Game implements EventEmitter<GameEvent> {
             for (FaceUpCard faceUpCard : board.getFaceUpCards()) {
                 emitter.bubble(faceUpCard);
             }
+            emitter.bubble(chatManager);
         }
         return emitter;
     }
