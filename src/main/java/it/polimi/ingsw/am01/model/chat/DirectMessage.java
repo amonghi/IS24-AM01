@@ -20,7 +20,7 @@ public class DirectMessage extends Message {
      * @param sender    The {@link PlayerProfile} who send the {@code Message}
      * @param recipient The {@link PlayerProfile} who receive the {@code Message}
      * @param content   The content of the {@code Message}
-     * @throws MessageSentToThemselvesException if sender is equal to recipient
+     * @throws MessageSentToThemselvesException if {@code sender} is equal to {@code recipient}
      */
     public DirectMessage(PlayerProfile sender, PlayerProfile recipient, String content) throws MessageSentToThemselvesException {
         super(sender, content);
