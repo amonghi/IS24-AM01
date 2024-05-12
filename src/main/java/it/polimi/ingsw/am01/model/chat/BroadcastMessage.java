@@ -36,6 +36,14 @@ public class BroadcastMessage extends Message {
      * {@inheritDoc}
      */
     @Override
+    public MessageType getMessageType() {
+        return MessageType.BROADCAST;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString() {
         return "BroadcastMessage{"
                 + getTimestamp().toLocalTime().truncatedTo(ChronoUnit.SECONDS)

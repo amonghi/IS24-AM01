@@ -53,4 +53,10 @@ public abstract class Message {
      * @return Whether the specified {@link PlayerProfile} is a recipient or not
      */
     public abstract boolean isRecipient(PlayerProfile pp);
+
+    /**
+     * @return The type of message
+     * @see MessageType
+     */
+    public abstract MessageType getMessageType();
 }

@@ -45,6 +45,14 @@ public class DirectMessage extends Message {
      * {@inheritDoc}
      */
     @Override
+    public MessageType getMessageType() {
+        return MessageType.DIRECT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString() {
         return "DirectMessage{"
                 + getTimestamp().toLocalTime().truncatedTo(ChronoUnit.SECONDS)
