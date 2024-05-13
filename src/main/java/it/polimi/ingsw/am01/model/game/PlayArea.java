@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
+import it.polimi.ingsw.am01.model.exception.NotUndoableOperationException;
 
 import java.util.*;
 
@@ -142,18 +143,21 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         return placement;
     }
 
-    public void undoPlacement() {
+    public CardPlacement undoPlacement() throws NotUndoableOperationException {
         if (this.seq < 2)
-            return;
+            throw new NotUndoableOperationException();
 
-        this.cards.values()
+        //This should never be null, because the `seq` should be correct
+        return this.cards.values()
                 .stream()
                 .filter(cp -> cp.seq == this.seq - 1)
                 .findFirst()
-                .ifPresent(this::removePlacement);
+                .map(this::removePlacement)
+                .orElseThrow(NotUndoableOperationException::new);
+
     }
 
-    private void removePlacement(CardPlacement cardPlacement) {
+    private CardPlacement removePlacement(CardPlacement cardPlacement) {
         this.seq--;
         this.score -= cardPlacement.getPoints();
 
@@ -178,6 +182,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
                 );
 
         updatePlayablePositionsAfterRemoving(cardPlacement);
+        return cardPlacement;
     }
 
     /**
