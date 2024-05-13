@@ -5,6 +5,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A {@code Message} for a specific {@link PlayerProfile} connected to the game
@@ -47,6 +48,16 @@ public class DirectMessage extends Message {
     @Override
     public MessageType getMessageType() {
         return MessageType.DIRECT;
+    }
+
+    /**
+     *
+     * @return the recipient of the message
+     * @see Message
+     */
+    @Override
+    public Optional<PlayerProfile> getRecipient() {
+        return Optional.ofNullable(recipient);
     }
 
     /**

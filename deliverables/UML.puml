@@ -333,6 +333,7 @@ package chat {
         + getTimestamp() LocalDateTime
         + {abstract} getMessageType() MessageType
         + {abstract} isRecipient(PlayerProfile pp) boolean
+        + getRecipient() Optional<PlayerProfile>
     }
 
     class BroadcastMessage extends Message {
@@ -350,6 +351,7 @@ package chat {
         + DirectMessage(PlayerProfile sender, PlayerProfile recipient, String content)
         + getMessageType() MessageType
         + isRecipient(PlayerProfile pp) boolean
+        + getRecipient() Optional<PlayerProfile>
     }
 
     class ChatManager {

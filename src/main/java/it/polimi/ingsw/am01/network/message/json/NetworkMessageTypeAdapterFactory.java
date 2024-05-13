@@ -44,7 +44,6 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(GameJoinedS2C.ID, GameJoinedS2C.class),
             Map.entry(GameNotFoundS2C.ID, GameNotFoundS2C.class),
             Map.entry(InvalidCardS2C.ID, InvalidCardS2C.class),
-            Map.entry(InvalidGameStateS2C.ID, InvalidGameStateS2C.class),
             Map.entry(InvalidMaxPlayersS2C.ID, InvalidMaxPlayersS2C.class),
             Map.entry(InvalidObjectiveSelectionS2C.ID, InvalidObjectiveSelectionS2C.class),
             Map.entry(InvalidPlacementS2C.ID, InvalidPlacementS2C.class),

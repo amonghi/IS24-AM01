@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.model.chat;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * A generic message to send in the chat
@@ -59,4 +60,15 @@ public abstract class Message {
      * @see MessageType
      */
     public abstract MessageType getMessageType();
+
+    /**
+     * Provides recipient of the {@code Message}, if it is defined
+     *
+     * @return the recipient of the message if it is defined, otherwise {@code Optional.empty()}
+     * @see DirectMessage
+     * @see BroadcastMessage
+     */
+    public Optional<PlayerProfile> getRecipient() {
+        return Optional.empty();
+    }
 }

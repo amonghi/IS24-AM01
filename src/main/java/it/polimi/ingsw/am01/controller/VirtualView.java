@@ -106,7 +106,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                 C2SNetworkMessage message = this.connection.receive();
                 message.accept(this);
             } catch (IllegalMoveException | NetworkException e) {
-                throw new RuntimeException(e); // TODO: disconnect player
+                disconnect();
             }
         }
     }
@@ -391,7 +391,6 @@ public class VirtualView implements Runnable, MessageVisitor {
     @Override
     public void visit(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException, NetworkException {
         try {
-            //FIXME: should we need to send back drawResult?
             controller.drawCardFromFaceUpCards(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.cardId());
         } catch (PlayerNotInGameException e) {
             connection.send(new PlayerNotInGameS2C());
@@ -425,8 +424,6 @@ public class VirtualView implements Runnable, MessageVisitor {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         } catch (PlayerNotInGameException e) {
             connection.send(new PlayerNotInGameS2C());
-        } catch (IllegalGameStateException e) { //TODO: maybe remove
-            connection.send(new InvalidGameStateS2C());
         } catch (IllegalPlacementException e) {
             connection.send(new InvalidPlacementS2C(message.cardId(), message.side(), message.i(), message.j()));
         } catch (InvalidCardException e) {
@@ -527,8 +524,8 @@ public class VirtualView implements Runnable, MessageVisitor {
 
             connection.send(new DirectMessageSentS2C(
                     chatMsg.getSender().getName(),
-                    chatMsg.getContent(),
                     message.recipientPlayerName(),
+                    chatMsg.getContent(),
                     chatMsg.getTimestamp().toString()
             ));
         } catch (GameNotFoundException e) {

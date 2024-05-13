@@ -55,7 +55,6 @@ public class ChatManager implements EventEmitter<ChatEvent> {
      * Message order is based on timestamps
      */
     public synchronized List<Message> getMailbox(PlayerProfile pp) {
-        //FIXME: recipient field is not accessible in a Message object
         return messages.stream()
                 .filter(m -> m.isRecipient(pp) || m.getSender().equals(pp))
                 .collect(Collectors.toList());
