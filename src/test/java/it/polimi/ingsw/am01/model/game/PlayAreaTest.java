@@ -6,6 +6,7 @@ import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Item;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
+import it.polimi.ingsw.am01.model.exception.NotUndoableOperationException;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -274,9 +275,9 @@ class PlayAreaTest {
     }
 
     @Test
-    void cantRemoveStartingCardPlacement() {
+    void cantRemoveStartingCardPlacement() throws NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
-        playArea.undoPlacement();
+        assertThrows(NotUndoableOperationException.class, playArea::undoPlacement);
         assertEquals(0, playArea.getScore());
         assertTrue(playArea.getAt(0, 0).isPresent());
         assertEquals(starterCard, playArea.getAt(0, 0).get().getCard());
@@ -293,7 +294,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void canRemovePlacement() throws IllegalPlacementException {
+    void canRemovePlacement() throws IllegalPlacementException, NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(0,1,aCard,Side.BACK);
         assertEquals(2, playArea.getSeq());
@@ -305,7 +306,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void canUpdatePlayablePositions() throws IllegalPlacementException {
+    void canUpdatePlayablePositions() throws IllegalPlacementException, NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(0,1,aCard,Side.FRONT);
         playArea.placeAt(-1,0,bCard,Side.FRONT);
@@ -340,7 +341,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void canUpdateScore() throws IllegalPlacementException {
+    void canUpdateScore() throws IllegalPlacementException, NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(0,1,dCard,Side.FRONT);
         playArea.placeAt(-1,0,eCard,Side.FRONT);
@@ -354,7 +355,7 @@ class PlayAreaTest {
     }
 
     @Test
-    void canUpdateCollectibleCount() throws IllegalPlacementException {
+    void canUpdateCollectibleCount() throws IllegalPlacementException, NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
         playArea.placeAt(0,1,gCard,Side.FRONT);
         playArea.placeAt(-1,0,hCard,Side.FRONT);
