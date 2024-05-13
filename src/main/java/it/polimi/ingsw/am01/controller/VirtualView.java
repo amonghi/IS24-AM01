@@ -57,11 +57,9 @@ public class VirtualView implements Runnable, MessageVisitor {
        ping.schedule(new TimerTask() {
             @Override
             public void run() {
-                System.out.println("Checking..."); //TODO: remove
                 try {
                     connection.send(new PingS2C());
                 } catch (SendNetworkException e) {
-                    System.out.println("Player disconnected!"); //TODO: remove
                     ping.cancel();
                     disconnect();
                     handleDisconnection();
@@ -104,6 +102,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                     game.on(AllPlayersChoseStartingCardSideEvent.class, exceptionFilter(this::allPlayersChoseSide)),
                     game.on(AllPlayersJoinedEvent.class, exceptionFilter(this::allPlayersJoined)),
                     game.on(CardPlacedEvent.class, exceptionFilter(this::updatePlayArea)),
+                    game.on(UndoPlacementEvent.class, exceptionFilter(this::updatePlayAreaAfterUndo)),
                     game.on(UpdateGameStatusAndTurnEvent.class, exceptionFilter(this::updateGameStatusAndTurn)),
                     game.on(GameFinishedEvent.class, exceptionFilter(this::leaveGame)),
                     game.on(FaceUpCardReplacedEvent.class, exceptionFilter(this::updateFaceUpCards)),
@@ -173,6 +172,17 @@ public class VirtualView implements Runnable, MessageVisitor {
                         event.cardPlacement().getSide(),
                         event.cardPlacement().getSeq(),
                         event.cardPlacement().getPoints()
+                )
+        );
+    }
+
+    private void updatePlayAreaAfterUndo(UndoPlacementEvent event) throws SendNetworkException {
+        connection.send(
+                new UpdatePlayAreaAfterUndoS2C(
+                    event.pp().getName(),
+                    event.position().i(),
+                    event.position().j(),
+                    event.seq()
                 )
         );
     }

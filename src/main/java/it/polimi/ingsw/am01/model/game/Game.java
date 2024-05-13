@@ -139,6 +139,7 @@ public class Game implements EventEmitter<GameEvent> {
 
     /**
      * Implements the event emitter if null
+     *
      * @return The event emitter
      */
     private EventEmitterImpl<GameEvent> getEmitter() {
@@ -624,7 +625,7 @@ public class Game implements EventEmitter<GameEvent> {
     private void changeCurrentPlayer() {
         do {
             currentPlayer = (currentPlayer + 1) % playerProfiles.size();
-        } while(!connections.get(playerProfiles.get(currentPlayer)));
+        } while (!connections.get(playerProfiles.get(currentPlayer)));
     }
 
     /**
@@ -757,14 +758,14 @@ public class Game implements EventEmitter<GameEvent> {
                 try {
                     PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
                     playersData.get(pp).getHand().add(lastPlacement.getCard());
+                    getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(), playAreas.get(pp).getSeq()));
                     //TODO: emit event CardRemovedEvent
                 } catch (NotUndoableOperationException e) {
                     e.printStackTrace();
                 }
             }
 
-            changeCurrentPlayer();  //If put here, players receive the update before pausing the game
-            System.out.println(getCurrentPlayer());
+            changeCurrentPlayer(); //TODO: ad emitter in the method
 
             if (connections.values().stream().filter(connected -> connected.equals(true)).count() < 2) {
                 pauseGame();
@@ -772,7 +773,6 @@ public class Game implements EventEmitter<GameEvent> {
             }
 
         } catch (IllegalGameStateException e) {
-            //FIXME: this case should never happen.
             e.printStackTrace();
         }
     }
