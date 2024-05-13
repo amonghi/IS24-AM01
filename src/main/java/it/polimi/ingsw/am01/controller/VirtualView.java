@@ -17,6 +17,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.CloseNetworkException;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.NetworkException;
+import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.MessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
@@ -47,6 +48,36 @@ public class VirtualView implements Runnable, MessageVisitor {
         this.gameManager.on(GameCreatedEvent.class, exceptionFilter(this::gameListChanged));
         this.gameManager.on(GameDeletedEvent.class, exceptionFilter(this::gameListChanged));
         this.gameManager.on(PlayerJoinedInGameEvent.class, exceptionFilter(this::playerJoined));
+
+        startCheckingClientConnection();
+    }
+
+    private void startCheckingClientConnection() {
+       Timer ping = new Timer();
+       ping.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Checking..."); //TODO: remove
+                try {
+                    connection.send(new PingS2C());
+                } catch (SendNetworkException e) {
+                    System.out.println("Player disconnected!"); //TODO: remove
+                    ping.cancel();
+                    disconnect();
+                    handleDisconnection();
+                }
+            }
+        }, 0, 500);
+    }
+
+    private void handleDisconnection() {
+        if (this.game == null) {
+            //Player not yet in the game, I have to remove the player from playerManager
+            playerManager.getProfile(playerProfile.getName()).ifPresent(playerManager::removeProfile);
+            return;
+        }
+        //If the game is not null, I have to handle player re-connection
+        game.handleDisconnection(playerProfile);
     }
 
     public GameManager getGameManager() {
