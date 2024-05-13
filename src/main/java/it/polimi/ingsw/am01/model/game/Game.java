@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  */
 public class Game implements EventEmitter<GameEvent> {
 
+    private static final int HAND_CARDS = 3;
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
@@ -42,6 +43,7 @@ public class Game implements EventEmitter<GameEvent> {
     private final Map<PlayerProfile, Choice<Objective>> objectiveChoices;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
+    private final Map<PlayerProfile, Boolean> connections;
     private final Set<Objective> commonObjectives;
     private final int maxPlayers;
     private final Board board;
@@ -85,6 +87,7 @@ public class Game implements EventEmitter<GameEvent> {
         this.objectiveChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
+        this.connections = new HashMap<>();
         this.commonObjectives = new HashSet<>();
         this.currentPlayer = 0;
         this.turnPhase = TurnPhase.PLACING;
@@ -123,6 +126,7 @@ public class Game implements EventEmitter<GameEvent> {
         this.objectiveChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
+        this.connections = new HashMap<>();
         this.commonObjectives = new HashSet<>();
         this.currentPlayer = 0;
         this.turnPhase = TurnPhase.PLACING;
@@ -415,6 +419,7 @@ public class Game implements EventEmitter<GameEvent> {
         }
 
         playerProfiles.add(pp);
+        connections.put(pp, true);
 
         getEmitter().emit(new PlayerJoinedEvent(pp));
 
@@ -423,6 +428,8 @@ public class Game implements EventEmitter<GameEvent> {
             setUpChoices();
         }
     }
+
+    //TODO: add re-join method
 
     /**
      * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
@@ -596,6 +603,7 @@ public class Game implements EventEmitter<GameEvent> {
                 }
             }
             case GameStatus.SECOND_LAST_TURN -> {
+                //TODO: change this if condition
                 if (currentPlayer == playerProfiles.size() - 1) {
                     //this is the "last" player of round
                     transition(GameStatus.LAST_TURN);
@@ -614,7 +622,9 @@ public class Game implements EventEmitter<GameEvent> {
      * This method permits to change the player that have to play
      */
     private void changeCurrentPlayer() {
-        currentPlayer = (currentPlayer + 1) % playerProfiles.size();
+        do {
+            currentPlayer = (currentPlayer + 1) % playerProfiles.size();
+        } while(!connections.get(playerProfiles.get(currentPlayer)));
     }
 
     /**
@@ -682,6 +692,7 @@ public class Game implements EventEmitter<GameEvent> {
                 break;
 
             case GameStatus.LAST_TURN:
+                //TODO: change this if condition
                 if (currentPlayer == playerProfiles.size() - 1) {
                     //this player is the last one -> game is finished. It's useless drawing a card. This is the only one point from where finishing game
                     transition(GameStatus.FINISHED);
@@ -733,6 +744,37 @@ public class Game implements EventEmitter<GameEvent> {
                         + commonObjectives.stream().mapToInt(objective -> objective.getEarnedPoints(playArea)).sum()) // points earned from play area plus points earned from objective cards
         );
         return r;
+    }
+
+    public synchronized void handleDisconnection(PlayerProfile pp) {
+        connections.replace(pp, false);
+        try {
+            if (!getCurrentPlayer().equals(pp)) {
+                //Nothing to do... I just have to set 'false' for the connections map
+                return;
+            }
+            if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
+                try {
+                    PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
+                    playersData.get(pp).getHand().add(lastPlacement.getCard());
+                    //TODO: emit event CardRemovedEvent
+                } catch (NotUndoableOperationException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            changeCurrentPlayer();  //If put here, players receive the update before pausing the game
+            System.out.println(getCurrentPlayer());
+
+            if (connections.values().stream().filter(connected -> connected.equals(true)).count() < 2) {
+                pauseGame();
+                //TODO: handle players re-joining
+            }
+
+        } catch (IllegalGameStateException e) {
+            //FIXME: this case should never happen.
+            e.printStackTrace();
+        }
     }
 
     /**
