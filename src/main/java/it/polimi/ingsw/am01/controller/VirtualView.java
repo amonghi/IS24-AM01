@@ -107,6 +107,8 @@ public class VirtualView implements Runnable, MessageVisitor {
                 message.accept(this);
             } catch (IllegalMoveException | NetworkException e) {
                 disconnect();
+                Thread.currentThread().interrupt();
+                return;
             }
         }
     }
