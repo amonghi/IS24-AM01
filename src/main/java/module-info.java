@@ -24,6 +24,7 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.model.exception to com.google.gson;
     opens it.polimi.ingsw.am01.eventemitter to com.google.gson;
     opens it.polimi.ingsw.am01.model.event to com.google.gson;
+    opens it.polimi.ingsw.am01.controller to com.google.gson;
 
     exports it.polimi.ingsw.am01;
     exports it.polimi.ingsw.am01.network to java.rmi;
