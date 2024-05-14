@@ -184,7 +184,7 @@ public class Controller {
      * @throws NotAuthenticatedException if the specified {@code playerName} is not authenticated
      * @see Game#drawCard(PlayerProfile, DrawSource)
      */
-    public DrawResult drawCardFromDeck(int gameId, String playerName, DeckLocation deckLocation) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException {
+    public DrawResult drawCardFromDeck(int gameId, String playerName, DeckLocation deckLocation) throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
@@ -215,7 +215,7 @@ public class Controller {
      *                                   is currently on the {@link Board}
      * @see Game#drawCard(PlayerProfile, DrawSource)
      */
-    public DrawResult drawCardFromFaceUpCards(int gameId, String playerName, int cardId) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, InvalidCardException {
+    public DrawResult drawCardFromFaceUpCards(int gameId, String playerName, int cardId) throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidCardException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
@@ -248,7 +248,7 @@ public class Controller {
      * @throws IllegalPlacementException if the specified position is not a playable position
      * @see Game#placeCard(PlayerProfile, Card, Side, int, int)
      */
-    public void placeCard(int gameId, String playerName, int cardId, Side side, int i, int j) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException, InvalidCardException, IllegalPlacementException {
+    public void placeCard(int gameId, String playerName, int cardId, Side side, int i, int j) throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidCardException, IllegalPlacementException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)

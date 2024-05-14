@@ -570,7 +570,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @see TurnPhase
      * @see GameStatus
      */
-    public synchronized DrawResult drawCard(PlayerProfile pp, DrawSource ds) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException {
+    public synchronized DrawResult drawCard(PlayerProfile pp, DrawSource ds) throws IllegalMoveException, PlayerNotInGameException {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN) || turnPhase != TurnPhase.DRAWING) {
             throw new IllegalGameStateException();
         }
@@ -594,7 +594,7 @@ public class Game implements EventEmitter<GameEvent> {
         switch (status) {
             case GameStatus.PLAY -> {
                 if (board.getResourceCardDeck().isEmpty() && board.getGoldenCardDeck().isEmpty()) {
-                    if (currentPlayer != playerProfiles.size() - 1) {
+                    if (!isLastConnectedPlayer(currentPlayer)) {
                         // all decks are empty --> game is on "final phase"
                         transition(GameStatus.SECOND_LAST_TURN);
                     } else {
@@ -604,8 +604,7 @@ public class Game implements EventEmitter<GameEvent> {
                 }
             }
             case GameStatus.SECOND_LAST_TURN -> {
-                //TODO: change this if condition
-                if (currentPlayer == playerProfiles.size() - 1) {
+                if (isLastConnectedPlayer(currentPlayer)) {
                     //this is the "last" player of round
                     transition(GameStatus.LAST_TURN);
                 }
@@ -614,18 +613,17 @@ public class Game implements EventEmitter<GameEvent> {
         setTurnPhase(TurnPhase.PLACING);
         changeCurrentPlayer();
 
-        getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
-
         return DrawResult.OK;
     }
 
     /**
      * This method permits to change the player that have to play
      */
-    private void changeCurrentPlayer() {
+    private void changeCurrentPlayer() throws IllegalGameStateException {
         do {
             currentPlayer = (currentPlayer + 1) % playerProfiles.size();
         } while (!connections.get(playerProfiles.get(currentPlayer)));
+        getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
     }
 
     /**
@@ -650,7 +648,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @see PlayArea
      * @see PlayArea.CardPlacement
      */
-    public synchronized void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) throws IllegalTurnException, PlayerNotInGameException, IllegalGameStateException, CardNotInHandException, IllegalPlacementException {
+    public synchronized void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) throws IllegalMoveException, PlayerNotInGameException, CardNotInHandException, IllegalPlacementException {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN)
                 || turnPhase != TurnPhase.PLACING) {
             throw new IllegalGameStateException();
@@ -693,8 +691,7 @@ public class Game implements EventEmitter<GameEvent> {
                 break;
 
             case GameStatus.LAST_TURN:
-                //TODO: change this if condition
-                if (currentPlayer == playerProfiles.size() - 1) {
+                if (isLastConnectedPlayer(currentPlayer)) {
                     //this player is the last one -> game is finished. It's useless drawing a card. This is the only one point from where finishing game
                     transition(GameStatus.FINISHED);
 
@@ -703,11 +700,26 @@ public class Game implements EventEmitter<GameEvent> {
                 } else {
                     //change current player (state and turn phase are not updated because in this phase it's useless to draw card)
                     changeCurrentPlayer();
-
-                    getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
                 }
                 break;
         }
+    }
+
+    /**
+     *
+     * @param currentPlayer the index of the player who is currently playing
+     * @return whether the specified {@code currentPlayer} is the last of the current turn
+     * @throws IllegalGameStateException if there are no connected players
+     */
+    private boolean isLastConnectedPlayer(int currentPlayer) throws IllegalGameStateException {
+        return currentPlayer ==
+                connections
+                        .keySet()
+                        .stream()
+                        .filter(connections::get)
+                        .mapToInt(playerProfiles::indexOf)
+                        .max()
+                        .orElseThrow(IllegalGameStateException::new);
     }
 
     /**
@@ -749,6 +761,7 @@ public class Game implements EventEmitter<GameEvent> {
 
     public synchronized void handleDisconnection(PlayerProfile pp) {
         connections.replace(pp, false);
+        getEmitter().emit(new PlayerDisconnectedEvent(pp));
         try {
             if (!getCurrentPlayer().equals(pp)) {
                 //Nothing to do... I just have to set 'false' for the connections map
@@ -758,14 +771,16 @@ public class Game implements EventEmitter<GameEvent> {
                 try {
                     PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
                     playersData.get(pp).getHand().add(lastPlacement.getCard());
-                    getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(), playAreas.get(pp).getSeq()));
-                    //TODO: emit event CardRemovedEvent
+                    getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(),
+                            playAreas.get(pp).getScore(), playAreas.get(pp).getSeq()));
                 } catch (NotUndoableOperationException e) {
                     e.printStackTrace();
                 }
             }
 
-            changeCurrentPlayer(); //TODO: ad emitter in the method
+            //The next player has to place the card
+            setTurnPhase(TurnPhase.PLACING);
+            changeCurrentPlayer();
 
             if (connections.values().stream().filter(connected -> connected.equals(true)).count() < 2) {
                 pauseGame();

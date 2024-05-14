@@ -114,7 +114,8 @@ public class VirtualView implements Runnable, MessageVisitor {
                     game.on(PlayerChangedColorChoiceEvent.class, exceptionFilter(this::updatePlayerColor)),
                     game.on(HandChangedEvent.class, exceptionFilter(this::updatePlayerHand)),
                     game.on(GamePausedEvent.class, exceptionFilter(this::gamePaused)),
-                    game.on(GameResumedEvent.class, exceptionFilter(this::gameResumed))
+                    game.on(GameResumedEvent.class, exceptionFilter(this::gameResumed)),
+                    game.on(PlayerDisconnectedEvent.class, exceptionFilter(this::playerDisconnected))
             ));
         }
     }
@@ -182,6 +183,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                     event.pp().getName(),
                     event.position().i(),
                     event.position().j(),
+                    event.score(),
                     event.seq()
                 )
         );
@@ -375,6 +377,12 @@ public class VirtualView implements Runnable, MessageVisitor {
                             game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
                     ))
             ));
+        }
+    }
+
+    private void playerDisconnected(PlayerDisconnectedEvent event) throws SendNetworkException {
+        if(!event.pp().equals(playerProfile)) {
+            connection.send(new PlayerDisconnectedS2C(event.pp().getName()));
         }
     }
 
