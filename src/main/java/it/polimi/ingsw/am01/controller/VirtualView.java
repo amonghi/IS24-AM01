@@ -33,6 +33,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     private final GameManager gameManager;
     private final PlayerManager playerManager;
     private final List<EventEmitter.Registration> gameRegistrations;
+    private final List<EventEmitter.Registration> gameManagerRegistrations;
     private Game game;
     private PlayerProfile playerProfile;
 
@@ -45,9 +46,12 @@ public class VirtualView implements Runnable, MessageVisitor {
         this.playerProfile = null;
         this.gameRegistrations = new ArrayList<>();
 
-        this.gameManager.on(GameCreatedEvent.class, exceptionFilter(this::gameListChanged));
-        this.gameManager.on(GameDeletedEvent.class, exceptionFilter(this::gameListChanged));
-        this.gameManager.on(PlayerJoinedInGameEvent.class, exceptionFilter(this::playerJoined));
+        this.gameManagerRegistrations = List.of(
+                this.gameManager.on(GameCreatedEvent.class, exceptionFilter(this::gameListChanged)),
+                this.gameManager.on(GameDeletedEvent.class, exceptionFilter(this::gameListChanged)),
+                this.gameManager.on(PlayerJoinedInGameEvent.class, exceptionFilter(this::playerJoined)),
+                this.gameManager.on(PlayerLeftFromGameEvent.class, exceptionFilter(this::playerLeft))
+        );
 
         startCheckingClientConnection();
     }
@@ -61,28 +65,32 @@ public class VirtualView implements Runnable, MessageVisitor {
                     connection.send(new PingS2C());
                 } catch (SendNetworkException e) {
                     ping.cancel();
-                    disconnect();
                     handleDisconnection();
+                    disconnect();
                 }
             }
         }, 0, 500);
     }
 
     private void handleDisconnection() {
+        gameManagerRegistrations.forEach(gameManager::unregister);
         if (this.game != null) {
             //If the game is not null, I have to handle player re-connection
             game.handleDisconnection(this.playerProfile);
-            this.game = null;
+            setGame(null);
         }
-        //I have to remove the player from playerManager
-        playerManager.getProfile(this.playerProfile.getName()).ifPresent(playerManager::removeProfile);
-        this.playerProfile = null;
+        if (this.playerProfile != null) {
+            //If the player is authenticated, I have to remove the player from playerManager
+            playerManager.getProfile(this.playerProfile.getName()).ifPresent(playerManager::removeProfile);
+            setPlayerProfile(null);
+        }
     }
 
     private void handleReconnection() {
         gameManager.getGames().stream().filter(
                 game -> game.getPlayerProfiles().contains(playerProfile) && !game.isConnected(playerProfile)
         ).findFirst().ifPresent(game -> {
+            setGame(game);
             try {
                 game.handleReconnection(playerProfile); // TODO: handle exceptions
             } catch (PlayerNotInGameException e) {
@@ -134,7 +142,8 @@ public class VirtualView implements Runnable, MessageVisitor {
                     game.on(GameResumedEvent.class, exceptionFilter(this::gameResumed)),
                     game.on(PlayerDisconnectedEvent.class, exceptionFilter(this::playerDisconnected)),
                     game.on(PlayerReconnectedEvent.class, exceptionFilter(this::playerReconnected)),
-                    game.on(GameAbortedEvent.class, exceptionFilter(this::kickPlayer))
+                    game.on(GameAbortedEvent.class, exceptionFilter(this::kickAllPlayers)),
+                    game.on(PlayerKickedEvent.class, exceptionFilter(this::kickPlayer))
             ));
         }
     }
@@ -162,6 +171,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     private void disconnect() {
         try {
             this.connection.close();
+            Thread.currentThread().interrupt();
         } catch (CloseNetworkException e) {
             e.printStackTrace();
         }
@@ -240,11 +250,17 @@ public class VirtualView implements Runnable, MessageVisitor {
         setGame(null);
     }
 
-    private void kickPlayer(GameAbortedEvent event) throws NetworkException {
+    private void kickAllPlayers(GameAbortedEvent event) throws NetworkException {
         connection.send(
                 new KickedFromGameS2C()
         );
         setGame(null);
+    }
+
+    private void kickPlayer(PlayerKickedEvent event) throws NetworkException {
+        if (event.player().equals(playerProfile)) {
+            setGame(null);
+        }
     }
 
     private void updateGameStatusAndSetupObjective(AllColorChoicesSettledEvent event) throws NetworkException {
@@ -397,6 +413,17 @@ public class VirtualView implements Runnable, MessageVisitor {
                 );
             }
         } else {
+            connection.send(new UpdateGameListS2C(
+                    gameManager.getGames().stream().collect(Collectors.toMap(
+                            Game::getId,
+                            game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
+                    ))
+            ));
+        }
+    }
+
+    private void playerLeft(PlayerLeftFromGameEvent event) throws NetworkException {
+        if (game == null) {
             connection.send(new UpdateGameListS2C(
                     gameManager.getGames().stream().collect(Collectors.toMap(
                             Game::getId,

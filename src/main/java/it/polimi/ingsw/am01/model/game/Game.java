@@ -430,7 +430,6 @@ public class Game implements EventEmitter<GameEvent> {
         }
     }
 
-    //TODO: add re-join method
 
     /**
      * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
@@ -506,7 +505,7 @@ public class Game implements EventEmitter<GameEvent> {
         SelectionResult sr = colorChoices.get(pp).select(pc);
         getEmitter().emit(new PlayerChangedColorChoiceEvent(pp, pc, sr));
 
-        if (colorChoices.get(pp).isSettled()) { // FIXME: MultiChoice class
+        if (colorChoices.get(pp).isSettled()) {
             transition(GameStatus.SETUP_OBJECTIVE);
             getEmitter().emit(new AllColorChoicesSettledEvent());
         }
@@ -758,21 +757,52 @@ public class Game implements EventEmitter<GameEvent> {
         return r;
     }
 
+    private void removePlayer(PlayerProfile pp) {
+        playerProfiles.remove(pp);
+        connections.remove(pp);
+        startingCardSideChoices.remove(pp);
+        startingCards.remove(pp);
+        colorChoices.remove(pp);
+        objectiveChoices.remove(pp);
+        playersData.remove(pp);
+        playAreas.remove(pp);
+    }
+
     public synchronized void handleDisconnection(PlayerProfile pp) {
         getEmitter().emit(new PlayerDisconnectedEvent(pp));
+        getEmitter().emit(new PlayerKickedEvent(pp));
         if (status == GameStatus.AWAITING_PLAYERS) {
-            playerProfiles.remove(pp);
-            connections.remove(pp);
+            removePlayer(pp);
+            getEmitter().emit(new PlayerLeftEvent(pp));
+
+            if (playerProfiles.isEmpty()) {
+                getEmitter().emit(new GameClosedEvent());
+            }
             return;
         }
         if (status == GameStatus.SETUP_STARTING_CARD_SIDE || status == GameStatus.SETUP_COLOR || status == GameStatus.SETUP_OBJECTIVE) {
-            playerProfiles.remove(pp);
-            connections.remove(pp);
+            removePlayer(pp);
+            getEmitter().emit(new PlayerLeftEvent(pp));
+
+            // TODO: manage SETUP_COLOR case
+            if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+                transition(GameStatus.SETUP_COLOR);
+                getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
+            } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+                setupAndStartTurnPhase();
+                getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+                try {
+                    getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+                } catch (IllegalGameStateException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             if (playerProfiles.size() < 2) {
                 getEmitter().emit(new GameAbortedEvent());
                 getEmitter().emit(new GameClosedEvent());
-                return;
             }
+            return;
         }
         connections.replace(pp, false);
         try {
@@ -809,8 +839,8 @@ public class Game implements EventEmitter<GameEvent> {
         if (connections.get(player)) {
             throw new PlayerAlreadyConnectedException();
         }
-        connections.replace(player, true);
         getEmitter().emit(new PlayerReconnectedEvent(player));
+        connections.replace(player, true);
         // TODO: add reconnection events
         if (status == GameStatus.SUSPENDED && connections.values().stream().filter(connected -> connected.equals(true)).count() >= 2) {
             resumeGame();
