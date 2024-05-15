@@ -53,8 +53,8 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void startCheckingClientConnection() {
-       Timer ping = new Timer();
-       ping.schedule(new TimerTask() {
+        Timer ping = new Timer();
+        ping.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -69,13 +69,30 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void handleDisconnection() {
-        if (this.game == null) {
-            //Player not yet in the game, I have to remove the player from playerManager
-            playerManager.getProfile(playerProfile.getName()).ifPresent(playerManager::removeProfile);
-            return;
+        if (this.game != null) {
+            //If the game is not null, I have to handle player re-connection
+            game.handleDisconnection(this.playerProfile);
+            this.game = null;
         }
-        //If the game is not null, I have to handle player re-connection
-        game.handleDisconnection(playerProfile);
+        //I have to remove the player from playerManager
+        playerManager.getProfile(this.playerProfile.getName()).ifPresent(playerManager::removeProfile);
+        this.playerProfile = null;
+    }
+
+    private void handleReconnection() {
+        gameManager.getGames().stream().filter(
+                game -> game.getPlayerProfiles().contains(playerProfile) && game.isConnected(playerProfile)
+        ).findFirst().ifPresent(game -> {
+            try {
+                game.reconnect(playerProfile); // TODO: handle exceptions
+            } catch (PlayerNotInGameException e) {
+                throw new RuntimeException(e);
+            } catch (PlayerAlreadyConnectedException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalGameStateException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public GameManager getGameManager() {
@@ -115,7 +132,8 @@ public class VirtualView implements Runnable, MessageVisitor {
                     game.on(HandChangedEvent.class, exceptionFilter(this::updatePlayerHand)),
                     game.on(GamePausedEvent.class, exceptionFilter(this::gamePaused)),
                     game.on(GameResumedEvent.class, exceptionFilter(this::gameResumed)),
-                    game.on(PlayerDisconnectedEvent.class, exceptionFilter(this::playerDisconnected))
+                    game.on(PlayerDisconnectedEvent.class, exceptionFilter(this::playerDisconnected)),
+                    game.on(GameAbortedEvent.class, exceptionFilter(this::kickPlayer))
             ));
         }
     }
@@ -180,11 +198,11 @@ public class VirtualView implements Runnable, MessageVisitor {
     private void updatePlayAreaAfterUndo(UndoPlacementEvent event) throws SendNetworkException {
         connection.send(
                 new UpdatePlayAreaAfterUndoS2C(
-                    event.pp().getName(),
-                    event.position().i(),
-                    event.position().j(),
-                    event.score(),
-                    event.seq()
+                        event.pp().getName(),
+                        event.position().i(),
+                        event.position().j(),
+                        event.score(),
+                        event.seq()
                 )
         );
     }
@@ -218,6 +236,13 @@ public class VirtualView implements Runnable, MessageVisitor {
                 )
         );
 
+        setGame(null);
+    }
+
+    private void kickPlayer(GameAbortedEvent event) throws NetworkException {
+        connection.send(
+                new KickedFromGameS2C()
+        );
         setGame(null);
     }
 
@@ -381,7 +406,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void playerDisconnected(PlayerDisconnectedEvent event) throws SendNetworkException {
-        if(!event.pp().equals(playerProfile)) {
+        if (!event.pp().equals(playerProfile)) {
             connection.send(new PlayerDisconnectedS2C(event.pp().getName()));
         }
     }
@@ -399,6 +424,8 @@ public class VirtualView implements Runnable, MessageVisitor {
                             Game::getId,
                             g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
                     ))));
+            // FIXME: should we send UpdateGameListS2C if we reconnect a player?
+            handleReconnection();
         } catch (NameAlreadyTakenException e) {
             connection.send(new NameAlreadyTakenS2C(message.playerName()));
         }

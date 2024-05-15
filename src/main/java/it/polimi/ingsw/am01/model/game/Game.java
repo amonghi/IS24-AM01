@@ -760,36 +760,66 @@ public class Game implements EventEmitter<GameEvent> {
     }
 
     public synchronized void handleDisconnection(PlayerProfile pp) {
-        connections.replace(pp, false);
         getEmitter().emit(new PlayerDisconnectedEvent(pp));
-        try {
-            if (!getCurrentPlayer().equals(pp)) {
-                //Nothing to do... I just have to set 'false' for the connections map
+        if (status == GameStatus.AWAITING_PLAYERS) {
+            playerProfiles.remove(pp);
+            connections.remove(pp);
+            return;
+        }
+        if (status == GameStatus.SETUP_STARTING_CARD_SIDE || status == GameStatus.SETUP_COLOR || status == GameStatus.SETUP_OBJECTIVE) {
+            playerProfiles.remove(pp);
+            connections.remove(pp);
+            if (playerProfiles.size() < 2) {
+                getEmitter().emit(new GameAbortedEvent());
+                getEmitter().emit(new GameClosedEvent());
                 return;
             }
-            if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
-                try {
-                    PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
-                    playersData.get(pp).getHand().add(lastPlacement.getCard());
-                    getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(),
-                            playAreas.get(pp).getScore(), playAreas.get(pp).getSeq()));
-                } catch (NotUndoableOperationException e) {
-                    e.printStackTrace();
+        }
+        connections.replace(pp, false);
+        try {
+            if (getCurrentPlayer().equals(pp)) {
+                if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
+                    try {
+                        PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
+                        playersData.get(pp).getHand().add(lastPlacement.getCard());
+                        getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(),
+                                playAreas.get(pp).getScore(), playAreas.get(pp).getSeq()));
+                    } catch (NotUndoableOperationException e) {
+                        e.printStackTrace(); // TODO: handle exception
+                    }
                 }
+                //The next player has to place the card
+                setTurnPhase(TurnPhase.PLACING);
+                changeCurrentPlayer();
             }
-
-            //The next player has to place the card
-            setTurnPhase(TurnPhase.PLACING);
-            changeCurrentPlayer();
 
             if (connections.values().stream().filter(connected -> connected.equals(true)).count() < 2) {
                 pauseGame();
-                //TODO: handle players re-joining
+                //TODO: handle timer
             }
 
         } catch (IllegalGameStateException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // TODO: handle exception
         }
+    }
+
+    public synchronized void reconnect(PlayerProfile player) throws PlayerNotInGameException, PlayerAlreadyConnectedException, IllegalGameStateException {
+        if(!playerProfiles.contains(player)){
+            throw new PlayerNotInGameException();
+        }
+        if(connections.get(player)){
+            throw new PlayerAlreadyConnectedException();
+        }
+        connections.replace(player, true);
+        // TODO: add reconnection event
+        if(status == GameStatus.SUSPENDED && connections.values().stream().filter(connected -> connected.equals(true)).count() >= 2) {
+            resumeGame();
+        }
+    }
+
+    public synchronized boolean isConnected(PlayerProfile pp) {
+        // FIXME: if pp is not in playerProfiles, should we return null or throw a PlayerNotInGameException?
+        return playerProfiles.contains(pp) && connections.get(pp);
     }
 
     /**
