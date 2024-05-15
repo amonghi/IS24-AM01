@@ -224,7 +224,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws IllegalGameStateException if the current {@link GameStatus} is not a playing status
      */
     public synchronized PlayerProfile getCurrentPlayer() throws IllegalGameStateException {
-        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED) {
             throw new IllegalGameStateException();
         }
 
@@ -842,7 +842,7 @@ public class Game implements EventEmitter<GameEvent> {
         getEmitter().emit(new PlayerReconnectedEvent(player));
         connections.replace(player, true);
         // TODO: add reconnection events
-        if (status == GameStatus.SUSPENDED && connections.values().stream().filter(connected -> connected.equals(true)).count() >= 2) {
+        if (status == GameStatus.SUSPENDED && playerProfiles.stream().filter(connections::get).count() >= 2) {
             resumeGame();
         }
     }
