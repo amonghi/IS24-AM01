@@ -177,10 +177,6 @@ public class VirtualView implements Runnable, MessageVisitor {
         }
     }
 
-    private interface NetworkEventListener<E extends Event> {
-        void onEvent(E event) throws NetworkException;
-    }
-
     private <E extends Event> EventListener<E> exceptionFilter(NetworkEventListener<E> listener) {
         return (E event) -> {
             try {
@@ -450,7 +446,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                                                 PlayerProfile::getName,
                                                 p -> game.getPlayArea(p).getCards().entrySet().stream()
                                                         .collect(Collectors.toMap(
-                                                                Map.Entry::getKey,
+                                                                        Map.Entry::getKey,
                                                                         e -> new SetupAfterReconnectionS2C.CardPlacement(
                                                                                 e.getValue().getCard().id(),
                                                                                 e.getValue().getSide(),
@@ -491,6 +487,10 @@ public class VirtualView implements Runnable, MessageVisitor {
 
     @Override
     public void visit(AuthenticateC2S message) throws IllegalMoveException, NetworkException {
+        if (playerProfile != null) {
+            return; //TODO: maybe throw?
+        }
+
         try {
             PlayerProfile profile = controller.authenticate(message.playerName());
             setPlayerProfile(profile);
@@ -633,5 +633,9 @@ public class VirtualView implements Runnable, MessageVisitor {
         } catch (PlayerNotInGameException e) {
             connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
         }
+    }
+
+    private interface NetworkEventListener<E extends Event> {
+        void onEvent(E event) throws NetworkException;
     }
 }
