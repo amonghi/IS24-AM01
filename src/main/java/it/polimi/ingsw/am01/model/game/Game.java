@@ -253,7 +253,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @see TurnPhase
      */
     public synchronized TurnPhase getTurnPhase() throws IllegalGameStateException {
-        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED) {
             throw new IllegalGameStateException();
         }
 
