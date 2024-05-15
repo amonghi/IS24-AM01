@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.network.message.s2c;
 
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
+import it.polimi.ingsw.am01.model.game.PlayArea;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public record SetupAfterReconnectionS2C(
-        Map<String, Map<Position, CardPlacement>> playAreas,
+        Map<String, Map<PlayArea.Position, CardPlacement>> playAreas,
         String currentPlayer,
         TurnPhase turnPhase,
         GameStatus status,
@@ -31,8 +32,6 @@ public record SetupAfterReconnectionS2C(
         return ID;
     }
 
-    public record Position(int i, int j) implements Serializable {
-    }
 
     public record CardPlacement(int cardId, Side side, int seq, int points) implements Serializable {
     }

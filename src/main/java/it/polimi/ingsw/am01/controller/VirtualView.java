@@ -450,10 +450,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                                                 PlayerProfile::getName,
                                                 p -> game.getPlayArea(p).getCards().entrySet().stream()
                                                         .collect(Collectors.toMap(
-                                                                        e -> new SetupAfterReconnectionS2C.Position(
-                                                                                e.getKey().i(),
-                                                                                e.getKey().j()
-                                                                        ),
+                                                                Map.Entry::getKey,
                                                                         e -> new SetupAfterReconnectionS2C.CardPlacement(
                                                                                 e.getValue().getCard().id(),
                                                                                 e.getValue().getSide(),
