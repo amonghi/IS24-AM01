@@ -81,10 +81,10 @@ public class VirtualView implements Runnable, MessageVisitor {
 
     private void handleReconnection() {
         gameManager.getGames().stream().filter(
-                game -> game.getPlayerProfiles().contains(playerProfile) && game.isConnected(playerProfile)
+                game -> game.getPlayerProfiles().contains(playerProfile) && !game.isConnected(playerProfile)
         ).findFirst().ifPresent(game -> {
             try {
-                game.reconnect(playerProfile); // TODO: handle exceptions
+                game.handleReconnection(playerProfile); // TODO: handle exceptions
             } catch (PlayerNotInGameException e) {
                 throw new RuntimeException(e);
             } catch (PlayerAlreadyConnectedException e) {
@@ -133,6 +133,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                     game.on(GamePausedEvent.class, exceptionFilter(this::gamePaused)),
                     game.on(GameResumedEvent.class, exceptionFilter(this::gameResumed)),
                     game.on(PlayerDisconnectedEvent.class, exceptionFilter(this::playerDisconnected)),
+                    game.on(PlayerReconnectedEvent.class, exceptionFilter(this::playerReconnected)),
                     game.on(GameAbortedEvent.class, exceptionFilter(this::kickPlayer))
             ));
         }
@@ -408,6 +409,59 @@ public class VirtualView implements Runnable, MessageVisitor {
     private void playerDisconnected(PlayerDisconnectedEvent event) throws SendNetworkException {
         if (!event.pp().equals(playerProfile)) {
             connection.send(new PlayerDisconnectedS2C(event.pp().getName()));
+        }
+    }
+
+    private void playerReconnected(PlayerReconnectedEvent event) throws SendNetworkException {
+        if (!event.pp().equals(playerProfile)) {
+            connection.send(new PlayerReconnectedS2C(event.pp().getName()));
+        } else {
+            try {
+                connection.send(new SetupAfterReconnectionS2C(
+                        game.getPlayerProfiles().stream()
+                                .collect(Collectors.toMap(
+                                                PlayerProfile::getName,
+                                                p -> game.getPlayArea(p).getCards().entrySet().stream()
+                                                        .collect(Collectors.toMap(
+                                                                        e -> new SetupAfterReconnectionS2C.Position(
+                                                                                e.getKey().i(),
+                                                                                e.getKey().j()
+                                                                        ),
+                                                                        e -> new SetupAfterReconnectionS2C.CardPlacement(
+                                                                                e.getValue().getCard().id(),
+                                                                                e.getValue().getSide(),
+                                                                                e.getValue().getSeq(),
+                                                                                e.getValue().getPoints()
+                                                                        )
+                                                                )
+                                                        )
+                                        )
+                                ),
+                        game.getCurrentPlayer().getName(),
+                        game.getTurnPhase(),
+                        game.getStatus(),
+                        game.getPlayerData(playerProfile).getHand().stream().map(Card::id).collect(Collectors.toList()),
+                        game.getPlayerProfiles().stream()
+                                .collect(Collectors.toMap(
+                                        PlayerProfile::getName,
+                                        player -> game.getPlayerData(player).getColorChoice()
+                                )),
+                        game.getPlayerData(playerProfile).getObjectiveChoice().getId(),
+                        game.getCommonObjectives().stream().map(Objective::getId).collect(Collectors.toList()),
+                        game.getBoard().getResourceCardDeck().isEmpty(),
+                        game.getBoard().getGoldenCardDeck().isEmpty(),
+                        game.getBoard().getFaceUpCards().stream()
+                                .filter(fuc -> fuc.getCard().isPresent())
+                                .map(fuc -> fuc.getCard().get().id())
+                                .collect(Collectors.toList()),
+                        game.getPlayerProfiles().stream().collect(Collectors.toMap(
+                                PlayerProfile::getName,
+                                player -> game.isConnected(player)
+                        ))
+                ));
+            } catch (IllegalMoveException e) {
+                throw new RuntimeException(e); // TODO: handle exception
+            }
         }
     }
 

@@ -219,6 +219,10 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         );
     }
 
+    public Map<Position, CardPlacement> getCards() {
+        return Collections.unmodifiableMap(cards);
+    }
+
     /**
      * Provides the playable {@link Position}, i.e. the {@link Position} where a new {@link Card},
      * if placed, will be connected to other {@link Card} without covering any missing {@link Corner}

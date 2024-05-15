@@ -706,7 +706,6 @@ public class Game implements EventEmitter<GameEvent> {
     }
 
     /**
-     *
      * @param currentPlayer the index of the player who is currently playing
      * @return whether the specified {@code currentPlayer} is the last of the current turn
      * @throws IllegalGameStateException if there are no connected players
@@ -803,16 +802,17 @@ public class Game implements EventEmitter<GameEvent> {
         }
     }
 
-    public synchronized void reconnect(PlayerProfile player) throws PlayerNotInGameException, PlayerAlreadyConnectedException, IllegalGameStateException {
-        if(!playerProfiles.contains(player)){
+    public synchronized void handleReconnection(PlayerProfile player) throws PlayerNotInGameException, PlayerAlreadyConnectedException, IllegalGameStateException {
+        if (!playerProfiles.contains(player)) {
             throw new PlayerNotInGameException();
         }
-        if(connections.get(player)){
+        if (connections.get(player)) {
             throw new PlayerAlreadyConnectedException();
         }
         connections.replace(player, true);
-        // TODO: add reconnection event
-        if(status == GameStatus.SUSPENDED && connections.values().stream().filter(connected -> connected.equals(true)).count() >= 2) {
+        getEmitter().emit(new PlayerReconnectedEvent(player));
+        // TODO: add reconnection events
+        if (status == GameStatus.SUSPENDED && connections.values().stream().filter(connected -> connected.equals(true)).count() >= 2) {
             resumeGame();
         }
     }

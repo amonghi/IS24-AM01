@@ -44,15 +44,20 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(InvalidMaxPlayersS2C.ID, InvalidMaxPlayersS2C.class),
             Map.entry(InvalidObjectiveSelectionS2C.ID, InvalidObjectiveSelectionS2C.class),
             Map.entry(InvalidPlacementS2C.ID, InvalidPlacementS2C.class),
+            Map.entry(KickedFromGameS2C.ID, KickedFromGameS2C.class),
             Map.entry(NameAlreadyTakenS2C.ID, NameAlreadyTakenS2C.class),
             Map.entry(NotEnoughPlayersS2C.ID, NotEnoughPlayersS2C.class),
+            Map.entry(PingS2C.ID, PingS2C.class),
+            Map.entry(PlayerDisconnectedS2C.ID, PlayerDisconnectedS2C.class),
             Map.entry(PlayerNotInGameS2C.ID, PlayerNotInGameS2C.class),
+            Map.entry(PlayerReconnectedS2C.ID, PlayerReconnectedS2C.class),
             Map.entry(SetBoardAndHandS2C.ID, SetBoardAndHandS2C.class),
             Map.entry(SetGamePauseS2C.ID, SetGamePauseS2C.class),
             Map.entry(SetPlayablePositionsS2C.ID, SetPlayablePositionsS2C.class),
             Map.entry(SetPlayerNameS2C.ID, SetPlayerNameS2C.class),
             Map.entry(SetRecoverStatusS2C.ID, SetRecoverStatusS2C.class),
             Map.entry(SetStartingCardS2C.ID, SetStartingCardS2C.class),
+            Map.entry(SetupAfterReconnectionS2C.ID, SetupAfterReconnectionS2C.class),
             Map.entry(UpdateDeckStatusS2C.ID, UpdateDeckStatusS2C.class),
             Map.entry(UpdateFaceUpCardsS2C.ID, UpdateFaceUpCardsS2C.class),
             Map.entry(UpdateGameListS2C.ID, UpdateGameListS2C.class),
@@ -64,9 +69,7 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(UpdatePlayAreaAfterUndoS2C.ID, UpdatePlayAreaAfterUndoS2C.class),
             Map.entry(UpdatePlayerColorS2C.ID, UpdatePlayerColorS2C.class),
             Map.entry(UpdatePlayerHandS2C.ID, UpdatePlayerHandS2C.class),
-            Map.entry(UpdatePlayerListS2C.ID, UpdatePlayerListS2C.class),
-            Map.entry(PingS2C.ID, PingS2C.class),
-            Map.entry(PlayerDisconnectedS2C.ID, PlayerDisconnectedS2C.class)
+            Map.entry(UpdatePlayerListS2C.ID, UpdatePlayerListS2C.class)
     );
 
 
