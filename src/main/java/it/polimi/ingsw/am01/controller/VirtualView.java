@@ -4,6 +4,7 @@ import it.polimi.ingsw.am01.eventemitter.Event;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
 import it.polimi.ingsw.am01.model.card.Card;
+import it.polimi.ingsw.am01.model.chat.Message;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.*;
@@ -140,6 +141,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                     game.on(HandChangedEvent.class, exceptionFilter(this::updatePlayerHand)),
                     game.on(GamePausedEvent.class, exceptionFilter(this::gamePaused)),
                     game.on(GameResumedEvent.class, exceptionFilter(this::gameResumed)),
+                    game.on(NewMessageIncomingEvent.class, exceptionFilter(this::newMessage)),
                     game.on(PlayerDisconnectedEvent.class, exceptionFilter(this::playerDisconnected)),
                     game.on(PlayerReconnectedEvent.class, exceptionFilter(this::playerReconnected)),
                     game.on(GameAbortedEvent.class, exceptionFilter(this::kickAllPlayers)),
@@ -163,7 +165,9 @@ public class VirtualView implements Runnable, MessageVisitor {
                 C2SNetworkMessage message = this.connection.receive();
                 message.accept(this);
             } catch (IllegalMoveException | NetworkException e) {
-                throw new RuntimeException(e); // TODO: disconnect player
+                disconnect();
+                Thread.currentThread().interrupt();
+                return;
             }
         }
     }
@@ -186,6 +190,17 @@ public class VirtualView implements Runnable, MessageVisitor {
                 disconnect();
             }
         };
+    }
+
+    private void newMessage(NewMessageIncomingEvent event) throws NetworkException {
+        if (event.message().isRecipient(playerProfile)) {
+            connection.send(new NewMessageS2C(
+                    event.message().getMessageType(),
+                    event.message().getTimestamp().toString(),
+                    event.message().getSender().getName(),
+                    event.message().getContent()
+            ));
+        }
     }
 
     private void updatePlayArea(CardPlacedEvent event) throws NetworkException {
@@ -344,7 +359,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void gameListChanged(GameManagerEvent event) throws NetworkException {
-        if (game != null) {
+        if (game != null || playerProfile == null) {
             return;
         }
 
@@ -390,6 +405,10 @@ public class VirtualView implements Runnable, MessageVisitor {
     }
 
     private void playerJoined(PlayerJoinedInGameEvent event) throws NetworkException {
+        if (playerProfile == null) {
+            return;
+        }
+
         if (event.playerProfile().equals(playerProfile)) {
             setGame(event.game());
             connection.send(
@@ -523,7 +542,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         try {
             controller.drawCardFromDeck(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.deckLocation());
         } catch (PlayerNotInGameException e) {
-            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+            connection.send(new PlayerNotInGameS2C());
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         }
@@ -532,10 +551,9 @@ public class VirtualView implements Runnable, MessageVisitor {
     @Override
     public void visit(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException, NetworkException {
         try {
-            //FIXME: should we need to send back drawResult?
             controller.drawCardFromFaceUpCards(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.cardId());
         } catch (PlayerNotInGameException e) {
-            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+            connection.send(new PlayerNotInGameS2C());
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         } catch (InvalidCardException e) {
@@ -565,9 +583,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         } catch (PlayerNotInGameException e) {
-            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
-        } catch (IllegalGameStateException e) { //TODO: maybe remove
-            connection.send(new InvalidGameStateS2C());
+            connection.send(new PlayerNotInGameS2C());
         } catch (IllegalPlacementException e) {
             connection.send(new InvalidPlacementS2C(message.cardId(), message.side(), message.i(), message.j()));
         } catch (InvalidCardException e) {
@@ -584,7 +600,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                     message.color()
             );
         } catch (PlayerNotInGameException e) {
-            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+            connection.send(new PlayerNotInGameS2C());
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         }
@@ -597,7 +613,7 @@ public class VirtualView implements Runnable, MessageVisitor {
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         } catch (PlayerNotInGameException e) {
-            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+            connection.send(new PlayerNotInGameS2C());
         } catch (InvalidObjectiveException e) {
             connection.send(new InvalidObjectiveSelectionS2C(message.objective()));
         } catch (DoubleChoiceException e) {
@@ -614,7 +630,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                     message.side()
             );
         } catch (PlayerNotInGameException e) {
-            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+            connection.send(new PlayerNotInGameS2C());
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         } catch (DoubleChoiceException e) {
@@ -631,11 +647,60 @@ public class VirtualView implements Runnable, MessageVisitor {
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         } catch (PlayerNotInGameException e) {
-            connection.send(new PlayerNotInGameS2C(Objects.requireNonNull(this.getPlayerProfile().orElse(null)).getName()));
+            connection.send(new PlayerNotInGameS2C());
+        }
+    }
+
+    @Override
+    public void visit(SendBroadcastMessageC2S message) throws IllegalMoveException, NetworkException {
+        try {
+            Message chatMsg = controller.sendBroadcastMessage(
+                    this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    message.content()
+            );
+
+            connection.send(new BroadcastMessageSentS2C(
+                    chatMsg.getSender().getName(),
+                    chatMsg.getContent(),
+                    chatMsg.getTimestamp().toString()
+            ));
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C());
+        }
+    }
+
+    @Override
+    public void visit(SendDirectMessageC2S message) throws IllegalMoveException, NetworkException {
+        try {
+            Message chatMsg = controller.sendDirectMessage(
+                    this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    message.recipientPlayerName(),
+                    message.content()
+            );
+
+            connection.send(new DirectMessageSentS2C(
+                    chatMsg.getSender().getName(),
+                    message.recipientPlayerName(),
+                    chatMsg.getContent(),
+                    chatMsg.getTimestamp().toString()
+            ));
+        } catch (GameNotFoundException e) {
+            connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
+        } catch (InvalidRecipientException | MessageSentToThemselvesException e) {
+            connection.send(new InvalidRecipientS2C(
+                    message.recipientPlayerName()
+            ));
+        } catch (PlayerNotInGameException e) {
+            connection.send(new PlayerNotInGameS2C());
         }
     }
 
     private interface NetworkEventListener<E extends Event> {
         void onEvent(E event) throws NetworkException;
     }
+
 }

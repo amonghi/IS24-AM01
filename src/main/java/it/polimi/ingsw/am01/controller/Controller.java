@@ -2,6 +2,9 @@ package it.polimi.ingsw.am01.controller;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.chat.BroadcastMessage;
+import it.polimi.ingsw.am01.model.chat.DirectMessage;
+import it.polimi.ingsw.am01.model.chat.Message;
 import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.exception.*;
@@ -11,6 +14,8 @@ import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerData;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
+
+//TODO: tests of sendBroadcastMessage, sendDirectMessage and startGame methods
 
 /**
  * The main controller
@@ -40,6 +45,72 @@ public class Controller {
         if (this.gameManager.getGameWhereIsPlaying(player).isPresent()) {
             throw new PlayerAlreadyPlayingException(player.getName());
         }
+    }
+
+    /**
+     * Sends a {@link BroadcastMessage} to everyone connected in game (that has {@code gameId} as ID) by appending the new message on {@code ChatManager}'s message list
+     *
+     * @param gameId  sender and recipient's game ID
+     * @param sender  sender of the message
+     * @param content content of the message
+     * @return the {@link Message} sent
+     * @throws GameNotFoundException     if the specified {@code gameId} is invalid
+     * @throws NotAuthenticatedException if the specified {@code sender} is not authenticated
+     * @throws PlayerNotInGameException  if the specified {@code sender} is not in the game
+     * @see BroadcastMessage
+     * @see it.polimi.ingsw.am01.model.chat.ChatManager
+     */
+    public Message sendBroadcastMessage(int gameId, String sender, String content) throws GameNotFoundException, NotAuthenticatedException, PlayerNotInGameException {
+        Game game = this.gameManager.getGame(gameId)
+                .orElseThrow(() -> new GameNotFoundException(gameId));
+        PlayerProfile senderPlayerProfile = this.playerManager.getProfile(sender)
+                .orElseThrow(NotAuthenticatedException::new);
+
+        if (!game.getPlayerProfiles().contains(senderPlayerProfile)) {
+            throw new PlayerNotInGameException();
+        }
+
+        BroadcastMessage broadcastMessage = new BroadcastMessage(senderPlayerProfile, content);
+        game.getChatManager().send(broadcastMessage);
+
+        return broadcastMessage;
+    }
+
+    /**
+     * Sends a {@link DirectMessage} to {@code recipient} by appending the new message on {@code ChatManager}'s message list
+     *
+     * @param gameId    sender and recipient's game ID
+     * @param sender    sender of the message
+     * @param recipient recipient of the message
+     * @param content   content of the message
+     * @return the {@link Message} sent
+     * @throws GameNotFoundException            if the specified {@code gameId} is invalid
+     * @throws NotAuthenticatedException        if the specified {@code sender} is not authenticated
+     * @throws PlayerNotInGameException         if the specified {@code sender} is not in the game
+     * @throws InvalidRecipientException        if the specified {@code recipient} is not in the same game as {@code sender}
+     * @throws MessageSentToThemselvesException if the specified {@code sender} is equal to {@code recipient}
+     * @see DirectMessage
+     * @see it.polimi.ingsw.am01.model.chat.ChatManager
+     */
+    public Message sendDirectMessage(int gameId, String sender, String recipient, String content) throws GameNotFoundException, NotAuthenticatedException, InvalidRecipientException, MessageSentToThemselvesException, PlayerNotInGameException {
+        Game game = this.gameManager.getGame(gameId)
+                .orElseThrow(() -> new GameNotFoundException(gameId));
+        PlayerProfile senderPlayerProfile = this.playerManager.getProfile(sender)
+                .orElseThrow(NotAuthenticatedException::new);
+
+        if (!game.getPlayerProfiles().contains(senderPlayerProfile)) {
+            throw new PlayerNotInGameException();
+        }
+
+        PlayerProfile recipientPlayerProfile = game.getPlayerProfiles()
+                .stream()
+                .filter(playerProfile -> playerProfile.getName().equals(recipient))
+                .findFirst().orElseThrow(InvalidRecipientException::new);
+
+        DirectMessage directMessage = new DirectMessage(senderPlayerProfile, recipientPlayerProfile, content);
+        game.getChatManager().send(directMessage);
+
+        return directMessage;
     }
 
     /**

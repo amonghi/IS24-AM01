@@ -317,18 +317,28 @@ package player {
 } /' end package player '/
 
 package chat {
+    enum MessageType{
+        DIRECT,
+        BROADCAST
+    }
+
     abstract class Message {
         - PlayerProfile sender
         - String content
+        - LocalDateTime timestamp
 
         + Message(PlayerProfile sender, String content)
         + getSender() PlayerProfile
         + getContent() String
+        + getTimestamp() LocalDateTime
+        + {abstract} getMessageType() MessageType
         + {abstract} isRecipient(PlayerProfile pp) boolean
+        + getRecipient() Optional<PlayerProfile>
     }
 
     class BroadcastMessage extends Message {
         + BroadcastMessage(PlayerProfile sender, String content)
+        + getMessageType() MessageType
         + isRecipient(PlayerProfile pp) boolean
     }
     note left of BroadcastMessage::isRecipient
@@ -339,7 +349,9 @@ package chat {
         - PlayerProfile recipient
 
         + DirectMessage(PlayerProfile sender, PlayerProfile recipient, String content)
+        + getMessageType() MessageType
         + isRecipient(PlayerProfile pp) boolean
+        + getRecipient() Optional<PlayerProfile>
     }
 
     class ChatManager {

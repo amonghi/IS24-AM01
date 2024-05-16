@@ -24,4 +24,8 @@ public interface MessageVisitor {
     void visit(SelectStartingCardSideC2S message) throws IllegalMoveException, NetworkException;
 
     void visit(StartGameC2S message) throws IllegalMoveException, NetworkException;
+
+    void visit(SendBroadcastMessageC2S message) throws IllegalMoveException, NetworkException;
+
+    void visit(SendDirectMessageC2S message) throws IllegalMoveException, NetworkException;
 }
