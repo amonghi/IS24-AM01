@@ -810,8 +810,9 @@ public class Game implements EventEmitter<GameEvent> {
             return;
         }
         connections.replace(pp, false);
+        long connectedPlayers = connections.values().stream().filter(connected -> connected.equals(true)).count();
         try {
-            if (getCurrentPlayer().equals(pp)) {
+            if (getCurrentPlayer().equals(pp) && connectedPlayers > 0) {
                 if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
                     try {
                         PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
@@ -826,16 +827,15 @@ public class Game implements EventEmitter<GameEvent> {
                 setTurnPhase(TurnPhase.PLACING);
                 changeCurrentPlayer();
             }
-
-            if (connections.values().stream().filter(connected -> connected.equals(true)).count() < 2) {
-                pauseGame();
-                try {
-                    this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();    //TODO: handle exception
-                }
-
-                if (status == GameStatus.SUSPENDED) {
+            if (connectedPlayers <= 1) {
+                if(status != GameStatus.SUSPENDED) {
+                    pauseGame();
+                    try {
+                        this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();    //TODO: handle exception
+                    }
+                } else {
                     transition(GameStatus.FINISHED);
                     getEmitter().emit(
                             new GameFinishedEvent(
