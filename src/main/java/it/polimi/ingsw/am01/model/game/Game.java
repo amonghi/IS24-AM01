@@ -229,7 +229,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws IllegalGameStateException if the current {@link GameStatus} is not a playing status
      */
     public synchronized PlayerProfile getCurrentPlayer() throws IllegalGameStateException {
-        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED && status != GameStatus.RESTORING) {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED) {
             throw new IllegalGameStateException();
         }
 
@@ -258,7 +258,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @see TurnPhase
      */
     public synchronized TurnPhase getTurnPhase() throws IllegalGameStateException {
-        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED && status != GameStatus.RESTORING) {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED) {
             throw new IllegalGameStateException();
         }
 
@@ -342,27 +342,15 @@ public class Game implements EventEmitter<GameEvent> {
         getEmitter().emit(new GamePausedEvent());
     }
 
-    public synchronized void setRestoringStatus() throws IllegalGameStateException {
-        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED) {
-            throw new IllegalGameStateException();
-        }
-
-        if (status != GameStatus.SUSPENDED) {
-            recoverStatus = status;
-        }
-
-        status = GameStatus.RESTORING;
-    }
-
     /**
      * This method permits to resume the game, if it is {@code SUSPENDED}. The previous valid status will be recovered.
      * No action will be performed while {@code SUSPENDED} status is not set.
      *
-     * @throws IllegalGameStateException is the current {@link GameStatus} is not {@link GameStatus#SUSPENDED} or {@link GameStatus#RESTORING}
+     * @throws IllegalGameStateException is the current {@link GameStatus} is not {@link GameStatus#SUSPENDED}
      * @see GameStatus
      */
     public synchronized void resumeGame() throws IllegalGameStateException {
-        if (status != GameStatus.SUSPENDED && status != GameStatus.RESTORING) {
+        if (status != GameStatus.SUSPENDED) {
             throw new IllegalGameStateException();
         }
         status = recoverStatus;
@@ -783,23 +771,6 @@ public class Game implements EventEmitter<GameEvent> {
         objectiveChoices.remove(pp);
         playersData.remove(pp);
         playAreas.remove(pp);
-        getEmitter().emit(new PlayerLeftEvent(pp));
-    }
-
-    private void handleDisconnectionDuringSetup() {
-        // TODO: manage SETUP_COLOR case
-        if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
-            transition(GameStatus.SETUP_COLOR);
-            getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
-        } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
-            setupAndStartTurnPhase();
-            getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
-            try {
-                getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
-            } catch (IllegalGameStateException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     public synchronized void handleDisconnection(PlayerProfile pp) {
@@ -807,6 +778,7 @@ public class Game implements EventEmitter<GameEvent> {
         getEmitter().emit(new PlayerKickedEvent(pp));
         if (status == GameStatus.AWAITING_PLAYERS) {
             removePlayer(pp);
+            getEmitter().emit(new PlayerLeftEvent(pp));
 
             if (playerProfiles.isEmpty()) {
                 getEmitter().emit(new GameClosedEvent());
@@ -815,7 +787,21 @@ public class Game implements EventEmitter<GameEvent> {
         }
         if (status == GameStatus.SETUP_STARTING_CARD_SIDE || status == GameStatus.SETUP_COLOR || status == GameStatus.SETUP_OBJECTIVE) {
             removePlayer(pp);
-            handleDisconnectionDuringSetup();
+            getEmitter().emit(new PlayerLeftEvent(pp));
+
+            // TODO: manage SETUP_COLOR case
+            if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+                transition(GameStatus.SETUP_COLOR);
+                getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
+            } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+                setupAndStartTurnPhase();
+                getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+                try {
+                    getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+                } catch (IllegalGameStateException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
             if (playerProfiles.size() < 2) {
                 getEmitter().emit(new GameAbortedEvent());
@@ -842,7 +828,7 @@ public class Game implements EventEmitter<GameEvent> {
                 changeCurrentPlayer();
             }
             if (connectedPlayers <= 1) {
-                if (status != GameStatus.SUSPENDED) {
+                if(status != GameStatus.SUSPENDED) {
                     pauseGame();
                     try {
                         this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
@@ -878,18 +864,12 @@ public class Game implements EventEmitter<GameEvent> {
         if (status == GameStatus.SUSPENDED && playerProfiles.stream().filter(connections::get).count() >= 2) {
             resumeGame();
             this.notifyAll();
-        } else if (status == GameStatus.RESTORING && playerProfiles.stream().filter(connections::get).count() == playerProfiles.size()) {
-            resumeGame();
-            getEmitter().emit(new UpdateGameStatusAndTurnEvent(getStatus(), getTurnPhase(), getCurrentPlayer()));
         }
     }
 
     public synchronized boolean isConnected(PlayerProfile pp) {
+        // FIXME: if pp is not in playerProfiles, should we return null or throw a PlayerNotInGameException?
         return playerProfiles.contains(pp) && connections.get(pp);
-    }
-
-    public synchronized void setPlayerConnection(PlayerProfile pp, boolean isConnected) {
-        connections.replace(pp, isConnected);
     }
 
     /**

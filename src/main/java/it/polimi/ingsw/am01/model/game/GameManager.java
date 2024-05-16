@@ -12,9 +12,7 @@ import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.chat.Message;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.event.*;
-import it.polimi.ingsw.am01.model.exception.IllegalGameStateException;
 import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
-import it.polimi.ingsw.am01.model.exception.NotUndoableOperationException;
 import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
@@ -64,40 +62,13 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(0);
         for (int id : savedGamesIds) {
             Game game = loadGame(id);
-            game.getPlayerProfiles().forEach(p -> game.setPlayerConnection(p, false));
-            try {
-                if ((game.getStatus() == GameStatus.PLAY || game.getStatus() == GameStatus.SECOND_LAST_TURN
-                        || game.getStatus() == GameStatus.LAST_TURN) && game.getTurnPhase() == TurnPhase.DRAWING) {
-                    PlayArea.CardPlacement lastPlacement = game.getPlayArea(game.getCurrentPlayer()).undoPlacement();
-                    game.getPlayerData(game.getCurrentPlayer()).getHand().add(lastPlacement.getCard());
-                }
-            } catch (IllegalGameStateException e) {
-                throw new RuntimeException(e);
-            } catch (NotUndoableOperationException e) {
-                throw new RuntimeException(e);
-            }
-
-            GameStatus status = game.getStatus();
-            if (status == GameStatus.PLAY
-                    || status == GameStatus.SECOND_LAST_TURN
-                    || status == GameStatus.LAST_TURN
-                    || status == GameStatus.SUSPENDED) {
-                try {
-                    game.setRestoringStatus();
-                } catch (IllegalGameStateException e) {
-                    throw new RuntimeException(e); // TODO: handle exception
-                }
-
-                games.add(game);
-                gamesRegistrations.put(game, List.of(
-                        game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e.player(), game)),
-                        game.on(PlayerLeftEvent.class, e -> this.playerLeftFromGame(e.player(), game)),
-                        game.on(GameEvent.class, e -> this.saveGame(game)),
-                        game.on(GameClosedEvent.class, e -> this.deleteGame(game))
-                ));
-            } else {
-                deleteGame(game);
-            }
+            games.add(game);
+            gamesRegistrations.put(game, List.of(
+                    game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e.player(), game)),
+                    game.on(PlayerLeftEvent.class, e -> this.playerLeftFromGame(e.player(), game)),
+                    game.on(GameEvent.class, e -> this.saveGame(game)),
+                    game.on(GameClosedEvent.class, e -> this.deleteGame(game))
+            ));
         }
     }
 
@@ -175,9 +146,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
      * @param game a reference of the selected game
      */
     public synchronized void deleteGame(Game game) {
-        if (gamesRegistrations.containsKey(game)) {
-            gamesRegistrations.get(game).forEach(game::unregister);
-        }
+        gamesRegistrations.get(game).forEach(game::unregister);
         gamesRegistrations.remove(game);
 
         games.remove(game);
