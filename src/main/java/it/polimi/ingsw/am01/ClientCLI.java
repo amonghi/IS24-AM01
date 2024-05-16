@@ -54,7 +54,7 @@ public class ClientCLI {
     );
 
     public static boolean isNumeric(String str) {
-        return str.matches("\\d+");
+        return str.matches("-?\\d+");
     }
 
     public static void main(String[] args) throws OpenConnectionNetworkException, IOException {
