@@ -14,6 +14,9 @@ import it.polimi.ingsw.am01.model.choice.MultiChoice;
 import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.*;
+import it.polimi.ingsw.am01.model.game.selectionphase.CommonPoolSelectionStrategy;
+import it.polimi.ingsw.am01.model.game.selectionphase.OptionsPool;
+import it.polimi.ingsw.am01.model.game.selectionphase.SelectionPhase;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerData;
@@ -39,7 +42,7 @@ public class Game implements EventEmitter<GameEvent> {
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
-    private final Map<PlayerProfile, Choice<Side>> startingCardSideChoices;
+    private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
     private final Map<PlayerProfile, Card> startingCards;
     private final Map<PlayerProfile, MultiChoice<PlayerColor, PlayerProfile>.Choice> colorChoices;
     private final Map<PlayerProfile, Choice<Objective>> objectiveChoices;
@@ -83,7 +86,6 @@ public class Game implements EventEmitter<GameEvent> {
         this.status = GameStatus.AWAITING_PLAYERS;
         this.playerProfiles = new ArrayList<>();
         this.chatManager = new ChatManager();
-        this.startingCardSideChoices = new HashMap<>();
         this.startingCards = new HashMap<>();
         this.colorChoices = new HashMap<>();
         this.objectiveChoices = new HashMap<>();
@@ -123,7 +125,6 @@ public class Game implements EventEmitter<GameEvent> {
         this.status = GameStatus.AWAITING_PLAYERS;
         this.playerProfiles = new ArrayList<>();
         this.chatManager = new ChatManager();
-        this.startingCardSideChoices = new HashMap<>();
         this.startingCards = new HashMap<>();
         this.colorChoices = new HashMap<>();
         this.objectiveChoices = new HashMap<>();
@@ -381,7 +382,10 @@ public class Game implements EventEmitter<GameEvent> {
         starterCardDeck.shuffle();
 
         for (PlayerProfile player : playerProfiles) {
-            startingCardSideChoices.put(player, new Choice<>(EnumSet.allOf(Side.class)));
+            startingCardSideSelectionPhase = new SelectionPhase<>(new CommonPoolSelectionStrategy<>(
+                    Set.copyOf(this.playerProfiles), new OptionsPool<>(EnumSet.allOf(Side.class)),
+                    false, true));
+
             startingCards.put(player, starterCardDeck.draw().orElseThrow(() -> new NotEnoughGameResourcesException("Starting cards list should not be empty")));
         }
 
@@ -476,13 +480,17 @@ public class Game implements EventEmitter<GameEvent> {
             throw new PlayerNotInGameException();
         }
 
-        startingCardSideChoices.get(pp).select(s);
+        try {
+            startingCardSideSelectionPhase.getSelectorFor(pp).expressPreference(s);
+        } catch (IllegalStateException e) {
+            throw new DoubleChoiceException();
+        }
 
         playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
 
         getEmitter().emit(new CardPlacedEvent(pp, playAreas.get(pp).getAt(PlayArea.Position.ORIGIN).orElse(null)));
 
-        if (startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+        if (startingCardSideSelectionPhase.isConcluded()) {
             transition(GameStatus.SETUP_COLOR);
             getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
         }
@@ -765,7 +773,7 @@ public class Game implements EventEmitter<GameEvent> {
     private void removePlayer(PlayerProfile pp) {
         playerProfiles.remove(pp);
         connections.remove(pp);
-        startingCardSideChoices.remove(pp);
+        startingCardSideSelectionPhase.getSelectorFor(pp).dropOut();
         startingCards.remove(pp);
         colorChoices.remove(pp);
         objectiveChoices.remove(pp);
@@ -790,7 +798,7 @@ public class Game implements EventEmitter<GameEvent> {
             getEmitter().emit(new PlayerLeftEvent(pp));
 
             // TODO: manage SETUP_COLOR case
-            if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+            if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideSelectionPhase.isConcluded()) {
                 transition(GameStatus.SETUP_COLOR);
                 getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
             } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
@@ -828,7 +836,7 @@ public class Game implements EventEmitter<GameEvent> {
                 changeCurrentPlayer();
             }
             if (connectedPlayers <= 1) {
-                if(status != GameStatus.SUSPENDED) {
+                if (status != GameStatus.SUSPENDED) {
                     pauseGame();
                     try {
                         this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
@@ -877,11 +885,12 @@ public class Game implements EventEmitter<GameEvent> {
      */
     @Override
     public synchronized String toString() {
+        // TODO: override toString in SelectionPhase to have a proper visualization
         return "Game{" +
                 "\n\tid=" + id +
                 ",\n\tplayerProfiles=" + playerProfiles +
                 ",\n\tchatManager=" + chatManager +
-                ",\n\tstartingCardSideChoices=" + startingCardSideChoices +
+                ",\n\tstartingCardSideSelectionPhase=" + startingCardSideSelectionPhase +
                 ",\n\tstartingCards=" + startingCards +
                 ",\n\tcolorChoices=" + colorChoices +
                 ",\n\tobjectiveChoices=" + objectiveChoices +
