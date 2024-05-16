@@ -45,7 +45,7 @@ public class Game implements EventEmitter<GameEvent> {
     private final ChatManager chatManager;
     private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
     private final Map<PlayerProfile, Card> startingCards;
-    private final Map<PlayerProfile, MultiChoice<PlayerColor, PlayerProfile>.Choice> colorChoices;
+    private SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
     private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
@@ -88,7 +88,6 @@ public class Game implements EventEmitter<GameEvent> {
         this.playerProfiles = new ArrayList<>();
         this.chatManager = new ChatManager();
         this.startingCards = new HashMap<>();
-        this.colorChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
         this.connections = new HashMap<>();
@@ -126,7 +125,6 @@ public class Game implements EventEmitter<GameEvent> {
         this.playerProfiles = new ArrayList<>();
         this.chatManager = new ChatManager();
         this.startingCards = new HashMap<>();
-        this.colorChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
         this.connections = new HashMap<>();
@@ -304,11 +302,10 @@ public class Game implements EventEmitter<GameEvent> {
             hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Resource card deck should not be empty")));
             hand.add(board.getGoldenCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Golden card deck should not be empty")));
 
-            Map<PlayerProfile, Objective> results = objectiveSelectionPhase.getResults();
+            Map<PlayerProfile, Objective> objectiveResults = objectiveSelectionPhase.getResults();
+            Map<PlayerProfile, PlayerColor> colorResults = colorSelectionPhase.getResults();
             playersData.put(player,
-                    new PlayerData(hand,
-                            results.get(player),
-                            colorChoices.get(player).getSelected().orElseThrow()));
+                    new PlayerData(hand, objectiveResults.get(player), colorResults.get(player)));
         }
         setFirstPlayer();
         if (board.getResourceCardDeck().isEmpty() && board.getGoldenCardDeck().isEmpty()) {
@@ -389,8 +386,9 @@ public class Game implements EventEmitter<GameEvent> {
         }
 
         // Setup color choices
-        MultiChoice<PlayerColor, PlayerProfile> multiChoice = new MultiChoice<>(EnumSet.allOf(PlayerColor.class), new HashSet<>(playerProfiles));
-        playerProfiles.forEach((player) -> colorChoices.put(player, multiChoice.getChoices().get(player)));
+        colorSelectionPhase = new SelectionPhase<>(new CommonPoolSelectionStrategy<>(
+                Set.copyOf(this.playerProfiles), new OptionsPool<>(EnumSet.allOf(PlayerColor.class)),
+                true, false));
 
         // Setup objective choices
         List<Objective> objectiveList = new ArrayList<>(GameAssets.getInstance().getObjectives());
@@ -440,7 +438,6 @@ public class Game implements EventEmitter<GameEvent> {
             setUpChoices();
         }
     }
-
 
     /**
      * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
@@ -504,27 +501,26 @@ public class Game implements EventEmitter<GameEvent> {
      *
      * @param pp the {@link PlayerProfile} of player that want to choose
      * @param pc the {@link PlayerColor} chosen by player {@code pp}
-     * @return the {@link SelectionResult} referred to the choice made
      * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_COLOR}
      * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
      * @see SelectionResult
      * @see MultiChoice
      */
-    public synchronized SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException {
+    public synchronized void selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_COLOR) {
             throw new IllegalGameStateException();
         }
         if (!playerProfiles.contains(pp)) {
             throw new PlayerNotInGameException();
         }
-        SelectionResult sr = colorChoices.get(pp).select(pc);
-        getEmitter().emit(new PlayerChangedColorChoiceEvent(pp, pc, sr));
+        colorSelectionPhase.getSelectorFor(pp).expressPreference(pc);
 
-        if (colorChoices.get(pp).isSettled()) {
+        getEmitter().emit(new PlayerChangedColorChoiceEvent(pp, pc));
+
+        if (colorSelectionPhase.isConcluded()) {
             transition(GameStatus.SETUP_OBJECTIVE);
             getEmitter().emit(new AllColorChoicesSettledEvent());
         }
-        return sr;
     }
 
     /**
@@ -783,7 +779,7 @@ public class Game implements EventEmitter<GameEvent> {
         connections.remove(pp);
         startingCardSideSelectionPhase.getSelectorFor(pp).dropOut();
         startingCards.remove(pp);
-        colorChoices.remove(pp);
+        colorSelectionPhase.getSelectorFor(pp).dropOut();
         objectiveSelectionPhase.getSelectorFor(pp).dropOut();
         playersData.remove(pp);
         playAreas.remove(pp);
@@ -900,7 +896,7 @@ public class Game implements EventEmitter<GameEvent> {
                 ",\n\tchatManager=" + chatManager +
                 ",\n\tstartingCardSideSelectionPhase=" + startingCardSideSelectionPhase +
                 ",\n\tstartingCards=" + startingCards +
-                ",\n\tcolorChoices=" + colorChoices +
+                ",\n\tcolorSelectionPhase=" + colorSelectionPhase +
                 ",\n\tobjectiveSelectionPhase=" + objectiveSelectionPhase +
                 ",\n\tplayersData=" + playersData +
                 ",\n\tplayAreas=" + playAreas +
