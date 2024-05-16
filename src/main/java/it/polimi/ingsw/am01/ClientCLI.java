@@ -252,7 +252,8 @@ public class ClientCLI {
             while (true) {
                 try {
                     S2CNetworkMessage message = connection.receive();
-                    System.out.println(message);
+                    if(!message.getId().equals("PING"))
+                        System.out.println(message);
                     switch (message.getId()) {
                         case "GAME_FINISHED":
                             placements.clear();

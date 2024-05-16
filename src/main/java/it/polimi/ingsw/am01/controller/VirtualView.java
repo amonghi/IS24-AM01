@@ -75,16 +75,16 @@ public class VirtualView implements Runnable, MessageVisitor {
 
     private void handleDisconnection() {
         gameManagerRegistrations.forEach(gameManager::unregister);
+        if (this.playerProfile != null) {
+            //If the player is authenticated, I have to remove the player from playerManager
+            playerManager.getProfile(this.playerProfile.getName()).ifPresent(playerManager::removeProfile);
+        }
         if (this.game != null) {
             //If the game is not null, I have to handle player re-connection
             game.handleDisconnection(this.playerProfile);
             setGame(null);
         }
-        if (this.playerProfile != null) {
-            //If the player is authenticated, I have to remove the player from playerManager
-            playerManager.getProfile(this.playerProfile.getName()).ifPresent(playerManager::removeProfile);
-            setPlayerProfile(null);
-        }
+        setPlayerProfile(null);
     }
 
     private void handleReconnection() {

@@ -20,6 +20,7 @@ import it.polimi.ingsw.am01.model.player.PlayerData;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 public class Game implements EventEmitter<GameEvent> {
 
     private static final int HAND_CARDS = 3;
+    private static final int TIMEOUT = 1;
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
@@ -827,7 +829,22 @@ public class Game implements EventEmitter<GameEvent> {
 
             if (connections.values().stream().filter(connected -> connected.equals(true)).count() < 2) {
                 pauseGame();
-                //TODO: handle timer
+                try {
+                    this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();    //TODO: handle exception
+                }
+
+                if (status == GameStatus.SUSPENDED) {
+                    transition(GameStatus.FINISHED);
+                    getEmitter().emit(
+                            new GameFinishedEvent(
+                                    playerProfiles.stream()
+                                            .filter(this::isConnected)
+                                            .collect(Collectors.toMap(p -> p, p -> getPlayArea(p).getScore())))
+                    );
+                    getEmitter().emit(new GameClosedEvent());
+                }
             }
 
         } catch (IllegalGameStateException e) {
@@ -842,11 +859,11 @@ public class Game implements EventEmitter<GameEvent> {
         if (connections.get(player)) {
             throw new PlayerAlreadyConnectedException();
         }
-        getEmitter().emit(new PlayerReconnectedEvent(player));
         connections.replace(player, true);
-        // TODO: add reconnection events
+        getEmitter().emit(new PlayerReconnectedEvent(player));
         if (status == GameStatus.SUSPENDED && playerProfiles.stream().filter(connections::get).count() >= 2) {
             resumeGame();
+            this.notifyAll();
         }
     }
 
