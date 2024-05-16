@@ -29,7 +29,7 @@ public class Main {
                 while (true) {
                     // change the scree with time to show that it is adapting
                     time++;
-                    int screenWidth = 100 + (int) ((Math.sin((0.1 * (double) time)) + 1) * 20);
+                    int screenWidth = 100 + (int) ((Math.sin((0.05 * (double) time)) + 1) * 20);
 
                     // build screen
                     Dimensions screenDimensions = new Dimensions(screenWidth, 15);
@@ -62,9 +62,8 @@ public class Main {
                     sized.placeAt(Position.ZERO).draw(screen);
 
                     // clear and print
-                    System.out.print("\033[H\033[2J");
+                    System.out.print("\033[H\033[2J" + screen);
                     System.out.flush();
-                    System.out.println(screen);
 
                     try {
                          Thread.sleep(33);
