@@ -51,6 +51,9 @@ public class ClientCLI {
             Map.entry("close_connection", "")
     );
 
+    public static boolean isNumeric(String str) {
+        return str.matches("\\d+");
+    }
 
     public static void main(String[] args) throws OpenConnectionNetworkException, IOException {
         String clientType = args[0].toLowerCase();
@@ -83,7 +86,7 @@ public class ClientCLI {
                         }
                     }
                     case "create_game" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new CreateGameAndJoinC2S(
@@ -105,7 +108,7 @@ public class ClientCLI {
                         }
                     }
                     case "draw_from_face_up" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new DrawCardFromFaceUpCardsC2S(
@@ -114,7 +117,7 @@ public class ClientCLI {
                         }
                     }
                     case "join_game" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new JoinGameC2S(
@@ -144,7 +147,7 @@ public class ClientCLI {
                         }
                     }
                     case "place_card" -> {
-                        if (userInput.length != 5 || (!userInput[2].equals("front") && !userInput[2].equals("back"))) {
+                        if (userInput.length != 5 || (!userInput[2].equals("front") && !userInput[2].equals("back")) || !isNumeric(userInput[1]) || !isNumeric(userInput[3]) || !isNumeric(userInput[4])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new PlaceCardC2S(
@@ -175,7 +178,7 @@ public class ClientCLI {
                         }
                     }
                     case "select_obj" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new SelectSecretObjectiveC2S(
@@ -184,7 +187,7 @@ public class ClientCLI {
                         }
                     }
                     case "select_starting_card" -> {
-                        if (userInput.length != 2 && !userInput[1].equals("front") && !userInput[1].equals("back")) {
+                        if (userInput.length != 2 || !userInput[1].equals("front") && !userInput[1].equals("back")) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new SelectStartingCardSideC2S(
@@ -220,14 +223,14 @@ public class ClientCLI {
                         }
                     }
                     case "card_info" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             GameAssets.getInstance().getCardById(Integer.parseInt(userInput[1])).ifPresent(System.out::println);
                         }
                     }
                     case "obj_info" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             GameAssets.getInstance().getObjectiveById(Integer.parseInt(userInput[1])).ifPresent(System.out::println);
