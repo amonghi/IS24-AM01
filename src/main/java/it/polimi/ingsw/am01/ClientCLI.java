@@ -10,6 +10,7 @@ import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.*;
+import it.polimi.ingsw.am01.network.message.s2c.SetupAfterReconnectionS2C;
 import it.polimi.ingsw.am01.network.message.s2c.UpdatePlayAreaS2C;
 import it.polimi.ingsw.am01.network.message.s2c.UpdatePlayerListS2C;
 import it.polimi.ingsw.am01.network.rmi.client.ClientRMIConnection;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ClientCLI {
     private static final int TCP_PORT = 8888;
@@ -255,9 +257,23 @@ public class ClientCLI {
             while (true) {
                 try {
                     S2CNetworkMessage message = connection.receive();
-                    if(!message.getId().equals("PING"))
+                    if (!message.getId().equals("PING"))
                         System.out.println(message);
                     switch (message.getId()) {
+                        case "SETUP_AFTER_RECONNECTION":
+                            SetupAfterReconnectionS2C setupAfterReconnectionS2C = (SetupAfterReconnectionS2C) message;
+                            for (String player : setupAfterReconnectionS2C.playAreas().keySet()) {
+                                scores.put(player,
+                                        setupAfterReconnectionS2C.playAreas().get(player).values().stream().mapToInt(SetupAfterReconnectionS2C.CardPlacement::points).sum()
+                                );
+
+                                placements.put(player,
+                                        setupAfterReconnectionS2C.playAreas().get(player).entrySet().stream().map(
+                                                entry -> new Placement(entry.getKey().i(), entry.getKey().j(), entry.getValue().cardId(), entry.getValue().side(), entry.getValue().seq(), entry.getValue().points())
+                                        ).collect(Collectors.toList())
+                                );
+                            }
+                            break;
                         case "GAME_FINISHED":
                             placements.clear();
                             scores.clear();
