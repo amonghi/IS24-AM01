@@ -149,7 +149,7 @@ class ControllerTest {
             assertEquals(TurnPhase.PLACING, game.getTurnPhase());
         }
 
-        void prepare_PLAY_DRAWING() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void prepare_PLAY_DRAWING() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException {
             this.prepare_PLAY_PLACING();
 
             // place a card so now we can draw
@@ -399,7 +399,7 @@ class ControllerTest {
         }
 
         @Test
-        void canPlaceCard() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidCardException, IllegalPlacementException {
+        void canPlaceCard() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidCardException, IllegalPlacementException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
             Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
@@ -453,12 +453,12 @@ class ControllerTest {
     class DrawCard extends WithUtils {
 
         @BeforeEach
-        void init() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void init() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException {
             this.prepare_PLAY_DRAWING();
         }
 
         @Test
-        void canDrawFromDeck() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException {
+        void canDrawFromDeck() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException {
             PlayerProfile player = game.getCurrentPlayer();
             controller.drawCardFromDeck(game.getId(), player.getName(), DeckLocation.RESOURCE_CARD_DECK);
             assertEquals(GameStatus.PLAY, game.getStatus());
@@ -480,7 +480,7 @@ class ControllerTest {
         }
 
         @Test
-        void canDrawFromFaceUpCards() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, NotAuthenticatedException, GameNotFoundException, InvalidCardException {
+        void canDrawFromFaceUpCards() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidCardException {
             PlayerProfile player = game.getCurrentPlayer();
             FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
 

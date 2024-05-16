@@ -560,12 +560,16 @@ package game {
         + placeAt(Position pos, Card c, Side side) PlayArea.CardPlacement
         + placeAt(int i, int j, Card c, Side side) PlayArea.CardPlacement
         - placeAt(Position position, Card card, Side side, boolean isFirst) PlayArea.CardPlacement
-        - updatePlayablePositions(CardPlacement placement) void
+        + undoPlacement() void
+        - removePlacement(PlayArea.CardPlacement cardPlacement) void
+        - updatePlayablePositionsAfterPlacing(PlayArea.CardPlacement placement) void
+        - updatePlayablePositionsAfterRemoving(PlayArea.CardPlacement placement) void
         + getPlayablePositions() Set<Position>
         + getAt(Position pos) Optional<PlayArea.CardPlacement>
         + getAt(int i, int j) Optional<PlayArea.CardPlacement>
         + getCollectibleCount() Map<Collectible, Integer>
         + getScore() int
+        + getSeq() int
         + iterator() Iterator<CardPlacement>
     }
     CardPlacement <--* PlayArea : < has many

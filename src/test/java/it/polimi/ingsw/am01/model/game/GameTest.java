@@ -64,7 +64,7 @@ class GameTest {
     }
 
     @Test
-    public void testOneTurnPerPlayerWithPause() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
+    public void testOneTurnPerPlayerWithPause() throws IllegalMoveException, PlayerNotInGameException, DoubleChoiceException, InvalidObjectiveException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -187,7 +187,7 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameDeckEmpty() throws IllegalGameStateException, InvalidMaxPlayersException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
+    public void firstTestEndGameDeckEmpty() throws IllegalMoveException, InvalidMaxPlayersException, PlayerNotInGameException, DoubleChoiceException, InvalidObjectiveException {
         Game shortGame1 = new Game(2, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(9).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
@@ -312,7 +312,7 @@ class GameTest {
     }
 
     @Test
-    public void secondTestEndGameDeckEmpty() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, InvalidMaxPlayersException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
+    public void secondTestEndGameDeckEmpty() throws IllegalMoveException, PlayerNotInGameException, InvalidMaxPlayersException, DoubleChoiceException, InvalidObjectiveException {
         Game shortGame2 = new Game(3, 3, new Board(new Deck(GameAssets.getInstance().getResourceCards().stream().limit(10).toList()),
                 new Deck(GameAssets.getInstance().getGoldenCards().stream().limit(6).toList())));
 
@@ -435,7 +435,7 @@ class GameTest {
     }
 
     @Test
-    public void firstTestEndGameTwentyPoints() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, InvalidMaxPlayersException, DoubleChoiceException, InvalidObjectiveException {
+    public void firstTestEndGameTwentyPoints() throws IllegalMoveException, PlayerNotInGameException, InvalidMaxPlayersException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -582,7 +582,7 @@ class GameTest {
     }
 
     @Test
-    public void secondTestEndGameTwentyPoints() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
+    public void secondTestEndGameTwentyPoints() throws InvalidMaxPlayersException, IllegalMoveException, PlayerNotInGameException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -743,7 +743,7 @@ class GameTest {
     }
 
     @Test
-    public void testNotPlayerTurn() throws IllegalGameStateException, PlayerNotInGameException, IllegalTurnException, CardNotInHandException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException, IllegalPlacementException {
+    public void testNotPlayerTurn() throws IllegalMoveException, PlayerNotInGameException, CardNotInHandException, DoubleChoiceException, InvalidObjectiveException, IllegalPlacementException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -899,7 +899,7 @@ class GameTest {
     }
 
     @Test
-    public void testPlayerIsNotInGame() throws IllegalGameStateException, PlayerNotInGameException, CardNotInHandException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException, IllegalPlacementException {
+    public void testPlayerIsNotInGame() throws IllegalMoveException, PlayerNotInGameException, CardNotInHandException, DoubleChoiceException, InvalidObjectiveException, IllegalPlacementException {
         standardGame.join(p1);
         standardGame.join(p2);
         standardGame.join(p3);
@@ -985,7 +985,7 @@ class GameTest {
     }
 
     @Test
-    public void testEndGameTwentyPointsWithEarlyStart() throws InvalidMaxPlayersException, IllegalGameStateException, PlayerNotInGameException, NotEnoughPlayersException, IllegalTurnException, PlayerAlreadyPlayingException, DoubleChoiceException, InvalidObjectiveException {
+    public void testEndGameTwentyPointsWithEarlyStart() throws InvalidMaxPlayersException, IllegalMoveException, PlayerNotInGameException, NotEnoughPlayersException, DoubleChoiceException, InvalidObjectiveException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {

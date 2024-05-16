@@ -10,6 +10,7 @@ import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.*;
+import it.polimi.ingsw.am01.network.message.s2c.SetupAfterReconnectionS2C;
 import it.polimi.ingsw.am01.network.message.s2c.UpdatePlayAreaS2C;
 import it.polimi.ingsw.am01.network.message.s2c.UpdatePlayerListS2C;
 import it.polimi.ingsw.am01.network.rmi.client.ClientRMIConnection;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ClientCLI {
     private static final int TCP_PORT = 8888;
@@ -51,6 +53,9 @@ public class ClientCLI {
             Map.entry("close_connection", "")
     );
 
+    public static boolean isNumeric(String str) {
+        return str.matches("\\d+");
+    }
 
     public static void main(String[] args) throws OpenConnectionNetworkException, IOException {
         String clientType = args[0].toLowerCase();
@@ -83,7 +88,7 @@ public class ClientCLI {
                         }
                     }
                     case "create_game" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new CreateGameAndJoinC2S(
@@ -105,7 +110,7 @@ public class ClientCLI {
                         }
                     }
                     case "draw_from_face_up" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new DrawCardFromFaceUpCardsC2S(
@@ -114,7 +119,7 @@ public class ClientCLI {
                         }
                     }
                     case "join_game" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new JoinGameC2S(
@@ -144,7 +149,7 @@ public class ClientCLI {
                         }
                     }
                     case "place_card" -> {
-                        if (userInput.length != 5 || (!userInput[2].equals("front") && !userInput[2].equals("back"))) {
+                        if (userInput.length != 5 || (!userInput[2].equals("front") && !userInput[2].equals("back")) || !isNumeric(userInput[1]) || !isNumeric(userInput[3]) || !isNumeric(userInput[4])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new PlaceCardC2S(
@@ -175,7 +180,7 @@ public class ClientCLI {
                         }
                     }
                     case "select_obj" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new SelectSecretObjectiveC2S(
@@ -184,7 +189,7 @@ public class ClientCLI {
                         }
                     }
                     case "select_starting_card" -> {
-                        if (userInput.length != 2 && !userInput[1].equals("front") && !userInput[1].equals("back")) {
+                        if (userInput.length != 2 || !userInput[1].equals("front") && !userInput[1].equals("back")) {
                             wrongParameters(userInput[0]);
                         } else {
                             connection.send(new SelectStartingCardSideC2S(
@@ -220,14 +225,14 @@ public class ClientCLI {
                         }
                     }
                     case "card_info" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             GameAssets.getInstance().getCardById(Integer.parseInt(userInput[1])).ifPresent(System.out::println);
                         }
                     }
                     case "obj_info" -> {
-                        if (userInput.length != 2) {
+                        if (userInput.length != 2 || !isNumeric(userInput[1])) {
                             wrongParameters(userInput[0]);
                         } else {
                             GameAssets.getInstance().getObjectiveById(Integer.parseInt(userInput[1])).ifPresent(System.out::println);
@@ -252,8 +257,23 @@ public class ClientCLI {
             while (true) {
                 try {
                     S2CNetworkMessage message = connection.receive();
-                    System.out.println(message);
+                    if (!message.getId().equals("PING"))
+                        System.out.println(message);
                     switch (message.getId()) {
+                        case "SETUP_AFTER_RECONNECTION":
+                            SetupAfterReconnectionS2C setupAfterReconnectionS2C = (SetupAfterReconnectionS2C) message;
+                            for (String player : setupAfterReconnectionS2C.playAreas().keySet()) {
+                                scores.put(player,
+                                        setupAfterReconnectionS2C.playAreas().get(player).values().stream().mapToInt(SetupAfterReconnectionS2C.CardPlacement::points).sum()
+                                );
+
+                                placements.put(player,
+                                        setupAfterReconnectionS2C.playAreas().get(player).entrySet().stream().map(
+                                                entry -> new Placement(entry.getKey().i(), entry.getKey().j(), entry.getValue().cardId(), entry.getValue().side(), entry.getValue().seq(), entry.getValue().points())
+                                        ).collect(Collectors.toList())
+                                );
+                            }
+                            break;
                         case "GAME_FINISHED":
                             placements.clear();
                             scores.clear();

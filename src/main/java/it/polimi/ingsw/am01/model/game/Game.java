@@ -20,6 +20,7 @@ import it.polimi.ingsw.am01.model.player.PlayerData;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +34,8 @@ import java.util.stream.Collectors;
  */
 public class Game implements EventEmitter<GameEvent> {
 
+    private static final int HAND_CARDS = 3;
+    private static final int TIMEOUT = 1;
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
@@ -42,6 +45,7 @@ public class Game implements EventEmitter<GameEvent> {
     private final Map<PlayerProfile, Choice<Objective>> objectiveChoices;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
+    private final Map<PlayerProfile, Boolean> connections;
     private final Set<Objective> commonObjectives;
     private final int maxPlayers;
     private final Board board;
@@ -85,6 +89,7 @@ public class Game implements EventEmitter<GameEvent> {
         this.objectiveChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
+        this.connections = new HashMap<>();
         this.commonObjectives = new HashSet<>();
         this.currentPlayer = 0;
         this.turnPhase = TurnPhase.PLACING;
@@ -124,6 +129,7 @@ public class Game implements EventEmitter<GameEvent> {
         this.objectiveChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
+        this.connections = new HashMap<>();
         this.commonObjectives = new HashSet<>();
         this.currentPlayer = 0;
         this.turnPhase = TurnPhase.PLACING;
@@ -223,7 +229,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws IllegalGameStateException if the current {@link GameStatus} is not a playing status
      */
     public synchronized PlayerProfile getCurrentPlayer() throws IllegalGameStateException {
-        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED) {
             throw new IllegalGameStateException();
         }
 
@@ -252,7 +258,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @see TurnPhase
      */
     public synchronized TurnPhase getTurnPhase() throws IllegalGameStateException {
-        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN) {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED) {
             throw new IllegalGameStateException();
         }
 
@@ -419,6 +425,7 @@ public class Game implements EventEmitter<GameEvent> {
         }
 
         playerProfiles.add(pp);
+        connections.put(pp, true);
 
         getEmitter().emit(new PlayerJoinedEvent(pp));
 
@@ -427,6 +434,7 @@ public class Game implements EventEmitter<GameEvent> {
             setUpChoices();
         }
     }
+
 
     /**
      * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
@@ -502,7 +510,7 @@ public class Game implements EventEmitter<GameEvent> {
         SelectionResult sr = colorChoices.get(pp).select(pc);
         getEmitter().emit(new PlayerChangedColorChoiceEvent(pp, pc, sr));
 
-        if (colorChoices.get(pp).isSettled()) { // FIXME: MultiChoice class
+        if (colorChoices.get(pp).isSettled()) {
             transition(GameStatus.SETUP_OBJECTIVE);
             getEmitter().emit(new AllColorChoicesSettledEvent());
         }
@@ -566,7 +574,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @see TurnPhase
      * @see GameStatus
      */
-    public synchronized DrawResult drawCard(PlayerProfile pp, DrawSource ds) throws IllegalTurnException, IllegalGameStateException, PlayerNotInGameException {
+    public synchronized DrawResult drawCard(PlayerProfile pp, DrawSource ds) throws IllegalMoveException, PlayerNotInGameException {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN) || turnPhase != TurnPhase.DRAWING) {
             throw new IllegalGameStateException();
         }
@@ -590,7 +598,7 @@ public class Game implements EventEmitter<GameEvent> {
         switch (status) {
             case GameStatus.PLAY -> {
                 if (board.getResourceCardDeck().isEmpty() && board.getGoldenCardDeck().isEmpty()) {
-                    if (currentPlayer != playerProfiles.size() - 1) {
+                    if (!isLastConnectedPlayer(currentPlayer)) {
                         // all decks are empty --> game is on "final phase"
                         transition(GameStatus.SECOND_LAST_TURN);
                     } else {
@@ -600,7 +608,7 @@ public class Game implements EventEmitter<GameEvent> {
                 }
             }
             case GameStatus.SECOND_LAST_TURN -> {
-                if (currentPlayer == playerProfiles.size() - 1) {
+                if (isLastConnectedPlayer(currentPlayer)) {
                     //this is the "last" player of round
                     transition(GameStatus.LAST_TURN);
                 }
@@ -609,16 +617,17 @@ public class Game implements EventEmitter<GameEvent> {
         setTurnPhase(TurnPhase.PLACING);
         changeCurrentPlayer();
 
-        getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
-
         return DrawResult.OK;
     }
 
     /**
      * This method permits to change the player that have to play
      */
-    private void changeCurrentPlayer() {
-        currentPlayer = (currentPlayer + 1) % playerProfiles.size();
+    private void changeCurrentPlayer() throws IllegalGameStateException {
+        do {
+            currentPlayer = (currentPlayer + 1) % playerProfiles.size();
+        } while (!connections.get(playerProfiles.get(currentPlayer)));
+        getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
     }
 
     /**
@@ -643,7 +652,7 @@ public class Game implements EventEmitter<GameEvent> {
      * @see PlayArea
      * @see PlayArea.CardPlacement
      */
-    public synchronized void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) throws IllegalTurnException, PlayerNotInGameException, IllegalGameStateException, CardNotInHandException, IllegalPlacementException {
+    public synchronized void placeCard(PlayerProfile pp, Card c, Side s, int i, int j) throws IllegalMoveException, PlayerNotInGameException, CardNotInHandException, IllegalPlacementException {
         if ((status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN)
                 || turnPhase != TurnPhase.PLACING) {
             throw new IllegalGameStateException();
@@ -686,7 +695,7 @@ public class Game implements EventEmitter<GameEvent> {
                 break;
 
             case GameStatus.LAST_TURN:
-                if (currentPlayer == playerProfiles.size() - 1) {
+                if (isLastConnectedPlayer(currentPlayer)) {
                     //this player is the last one -> game is finished. It's useless drawing a card. This is the only one point from where finishing game
                     transition(GameStatus.FINISHED);
 
@@ -695,11 +704,25 @@ public class Game implements EventEmitter<GameEvent> {
                 } else {
                     //change current player (state and turn phase are not updated because in this phase it's useless to draw card)
                     changeCurrentPlayer();
-
-                    getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
                 }
                 break;
         }
+    }
+
+    /**
+     * @param currentPlayer the index of the player who is currently playing
+     * @return whether the specified {@code currentPlayer} is the last of the current turn
+     * @throws IllegalGameStateException if there are no connected players
+     */
+    private boolean isLastConnectedPlayer(int currentPlayer) throws IllegalGameStateException {
+        return currentPlayer ==
+                connections
+                        .keySet()
+                        .stream()
+                        .filter(connections::get)
+                        .mapToInt(playerProfiles::indexOf)
+                        .max()
+                        .orElseThrow(IllegalGameStateException::new);
     }
 
     /**
@@ -737,6 +760,116 @@ public class Game implements EventEmitter<GameEvent> {
                         + commonObjectives.stream().mapToInt(objective -> objective.getEarnedPoints(playArea)).sum()) // points earned from play area plus points earned from objective cards
         );
         return r;
+    }
+
+    private void removePlayer(PlayerProfile pp) {
+        playerProfiles.remove(pp);
+        connections.remove(pp);
+        startingCardSideChoices.remove(pp);
+        startingCards.remove(pp);
+        colorChoices.remove(pp);
+        objectiveChoices.remove(pp);
+        playersData.remove(pp);
+        playAreas.remove(pp);
+    }
+
+    public synchronized void handleDisconnection(PlayerProfile pp) {
+        getEmitter().emit(new PlayerDisconnectedEvent(pp));
+        getEmitter().emit(new PlayerKickedEvent(pp));
+        if (status == GameStatus.AWAITING_PLAYERS) {
+            removePlayer(pp);
+            getEmitter().emit(new PlayerLeftEvent(pp));
+
+            if (playerProfiles.isEmpty()) {
+                getEmitter().emit(new GameClosedEvent());
+            }
+            return;
+        }
+        if (status == GameStatus.SETUP_STARTING_CARD_SIDE || status == GameStatus.SETUP_COLOR || status == GameStatus.SETUP_OBJECTIVE) {
+            removePlayer(pp);
+            getEmitter().emit(new PlayerLeftEvent(pp));
+
+            // TODO: manage SETUP_COLOR case
+            if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+                transition(GameStatus.SETUP_COLOR);
+                getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
+            } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+                setupAndStartTurnPhase();
+                getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+                try {
+                    getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
+                } catch (IllegalGameStateException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            if (playerProfiles.size() < 2) {
+                getEmitter().emit(new GameAbortedEvent());
+                getEmitter().emit(new GameClosedEvent());
+            }
+            return;
+        }
+        connections.replace(pp, false);
+        long connectedPlayers = connections.values().stream().filter(connected -> connected.equals(true)).count();
+        try {
+            if (getCurrentPlayer().equals(pp) && connectedPlayers > 0) {
+                if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
+                    try {
+                        PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
+                        playersData.get(pp).getHand().add(lastPlacement.getCard());
+                        getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(),
+                                playAreas.get(pp).getScore(), playAreas.get(pp).getSeq()));
+                    } catch (NotUndoableOperationException e) {
+                        e.printStackTrace(); // TODO: handle exception
+                    }
+                }
+                //The next player has to place the card
+                setTurnPhase(TurnPhase.PLACING);
+                changeCurrentPlayer();
+            }
+            if (connectedPlayers <= 1) {
+                if(status != GameStatus.SUSPENDED) {
+                    pauseGame();
+                    try {
+                        this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();    //TODO: handle exception
+                    }
+                } else {
+                    transition(GameStatus.FINISHED);
+                    getEmitter().emit(
+                            new GameFinishedEvent(
+                                    playerProfiles.stream()
+                                            .filter(this::isConnected)
+                                            .collect(Collectors.toMap(p -> p, p -> getPlayArea(p).getScore())))
+                    );
+                    getEmitter().emit(new GameClosedEvent());
+                }
+            }
+
+        } catch (IllegalGameStateException e) {
+            e.printStackTrace(); // TODO: handle exception
+        }
+    }
+
+    public synchronized void handleReconnection(PlayerProfile player) throws PlayerNotInGameException, PlayerAlreadyConnectedException, IllegalGameStateException {
+        if (!playerProfiles.contains(player)) {
+            throw new PlayerNotInGameException();
+        }
+        if (connections.get(player)) {
+            throw new PlayerAlreadyConnectedException();
+        }
+        connections.replace(player, true);
+        getEmitter().emit(new PlayerReconnectedEvent(player));
+        if (status == GameStatus.SUSPENDED && playerProfiles.stream().filter(connections::get).count() >= 2) {
+            resumeGame();
+            this.notifyAll();
+        }
+    }
+
+    public synchronized boolean isConnected(PlayerProfile pp) {
+        // FIXME: if pp is not in playerProfiles, should we return null or throw a PlayerNotInGameException?
+        return playerProfiles.contains(pp) && connections.get(pp);
     }
 
     /**

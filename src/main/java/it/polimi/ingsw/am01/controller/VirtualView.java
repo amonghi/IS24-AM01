@@ -18,6 +18,7 @@ import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import it.polimi.ingsw.am01.network.CloseNetworkException;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.NetworkException;
+import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.MessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
@@ -33,6 +34,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     private final GameManager gameManager;
     private final PlayerManager playerManager;
     private final List<EventEmitter.Registration> gameRegistrations;
+    private final List<EventEmitter.Registration> gameManagerRegistrations;
     private Game game;
     private PlayerProfile playerProfile;
 
@@ -45,9 +47,61 @@ public class VirtualView implements Runnable, MessageVisitor {
         this.playerProfile = null;
         this.gameRegistrations = new ArrayList<>();
 
-        this.gameManager.on(GameCreatedEvent.class, exceptionFilter(this::gameListChanged));
-        this.gameManager.on(GameDeletedEvent.class, exceptionFilter(this::gameListChanged));
-        this.gameManager.on(PlayerJoinedInGameEvent.class, exceptionFilter(this::playerJoined));
+        this.gameManagerRegistrations = List.of(
+                this.gameManager.on(GameCreatedEvent.class, exceptionFilter(this::gameListChanged)),
+                this.gameManager.on(GameDeletedEvent.class, exceptionFilter(this::gameListChanged)),
+                this.gameManager.on(PlayerJoinedInGameEvent.class, exceptionFilter(this::playerJoined)),
+                this.gameManager.on(PlayerLeftFromGameEvent.class, exceptionFilter(this::playerLeft))
+        );
+
+        startCheckingClientConnection();
+    }
+
+    private void startCheckingClientConnection() {
+        Timer ping = new Timer();
+        ping.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    connection.send(new PingS2C());
+                } catch (SendNetworkException e) {
+                    ping.cancel();
+                    handleDisconnection();
+                    disconnect();
+                }
+            }
+        }, 0, 500);
+    }
+
+    private void handleDisconnection() {
+        gameManagerRegistrations.forEach(gameManager::unregister);
+        if (this.playerProfile != null) {
+            //If the player is authenticated, I have to remove the player from playerManager
+            playerManager.getProfile(this.playerProfile.getName()).ifPresent(playerManager::removeProfile);
+        }
+        if (this.game != null) {
+            //If the game is not null, I have to handle player re-connection
+            game.handleDisconnection(this.playerProfile);
+            setGame(null);
+        }
+        setPlayerProfile(null);
+    }
+
+    private void handleReconnection() {
+        gameManager.getGames().stream().filter(
+                game -> game.getPlayerProfiles().contains(playerProfile) && !game.isConnected(playerProfile)
+        ).findFirst().ifPresent(game -> {
+            setGame(game);
+            try {
+                game.handleReconnection(playerProfile); // TODO: handle exceptions
+            } catch (PlayerNotInGameException e) {
+                throw new RuntimeException(e);
+            } catch (PlayerAlreadyConnectedException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalGameStateException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public GameManager getGameManager() {
@@ -74,6 +128,7 @@ public class VirtualView implements Runnable, MessageVisitor {
                     game.on(AllPlayersChoseStartingCardSideEvent.class, exceptionFilter(this::allPlayersChoseSide)),
                     game.on(AllPlayersJoinedEvent.class, exceptionFilter(this::allPlayersJoined)),
                     game.on(CardPlacedEvent.class, exceptionFilter(this::updatePlayArea)),
+                    game.on(UndoPlacementEvent.class, exceptionFilter(this::updatePlayAreaAfterUndo)),
                     game.on(UpdateGameStatusAndTurnEvent.class, exceptionFilter(this::updateGameStatusAndTurn)),
                     game.on(GameFinishedEvent.class, exceptionFilter(this::leaveGame)),
                     game.on(FaceUpCardReplacedEvent.class, exceptionFilter(this::updateFaceUpCards)),
@@ -86,7 +141,11 @@ public class VirtualView implements Runnable, MessageVisitor {
                     game.on(HandChangedEvent.class, exceptionFilter(this::updatePlayerHand)),
                     game.on(GamePausedEvent.class, exceptionFilter(this::gamePaused)),
                     game.on(GameResumedEvent.class, exceptionFilter(this::gameResumed)),
-                    game.on(NewMessageIncomingEvent.class, exceptionFilter(this::newMessage))
+                    game.on(NewMessageIncomingEvent.class, exceptionFilter(this::newMessage)),
+                    game.on(PlayerDisconnectedEvent.class, exceptionFilter(this::playerDisconnected)),
+                    game.on(PlayerReconnectedEvent.class, exceptionFilter(this::playerReconnected)),
+                    game.on(GameAbortedEvent.class, exceptionFilter(this::kickAllPlayers)),
+                    game.on(PlayerKickedEvent.class, exceptionFilter(this::kickPlayer))
             ));
         }
     }
@@ -116,6 +175,7 @@ public class VirtualView implements Runnable, MessageVisitor {
     private void disconnect() {
         try {
             this.connection.close();
+            Thread.currentThread().interrupt();
         } catch (CloseNetworkException e) {
             e.printStackTrace();
         }
@@ -157,6 +217,18 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
     }
 
+    private void updatePlayAreaAfterUndo(UndoPlacementEvent event) throws SendNetworkException {
+        connection.send(
+                new UpdatePlayAreaAfterUndoS2C(
+                        event.pp().getName(),
+                        event.position().i(),
+                        event.position().j(),
+                        event.score(),
+                        event.seq()
+                )
+        );
+    }
+
     private void updateGameStatusAndTurn(UpdateGameStatusAndTurnEvent event) throws NetworkException {
         GameStatus status = event.gameStatus() == GameStatus.SECOND_LAST_TURN ? GameStatus.PLAY : event.gameStatus();
         connection.send(
@@ -187,6 +259,19 @@ public class VirtualView implements Runnable, MessageVisitor {
         );
 
         setGame(null);
+    }
+
+    private void kickAllPlayers(GameAbortedEvent event) throws NetworkException {
+        connection.send(
+                new KickedFromGameS2C()
+        );
+        setGame(null);
+    }
+
+    private void kickPlayer(PlayerKickedEvent event) throws NetworkException {
+        if (event.player().equals(playerProfile)) {
+            setGame(null);
+        }
     }
 
     private void updateGameStatusAndSetupObjective(AllColorChoicesSettledEvent event) throws NetworkException {
@@ -352,8 +437,87 @@ public class VirtualView implements Runnable, MessageVisitor {
         }
     }
 
+    private void playerLeft(PlayerLeftFromGameEvent event) throws NetworkException {
+        if (game == null) {
+            connection.send(new UpdateGameListS2C(
+                    gameManager.getGames().stream().collect(Collectors.toMap(
+                            Game::getId,
+                            game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
+                    ))
+            ));
+        }
+    }
+
+    private void playerDisconnected(PlayerDisconnectedEvent event) throws SendNetworkException {
+        if (!event.pp().equals(playerProfile)) {
+            connection.send(new PlayerDisconnectedS2C(event.pp().getName()));
+        }
+    }
+
+    private void playerReconnected(PlayerReconnectedEvent event) throws SendNetworkException {
+        if (!event.pp().equals(playerProfile)) {
+            connection.send(new PlayerReconnectedS2C(event.pp().getName()));
+        } else {
+            try {
+                connection.send(new SetupAfterReconnectionS2C(
+                        game.getPlayerProfiles().stream()
+                                .collect(Collectors.toMap(
+                                                PlayerProfile::getName,
+                                                p -> game.getPlayArea(p).getCards().entrySet().stream()
+                                                        .collect(Collectors.toMap(
+                                                                        Map.Entry::getKey,
+                                                                        e -> new SetupAfterReconnectionS2C.CardPlacement(
+                                                                                e.getValue().getCard().id(),
+                                                                                e.getValue().getSide(),
+                                                                                e.getValue().getSeq(),
+                                                                                e.getValue().getPoints()
+                                                                        )
+                                                                )
+                                                        )
+                                        )
+                                ),
+                        game.getCurrentPlayer().getName(),
+                        game.getTurnPhase(),
+                        game.getStatus(),
+                        game.getPlayerData(playerProfile).getHand().stream().map(Card::id).collect(Collectors.toList()),
+                        game.getPlayerProfiles().stream()
+                                .collect(Collectors.toMap(
+                                        PlayerProfile::getName,
+                                        player -> game.getPlayerData(player).getColorChoice()
+                                )),
+                        game.getPlayerData(playerProfile).getObjectiveChoice().getId(),
+                        game.getCommonObjectives().stream().map(Objective::getId).collect(Collectors.toList()),
+                        game.getBoard().getResourceCardDeck().isEmpty(),
+                        game.getBoard().getGoldenCardDeck().isEmpty(),
+                        game.getBoard().getFaceUpCards().stream()
+                                .filter(fuc -> fuc.getCard().isPresent())
+                                .map(fuc -> fuc.getCard().get().id())
+                                .collect(Collectors.toList()),
+                        game.getPlayerProfiles().stream().collect(Collectors.toMap(
+                                PlayerProfile::getName,
+                                player -> game.isConnected(player)
+                        )),
+                        game.getChatManager().getMailbox(playerProfile).stream()
+                                .map(message -> new SetupAfterReconnectionS2C.Message(
+                                        message.getMessageType(),
+                                        message.getSender().getName(),
+                                        message.getRecipient().map(PlayerProfile::getName).orElse(null),
+                                        message.getContent(),
+                                        message.getTimestamp().toString()
+                                )).toList()
+                ));
+            } catch (IllegalMoveException e) {
+                throw new RuntimeException(e); // TODO: handle exception
+            }
+        }
+    }
+
     @Override
     public void visit(AuthenticateC2S message) throws IllegalMoveException, NetworkException {
+        if (playerProfile != null) {
+            return; //TODO: maybe throw?
+        }
+
         try {
             PlayerProfile profile = controller.authenticate(message.playerName());
             setPlayerProfile(profile);
@@ -365,6 +529,8 @@ public class VirtualView implements Runnable, MessageVisitor {
                             Game::getId,
                             g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
                     ))));
+            // FIXME: should we send UpdateGameListS2C if we reconnect a player?
+            handleReconnection();
         } catch (NameAlreadyTakenException e) {
             connection.send(new NameAlreadyTakenS2C(message.playerName()));
         }
@@ -544,6 +710,5 @@ public class VirtualView implements Runnable, MessageVisitor {
     private interface NetworkEventListener<E extends Event> {
         void onEvent(E event) throws NetworkException;
     }
-
 
 }

@@ -64,7 +64,8 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
             Game game = loadGame(id);
             games.add(game);
             gamesRegistrations.put(game, List.of(
-                    game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e, game)),
+                    game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e.player(), game)),
+                    game.on(PlayerLeftEvent.class, e -> this.playerLeftFromGame(e.player(), game)),
                     game.on(GameEvent.class, e -> this.saveGame(game)),
                     game.on(GameClosedEvent.class, e -> this.deleteGame(game))
             ));
@@ -115,17 +116,26 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         games.add(newGame);
         emitter.emit(new GameCreatedEvent(newGame));
         gamesRegistrations.put(newGame, List.of(
-                newGame.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e, newGame)),
+                newGame.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e.player(), newGame)),
+                newGame.on(PlayerLeftEvent.class, e -> this.playerLeftFromGame(e.player(), newGame)),
                 newGame.on(GameEvent.class, e -> this.saveGame(newGame)),
                 newGame.on(GameClosedEvent.class, e -> this.deleteGame(newGame))
         ));
         return newGame;
     }
 
-    private void playerJoinedInGame(PlayerJoinedEvent event, Game game) {
+    private void playerJoinedInGame(PlayerProfile player, Game game) {
         emitter.emit(
                 new PlayerJoinedInGameEvent(
-                        event.player(), game
+                        player, game
+                )
+        );
+    }
+
+    private void playerLeftFromGame(PlayerProfile player, Game game) {
+        emitter.emit(
+                new PlayerLeftFromGameEvent(
+                        player, game
                 )
         );
     }

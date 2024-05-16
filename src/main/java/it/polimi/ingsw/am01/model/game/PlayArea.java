@@ -7,7 +7,9 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
+import it.polimi.ingsw.am01.model.exception.NotUndoableOperationException;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class PlayArea implements Iterable<PlayArea.CardPlacement> {
@@ -20,6 +22,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      */
     private final Map<Collectible, Integer> collectibleCount;
     private int score;
+
     private int seq;
 
     /**
@@ -136,9 +139,51 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         card.getFace(side).getCenterResources()
                 .forEach((resource, amount) -> collectibleCount.merge(resource, amount, Integer::sum));
 
-        updatePlayablePositions(placement);
+        updatePlayablePositionsAfterPlacing(placement);
 
         return placement;
+    }
+
+    public CardPlacement undoPlacement() throws NotUndoableOperationException {
+        if (this.seq < 2)
+            throw new NotUndoableOperationException();
+
+        //This should never be null, because the `seq` should be correct
+        return this.cards.values()
+                .stream()
+                .filter(cp -> cp.seq == this.seq - 1)
+                .findFirst()
+                .map(this::removePlacement)
+                .orElseThrow(NotUndoableOperationException::new);
+
+    }
+
+    private CardPlacement removePlacement(CardPlacement cardPlacement) {
+        this.seq--;
+        this.score -= cardPlacement.getPoints();
+
+        //Remove resources and items of the last placement
+        cardPlacement.getCard().getFace(cardPlacement.getSide())
+                .getCenterResources()
+                .forEach((resource, amount) -> collectibleCount.merge(resource, -amount, Integer::sum));
+
+        Arrays.stream(CornerPosition.values())
+                .flatMap(cornerPos -> cardPlacement.getVisibleFace().corner(cornerPos)
+                        .getCollectible()
+                        .stream())
+                .forEach(collectible -> collectibleCount.merge(collectible, -1, Integer::sum));
+
+        this.cards.remove(cardPlacement.getPosition());
+
+        //Re-add collectibles of the placements covered by the one I've just removed
+        cardPlacement.getCovered()
+                .forEach((cornerPosition, placement) ->
+                        placement.getVisibleCollectibleAtCorner(cornerPosition.getOpposite())
+                                .ifPresent(collectible -> collectibleCount.merge(collectible, 1, Integer::sum))
+                );
+
+        updatePlayablePositionsAfterRemoving(cardPlacement);
+        return cardPlacement;
     }
 
     /**
@@ -147,7 +192,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      * @param placement The {@link CardPlacement} returned by the {@link PlayArea#placeAt(int, int, Card, Side)} method
      * @see PlayArea#placeAt(int, int, Card, Side)
      */
-    private void updatePlayablePositions(CardPlacement placement) {
+    private void updatePlayablePositionsAfterPlacing(CardPlacement placement) {
         int invalidCount;
         playablePositions.remove(placement.getPosition());
         for (CornerPosition cornerPos : CornerPosition.values()) {
@@ -166,6 +211,17 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
                 playablePositions.remove(pos);
             }
         }
+    }
+
+    private void updatePlayablePositionsAfterRemoving(CardPlacement cardPlacement) {
+        playablePositions.add(cardPlacement.getPosition());
+        Arrays.stream(CornerPosition.values()).forEach(cornerPosition ->
+                playablePositions.remove(cardPlacement.getPosition().getRelative(cornerPosition))
+        );
+    }
+
+    public Map<Position, CardPlacement> getCards() {
+        return Collections.unmodifiableMap(cards);
     }
 
     /**
@@ -210,6 +266,13 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      */
     public int getScore() {
         return this.score;
+    }
+
+    /**
+     * @return the sequence number of the next {@link CardPlacement}
+     */
+    public int getSeq() {
+        return seq;
     }
 
     @Override
@@ -260,7 +323,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      * @param i the first index of the position. Can be positive or negative.
      * @param j the second index of the position. Can be positive or negative.
      */
-    public record Position(int i, int j) {
+    public record Position(int i, int j) implements Serializable {
         /**
          * The origin of the {@link PlayArea}, that is {@code Position(0, 0)}.
          */

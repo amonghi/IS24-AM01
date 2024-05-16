@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.network.tcp;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import it.polimi.ingsw.am01.model.json.PositionSerDes;
 import it.polimi.ingsw.am01.network.CloseNetworkException;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
@@ -17,7 +18,9 @@ public abstract class BaseTCPConnection<S extends NetworkMessage, R extends Netw
         implements Connection<S, R> {
 
     private static final Gson gson = new GsonBuilder()
+            .enableComplexMapKeySerialization()
             .registerTypeAdapterFactory(new NetworkMessageTypeAdapterFactory())
+            .registerTypeAdapter(PositionSerDes.class, new PositionSerDes())
             .create();
     private final Class<S> sendType;
     private final Class<R> receiveType;

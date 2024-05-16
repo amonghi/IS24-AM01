@@ -18,4 +18,11 @@ public class SetGamePauseS2C implements S2CNetworkMessage {
     public GameStatus getGameStatus() {
         return gameStatus;
     }
+
+    @Override
+    public String toString() {
+        return "SetGamePauseS2C{" +
+                "gameStatus=" + gameStatus +
+                '}';
+    }
 }
