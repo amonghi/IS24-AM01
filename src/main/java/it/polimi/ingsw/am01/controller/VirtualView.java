@@ -496,7 +496,15 @@ public class VirtualView implements Runnable, MessageVisitor {
                         game.getPlayerProfiles().stream().collect(Collectors.toMap(
                                 PlayerProfile::getName,
                                 player -> game.isConnected(player)
-                        ))
+                        )),
+                        game.getChatManager().getMailbox(playerProfile).stream()
+                                .map(message -> new SetupAfterReconnectionS2C.Message(
+                                        message.getMessageType(),
+                                        message.getSender().getName(),
+                                        message.getRecipient().map(PlayerProfile::getName).orElse(null),
+                                        message.getContent(),
+                                        message.getTimestamp().toString()
+                                )).toList()
                 ));
             } catch (IllegalMoveException e) {
                 throw new RuntimeException(e); // TODO: handle exception

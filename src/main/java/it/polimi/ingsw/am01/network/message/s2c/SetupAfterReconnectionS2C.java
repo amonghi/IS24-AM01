@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.network.message.s2c;
 
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.chat.MessageType;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
@@ -23,7 +24,8 @@ public record SetupAfterReconnectionS2C(
         boolean resourceCardDeckIsEmpty,
         boolean goldenCardDeckIsEmpty,
         List<Integer> faceUpCards,
-        Map<String, Boolean> connections
+        Map<String, Boolean> connections,
+        List<Message> chat
 ) implements S2CNetworkMessage {
     public final static String ID = "SETUP_AFTER_RECONNECTION";
 
@@ -35,5 +37,9 @@ public record SetupAfterReconnectionS2C(
 
     public record CardPlacement(int cardId, Side side, int seq, int points) implements Serializable {
     }
+
+    public record Message(MessageType messageType, String sender, String recipient, String content, String timestamp) implements Serializable {
+    }
+
 
 }
