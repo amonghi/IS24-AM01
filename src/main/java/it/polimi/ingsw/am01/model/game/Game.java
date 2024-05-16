@@ -15,6 +15,7 @@ import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.selectionphase.CommonPoolSelectionStrategy;
+import it.polimi.ingsw.am01.model.game.selectionphase.DisjointSelectionStrategy;
 import it.polimi.ingsw.am01.model.game.selectionphase.OptionsPool;
 import it.polimi.ingsw.am01.model.game.selectionphase.SelectionPhase;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -45,7 +46,7 @@ public class Game implements EventEmitter<GameEvent> {
     private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
     private final Map<PlayerProfile, Card> startingCards;
     private final Map<PlayerProfile, MultiChoice<PlayerColor, PlayerProfile>.Choice> colorChoices;
-    private final Map<PlayerProfile, Choice<Objective>> objectiveChoices;
+    private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
     private final Map<PlayerProfile, Boolean> connections;
@@ -88,7 +89,6 @@ public class Game implements EventEmitter<GameEvent> {
         this.chatManager = new ChatManager();
         this.startingCards = new HashMap<>();
         this.colorChoices = new HashMap<>();
-        this.objectiveChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
         this.connections = new HashMap<>();
@@ -127,7 +127,6 @@ public class Game implements EventEmitter<GameEvent> {
         this.chatManager = new ChatManager();
         this.startingCards = new HashMap<>();
         this.colorChoices = new HashMap<>();
-        this.objectiveChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
         this.connections = new HashMap<>();
@@ -167,7 +166,7 @@ public class Game implements EventEmitter<GameEvent> {
             throw new IllegalArgumentException("Player is not in this game");
         }
 
-        return Collections.unmodifiableSet(objectiveChoices.get(pp).getOptions());
+        return Collections.unmodifiableSet(objectiveSelectionPhase.getSelectorFor(pp).getOptions());
     }
 
     /**
@@ -305,9 +304,10 @@ public class Game implements EventEmitter<GameEvent> {
             hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Resource card deck should not be empty")));
             hand.add(board.getGoldenCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Golden card deck should not be empty")));
 
+            Map<PlayerProfile, Objective> results = objectiveSelectionPhase.getResults();
             playersData.put(player,
                     new PlayerData(hand,
-                            objectiveChoices.get(player).getSelected().orElseThrow(),
+                            results.get(player),
                             colorChoices.get(player).getSelected().orElseThrow()));
         }
         setFirstPlayer();
@@ -316,7 +316,6 @@ public class Game implements EventEmitter<GameEvent> {
         } else {
             transition(GameStatus.PLAY);
         }
-
     }
 
     /**
@@ -404,12 +403,15 @@ public class Game implements EventEmitter<GameEvent> {
         commonObjectives.add(objectiveList.removeFirst());
         commonObjectives.add(objectiveList.removeFirst());
 
+        Map<PlayerProfile, OptionsPool<Objective, PlayerProfile>> assignedPools = new HashMap<>();
         for (PlayerProfile player : playerProfiles) {
-            Set<Objective> secretObjectives = new HashSet<>();
-            secretObjectives.add(objectiveList.removeFirst());
-            secretObjectives.add(objectiveList.removeFirst());
-            objectiveChoices.put(player, new Choice<>(secretObjectives));
+            OptionsPool<Objective, PlayerProfile> optionsPool = new OptionsPool<>(Set.of(
+                    objectiveList.removeFirst(),
+                    objectiveList.removeFirst()
+            ));
+            assignedPools.put(player, optionsPool);
         }
+        objectiveSelectionPhase = new SelectionPhase<>(new DisjointSelectionStrategy<>(assignedPools));
         getEmitter().emit(new AllPlayersJoinedEvent());
     }
 
@@ -546,14 +548,20 @@ public class Game implements EventEmitter<GameEvent> {
         }
 
         try {
-            objectiveChoices.get(pp).select(o);
-            getEmitter().emit(new SecretObjectiveChosenEvent(objectiveChoices.keySet().stream()
-                    .filter(playerProfile -> objectiveChoices.get(playerProfile).getSelected().isPresent())
-                    .collect(Collectors.toSet())));
+            try {
+                objectiveSelectionPhase.getSelectorFor(pp).expressPreference(o);
+            } catch (IllegalStateException e) {
+                throw new DoubleChoiceException();
+            }
+            getEmitter().emit(new SecretObjectiveChosenEvent(
+                    this.playerProfiles.stream()
+                            .filter(playerProfile -> objectiveSelectionPhase.getSelectorFor(playerProfile).getExpressedPreference().isPresent())
+                            .collect(Collectors.toSet())
+            ));
         } catch (NoSuchElementException e) {
             throw new InvalidObjectiveException();
         }
-        if (objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+        if (objectiveSelectionPhase.isConcluded()) {
             //all players had chosen their objective -> go to the next state (start "turn phase")
             setupAndStartTurnPhase();
 
@@ -776,7 +784,7 @@ public class Game implements EventEmitter<GameEvent> {
         startingCardSideSelectionPhase.getSelectorFor(pp).dropOut();
         startingCards.remove(pp);
         colorChoices.remove(pp);
-        objectiveChoices.remove(pp);
+        objectiveSelectionPhase.getSelectorFor(pp).dropOut();
         playersData.remove(pp);
         playAreas.remove(pp);
     }
@@ -801,7 +809,7 @@ public class Game implements EventEmitter<GameEvent> {
             if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideSelectionPhase.isConcluded()) {
                 transition(GameStatus.SETUP_COLOR);
                 getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
-            } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+            } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveSelectionPhase.isConcluded()) {
                 setupAndStartTurnPhase();
                 getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
                 try {
@@ -893,7 +901,7 @@ public class Game implements EventEmitter<GameEvent> {
                 ",\n\tstartingCardSideSelectionPhase=" + startingCardSideSelectionPhase +
                 ",\n\tstartingCards=" + startingCards +
                 ",\n\tcolorChoices=" + colorChoices +
-                ",\n\tobjectiveChoices=" + objectiveChoices +
+                ",\n\tobjectiveSelectionPhase=" + objectiveSelectionPhase +
                 ",\n\tplayersData=" + playersData +
                 ",\n\tplayAreas=" + playAreas +
                 ",\n\tcommonObjectives=" + commonObjectives +
