@@ -9,6 +9,7 @@ import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import it.polimi.ingsw.am01.model.exception.NotUndoableOperationException;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class PlayArea implements Iterable<PlayArea.CardPlacement> {
@@ -322,7 +323,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
      * @param i the first index of the position. Can be positive or negative.
      * @param j the second index of the position. Can be positive or negative.
      */
-    public record Position(int i, int j) {
+    public record Position(int i, int j) implements Serializable {
         /**
          * The origin of the {@link PlayArea}, that is {@code Position(0, 0)}.
          */
