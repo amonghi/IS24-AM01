@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.network.message.s2c;
 
+import it.polimi.ingsw.am01.network.message.S2CMessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
 public record NameAlreadyTakenS2C(String refusedName) implements S2CNetworkMessage {
@@ -8,5 +9,10 @@ public record NameAlreadyTakenS2C(String refusedName) implements S2CNetworkMessa
     @Override
     public String getId() {
         return ID;
+    }
+
+    @Override
+    public void accept(S2CMessageVisitor visitor) {
+        visitor.visit(this);
     }
 }

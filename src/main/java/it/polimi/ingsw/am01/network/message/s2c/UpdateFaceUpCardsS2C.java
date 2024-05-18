@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.network.message.s2c;
 
+import it.polimi.ingsw.am01.network.message.S2CMessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
 import java.util.Set;
@@ -11,5 +12,10 @@ public record UpdateFaceUpCardsS2C(Set<Integer> faceUpCards) implements S2CNetwo
     @Override
     public String getId() {
         return ID;
+    }
+
+    @Override
+    public void accept(S2CMessageVisitor visitor) {
+        visitor.visit(this);
     }
 }

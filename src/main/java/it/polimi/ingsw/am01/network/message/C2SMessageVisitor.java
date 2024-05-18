@@ -4,7 +4,7 @@ import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
 import it.polimi.ingsw.am01.network.NetworkException;
 import it.polimi.ingsw.am01.network.message.c2s.*;
 
-public interface MessageVisitor {
+public interface C2SMessageVisitor {
     void visit(AuthenticateC2S message) throws IllegalMoveException, NetworkException;
 
     void visit(CreateGameAndJoinC2S message) throws IllegalMoveException, NetworkException;

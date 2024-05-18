@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.network.message.s2c;
 
+import it.polimi.ingsw.am01.network.message.S2CMessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
 import java.io.Serializable;
@@ -11,6 +12,11 @@ public record UpdateGameListS2C(Map<Integer, GameStat> gamesStatMap) implements 
     @Override
     public String getId() {
         return ID;
+    }
+
+    @Override
+    public void accept(S2CMessageVisitor visitor) {
+        visitor.visit(this);
     }
 
     public record GameStat(int currentPlayersConnected, int maxPlayers) implements Serializable {

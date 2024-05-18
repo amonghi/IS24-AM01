@@ -6,6 +6,7 @@ import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
+import it.polimi.ingsw.am01.network.message.S2CMessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
 import java.io.Serializable;
@@ -34,11 +35,17 @@ public record SetupAfterReconnectionS2C(
         return ID;
     }
 
+    @Override
+    public void accept(S2CMessageVisitor visitor) {
+        visitor.visit(this);
+    }
+
 
     public record CardPlacement(int cardId, Side side, int seq, int points) implements Serializable {
     }
 
-    public record Message(MessageType messageType, String sender, String recipient, String content, String timestamp) implements Serializable {
+    public record Message(MessageType messageType, String sender, String recipient, String content,
+                          String timestamp) implements Serializable {
     }
 
 

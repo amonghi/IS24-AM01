@@ -19,8 +19,8 @@ import it.polimi.ingsw.am01.network.CloseNetworkException;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.NetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
+import it.polimi.ingsw.am01.network.message.C2SMessageVisitor;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
-import it.polimi.ingsw.am01.network.message.MessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.*;
 import it.polimi.ingsw.am01.network.message.s2c.*;
@@ -28,7 +28,7 @@ import it.polimi.ingsw.am01.network.message.s2c.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class VirtualView implements Runnable, MessageVisitor {
+public class VirtualView implements Runnable, C2SMessageVisitor {
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
     private final GameManager gameManager;

@@ -2,8 +2,8 @@ package it.polimi.ingsw.am01.network.message.c2s;
 
 import it.polimi.ingsw.am01.model.exception.IllegalMoveException;
 import it.polimi.ingsw.am01.network.NetworkException;
+import it.polimi.ingsw.am01.network.message.C2SMessageVisitor;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
-import it.polimi.ingsw.am01.network.message.MessageVisitor;
 
 public record SelectSecretObjectiveC2S(int objective) implements C2SNetworkMessage {
 
@@ -15,7 +15,7 @@ public record SelectSecretObjectiveC2S(int objective) implements C2SNetworkMessa
     }
 
     @Override
-    public void accept(MessageVisitor messageVisitor) throws IllegalMoveException, NetworkException {
-        messageVisitor.visit(this);
+    public void accept(C2SMessageVisitor visitor) throws IllegalMoveException, NetworkException {
+        visitor.visit(this);
     }
 }
