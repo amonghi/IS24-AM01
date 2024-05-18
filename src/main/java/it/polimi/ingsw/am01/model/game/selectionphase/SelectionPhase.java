@@ -6,9 +6,25 @@ import java.util.stream.Collectors;
 
 /**
  * Implements a phase of the game in which the players have to make a choice among various options.
+ * In the documentation, the players are referred to as "choosers".
  * <p>
  * This class uses a {@link SelectionPhaseStrategy}
- * to decide which options are available and also determine the condition that concludes this selection phase.
+ * to decide which options are available (and to what choosers)
+ * and also to determine the condition that concludes this selection phase.
+ * <p>
+ * The choosers should either:
+ * <ul>
+ *     <li>choose an option, by</li>
+ *     <ol>
+ *         <li>getting a {@link Selector} through {@link #getSelectorFor(Object)}</li>
+ *         <li>expressing a preference through {@link Selector#expressPreference(Object)}</li>
+ *     </ol>
+ *     <li>drop out of the selection phase by calling {@link #dropOut(Object)}</li>
+ * </ul>
+ * <p>
+ * If all the (not dropped out) choosers express a valid choice according to the {@link SelectionPhaseStrategy}
+ * then this selection phase concludes ({@link #isConcluded()} will be {@code true})
+ * and the results of the selection will be available in {@link #getResults()}.
  *
  * @param <O> the type of the options.
  * @param <I> the type that represents the identity of the players, aka the "choosers".
@@ -26,6 +42,17 @@ public class SelectionPhase<O, I> {
         this.selectors = strategy.createSelectors(this).stream()
                 .collect(Collectors.toMap(Selector::getIdentity, Function.identity()));
         this.results = null;
+    }
+
+    /**
+     * Remove a chooser from the selection.
+     * If the specified identity is not present, this method does nothing.
+     *
+     * @param who the identity of the chooser to remove
+     */
+    public void dropOut(I who) {
+        this.selectors.remove(who);
+        this.updateState();
     }
 
     /**
