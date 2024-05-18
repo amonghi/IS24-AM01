@@ -12,15 +12,15 @@ import java.util.stream.Collectors;
  * to decide which options are available (and to what choosers)
  * and also to determine the condition that concludes this selection phase.
  * <p>
- * The choosers should either:
- * <ul>
- *     <li>choose an option, by</li>
- *     <ol>
- *         <li>getting a {@link Selector} through {@link #getSelectorFor(Object)}</li>
- *         <li>expressing a preference through {@link Selector#expressPreference(Object)}</li>
- *     </ol>
- *     <li>drop out of the selection phase by calling {@link #dropOut(Object)}</li>
- * </ul>
+ * Each chooser should:
+ * <ol>
+ *     <li>get a {@link Selector} through {@link #getSelectorFor(Object)}</li>
+ *     <li>either:</li>
+ *     <ul>
+ *         <li>express a preference by calling {@link Selector#expressPreference(Object)}</li>
+ *         <li>drop out by calling {@link Selector#dropOut()}</li>
+ *     </ul>
+ * </ol>
  * <p>
  * If all the (not dropped out) choosers express a valid choice according to the {@link SelectionPhaseStrategy}
  * then this selection phase concludes ({@link #isConcluded()} will be {@code true})
@@ -42,17 +42,6 @@ public class SelectionPhase<O, I> {
         this.selectors = strategy.createSelectors(this).stream()
                 .collect(Collectors.toMap(Selector::getIdentity, Function.identity()));
         this.results = null;
-    }
-
-    /**
-     * Remove a chooser from the selection.
-     * If the specified identity is not present, this method does nothing.
-     *
-     * @param who the identity of the chooser to remove
-     */
-    public void dropOut(I who) {
-        this.selectors.remove(who);
-        this.updateState();
     }
 
     /**
@@ -115,12 +104,15 @@ public class SelectionPhase<O, I> {
         private final I identity;
         private final OptionsPool<O, I> pool;
         private final boolean allowPreferenceChange;
+        private boolean droppedOut;
         private O preference;
 
         Selector(I identity, OptionsPool<O, I> pool, boolean allowPreferenceChange) {
             this.identity = identity;
             this.pool = pool;
             this.allowPreferenceChange = allowPreferenceChange;
+            this.droppedOut = false;
+            this.preference = null;
         }
 
         /**
@@ -151,6 +143,10 @@ public class SelectionPhase<O, I> {
          * @throws NoSuchElementException if the given option is not among those returned by {@link #getOptions()}
          */
         public void expressPreference(O option) {
+            if (this.droppedOut) {
+                throw new IllegalStateException("This selector is not longer valid as the chooser associated with it has dropped out");
+            }
+
             if (isConcluded()) {
                 // FIXME: specific exception
                 throw new IllegalStateException("The selection phase is concluded");
@@ -173,6 +169,17 @@ public class SelectionPhase<O, I> {
 
         public Optional<O> getExpressedPreference() {
             return Optional.ofNullable(this.preference);
+        }
+
+        /**
+         * Removes the chooser associated with this selector.
+         * Once this method has been called, this Selector can no longer be used as the chooser associated with
+         * it is no longer part of the selection phase.
+         */
+        public void dropOut() {
+            this.droppedOut = true;
+            SelectionPhase.this.selectors.remove(this.identity);
+            SelectionPhase.this.updateState();
         }
     }
 }
