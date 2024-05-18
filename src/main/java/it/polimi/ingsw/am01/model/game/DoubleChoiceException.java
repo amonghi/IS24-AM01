@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.model.choice;
+package it.polimi.ingsw.am01.model.game;
 
 public class DoubleChoiceException extends Exception {
     public DoubleChoiceException() {
