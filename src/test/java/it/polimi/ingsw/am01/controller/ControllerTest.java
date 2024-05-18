@@ -2,7 +2,6 @@ package it.polimi.ingsw.am01.controller;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
-import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.*;
 import it.polimi.ingsw.am01.model.objective.Objective;

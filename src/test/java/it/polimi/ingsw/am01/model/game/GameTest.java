@@ -7,7 +7,6 @@ import it.polimi.ingsw.am01.model.card.face.BackCardFace;
 import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
-import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.objective.Objective;

@@ -5,7 +5,6 @@ import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.chat.BroadcastMessage;
 import it.polimi.ingsw.am01.model.chat.DirectMessage;
 import it.polimi.ingsw.am01.model.chat.Message;
-import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.*;
 import it.polimi.ingsw.am01.model.objective.Objective;

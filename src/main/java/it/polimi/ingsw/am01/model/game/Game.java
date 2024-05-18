@@ -8,10 +8,6 @@ import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.chat.ChatManager;
 import it.polimi.ingsw.am01.model.chat.Message;
-import it.polimi.ingsw.am01.model.choice.Choice;
-import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
-import it.polimi.ingsw.am01.model.choice.MultiChoice;
-import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.selectionphase.CommonPoolSelectionStrategy;
@@ -33,8 +29,6 @@ import java.util.stream.Collectors;
  *
  * @see PlayerData
  * @see PlayerProfile
- * @see Choice
- * @see MultiChoice
  */
 public class Game implements EventEmitter<GameEvent> {
 
@@ -368,9 +362,6 @@ public class Game implements EventEmitter<GameEvent> {
      * This method prepares all choices: starting card side, player color and secret objective.
      * It throws a {@code NotEnoughGameResourcesException} if there are not enough starting or objective cards
      * It requires that all players have already joined the game, with {@link Game#join(PlayerProfile) join} method.
-     *
-     * @see Choice
-     * @see MultiChoice
      */
     private void setUpChoices() {
         // Setup starter card choices
@@ -469,7 +460,6 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws DoubleChoiceException     if the player has already chosen the starting card side
      * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_STARTING_CARD_SIDE}
      * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
-     * @see Choice
      */
     public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException, IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_STARTING_CARD_SIDE) {
@@ -503,8 +493,6 @@ public class Game implements EventEmitter<GameEvent> {
      * @param pc the {@link PlayerColor} chosen by player {@code pp}
      * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_COLOR}
      * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
-     * @see SelectionResult
-     * @see MultiChoice
      */
     public synchronized void selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_COLOR) {
@@ -533,7 +521,6 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_OBJECTIVE}
      * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
      * @throws InvalidObjectiveException if the specified {@link Objective} is not a possible choice
-     * @see Choice
      */
     public synchronized void selectObjective(PlayerProfile pp, Objective o) throws IllegalGameStateException, PlayerNotInGameException, DoubleChoiceException, InvalidObjectiveException {
         if (status != GameStatus.SETUP_OBJECTIVE) {
