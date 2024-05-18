@@ -38,7 +38,8 @@ public record SetupAfterReconnectionS2C(
     public record CardPlacement(int cardId, Side side, int seq, int points) implements Serializable {
     }
 
-    public record Message(MessageType messageType, String sender, String recipient, String content, String timestamp) implements Serializable {
+    public record Message(MessageType messageType, String sender, String recipient, String content,
+                          String timestamp) implements Serializable {
     }
 
 
