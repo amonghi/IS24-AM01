@@ -6,7 +6,6 @@ import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
-import it.polimi.ingsw.am01.network.message.S2CMessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
 import java.io.Serializable;
@@ -33,11 +32,6 @@ public record SetupAfterReconnectionS2C(
     @Override
     public String getId() {
         return ID;
-    }
-
-    @Override
-    public void accept(S2CMessageVisitor visitor) {
-        visitor.visit(this);
     }
 
 

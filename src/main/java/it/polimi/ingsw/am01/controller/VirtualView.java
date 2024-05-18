@@ -19,7 +19,6 @@ import it.polimi.ingsw.am01.network.CloseNetworkException;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.NetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
-import it.polimi.ingsw.am01.network.message.C2SMessageVisitor;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.*;
@@ -28,7 +27,7 @@ import it.polimi.ingsw.am01.network.message.s2c.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class VirtualView implements Runnable, C2SMessageVisitor {
+public class VirtualView implements Runnable {
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
     private final GameManager gameManager;
@@ -163,7 +162,21 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         while (true) {
             try {
                 C2SNetworkMessage message = this.connection.receive();
-                message.accept(this);
+                switch (message) {
+                    case AuthenticateC2S m -> handleMessage(m);
+                    case CreateGameAndJoinC2S m -> handleMessage(m);
+                    case DrawCardFromDeckC2S m -> handleMessage(m);
+                    case DrawCardFromFaceUpCardsC2S m -> handleMessage(m);
+                    case JoinGameC2S m -> handleMessage(m);
+                    case PlaceCardC2S m -> handleMessage(m);
+                    case SelectColorC2S m -> handleMessage(m);
+                    case SelectSecretObjectiveC2S m -> handleMessage(m);
+                    case SelectStartingCardSideC2S m -> handleMessage(m);
+                    case SendBroadcastMessageC2S m -> handleMessage(m);
+                    case SendDirectMessageC2S m -> handleMessage(m);
+                    case StartGameC2S m -> handleMessage(m);
+                    default -> throw new NetworkException();
+                }
             } catch (IllegalMoveException | NetworkException e) {
                 disconnect();
                 Thread.currentThread().interrupt();
@@ -512,8 +525,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(AuthenticateC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(AuthenticateC2S message) throws IllegalMoveException, NetworkException {
         if (playerProfile != null) {
             return; //TODO: maybe throw?
         }
@@ -536,8 +548,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(CreateGameAndJoinC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(CreateGameAndJoinC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.createAndJoinGame(message.maxPlayers(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
         } catch (InvalidMaxPlayersException e) {
@@ -545,8 +556,8 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(DrawCardFromDeckC2S message) throws IllegalMoveException, NetworkException {
+
+    public void handleMessage(DrawCardFromDeckC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.drawCardFromDeck(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.deckLocation());
         } catch (PlayerNotInGameException e) {
@@ -556,8 +567,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.drawCardFromFaceUpCards(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.cardId());
         } catch (PlayerNotInGameException e) {
@@ -569,8 +579,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(JoinGameC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(JoinGameC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.joinGame(message.gameId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
         } catch (GameNotFoundException e) {
@@ -580,8 +589,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(PlaceCardC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(PlaceCardC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.placeCard(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
@@ -599,8 +607,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(SelectColorC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(SelectColorC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectPlayerColor(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
@@ -614,8 +621,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(SelectSecretObjectiveC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(SelectSecretObjectiveC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectSecretObjective(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.objective());
         } catch (GameNotFoundException e) {
@@ -629,8 +635,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(SelectStartingCardSideC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(SelectStartingCardSideC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectStartingCardSide(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
@@ -646,8 +651,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(StartGameC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(StartGameC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.startGame(this.getGame().orElseThrow(PlayerNotInGameException::new).getId());
         } catch (NotEnoughPlayersException e) {
@@ -659,8 +663,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(SendBroadcastMessageC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(SendBroadcastMessageC2S message) throws IllegalMoveException, NetworkException {
         try {
             Message chatMsg = controller.sendBroadcastMessage(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
@@ -680,8 +683,7 @@ public class VirtualView implements Runnable, C2SMessageVisitor {
         }
     }
 
-    @Override
-    public void visit(SendDirectMessageC2S message) throws IllegalMoveException, NetworkException {
+    public void handleMessage(SendDirectMessageC2S message) throws IllegalMoveException, NetworkException {
         try {
             Message chatMsg = controller.sendDirectMessage(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),

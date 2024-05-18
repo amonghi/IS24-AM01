@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am01.network.message.s2c;
 
-import it.polimi.ingsw.am01.network.message.S2CMessageVisitor;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 
 import java.util.Set;
@@ -12,10 +11,5 @@ public record UpdateObjectiveSelectedS2C(Set<String> playersHaveChosen) implemen
     @Override
     public String getId() {
         return ID;
-    }
-
-    @Override
-    public void accept(S2CMessageVisitor visitor) {
-        visitor.visit(this);
     }
 }
