@@ -679,15 +679,15 @@ public class Game implements EventEmitter<GameEvent> {
             throw new CardNotInHandException();
         }
 
-        //delete card from hand
-        playersData.get(pp).getHand().remove(c);
-
-        getEmitter().emit(new HandChangedEvent(pp, new HashSet<>(playersData.get(pp).getHand())));
-
         //place on play area
         PlayArea.CardPlacement cardPlacement = playAreas.get(pp).placeAt(i, j, c, s);
 
         getEmitter().emit(new CardPlacedEvent(pp, cardPlacement));
+
+        //delete card from hand
+        playersData.get(pp).getHand().remove(c);
+
+        getEmitter().emit(new HandChangedEvent(pp, new HashSet<>(playersData.get(pp).getHand())));
 
         switch (status) {
             case GameStatus.PLAY:
