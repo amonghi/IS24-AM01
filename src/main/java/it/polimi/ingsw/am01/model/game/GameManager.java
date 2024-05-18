@@ -43,6 +43,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
             .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerDes())
             .registerTypeAdapter(PlayArea.Position.class, new PositionSerDes())
             .registerTypeAdapter(Board.class, new BoardSerDes())
+            .registerTypeAdapter(PlayArea.class, new PlayAreaSerDes())
             .create();
     private final EventEmitterImpl<GameManagerEvent> emitter;
     private final List<Game> games;
@@ -64,16 +65,15 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(0);
         for (int id : savedGamesIds) {
             Game game = loadGame(id);
+            // Flag all players as disconnected
             game.getPlayerProfiles().forEach(p -> game.setPlayerConnection(p, false));
             try {
-                if ((game.getStatus() == GameStatus.PLAY || game.getStatus() == GameStatus.SECOND_LAST_TURN
-                        || game.getStatus() == GameStatus.LAST_TURN) && game.getTurnPhase() == TurnPhase.DRAWING) {
-                    PlayArea.CardPlacement lastPlacement = game.getPlayArea(game.getCurrentPlayer()).undoPlacement();
-                    game.getPlayerData(game.getCurrentPlayer()).getHand().add(lastPlacement.getCard());
+                // Undo last move if current player was in the middle of a turn
+                if ((game.getStatus() == GameStatus.PLAY || game.getStatus() == GameStatus.SECOND_LAST_TURN || game.getStatus() == GameStatus.LAST_TURN)
+                        && game.getTurnPhase() == TurnPhase.DRAWING) {
+                    game.undoLastPlacement(game.getCurrentPlayer());
                 }
-            } catch (IllegalGameStateException e) {
-                throw new RuntimeException(e);
-            } catch (NotUndoableOperationException e) {
+            } catch (IllegalGameStateException | NotUndoableOperationException e) {
                 throw new RuntimeException(e);
             }
 
@@ -96,6 +96,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
                         game.on(GameClosedEvent.class, e -> this.deleteGame(game))
                 ));
             } else {
+                // Delete game if server crashed before it was started
                 deleteGame(game);
             }
         }

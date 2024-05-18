@@ -786,6 +786,15 @@ public class Game implements EventEmitter<GameEvent> {
         getEmitter().emit(new PlayerLeftEvent(pp));
     }
 
+    public void undoLastPlacement(PlayerProfile pp) throws NotUndoableOperationException {
+        PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
+        playersData.get(pp).getHand().add(lastPlacement.getCard());
+        getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(),
+                playAreas.get(pp).getScore(), playAreas.get(pp).getSeq()));
+        setTurnPhase(TurnPhase.PLACING);
+
+    }
+
     private void handleDisconnectionDuringSetup() {
         // TODO: manage SETUP_COLOR case
         if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
@@ -803,11 +812,16 @@ public class Game implements EventEmitter<GameEvent> {
     }
 
     public synchronized void handleDisconnection(PlayerProfile pp) {
+        // Notify other players that pp has disconnected
         getEmitter().emit(new PlayerDisconnectedEvent(pp));
+        // Notify pp's virtualView that the connection has been lost
         getEmitter().emit(new PlayerKickedEvent(pp));
+
+        // If game is waiting for players or is in setup phase, just remove the player
         if (status == GameStatus.AWAITING_PLAYERS) {
             removePlayer(pp);
 
+            // If game is empty, delete the game
             if (playerProfiles.isEmpty()) {
                 getEmitter().emit(new GameClosedEvent());
             }
@@ -817,52 +831,38 @@ public class Game implements EventEmitter<GameEvent> {
             removePlayer(pp);
             handleDisconnectionDuringSetup();
 
+            // A game with less than two players cannot proceed
             if (playerProfiles.size() < 2) {
                 getEmitter().emit(new GameAbortedEvent());
                 getEmitter().emit(new GameClosedEvent());
             }
             return;
         }
+        // If the game has started, flag the player as disconnected
         connections.replace(pp, false);
         long connectedPlayers = connections.values().stream().filter(connected -> connected.equals(true)).count();
         try {
+            // If current player has disconnected, skip to the next connected player
             if (getCurrentPlayer().equals(pp) && connectedPlayers > 0) {
                 if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
-                    try {
-                        PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
-                        playersData.get(pp).getHand().add(lastPlacement.getCard());
-                        getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(),
-                                playAreas.get(pp).getScore(), playAreas.get(pp).getSeq()));
-                    } catch (NotUndoableOperationException e) {
-                        e.printStackTrace(); // TODO: handle exception
-                    }
+                    undoLastPlacement(pp);
                 }
-                //The next player has to place the card
-                setTurnPhase(TurnPhase.PLACING);
                 changeCurrentPlayer();
             }
             if (connectedPlayers <= 1) {
+                // If there's only one player left, pause the game
                 if (status != GameStatus.SUSPENDED) {
                     pauseGame();
-                    try {
-                        this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();    //TODO: handle exception
-                    }
+                    this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
                 } else {
+                    // If there's no player left, close the game
                     transition(GameStatus.FINISHED);
-                    getEmitter().emit(
-                            new GameFinishedEvent(
-                                    playerProfiles.stream()
-                                            .filter(this::isConnected)
-                                            .collect(Collectors.toMap(p -> p, p -> getPlayArea(p).getScore())))
-                    );
                     getEmitter().emit(new GameClosedEvent());
                 }
             }
 
-        } catch (IllegalGameStateException e) {
-            e.printStackTrace(); // TODO: handle exception
+        } catch (IllegalGameStateException | InterruptedException | NotUndoableOperationException e) {
+            throw new RuntimeException(e); // TODO: handle exception
         }
     }
 
@@ -873,12 +873,17 @@ public class Game implements EventEmitter<GameEvent> {
         if (connections.get(player)) {
             throw new PlayerAlreadyConnectedException();
         }
+        // Flag the player as connected
         connections.replace(player, true);
+        // Notify other player of the reconnection
         getEmitter().emit(new PlayerReconnectedEvent(player));
+
         if (status == GameStatus.SUSPENDED && playerProfiles.stream().filter(connections::get).count() >= 2) {
+            // Resume game if it was suspended and has reached at least two players
             resumeGame();
             this.notifyAll();
         } else if (status == GameStatus.RESTORING && playerProfiles.stream().filter(connections::get).count() == playerProfiles.size()) {
+            // Resume game if it was awaiting players after a server crash and all players has reconnected
             resumeGame();
             getEmitter().emit(new UpdateGameStatusAndTurnEvent(getStatus(), getTurnPhase(), getCurrentPlayer()));
         }
