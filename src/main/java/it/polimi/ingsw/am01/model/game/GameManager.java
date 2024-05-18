@@ -81,7 +81,8 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
             if (status == GameStatus.PLAY
                     || status == GameStatus.SECOND_LAST_TURN
                     || status == GameStatus.LAST_TURN
-                    || status == GameStatus.SUSPENDED) {
+                    || status == GameStatus.SUSPENDED
+                    || status == GameStatus.RESTORING) {
                 try {
                     game.setRestoringStatus();
                 } catch (IllegalGameStateException e) {

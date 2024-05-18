@@ -93,11 +93,7 @@ public class VirtualView implements Runnable {
             setGame(game);
             try {
                 game.handleReconnection(playerProfile); // TODO: handle exceptions
-            } catch (PlayerNotInGameException e) {
-                throw new RuntimeException(e);
-            } catch (PlayerAlreadyConnectedException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalGameStateException e) {
+            } catch (PlayerNotInGameException | PlayerAlreadyConnectedException | IllegalGameStateException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -175,6 +171,7 @@ public class VirtualView implements Runnable {
                     case SendBroadcastMessageC2S m -> handleMessage(m);
                     case SendDirectMessageC2S m -> handleMessage(m);
                     case StartGameC2S m -> handleMessage(m);
+                    case ResumeGameC2S m -> handleMessage(m);
                     default -> throw new NetworkException();
                 }
             } catch (IllegalMoveException | NetworkException e) {
@@ -708,6 +705,33 @@ public class VirtualView implements Runnable {
             connection.send(new PlayerNotInGameS2C());
         }
     }
+
+    public void handleMessage(ResumeGameC2S message) throws IllegalMoveException, NetworkException {
+        if (game.getStatus() == GameStatus.RESTORING && game.getPlayerProfiles().stream().filter(game::isConnected).count() > 1) {
+            game.resumeGame();
+        } else {
+            throw new IllegalGameStateException();
+        }
+        connection.send(
+                new UpdateGameStatusAndTurnS2C(
+                        game.getStatus(),
+                        game.getTurnPhase(),
+                        game.getCurrentPlayer().getName())
+        );
+        if (game.getCurrentPlayer().equals(playerProfile) && game.getTurnPhase() == TurnPhase.PLACING) {
+            connection.send(
+                    new SetPlayablePositionsS2C(
+                            game.getPlayArea(playerProfile).getPlayablePositions().stream().map(
+                                    position -> new SetPlayablePositionsS2C.PlayablePosition(
+                                            position.i(),
+                                            position.j())
+                            ).collect(Collectors.toList())
+                    )
+            );
+        }
+
+    }
+
 
     private interface NetworkEventListener<E extends Event> {
         void onEvent(E event) throws NetworkException;

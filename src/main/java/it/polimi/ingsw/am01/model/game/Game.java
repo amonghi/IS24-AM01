@@ -343,11 +343,11 @@ public class Game implements EventEmitter<GameEvent> {
     }
 
     public synchronized void setRestoringStatus() throws IllegalGameStateException {
-        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED) {
+        if (status != GameStatus.PLAY && status != GameStatus.SECOND_LAST_TURN && status != GameStatus.LAST_TURN && status != GameStatus.SUSPENDED && status != GameStatus.RESTORING) {
             throw new IllegalGameStateException();
         }
 
-        if (status != GameStatus.SUSPENDED) {
+        if (status != GameStatus.SUSPENDED && status != GameStatus.RESTORING) {
             recoverStatus = status;
         }
 
@@ -840,7 +840,7 @@ public class Game implements EventEmitter<GameEvent> {
         }
         // If the game has started, flag the player as disconnected
         connections.replace(pp, false);
-        long connectedPlayers = connections.values().stream().filter(connected -> connected.equals(true)).count();
+        long connectedPlayers = playerProfiles.stream().filter(this::isConnected).count();
         try {
             // If current player has disconnected, skip to the next connected player
             if (getCurrentPlayer().equals(pp) && connectedPlayers > 0) {
