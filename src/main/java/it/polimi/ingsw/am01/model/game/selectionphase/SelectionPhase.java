@@ -65,7 +65,11 @@ public class SelectionPhase<O, I> {
             return;
         }
 
-        this.strategy.tryConclude(List.copyOf(this.selectors.values()))
+        List<Selector> selectors = this.selectors.values().stream()
+                .filter(selector -> !selector.isDropout()) // ignore selectors who have dropped out
+                .toList();
+
+        this.strategy.tryConclude(selectors)
                 .ifPresent(results -> this.results = results);
     }
 
@@ -179,6 +183,13 @@ public class SelectionPhase<O, I> {
             this.droppedOut = true;
             SelectionPhase.this.selectors.remove(this.identity);
             SelectionPhase.this.updateState();
+        }
+
+        /**
+         * @return true iff {@link #dropOut()} was called
+         */
+        public boolean isDropout() {
+            return this.droppedOut;
         }
     }
 }

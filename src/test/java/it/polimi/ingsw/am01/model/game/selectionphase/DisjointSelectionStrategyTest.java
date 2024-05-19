@@ -38,4 +38,13 @@ class DisjointSelectionStrategyTest {
                 phase.getResults()
         );
     }
+
+    @Test
+    void dropoutsAreRemovedFromSelectionPhase() {
+        this.phase.getSelectorFor("alice").dropOut();
+        this.phase.getSelectorFor("bob").expressPreference("c");
+
+        assertTrue(phase.isConcluded());
+        assertEquals(Map.of("bob", "c"), phase.getResults());
+    }
 }
