@@ -54,7 +54,6 @@ public class SelectionPhase<O, I> {
     public Selector getSelectorFor(I who) {
         Selector selector = this.selectors.get(who);
         if (selector == null) {
-            // FIXME
             throw new NoSuchElementException();
         }
 
@@ -138,9 +137,10 @@ public class SelectionPhase<O, I> {
          * If changing the preference is not allowed, calling this method a second time will throw an exception.
          *
          * @param option the option in favor of which the chooser wishes to express a preference.
-         * @throws IllegalStateException  if the {@link SelectionPhase} which owns this Selector has already concluded.
-         * @throws IllegalStateException  when calling a second time and the {@link SelectionPhaseStrategy} does not allow this.
-         * @throws NoSuchElementException if the given option is not among those returned by {@link #getOptions()}
+         * @throws IllegalStateException               if this selector has dropped out (see {@link #dropOut()})
+         * @throws IllegalStateException               if the {@link SelectionPhase} which owns this Selector has already concluded.
+         * @throws PreferenceChangeNotAllowedException when calling this method a second time but the {@link SelectionPhaseStrategy} does not allow changing the selection.
+         * @throws NoSuchElementException              if the given option is not among those returned by {@link #getOptions()}
          */
         public void expressPreference(O option) {
             if (this.droppedOut) {
@@ -148,12 +148,11 @@ public class SelectionPhase<O, I> {
             }
 
             if (isConcluded()) {
-                // FIXME: specific exception
                 throw new IllegalStateException("The selection phase is concluded");
             }
 
             if (!this.allowPreferenceChange && this.preference != null) {
-                throw new IllegalStateException("Changing preference is not allowed");
+                throw new PreferenceChangeNotAllowedException();
             }
 
             if (this.preference != null) {
