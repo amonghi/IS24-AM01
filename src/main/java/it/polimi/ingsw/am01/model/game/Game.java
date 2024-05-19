@@ -10,10 +10,7 @@ import it.polimi.ingsw.am01.model.chat.ChatManager;
 import it.polimi.ingsw.am01.model.chat.Message;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.*;
-import it.polimi.ingsw.am01.model.game.selectionphase.CommonPoolSelectionStrategy;
-import it.polimi.ingsw.am01.model.game.selectionphase.DisjointSelectionStrategy;
-import it.polimi.ingsw.am01.model.game.selectionphase.OptionsPool;
-import it.polimi.ingsw.am01.model.game.selectionphase.SelectionPhase;
+import it.polimi.ingsw.am01.model.game.selectionphase.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerData;
@@ -471,7 +468,7 @@ public class Game implements EventEmitter<GameEvent> {
 
         try {
             startingCardSideSelectionPhase.getSelectorFor(pp).expressPreference(s);
-        } catch (IllegalStateException e) {
+        } catch (PreferenceChangeNotAllowedException e) {
             throw new DoubleChoiceException();
         }
 
@@ -533,7 +530,7 @@ public class Game implements EventEmitter<GameEvent> {
         try {
             try {
                 objectiveSelectionPhase.getSelectorFor(pp).expressPreference(o);
-            } catch (IllegalStateException e) {
+            } catch (PreferenceChangeNotAllowedException e) {
                 throw new DoubleChoiceException();
             }
             getEmitter().emit(new SecretObjectiveChosenEvent(

@@ -42,6 +42,15 @@ class CommonPoolSelectionStrategyTest {
                     phase.getResults()
             );
         }
+
+        @Test
+        void dropoutsAreRemovedFromSelectionPhase() {
+            this.phase.getSelectorFor("alice").dropOut();
+            this.phase.getSelectorFor("bob").expressPreference("b");
+
+            assertTrue(phase.isConcluded());
+            assertEquals(Map.of("bob", "b"), phase.getResults());
+        }
     }
 
     @Nested
@@ -74,6 +83,15 @@ class CommonPoolSelectionStrategyTest {
                             "bob", "b"),
                     phase.getResults()
             );
+        }
+
+        @Test
+        void dropoutsAreRemovedFromSelectionPhase() {
+            this.phase.getSelectorFor("alice").dropOut();
+            this.phase.getSelectorFor("bob").expressPreference("b");
+
+            assertTrue(phase.isConcluded());
+            assertEquals(Map.of("bob", "b"), phase.getResults());
         }
     }
 }
