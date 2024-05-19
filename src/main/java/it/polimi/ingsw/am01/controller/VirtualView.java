@@ -89,11 +89,7 @@ public class VirtualView implements Runnable {
             setGame(game);
             try {
                 game.handleReconnection(playerProfile); // TODO: handle exceptions
-            } catch (PlayerNotInGameException e) {
-                throw new RuntimeException(e);
-            } catch (PlayerAlreadyConnectedException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalGameStateException e) {
+            } catch (PlayerNotInGameException | PlayerAlreadyConnectedException | IllegalGameStateException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -171,6 +167,7 @@ public class VirtualView implements Runnable {
                     case SendBroadcastMessageC2S m -> handleMessage(m);
                     case SendDirectMessageC2S m -> handleMessage(m);
                     case StartGameC2S m -> handleMessage(m);
+                    case ResumeGameC2S m -> handleMessage(m);
                     default -> throw new NetworkException();
                 }
             } catch (IllegalMoveException | NetworkException e) {
@@ -406,11 +403,24 @@ public class VirtualView implements Runnable {
     }
 
     private void gameResumed(GameResumedEvent event) throws NetworkException {
+        connection.send(new GameResumedS2C());
         connection.send(
-                new SetRecoverStatusS2C(
-                        event.recoverStatus()
-                )
+                new UpdateGameStatusAndTurnS2C(
+                        event.status(),
+                        event.turnPhase(),
+                        event.currentPlayer().getName())
         );
+        if (event.currentPlayer().equals(playerProfile) && event.turnPhase() == TurnPhase.PLACING) {
+            connection.send(
+                    new SetPlayablePositionsS2C(
+                            game.getPlayArea(playerProfile).getPlayablePositions().stream().map(
+                                    position -> new SetPlayablePositionsS2C.PlayablePosition(
+                                            position.i(),
+                                            position.j())
+                            ).collect(Collectors.toList())
+                    )
+            );
+        }
     }
 
     private void playerJoined(PlayerJoinedInGameEvent event) throws NetworkException {
@@ -447,6 +457,10 @@ public class VirtualView implements Runnable {
     }
 
     private void playerLeft(PlayerLeftFromGameEvent event) throws NetworkException {
+        if (playerProfile == null) {
+            return;
+        }
+
         if (game == null) {
             connection.send(new UpdateGameListS2C(
                     gameManager.getGames().stream().collect(Collectors.toMap(
@@ -523,7 +537,7 @@ public class VirtualView implements Runnable {
 
     public void handleMessage(AuthenticateC2S message) throws IllegalMoveException, NetworkException {
         if (playerProfile != null) {
-            return; //TODO: maybe throw?
+            return;
         }
 
         try {
@@ -537,7 +551,6 @@ public class VirtualView implements Runnable {
                             Game::getId,
                             g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
                     ))));
-            // FIXME: should we send UpdateGameListS2C if we reconnect a player?
             handleReconnection();
         } catch (NameAlreadyTakenException e) {
             connection.send(new NameAlreadyTakenS2C(message.playerName()));
@@ -704,6 +717,22 @@ public class VirtualView implements Runnable {
             connection.send(new PlayerNotInGameS2C());
         }
     }
+
+    public void handleMessage(ResumeGameC2S message) throws IllegalMoveException, NetworkException {
+        if (game.getStatus() != GameStatus.RESTORING)
+            throw new IllegalGameStateException();
+
+        if (game.getPlayerProfiles().stream().filter(game::isConnected).count() > 1) {
+            game.resumeGame();
+        } else {
+            connection.send(
+                    new NotEnoughPlayersS2C(
+                            (int) game.getPlayerProfiles().stream().filter(game::isConnected).count()
+                    )
+            );
+        }
+    }
+
 
     private interface NetworkEventListener<E extends Event> {
         void onEvent(E event) throws NetworkException;

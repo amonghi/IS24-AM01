@@ -38,5 +38,6 @@ public enum GameStatus {
     /**
      * {@code SUSPENDED} is used to make {@link Game} paused
      */
-    SUSPENDED
+    SUSPENDED,
+    RESTORING
 }

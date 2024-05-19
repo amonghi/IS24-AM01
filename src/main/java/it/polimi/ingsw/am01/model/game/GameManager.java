@@ -12,7 +12,9 @@ import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.chat.Message;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.event.*;
+import it.polimi.ingsw.am01.model.exception.IllegalGameStateException;
 import it.polimi.ingsw.am01.model.exception.InvalidMaxPlayersException;
+import it.polimi.ingsw.am01.model.exception.NotUndoableOperationException;
 import it.polimi.ingsw.am01.model.json.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
@@ -41,6 +43,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
             .registerTypeAdapter(PlayerProfile.class, new PlayerProfileSerDes())
             .registerTypeAdapter(PlayArea.Position.class, new PositionSerDes())
             .registerTypeAdapter(Board.class, new BoardSerDes())
+            .registerTypeAdapter(PlayArea.class, new PlayAreaSerDes())
             .create();
     private final EventEmitterImpl<GameManagerEvent> emitter;
     private final List<Game> games;
@@ -62,13 +65,41 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         nextId = savedGamesIds.stream().max(Comparator.naturalOrder()).map(n -> n + 1).orElse(0);
         for (int id : savedGamesIds) {
             Game game = loadGame(id);
-            games.add(game);
-            gamesRegistrations.put(game, List.of(
-                    game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e.player(), game)),
-                    game.on(PlayerLeftEvent.class, e -> this.playerLeftFromGame(e.player(), game)),
-                    game.on(GameEvent.class, e -> this.saveGame(game)),
-                    game.on(GameClosedEvent.class, e -> this.deleteGame(game))
-            ));
+            // Flag all players as disconnected
+            game.getPlayerProfiles().forEach(p -> game.setPlayerConnection(p, false));
+            try {
+                // Undo last move if current player was in the middle of a turn
+                if ((game.getStatus() == GameStatus.PLAY || game.getStatus() == GameStatus.SECOND_LAST_TURN || game.getStatus() == GameStatus.LAST_TURN)
+                        && game.getTurnPhase() == TurnPhase.DRAWING) {
+                    game.undoLastPlacement(game.getCurrentPlayer());
+                }
+            } catch (IllegalGameStateException | NotUndoableOperationException e) {
+                throw new RuntimeException(e);
+            }
+
+            GameStatus status = game.getStatus();
+            if (status == GameStatus.PLAY
+                    || status == GameStatus.SECOND_LAST_TURN
+                    || status == GameStatus.LAST_TURN
+                    || status == GameStatus.SUSPENDED
+                    || status == GameStatus.RESTORING) {
+                try {
+                    game.setRestoringStatus();
+                } catch (IllegalGameStateException e) {
+                    throw new RuntimeException(e); // TODO: handle exception
+                }
+
+                games.add(game);
+                gamesRegistrations.put(game, List.of(
+                        game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e.player(), game)),
+                        game.on(PlayerLeftEvent.class, e -> this.playerLeftFromGame(e.player(), game)),
+                        game.on(GameEvent.class, e -> this.saveGame(game)),
+                        game.on(GameClosedEvent.class, e -> this.deleteGame(game))
+                ));
+            } else {
+                // Delete game if server crashed before it was started
+                deleteGame(game);
+            }
         }
     }
 
@@ -146,7 +177,9 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
      * @param game a reference of the selected game
      */
     public synchronized void deleteGame(Game game) {
-        gamesRegistrations.get(game).forEach(game::unregister);
+        if (gamesRegistrations.containsKey(game)) {
+            gamesRegistrations.get(game).forEach(game::unregister);
+        }
         gamesRegistrations.remove(game);
 
         games.remove(game);

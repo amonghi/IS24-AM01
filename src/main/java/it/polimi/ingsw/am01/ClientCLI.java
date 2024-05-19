@@ -39,6 +39,7 @@ public class ClientCLI {
             Map.entry("draw_from_deck", "<resource|golden>"),
             Map.entry("draw_from_face_up", "<cardId>"),
             Map.entry("join_game", "<gameId>"),
+            Map.entry("resume_game", ""),
             Map.entry("send_direct_msg", "<recipient> \n <content>"),
             Map.entry("send_broadcast_msg", "\n <content>"),
             Map.entry("place_card", "<cardId> <front|back> <i> <j>"),
@@ -125,6 +126,13 @@ public class ClientCLI {
                             connection.send(new JoinGameC2S(
                                     Integer.parseInt(userInput[1])
                             ));
+                        }
+                    }
+                    case "resume_game" -> {
+                        if (userInput.length != 1) {
+                            wrongParameters(userInput[0]);
+                        } else {
+                            connection.send(new ResumeGameC2S());
                         }
                     }
                     case "send_direct_msg" -> {
