@@ -355,6 +355,9 @@ public class Game implements EventEmitter<GameEvent> {
         }
         status = recoverStatus;
         getEmitter().emit(new GameResumedEvent(status, turnPhase, getCurrentPlayer()));
+        if (!isConnected(getCurrentPlayer())) {
+            changeCurrentPlayer();
+        }
     }
 
     /**
