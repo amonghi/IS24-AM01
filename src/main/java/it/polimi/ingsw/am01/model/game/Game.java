@@ -850,6 +850,7 @@ public class Game implements EventEmitter<GameEvent> {
             if (connectedPlayers == 0) {
                 transition(GameStatus.FINISHED);
                 getEmitter().emit(new GameClosedEvent());
+                notifyAll();
             } else if (status != GameStatus.RESTORING) {
                 // If current player has disconnected, skip to the next connected player
                 if (getCurrentPlayer().equals(pp)) {
@@ -860,9 +861,21 @@ public class Game implements EventEmitter<GameEvent> {
                     changeCurrentPlayer();
                 }
                 // If there's only one player left, pause the game
-                if (connectedPlayers == 1 && status != GameStatus.SUSPENDED) {
+                if (connectedPlayers == 1) {
                     pauseGame();
                     this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
+
+                    // After a minute of waiting, if no one joined yet, conclude the game
+                    if (status == GameStatus.SUSPENDED) {
+                        transition(GameStatus.FINISHED);
+                        getEmitter().emit(
+                                new GameFinishedEvent(
+                                        playerProfiles.stream()
+                                                .filter(this::isConnected)
+                                                .collect(Collectors.toMap(p -> p, p -> getPlayArea(p).getScore())))
+                        );
+                        getEmitter().emit(new GameClosedEvent());
+                    }
                 }
             }
 
@@ -890,7 +903,6 @@ public class Game implements EventEmitter<GameEvent> {
         } else if (status == GameStatus.RESTORING && playerProfiles.stream().filter(connections::get).count() == playerProfiles.size()) {
             // Resume game if it was awaiting players after a server crash and all players has reconnected
             resumeGame();
-            getEmitter().emit(new UpdateGameStatusAndTurnEvent(getStatus(), getTurnPhase(), getCurrentPlayer()));
         }
     }
 
