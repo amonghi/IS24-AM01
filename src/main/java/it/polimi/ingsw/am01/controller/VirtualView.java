@@ -407,11 +407,24 @@ public class VirtualView implements Runnable {
     }
 
     private void gameResumed(GameResumedEvent event) throws NetworkException {
+        connection.send(new GameResumedS2C());
         connection.send(
-                new SetRecoverStatusS2C(
-                        event.recoverStatus()
-                )
+                new UpdateGameStatusAndTurnS2C(
+                        event.status(),
+                        event.turnPhase(),
+                        event.currentPlayer().getName())
         );
+        if (event.currentPlayer().equals(playerProfile) && event.turnPhase() == TurnPhase.PLACING) {
+            connection.send(
+                    new SetPlayablePositionsS2C(
+                            game.getPlayArea(playerProfile).getPlayablePositions().stream().map(
+                                    position -> new SetPlayablePositionsS2C.PlayablePosition(
+                                            position.i(),
+                                            position.j())
+                            ).collect(Collectors.toList())
+                    )
+            );
+        }
     }
 
     private void playerJoined(PlayerJoinedInGameEvent event) throws NetworkException {
@@ -707,29 +720,18 @@ public class VirtualView implements Runnable {
     }
 
     public void handleMessage(ResumeGameC2S message) throws IllegalMoveException, NetworkException {
-        if (game.getStatus() == GameStatus.RESTORING && game.getPlayerProfiles().stream().filter(game::isConnected).count() > 1) {
+        if (game.getStatus() != GameStatus.RESTORING)
+            throw new IllegalGameStateException();
+
+        if (game.getPlayerProfiles().stream().filter(game::isConnected).count() > 1) {
             game.resumeGame();
         } else {
-            throw new IllegalGameStateException();
-        }
-        connection.send(
-                new UpdateGameStatusAndTurnS2C(
-                        game.getStatus(),
-                        game.getTurnPhase(),
-                        game.getCurrentPlayer().getName())
-        );
-        if (game.getCurrentPlayer().equals(playerProfile) && game.getTurnPhase() == TurnPhase.PLACING) {
             connection.send(
-                    new SetPlayablePositionsS2C(
-                            game.getPlayArea(playerProfile).getPlayablePositions().stream().map(
-                                    position -> new SetPlayablePositionsS2C.PlayablePosition(
-                                            position.i(),
-                                            position.j())
-                            ).collect(Collectors.toList())
+                    new NotEnoughPlayersS2C(
+                            (int) game.getPlayerProfiles().stream().filter(game::isConnected).count()
                     )
             );
         }
-
     }
 
 

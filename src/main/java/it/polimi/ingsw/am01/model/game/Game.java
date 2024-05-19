@@ -366,7 +366,7 @@ public class Game implements EventEmitter<GameEvent> {
             throw new IllegalGameStateException();
         }
         status = recoverStatus;
-        getEmitter().emit(new GameResumedEvent(status));
+        getEmitter().emit(new GameResumedEvent(status, turnPhase, getCurrentPlayer()));
     }
 
     /**
@@ -842,22 +842,23 @@ public class Game implements EventEmitter<GameEvent> {
         connections.replace(pp, false);
         long connectedPlayers = playerProfiles.stream().filter(this::isConnected).count();
         try {
-            // If current player has disconnected, skip to the next connected player
-            if (getCurrentPlayer().equals(pp) && connectedPlayers > 0) {
-                if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
-                    undoLastPlacement(pp);
+            // If there's no player left, close the game
+            if (connectedPlayers == 0) {
+                transition(GameStatus.FINISHED);
+                getEmitter().emit(new GameClosedEvent());
+            } else if (status != GameStatus.RESTORING) {
+                // If current player has disconnected, skip to the next connected player
+                if (getCurrentPlayer().equals(pp)) {
+                    // If current player was in the middle of the turn, undo the last move
+                    if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
+                        undoLastPlacement(pp);
+                    }
+                    changeCurrentPlayer();
                 }
-                changeCurrentPlayer();
-            }
-            if (connectedPlayers <= 1) {
                 // If there's only one player left, pause the game
-                if (status != GameStatus.SUSPENDED) {
+                if (connectedPlayers == 1 && status != GameStatus.SUSPENDED) {
                     pauseGame();
                     this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
-                } else {
-                    // If there's no player left, close the game
-                    transition(GameStatus.FINISHED);
-                    getEmitter().emit(new GameClosedEvent());
                 }
             }
 
