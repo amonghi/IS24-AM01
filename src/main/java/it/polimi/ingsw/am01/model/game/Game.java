@@ -8,12 +8,12 @@ import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.chat.ChatManager;
 import it.polimi.ingsw.am01.model.chat.Message;
-import it.polimi.ingsw.am01.model.choice.Choice;
-import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
-import it.polimi.ingsw.am01.model.choice.MultiChoice;
-import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.event.*;
 import it.polimi.ingsw.am01.model.exception.*;
+import it.polimi.ingsw.am01.model.game.selectionphase.CommonPoolSelectionStrategy;
+import it.polimi.ingsw.am01.model.game.selectionphase.DisjointSelectionStrategy;
+import it.polimi.ingsw.am01.model.game.selectionphase.OptionsPool;
+import it.polimi.ingsw.am01.model.game.selectionphase.SelectionPhase;
 import it.polimi.ingsw.am01.model.objective.Objective;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerData;
@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
  *
  * @see PlayerData
  * @see PlayerProfile
- * @see Choice
- * @see MultiChoice
  */
 public class Game implements EventEmitter<GameEvent> {
 
@@ -39,10 +37,10 @@ public class Game implements EventEmitter<GameEvent> {
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
-    private final Map<PlayerProfile, Choice<Side>> startingCardSideChoices;
+    private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
     private final Map<PlayerProfile, Card> startingCards;
-    private final Map<PlayerProfile, MultiChoice<PlayerColor, PlayerProfile>.Choice> colorChoices;
-    private final Map<PlayerProfile, Choice<Objective>> objectiveChoices;
+    private SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
+    private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
     private final Map<PlayerProfile, Boolean> connections;
@@ -83,10 +81,7 @@ public class Game implements EventEmitter<GameEvent> {
         this.status = GameStatus.AWAITING_PLAYERS;
         this.playerProfiles = new ArrayList<>();
         this.chatManager = new ChatManager();
-        this.startingCardSideChoices = new HashMap<>();
         this.startingCards = new HashMap<>();
-        this.colorChoices = new HashMap<>();
-        this.objectiveChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
         this.connections = new HashMap<>();
@@ -123,10 +118,7 @@ public class Game implements EventEmitter<GameEvent> {
         this.status = GameStatus.AWAITING_PLAYERS;
         this.playerProfiles = new ArrayList<>();
         this.chatManager = new ChatManager();
-        this.startingCardSideChoices = new HashMap<>();
         this.startingCards = new HashMap<>();
-        this.colorChoices = new HashMap<>();
-        this.objectiveChoices = new HashMap<>();
         this.playersData = new HashMap<>();
         this.playAreas = new HashMap<>();
         this.connections = new HashMap<>();
@@ -166,7 +158,7 @@ public class Game implements EventEmitter<GameEvent> {
             throw new IllegalArgumentException("Player is not in this game");
         }
 
-        return Collections.unmodifiableSet(objectiveChoices.get(pp).getOptions());
+        return Collections.unmodifiableSet(objectiveSelectionPhase.getSelectorFor(pp).getOptions());
     }
 
     /**
@@ -304,10 +296,10 @@ public class Game implements EventEmitter<GameEvent> {
             hand.add(board.getResourceCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Resource card deck should not be empty")));
             hand.add(board.getGoldenCardDeck().draw().orElseThrow(() -> new NotEnoughGameResourcesException("Golden card deck should not be empty")));
 
+            Map<PlayerProfile, Objective> objectiveResults = objectiveSelectionPhase.getResults();
+            Map<PlayerProfile, PlayerColor> colorResults = colorSelectionPhase.getResults();
             playersData.put(player,
-                    new PlayerData(hand,
-                            objectiveChoices.get(player).getSelected().orElseThrow(),
-                            colorChoices.get(player).getSelected().orElseThrow()));
+                    new PlayerData(hand, objectiveResults.get(player), colorResults.get(player)));
         }
         setFirstPlayer();
         if (board.getResourceCardDeck().isEmpty() && board.getGoldenCardDeck().isEmpty()) {
@@ -315,7 +307,6 @@ public class Game implements EventEmitter<GameEvent> {
         } else {
             transition(GameStatus.PLAY);
         }
-
     }
 
     /**
@@ -383,9 +374,6 @@ public class Game implements EventEmitter<GameEvent> {
      * This method prepares all choices: starting card side, player color and secret objective.
      * It throws a {@code NotEnoughGameResourcesException} if there are not enough starting or objective cards
      * It requires that all players have already joined the game, with {@link Game#join(PlayerProfile) join} method.
-     *
-     * @see Choice
-     * @see MultiChoice
      */
     private void setUpChoices() {
         // Setup starter card choices
@@ -393,13 +381,17 @@ public class Game implements EventEmitter<GameEvent> {
         starterCardDeck.shuffle();
 
         for (PlayerProfile player : playerProfiles) {
-            startingCardSideChoices.put(player, new Choice<>(EnumSet.allOf(Side.class)));
+            startingCardSideSelectionPhase = new SelectionPhase<>(new CommonPoolSelectionStrategy<>(
+                    Set.copyOf(this.playerProfiles), new OptionsPool<>(EnumSet.allOf(Side.class)),
+                    false, true));
+
             startingCards.put(player, starterCardDeck.draw().orElseThrow(() -> new NotEnoughGameResourcesException("Starting cards list should not be empty")));
         }
 
         // Setup color choices
-        MultiChoice<PlayerColor, PlayerProfile> multiChoice = new MultiChoice<>(EnumSet.allOf(PlayerColor.class), new HashSet<>(playerProfiles));
-        playerProfiles.forEach((player) -> colorChoices.put(player, multiChoice.getChoices().get(player)));
+        colorSelectionPhase = new SelectionPhase<>(new CommonPoolSelectionStrategy<>(
+                Set.copyOf(this.playerProfiles), new OptionsPool<>(EnumSet.allOf(PlayerColor.class)),
+                true, false));
 
         // Setup objective choices
         List<Objective> objectiveList = new ArrayList<>(GameAssets.getInstance().getObjectives());
@@ -412,12 +404,15 @@ public class Game implements EventEmitter<GameEvent> {
         commonObjectives.add(objectiveList.removeFirst());
         commonObjectives.add(objectiveList.removeFirst());
 
+        Map<PlayerProfile, OptionsPool<Objective, PlayerProfile>> assignedPools = new HashMap<>();
         for (PlayerProfile player : playerProfiles) {
-            Set<Objective> secretObjectives = new HashSet<>();
-            secretObjectives.add(objectiveList.removeFirst());
-            secretObjectives.add(objectiveList.removeFirst());
-            objectiveChoices.put(player, new Choice<>(secretObjectives));
+            OptionsPool<Objective, PlayerProfile> optionsPool = new OptionsPool<>(Set.of(
+                    objectiveList.removeFirst(),
+                    objectiveList.removeFirst()
+            ));
+            assignedPools.put(player, optionsPool);
         }
+        objectiveSelectionPhase = new SelectionPhase<>(new DisjointSelectionStrategy<>(assignedPools));
         getEmitter().emit(new AllPlayersJoinedEvent());
     }
 
@@ -446,7 +441,6 @@ public class Game implements EventEmitter<GameEvent> {
             setUpChoices();
         }
     }
-
 
     /**
      * This method permits to start the game (set {@code SETUP_STARTING_CARD_SIDE} status),
@@ -478,7 +472,6 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws DoubleChoiceException     if the player has already chosen the starting card side
      * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_STARTING_CARD_SIDE}
      * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
-     * @see Choice
      */
     public synchronized void selectStartingCardSide(PlayerProfile pp, Side s) throws DoubleChoiceException, IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_STARTING_CARD_SIDE) {
@@ -488,13 +481,17 @@ public class Game implements EventEmitter<GameEvent> {
             throw new PlayerNotInGameException();
         }
 
-        startingCardSideChoices.get(pp).select(s);
+        try {
+            startingCardSideSelectionPhase.getSelectorFor(pp).expressPreference(s);
+        } catch (IllegalStateException e) {
+            throw new DoubleChoiceException();
+        }
 
         playAreas.put(pp, new PlayArea(startingCards.get(pp), s));
 
         getEmitter().emit(new CardPlacedEvent(pp, playAreas.get(pp).getAt(PlayArea.Position.ORIGIN).orElse(null)));
 
-        if (startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+        if (startingCardSideSelectionPhase.isConcluded()) {
             transition(GameStatus.SETUP_COLOR);
             getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
         }
@@ -506,27 +503,24 @@ public class Game implements EventEmitter<GameEvent> {
      *
      * @param pp the {@link PlayerProfile} of player that want to choose
      * @param pc the {@link PlayerColor} chosen by player {@code pp}
-     * @return the {@link SelectionResult} referred to the choice made
      * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_COLOR}
      * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
-     * @see SelectionResult
-     * @see MultiChoice
      */
-    public synchronized SelectionResult selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException {
+    public synchronized void selectColor(PlayerProfile pp, PlayerColor pc) throws IllegalGameStateException, PlayerNotInGameException {
         if (status != GameStatus.SETUP_COLOR) {
             throw new IllegalGameStateException();
         }
         if (!playerProfiles.contains(pp)) {
             throw new PlayerNotInGameException();
         }
-        SelectionResult sr = colorChoices.get(pp).select(pc);
-        getEmitter().emit(new PlayerChangedColorChoiceEvent(pp, pc, sr));
+        colorSelectionPhase.getSelectorFor(pp).expressPreference(pc);
 
-        if (colorChoices.get(pp).isSettled()) {
+        getEmitter().emit(new PlayerChangedColorChoiceEvent(pp, pc));
+
+        if (colorSelectionPhase.isConcluded()) {
             transition(GameStatus.SETUP_OBJECTIVE);
             getEmitter().emit(new AllColorChoicesSettledEvent());
         }
-        return sr;
     }
 
     /**
@@ -539,7 +533,6 @@ public class Game implements EventEmitter<GameEvent> {
      * @throws IllegalGameStateException if the current {@link GameStatus} is not {@link GameStatus#SETUP_OBJECTIVE}
      * @throws PlayerNotInGameException  if the specified {@link PlayerProfile} is not in game
      * @throws InvalidObjectiveException if the specified {@link Objective} is not a possible choice
-     * @see Choice
      */
     public synchronized void selectObjective(PlayerProfile pp, Objective o) throws IllegalGameStateException, PlayerNotInGameException, DoubleChoiceException, InvalidObjectiveException {
         if (status != GameStatus.SETUP_OBJECTIVE) {
@@ -550,14 +543,20 @@ public class Game implements EventEmitter<GameEvent> {
         }
 
         try {
-            objectiveChoices.get(pp).select(o);
-            getEmitter().emit(new SecretObjectiveChosenEvent(objectiveChoices.keySet().stream()
-                    .filter(playerProfile -> objectiveChoices.get(playerProfile).getSelected().isPresent())
-                    .collect(Collectors.toSet())));
+            try {
+                objectiveSelectionPhase.getSelectorFor(pp).expressPreference(o);
+            } catch (IllegalStateException e) {
+                throw new DoubleChoiceException();
+            }
+            getEmitter().emit(new SecretObjectiveChosenEvent(
+                    this.playerProfiles.stream()
+                            .filter(playerProfile -> objectiveSelectionPhase.getSelectorFor(playerProfile).getExpressedPreference().isPresent())
+                            .collect(Collectors.toSet())
+            ));
         } catch (NoSuchElementException e) {
             throw new InvalidObjectiveException();
         }
-        if (objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+        if (objectiveSelectionPhase.isConcluded()) {
             //all players had chosen their objective -> go to the next state (start "turn phase")
             setupAndStartTurnPhase();
 
@@ -777,10 +776,10 @@ public class Game implements EventEmitter<GameEvent> {
     private void removePlayer(PlayerProfile pp) {
         playerProfiles.remove(pp);
         connections.remove(pp);
-        startingCardSideChoices.remove(pp);
+        startingCardSideSelectionPhase.getSelectorFor(pp).dropOut();
         startingCards.remove(pp);
-        colorChoices.remove(pp);
-        objectiveChoices.remove(pp);
+        colorSelectionPhase.getSelectorFor(pp).dropOut();
+        objectiveSelectionPhase.getSelectorFor(pp).dropOut();
         playersData.remove(pp);
         playAreas.remove(pp);
         getEmitter().emit(new PlayerLeftEvent(pp));
@@ -797,10 +796,10 @@ public class Game implements EventEmitter<GameEvent> {
 
     private void handleDisconnectionDuringSetup() {
         // TODO: manage SETUP_COLOR case
-        if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+        if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideSelectionPhase.isConcluded()) {
             transition(GameStatus.SETUP_COLOR);
             getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
-        } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveChoices.values().stream().noneMatch(choice -> choice.getSelected().isEmpty())) {
+        } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveSelectionPhase.isConcluded()) {
             setupAndStartTurnPhase();
             getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
             try {
@@ -903,14 +902,15 @@ public class Game implements EventEmitter<GameEvent> {
      */
     @Override
     public synchronized String toString() {
+        // TODO: override toString in SelectionPhase to have a proper visualization
         return "Game{" +
                 "\n\tid=" + id +
                 ",\n\tplayerProfiles=" + playerProfiles +
                 ",\n\tchatManager=" + chatManager +
-                ",\n\tstartingCardSideChoices=" + startingCardSideChoices +
+                ",\n\tstartingCardSideSelectionPhase=" + startingCardSideSelectionPhase +
                 ",\n\tstartingCards=" + startingCards +
-                ",\n\tcolorChoices=" + colorChoices +
-                ",\n\tobjectiveChoices=" + objectiveChoices +
+                ",\n\tcolorSelectionPhase=" + colorSelectionPhase +
+                ",\n\tobjectiveSelectionPhase=" + objectiveSelectionPhase +
                 ",\n\tplayersData=" + playersData +
                 ",\n\tplayAreas=" + playAreas +
                 ",\n\tcommonObjectives=" + commonObjectives +

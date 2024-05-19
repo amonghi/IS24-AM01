@@ -7,8 +7,6 @@ import it.polimi.ingsw.am01.model.card.face.BackCardFace;
 import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
-import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
-import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -78,15 +76,14 @@ class GameTest {
         standardGame.selectStartingCardSide(p4, Side.BACK);
 
         assertEquals(GameStatus.SETUP_COLOR, standardGame.getStatus());
-        assertEquals(SelectionResult.OK, standardGame.selectColor(p1, PlayerColor.RED));
-        assertEquals(SelectionResult.OK, standardGame.selectColor(p2, PlayerColor.BLUE));
+        standardGame.selectColor(p1, PlayerColor.RED);
+        standardGame.selectColor(p2, PlayerColor.BLUE);
 
-        assertEquals(SelectionResult.CONTENDED, standardGame.selectColor(p3, PlayerColor.RED));
+        standardGame.selectColor(p3, PlayerColor.RED);
 
-        assertEquals(SelectionResult.OK, standardGame.selectColor(p3, PlayerColor.YELLOW));
+        standardGame.selectColor(p3, PlayerColor.YELLOW);
         assertEquals(GameStatus.SETUP_COLOR, standardGame.getStatus());
-        assertEquals(SelectionResult.OK, standardGame.selectColor(p4, PlayerColor.GREEN));
-
+        standardGame.selectColor(p4, PlayerColor.GREEN);
 
         assertEquals(GameStatus.SETUP_OBJECTIVE, standardGame.getStatus());
         Objective o1 = standardGame.getObjectiveOptions(p1).stream().findAny().orElse(null);

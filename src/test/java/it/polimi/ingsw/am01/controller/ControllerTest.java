@@ -2,8 +2,6 @@ package it.polimi.ingsw.am01.controller;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
-import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
-import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -275,25 +273,21 @@ class ControllerTest {
 
         @Test
         void canSelectColor() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
-            SelectionResult aResult = controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
-            assertEquals(SelectionResult.OK, aResult);
+            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
 
-            SelectionResult bResult = controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
-            assertEquals(SelectionResult.OK, bResult);
+            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
             assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
         }
 
         @Test
         void canChangeColorUntilEveryoneHasChosen() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
             for (PlayerColor color : new PlayerColor[]{PlayerColor.RED, PlayerColor.GREEN, PlayerColor.BLUE}) {
-                SelectionResult result = controller.selectPlayerColor(game.getId(), "Alice", color);
-                assertEquals(SelectionResult.OK, result);
+                controller.selectPlayerColor(game.getId(), "Alice", color);
                 assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
             }
 
-            SelectionResult bResult = controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.YELLOW);
-            assertEquals(SelectionResult.OK, bResult);
+            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.YELLOW);
             assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
 
             // it throws an IllegalMoveException instead of a DoubleChoiceException
@@ -304,16 +298,13 @@ class ControllerTest {
 
         @Test
         void playersCanContendColor() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException {
-            SelectionResult aResult = controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
-            assertEquals(SelectionResult.OK, aResult);
+            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
 
-            SelectionResult bResult = controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.RED);
-            assertEquals(SelectionResult.CONTENDED, bResult);
+            controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.RED);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
 
-            SelectionResult bResult2 = controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.BLUE);
-            assertEquals(SelectionResult.OK, bResult2);
+            controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.BLUE);
             assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
         }
 

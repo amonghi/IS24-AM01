@@ -5,8 +5,6 @@ import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.chat.BroadcastMessage;
 import it.polimi.ingsw.am01.model.chat.DirectMessage;
 import it.polimi.ingsw.am01.model.chat.Message;
-import it.polimi.ingsw.am01.model.choice.DoubleChoiceException;
-import it.polimi.ingsw.am01.model.choice.SelectionResult;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.game.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -198,20 +196,19 @@ public class Controller {
      * @param gameId     the ID of the game in which the player is playing
      * @param playerName the name of the player that is making the choice
      * @param color      the color to assign to the player
-     * @return {@link SelectionResult#CONTENDED} if there is some other player that also wants the same color, {@link SelectionResult#OK} otherwise
      * @throws IllegalGameStateException if selecting the player color is an invalid operation in this game state
      * @throws PlayerNotInGameException  if the specified {@code playerName} is not in the game
      * @throws GameNotFoundException     if the specified {@code gameId} is invalid
      * @throws NotAuthenticatedException if the specified {@code playerName} is not authenticated
      * @see Game#selectColor(PlayerProfile, PlayerColor)
      */
-    public SelectionResult selectPlayerColor(int gameId, String playerName, PlayerColor color) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException {
+    public void selectPlayerColor(int gameId, String playerName, PlayerColor color) throws IllegalGameStateException, PlayerNotInGameException, GameNotFoundException, NotAuthenticatedException {
         Game game = this.gameManager.getGame(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
         PlayerProfile player = this.playerManager.getProfile(playerName)
                 .orElseThrow(NotAuthenticatedException::new);
 
-        return game.selectColor(player, color);
+        game.selectColor(player, color);
     }
 
     /**
