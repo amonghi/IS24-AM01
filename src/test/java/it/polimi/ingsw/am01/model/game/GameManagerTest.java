@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am01.model.game;
 
+import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 import org.junit.jupiter.api.Test;
@@ -7,6 +9,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,6 +35,32 @@ class GameManagerTest {
         for (int i = 0; i < k; i++) {
             assertDoesNotThrow(() -> gameManager.saveGame(gameManager.createGame(4)));
         }
+        gameManager.getGames().forEach(
+                game -> {
+                    PlayerProfile a = new PlayerProfile("a" + game.getId());
+                    PlayerProfile b = new PlayerProfile("b" + game.getId());
+                    PlayerProfile c = new PlayerProfile("c" + game.getId());
+                    PlayerProfile d = new PlayerProfile("d" + game.getId());
+                    List<PlayerProfile> playerProfiles = List.of(a, b, c, d);
+                    assertDoesNotThrow(() -> {
+                        for (PlayerProfile p : playerProfiles) {
+                            game.join(p);
+                        }
+                        for (PlayerProfile p : playerProfiles) {
+                            game.selectStartingCardSide(p, Side.FRONT);
+                        }
+                        game.selectColor(a, PlayerColor.RED);
+                        game.selectColor(b, PlayerColor.BLUE);
+                        game.selectColor(c, PlayerColor.GREEN);
+                        game.selectColor(d, PlayerColor.YELLOW);
+                        for (PlayerProfile p : playerProfiles) {
+                            game.selectObjective(p, game.getObjectiveOptions(p).stream().toList().getFirst());
+                        }
+                    });
+                }
+        );
+
+
         GameManager gm1 = new GameManager(dataDir);
         assertEquals(k, gm1.getGames().size());
     }
