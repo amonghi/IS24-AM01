@@ -37,10 +37,10 @@ public class Game implements EventEmitter<GameEvent> {
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
-    private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
+    transient private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
     private final Map<PlayerProfile, Card> startingCards;
-    private SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
-    private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
+    transient private SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
+    transient private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
     private final Map<PlayerProfile, Boolean> connections;
@@ -776,12 +776,18 @@ public class Game implements EventEmitter<GameEvent> {
     private void removePlayer(PlayerProfile pp) {
         playerProfiles.remove(pp);
         connections.remove(pp);
-        startingCardSideSelectionPhase.getSelectorFor(pp).dropOut();
         startingCards.remove(pp);
-        colorSelectionPhase.getSelectorFor(pp).dropOut();
-        objectiveSelectionPhase.getSelectorFor(pp).dropOut();
         playersData.remove(pp);
         playAreas.remove(pp);
+        if (startingCardSideSelectionPhase != null) {
+            startingCardSideSelectionPhase.getSelectorFor(pp).dropOut();
+        }
+        if (colorSelectionPhase != null) {
+            colorSelectionPhase.getSelectorFor(pp).dropOut();
+        }
+        if (objectiveSelectionPhase != null) {
+            objectiveSelectionPhase.getSelectorFor(pp).dropOut();
+        }
         getEmitter().emit(new PlayerLeftEvent(pp));
     }
 
@@ -795,10 +801,12 @@ public class Game implements EventEmitter<GameEvent> {
     }
 
     private void handleDisconnectionDuringSetup() {
-        // TODO: manage SETUP_COLOR case
         if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideSelectionPhase.isConcluded()) {
             transition(GameStatus.SETUP_COLOR);
             getEmitter().emit(new AllPlayersChoseStartingCardSideEvent());
+        } else if (status == GameStatus.SETUP_COLOR && colorSelectionPhase.isConcluded()) {
+            transition(GameStatus.SETUP_OBJECTIVE);
+            getEmitter().emit(new AllColorChoicesSettledEvent());
         } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveSelectionPhase.isConcluded()) {
             setupAndStartTurnPhase();
             getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));

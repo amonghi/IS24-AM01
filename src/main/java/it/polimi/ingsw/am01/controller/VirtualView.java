@@ -457,6 +457,10 @@ public class VirtualView implements Runnable {
     }
 
     private void playerLeft(PlayerLeftFromGameEvent event) throws NetworkException {
+        if (playerProfile == null) {
+            return;
+        }
+
         if (game == null) {
             connection.send(new UpdateGameListS2C(
                     gameManager.getGames().stream().collect(Collectors.toMap(
@@ -533,7 +537,7 @@ public class VirtualView implements Runnable {
 
     public void handleMessage(AuthenticateC2S message) throws IllegalMoveException, NetworkException {
         if (playerProfile != null) {
-            return; //TODO: maybe throw?
+            return;
         }
 
         try {
@@ -547,7 +551,6 @@ public class VirtualView implements Runnable {
                             Game::getId,
                             g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
                     ))));
-            // FIXME: should we send UpdateGameListS2C if we reconnect a player?
             handleReconnection();
         } catch (NameAlreadyTakenException e) {
             connection.send(new NameAlreadyTakenS2C(message.playerName()));
