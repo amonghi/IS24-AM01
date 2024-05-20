@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.FXMLUtil;
-import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.GUIElement;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import javafx.fxml.FXMLLoader;
@@ -14,22 +13,19 @@ import java.util.List;
 
 public abstract class SceneController implements GUIElement {
 
-    private final GUIView view;
-
-    private final String fxmlFileName;
-
     private final List<EventEmitter.Registration> viewRegistrations;
 
-    public SceneController(GUIView view) {
-        this.view = view;
-        this.fxmlFileName = FXMLUtil.getFXMLFullPath(this.getClass());
+    public SceneController() {
         this.viewRegistrations = new ArrayList<>();
     }
 
     public void loadScene(Stage stage, String title) {
-        FXMLLoader fxmlLoader = new FXMLLoader(SceneController.class.getResource(fxmlFileName));
+        FXMLLoader fxmlLoader = new FXMLLoader(SceneController.class.getResource(
+                FXMLUtil.getFXMLFullPath(this.getClass()))
+        );
+
         fxmlLoader.setController(this);
-        Scene scene = null;
+        Scene scene;
         try {
             scene = new Scene(fxmlLoader.load());
         } catch (IOException e) {
@@ -44,10 +40,6 @@ public abstract class SceneController implements GUIElement {
     }
 
     protected abstract void registerListeners();
-
-    public GUIView getView() {
-        return view;
-    }
 
     public List<EventEmitter.Registration> getViewRegistrations() {
         return viewRegistrations;

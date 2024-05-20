@@ -2,12 +2,12 @@ package it.polimi.ingsw.am01.client.gui.controller.component;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.network.message.c2s.JoinGameC2S;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
 
-public class GameController extends ComponentController {
+public class GameController extends Pane implements ComponentController {
 
     private final int gameID;
     private final int maxPlayers;
@@ -20,9 +20,7 @@ public class GameController extends ComponentController {
     @FXML
     private Button joinButton;
 
-    public GameController(GUIView view, int gameID, int maxPlayers, int currPlayers) {
-        super(view);
-
+    public GameController(int gameID, int maxPlayers, int currPlayers) {
         this.gameID = gameID;
         this.maxPlayers = maxPlayers;
         this.currPlayers = currPlayers;
@@ -37,8 +35,8 @@ public class GameController extends ComponentController {
     }
 
     @FXML
-    private void join(ActionEvent event) {
-        getView().sendMessage(
+    private void join() {
+        GUIView.getInstance().sendMessage(
                 new JoinGameC2S(
                         gameID
                 )

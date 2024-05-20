@@ -18,6 +18,9 @@ public class FXMLUtil {
     );
 
     public static String getFXMLFullPath(Class<? extends GUIElement> controllerClass) {
+        if (!resources.containsKey(controllerClass)) {
+            throw new IllegalArgumentException("Controller class " + controllerClass.getName() + " not supported");
+        }
         return RESOURCES_PATH + resources.get(controllerClass) + EXTENSION;
     }
 }

@@ -3,7 +3,6 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.event.NameAlreadyTakenEvent;
 import it.polimi.ingsw.am01.network.message.c2s.AuthenticateC2S;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,10 +21,6 @@ public class AuthController extends SceneController {
     @FXML
     private Label messageLabel;
 
-    public AuthController(GUIView view) {
-        super(view);
-    }
-
     @FXML
     private void initialize() {
         messageLabel.setVisible(false);
@@ -37,7 +32,7 @@ public class AuthController extends SceneController {
     }
 
     @FXML
-    private void confirmName(ActionEvent event) {
+    private void confirmName() {
         if (nameField.getText().isEmpty()) {
             messageLabel.setVisible(true);
             messageLabel.setText("Name is empty!");
@@ -48,13 +43,13 @@ public class AuthController extends SceneController {
                 nameField.getText()
         );
 
-        getView().sendMessage(message);
+        GUIView.getInstance().sendMessage(message);
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                getView().on(NameAlreadyTakenEvent.class, this::nameAlreadyTaken)
+                GUIView.getInstance().on(NameAlreadyTakenEvent.class, this::nameAlreadyTaken)
         ));
     }
 }

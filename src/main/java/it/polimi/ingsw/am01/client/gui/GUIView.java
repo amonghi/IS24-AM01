@@ -40,8 +40,11 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     private String playerName;
 
+    private static GUIView instance = null;
+
     /*
     private int gameId;
+    private List<Message> messages;
 
     private List<String> playersInGame;
     private Map<String, PlayerColor> playerColors;
@@ -67,6 +70,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.emitter = new EventEmitterImpl<>();
         this.stage = stage;
         this.connection = connection;
+        instance = this;
 
 
         stage.setOnCloseRequest((e) -> {
@@ -76,8 +80,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
         });
 
 
-        this.AUTH_CONTROLLER = new AuthController(this);
-        this.GAME_LIST_CONTROLLER = new GameListController(this);
+        this.AUTH_CONTROLLER = new AuthController();
+        this.GAME_LIST_CONTROLLER = new GameListController();
 
 
         AUTH_CONTROLLER.loadScene(stage, "Codex Naturalis");
@@ -153,5 +157,13 @@ public class GUIView implements EventEmitter<ViewEvent> {
     @Override
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
+    }
+
+    public static GUIView getInstance(){
+        if(instance != null){
+            return instance;
+        } else {
+            throw new RuntimeException(); //TODO: handle
+        }
     }
 }

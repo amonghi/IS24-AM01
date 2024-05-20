@@ -17,14 +17,15 @@ public class GameListController extends SceneController {
     @FXML
     private Label playerNameLabel;
 
-    public GameListController(GUIView view) {
-        super(view);
+    @FXML
+    private void initialize() {
+        playerNameLabel.setText("Logged as " + GUIView.getInstance().getPlayerName());
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                getView().on(GameListChangedEvent.class, this::updateGameList)
+                GUIView.getInstance().on(GameListChangedEvent.class, this::updateGameList)
         ));
     }
 
@@ -32,7 +33,7 @@ public class GameListController extends SceneController {
         box.getChildren().clear();
         for (Integer gameID : event.gameStatMap().keySet()) {
             box.getChildren().add(
-                    new GameController(getView(), gameID, event.gameStatMap().get(gameID).maxPlayers(), event.gameStatMap().get(gameID).currentPlayersConnected())
+                    new GameController(gameID, event.gameStatMap().get(gameID).maxPlayers(), event.gameStatMap().get(gameID).currentPlayersConnected())
             );
         }
     }
