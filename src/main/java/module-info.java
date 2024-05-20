@@ -4,6 +4,8 @@ module it.polimi.ingsw.am01 {
     requires org.controlsfx.controls;
     requires com.google.gson;
     requires java.rmi;
+    requires com.sun.jna;
+    requires jdk.unsupported;
 
     opens it.polimi.ingsw.am01 to javafx.fxml;
     opens it.polimi.ingsw.am01.model.card to com.google.gson;
@@ -25,6 +27,8 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.eventemitter to com.google.gson;
     opens it.polimi.ingsw.am01.model.event to com.google.gson;
     opens it.polimi.ingsw.am01.controller to com.google.gson;
+
+    opens it.polimi.ingsw.am01.tui.terminal to com.sun.jna;
 
     exports it.polimi.ingsw.am01;
     exports it.polimi.ingsw.am01.network to java.rmi;
