@@ -10,6 +10,13 @@ public class LobbyController extends SceneController {
     @FXML
     private VBox playerList;
 
+    @FXML
+    private Label gameId;
+
+    @FXML
+    private void initialize() {
+        gameId.setText("In game #" + GUIView.getInstance().getGameId());
+    }
 
     @Override
     protected void registerListeners() {
@@ -20,7 +27,7 @@ public class LobbyController extends SceneController {
 
     private void updatePlayerList(PlayerListChangedEvent event) {
         playerList.getChildren().clear();
-        for(String player : event.playerList()){
+        for (String player : event.playerList()) {
             playerList.getChildren().add(new Label(player));
         }
     }
