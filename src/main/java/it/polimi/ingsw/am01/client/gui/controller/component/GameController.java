@@ -5,9 +5,9 @@ import it.polimi.ingsw.am01.network.message.c2s.JoinGameC2S;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.AnchorPane;
 
-public class GameController extends Pane implements ComponentController {
+public class GameController extends AnchorPane implements ComponentController {
 
     private final int gameID;
     private final int maxPlayers;
