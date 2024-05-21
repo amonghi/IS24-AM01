@@ -781,6 +781,8 @@ public class Game implements EventEmitter<GameEvent> {
     }
 
     private void removePlayer(PlayerProfile pp) {
+        getEmitter().emit(new PlayerJoinedEvent(pp));
+
         playerProfiles.remove(pp);
         connections.remove(pp);
         startingCards.remove(pp);

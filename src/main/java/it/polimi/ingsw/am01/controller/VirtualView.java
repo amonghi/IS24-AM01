@@ -473,6 +473,12 @@ public class VirtualView implements Runnable {
                             game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
                     ))
             ));
+        } else if (game.equals(event.game())) {
+            connection.send(
+                    new UpdatePlayerListS2C(
+                            game.getPlayerProfiles().stream().map(PlayerProfile::getName).collect(Collectors.toList())
+                    )
+            );
         }
     }
 

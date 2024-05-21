@@ -19,7 +19,7 @@ public abstract class SceneController implements GUIElement {
         this.viewRegistrations = new ArrayList<>();
     }
 
-    public void loadScene(Stage stage, String title) {
+    public void loadScene(Stage stage, double width, double height) {
         FXMLLoader fxmlLoader = new FXMLLoader(SceneController.class.getResource(
                 Constants.RESOURCES_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
         ));
@@ -27,11 +27,11 @@ public abstract class SceneController implements GUIElement {
         fxmlLoader.setController(this);
         Scene scene;
         try {
-            scene = new Scene(fxmlLoader.load());
+            scene = new Scene(fxmlLoader.load(), width, height);
         } catch (IOException e) {
             throw new RuntimeException(e); //TODO: manage
         }
-        stage.setTitle(title);
+        stage.setTitle(Constants.WINDOW_TITLE);
         stage.setScene(scene);
 
         registerListeners();

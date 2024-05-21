@@ -1,10 +1,16 @@
 package it.polimi.ingsw.am01.client.gui;
 
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
+import it.polimi.ingsw.am01.client.gui.controller.scene.LobbyController;
 import it.polimi.ingsw.am01.client.gui.controller.scene.AuthController;
 import it.polimi.ingsw.am01.client.gui.controller.scene.GameListController;
 import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
 import it.polimi.ingsw.am01.client.gui.controller.scene.SceneController;
 import it.polimi.ingsw.am01.client.gui.event.*;
+import it.polimi.ingsw.am01.client.gui.event.GameListChangedEvent;
+import it.polimi.ingsw.am01.client.gui.event.NameAlreadyTakenEvent;
+import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
+import it.polimi.ingsw.am01.client.gui.event.ViewEvent;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
@@ -29,15 +35,15 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private final AuthController AUTH_CONTROLLER;
     private final GameListController GAME_LIST_CONTROLLER;
     private final PlayAreaController PLAY_CONTROLLER;
+    private final LobbyController LOBBY_CONTROLLER;
+
     private SceneController currentSceneController;
-    private Map<Integer, UpdateGameListS2C.GameStat> games; //FIXME: maybe useless
+    private Map<Integer, UpdateGameListS2C.GameStat> games;
     private String playerName;
+    private int gameId;
 
     /*
-    private int gameId;
     private List<Message> messages;
-
-    private List<String> playersInGame;
     private Map<String, PlayerColor> playerColors;
     private Map<String, PlayArea> playAreas;
     private Map<String, Integer> scores;
@@ -74,9 +80,10 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.AUTH_CONTROLLER = new AuthController();
         this.GAME_LIST_CONTROLLER = new GameListController();
         this.PLAY_CONTROLLER = new PlayAreaController();
+        this.LOBBY_CONTROLLER = new LobbyController();
 
 
-        AUTH_CONTROLLER.loadScene(stage, "Codex Naturalis");
+        AUTH_CONTROLLER.loadScene(stage, Constants.WIDTH, Constants.HEIGHT);
         currentSceneController = AUTH_CONTROLLER;
 
         this.games = new HashMap<>();
@@ -94,8 +101,10 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case SetPlayablePositionsS2C m -> handleMessage(m);
                             case UpdatePlayAreaS2C m -> handleMessage(m);
                             case InvalidPlacementS2C m -> handleMessage(m);
-                            case PingS2C m -> {
-                            }
+                            case GameJoinedS2C m -> handleMessage(m);
+                            case UpdatePlayerListS2C m -> handleMessage(m);
+                            case PlayerDisconnectedS2C m -> {}
+                            case PingS2C m -> {}
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
                         }
                     });
@@ -116,7 +125,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     private void handleMessage(SetPlayerNameS2C message) {
         this.playerName = message.playerName();
-        changeScene(GAME_LIST_CONTROLLER, "Games List");
+        changeScene(GAME_LIST_CONTROLLER);
     }
 
     private void handleMessage(NameAlreadyTakenS2C message) {
@@ -145,10 +154,20 @@ public class GUIView implements EventEmitter<ViewEvent> {
         emitter.emit(new InvalidPlacementEvent());
     }
 
-    private void changeScene(SceneController newSceneController, String newTitle) { //TODO: newTitle input or static value?
+    private void handleMessage(GameJoinedS2C message) {
+        gameId = message.gameId();
+        changeScene(LOBBY_CONTROLLER);
+    }
+
+    private void handleMessage(UpdatePlayerListS2C m) {
+        emitter.emit(new PlayerListChangedEvent(m.playerList()));
+    }
+
+    private void changeScene(SceneController newSceneController) { //TODO: newTitle input or static value?
         currentSceneController.getViewRegistrations().forEach(this::unregister);
         currentSceneController.getViewRegistrations().clear();
-        newSceneController.loadScene(this.stage, newTitle);
+
+        newSceneController.loadScene(this.stage, stage.getScene().getWidth(), stage.getScene().getHeight());
         currentSceneController = newSceneController;
     }
 
@@ -177,5 +196,9 @@ public class GUIView implements EventEmitter<ViewEvent> {
     @Override
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
+    }
+
+    public int getGameId() {
+        return gameId;
     }
 }
