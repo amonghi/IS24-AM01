@@ -2,10 +2,9 @@ package it.polimi.ingsw.am01.client.gui;
 
 import it.polimi.ingsw.am01.client.gui.controller.scene.AuthController;
 import it.polimi.ingsw.am01.client.gui.controller.scene.GameListController;
+import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
 import it.polimi.ingsw.am01.client.gui.controller.scene.SceneController;
-import it.polimi.ingsw.am01.client.gui.event.GameListChangedEvent;
-import it.polimi.ingsw.am01.client.gui.event.NameAlreadyTakenEvent;
-import it.polimi.ingsw.am01.client.gui.event.ViewEvent;
+import it.polimi.ingsw.am01.client.gui.event.*;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
@@ -14,33 +13,25 @@ import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
-import it.polimi.ingsw.am01.network.message.s2c.NameAlreadyTakenS2C;
-import it.polimi.ingsw.am01.network.message.s2c.PingS2C;
-import it.polimi.ingsw.am01.network.message.s2c.SetPlayerNameS2C;
-import it.polimi.ingsw.am01.network.message.s2c.UpdateGameListS2C;
+import it.polimi.ingsw.am01.network.message.s2c.*;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GUIView implements EventEmitter<ViewEvent> {
+    private static GUIView instance = null;
     private final EventEmitterImpl<ViewEvent> emitter;
-
     private final Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private final Stage stage;
-
-
     private final AuthController AUTH_CONTROLLER;
     private final GameListController GAME_LIST_CONTROLLER;
-
+    private final PlayAreaController PLAY_CONTROLLER;
     private SceneController currentSceneController;
-
     private Map<Integer, UpdateGameListS2C.GameStat> games; //FIXME: maybe useless
-
     private String playerName;
-
-    private static GUIView instance = null;
 
     /*
     private int gameId;
@@ -82,6 +73,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
         this.AUTH_CONTROLLER = new AuthController();
         this.GAME_LIST_CONTROLLER = new GameListController();
+        this.PLAY_CONTROLLER = new PlayAreaController();
 
 
         AUTH_CONTROLLER.loadScene(stage, "Codex Naturalis");
@@ -99,6 +91,9 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case SetPlayerNameS2C m -> handleMessage(m);
                             case NameAlreadyTakenS2C m -> handleMessage(m);
                             case UpdateGameListS2C m -> handleMessage(m);
+                            case SetPlayablePositionsS2C m -> handleMessage(m);
+                            case UpdatePlayAreaS2C m -> handleMessage(m);
+                            case InvalidPlacementS2C m -> handleMessage(m);
                             case PingS2C m -> {
                             }
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
@@ -109,6 +104,14 @@ public class GUIView implements EventEmitter<ViewEvent> {
                 }
             }
         }).start();
+    }
+
+    public static GUIView getInstance() {
+        if (instance != null) {
+            return instance;
+        } else {
+            throw new RuntimeException(); //TODO: handle
+        }
     }
 
     private void handleMessage(SetPlayerNameS2C message) {
@@ -123,6 +126,23 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private void handleMessage(UpdateGameListS2C message) {
         this.games = message.gamesStatMap();
         emitter.emit(new GameListChangedEvent(games));
+    }
+
+    private void handleMessage(SetPlayablePositionsS2C message) {
+        List<Position> playablePositions = message
+                .playablePositions()
+                .stream()
+                .map(playablePosition -> new Position(playablePosition.i(), playablePosition.j()))
+                .toList();
+        emitter.emit(new UpdatePlayablePositionsEvent(playablePositions));
+    }
+
+    private void handleMessage(UpdatePlayAreaS2C message) {
+        emitter.emit(new UpdatePlayAreaEvent());
+    }
+
+    private void handleMessage(InvalidPlacementS2C message) {
+        emitter.emit(new InvalidPlacementEvent());
     }
 
     private void changeScene(SceneController newSceneController, String newTitle) { //TODO: newTitle input or static value?
@@ -140,7 +160,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         try {
             connection.send(message);
         } catch (SendNetworkException e) {
-            throw new RuntimeException(e); //TOOD: manage
+            throw new RuntimeException(e); //TODO: manage
         }
     }
 
@@ -157,13 +177,5 @@ public class GUIView implements EventEmitter<ViewEvent> {
     @Override
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
-    }
-
-    public static GUIView getInstance(){
-        if(instance != null){
-            return instance;
-        } else {
-            throw new RuntimeException(); //TODO: handle
-        }
     }
 }
