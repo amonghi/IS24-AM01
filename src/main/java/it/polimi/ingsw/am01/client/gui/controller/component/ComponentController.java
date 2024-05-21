@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.FXMLUtil;
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.GUIElement;
 import javafx.fxml.FXMLLoader;
 
@@ -10,7 +10,7 @@ public interface ComponentController extends GUIElement {
 
     default void loadComponent() {
         FXMLLoader fxmlLoader = new FXMLLoader(ComponentController.class.getResource(
-                FXMLUtil.getFXMLFullPath(this.getClass())
+                Constants.RESOURCES_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
         ));
 
         fxmlLoader.setRoot(this);

@@ -52,4 +52,9 @@ public class AuthController extends SceneController {
                 GUIView.getInstance().on(NameAlreadyTakenEvent.class, this::nameAlreadyTaken)
         ));
     }
+
+    @Override
+    public String getFXMLFileName() {
+        return "auth";
+    }
 }

@@ -42,4 +42,9 @@ public class GameController extends AnchorPane implements ComponentController {
                 )
         );
     }
+
+    @Override
+    public String getFXMLFileName() {
+        return "game";
+    }
 }

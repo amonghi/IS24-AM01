@@ -37,4 +37,9 @@ public class GameListController extends SceneController {
             );
         }
     }
+
+    @Override
+    public String getFXMLFileName() {
+        return "games_list";
+    }
 }

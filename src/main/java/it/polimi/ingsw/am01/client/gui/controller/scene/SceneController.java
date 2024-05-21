@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
-import it.polimi.ingsw.am01.client.gui.FXMLUtil;
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.GUIElement;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import javafx.fxml.FXMLLoader;
@@ -21,8 +21,8 @@ public abstract class SceneController implements GUIElement {
 
     public void loadScene(Stage stage, String title) {
         FXMLLoader fxmlLoader = new FXMLLoader(SceneController.class.getResource(
-                FXMLUtil.getFXMLFullPath(this.getClass()))
-        );
+                Constants.RESOURCES_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
+        ));
 
         fxmlLoader.setController(this);
         Scene scene;
