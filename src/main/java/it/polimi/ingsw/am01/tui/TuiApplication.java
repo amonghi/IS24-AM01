@@ -27,9 +27,10 @@ public class TuiApplication {
     private static final char EXIT_CHAR = 'q';
 
     private final Terminal terminal;
+    private final KeyboardReader keyboard;
     private ExecutorService renderService;
 
-    private char lastPressed;
+    private String lastPressed;
     private boolean alreadyShutDown;
     private EventEmitter.Registration registration;
 
@@ -37,6 +38,7 @@ public class TuiApplication {
         this.terminal = new UnixTerminal();
         this.renderService = null;
         this.alreadyShutDown = false;
+        this.keyboard = new KeyboardReader(System.in);
     }
 
     public void start() {
@@ -51,14 +53,31 @@ public class TuiApplication {
         Thread keyboardListenerThread = new Thread(() -> {
             while (true) {
                 try {
-                    int c = System.in.read();
-                    if (c == EXIT_CHAR) {
+                    Key key = this.keyboard.nextSupportedKey();
+
+                    boolean quit = false;
+                    String keyString = switch (key) {
+                        case Key.Character(char c) -> {
+                            if (c == EXIT_CHAR) {
+                                quit = true;
+                            }
+                            yield String.valueOf(c);
+                        }
+                        case Key.Arrow(Key.Arrow.Direction dir) -> switch (dir) {
+                            case UP -> "⬆️";
+                            case DOWN -> "⬇️";
+                            case LEFT -> "⬅️";
+                            case RIGHT -> "➡️";
+                        };
+                    };
+
+                    if (quit) {
                         this.shutdown();
                         return;
                     }
 
                     renderService.submit(() -> {
-                        this.lastPressed = (char) c;
+                        this.lastPressed = keyString;
                         draw();
                     });
                 } catch (IOException e) {
@@ -121,7 +140,7 @@ public class TuiApplication {
                                 new FlexRow(List.of(
                                         new FlexChild.Flexible(1, Centered.horizontally(
                                                 new SpaceAround(1, 1, 1, 1,
-                                                        new Text("Keypress: " + lastPressed)
+                                                        new Text("Last pressed: " + lastPressed)
                                                 )
                                         ))
                                 ))
