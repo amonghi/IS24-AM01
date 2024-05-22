@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.GUIElement;
+import it.polimi.ingsw.am01.client.gui.controller.popup.PopupController;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,6 +15,7 @@ import java.util.List;
 public abstract class SceneController implements GUIElement {
 
     private final List<EventEmitter.Registration> viewRegistrations;
+    private Stage primaryStage;
 
     public SceneController() {
         this.viewRegistrations = new ArrayList<>();
@@ -25,6 +27,8 @@ public abstract class SceneController implements GUIElement {
         ));
 
         fxmlLoader.setController(this);
+        this.primaryStage = stage;
+
         Scene scene;
         try {
             scene = new Scene(fxmlLoader.load(), width, height);
@@ -37,6 +41,10 @@ public abstract class SceneController implements GUIElement {
         registerListeners();
 
         stage.show();
+    }
+
+    protected void openPopup(PopupController popupController) {
+        popupController.loadPopup(primaryStage);
     }
 
     protected abstract void registerListeners();

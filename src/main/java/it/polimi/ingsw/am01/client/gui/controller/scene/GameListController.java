@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.component.GameController;
+import it.polimi.ingsw.am01.client.gui.controller.popup.GameCreationPopupController;
 import it.polimi.ingsw.am01.client.gui.event.GameListChangedEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -36,6 +37,10 @@ public class GameListController extends SceneController {
                     new GameController(gameID, event.gameStatMap().get(gameID).maxPlayers(), event.gameStatMap().get(gameID).currentPlayersConnected())
             );
         }
+    }
+
+    public void newGame() {
+        openPopup(new GameCreationPopupController());
     }
 
     @Override

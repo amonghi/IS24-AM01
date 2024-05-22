@@ -1,0 +1,37 @@
+package it.polimi.ingsw.am01.client.gui.controller.popup;
+
+import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.network.message.c2s.CreateGameAndJoinC2S;
+import javafx.fxml.FXML;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+
+public class GameCreationPopupController extends PopupController {
+
+    @FXML
+    private Spinner<Integer> spinner;
+
+    @FXML
+    public void initialize() {
+        SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 4);
+        valueFactory.setValue(2);
+
+        spinner.setValueFactory(valueFactory);
+    }
+
+    @FXML
+    private void confirm() {
+        GUIView.getInstance().sendMessage(new CreateGameAndJoinC2S(spinner.getValue()));
+        closePopup();
+    }
+
+    @Override
+    public String getFXMLFileName() {
+        return "create_game_popup";
+    }
+
+    @Override
+    protected String getPopupTitle() {
+        return "Create a game";
+    }
+}

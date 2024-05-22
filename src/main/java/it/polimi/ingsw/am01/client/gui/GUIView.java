@@ -1,16 +1,8 @@
 package it.polimi.ingsw.am01.client.gui;
 
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
-import it.polimi.ingsw.am01.client.gui.controller.scene.LobbyController;
-import it.polimi.ingsw.am01.client.gui.controller.scene.AuthController;
-import it.polimi.ingsw.am01.client.gui.controller.scene.GameListController;
-import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
-import it.polimi.ingsw.am01.client.gui.controller.scene.SceneController;
+import it.polimi.ingsw.am01.client.gui.controller.scene.*;
 import it.polimi.ingsw.am01.client.gui.event.*;
-import it.polimi.ingsw.am01.client.gui.event.GameListChangedEvent;
-import it.polimi.ingsw.am01.client.gui.event.NameAlreadyTakenEvent;
-import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
-import it.polimi.ingsw.am01.client.gui.event.ViewEvent;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
@@ -83,7 +75,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.LOBBY_CONTROLLER = new LobbyController();
 
 
-        AUTH_CONTROLLER.loadScene(stage, Constants.WIDTH, Constants.HEIGHT);
+        AUTH_CONTROLLER.loadScene(stage, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         currentSceneController = AUTH_CONTROLLER;
 
         this.games = new HashMap<>();
@@ -103,8 +95,10 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case InvalidPlacementS2C m -> handleMessage(m);
                             case GameJoinedS2C m -> handleMessage(m);
                             case UpdatePlayerListS2C m -> handleMessage(m);
-                            case PlayerDisconnectedS2C m -> {}
-                            case PingS2C m -> {}
+                            case PlayerDisconnectedS2C m -> {
+                            }
+                            case PingS2C m -> {
+                            }
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
                         }
                     });
