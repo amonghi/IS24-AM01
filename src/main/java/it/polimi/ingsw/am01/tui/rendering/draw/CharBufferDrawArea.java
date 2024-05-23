@@ -39,9 +39,11 @@ public class CharBufferDrawArea implements DrawArea {
         StringBuilder builder = new StringBuilder();
 
         for (int i = 0; i < this.dimensions.height(); i++) {
-            builder
-                    .append(this.buffer, i * this.dimensions.width(), this.dimensions.width())
-                    .append("\r\n");
+            builder.append(this.buffer, i * this.dimensions.width(), this.dimensions.width());
+
+            if (i != this.dimensions.height() - 1) {
+                builder.append("\r\n");
+            }
         }
 
         return builder.toString();

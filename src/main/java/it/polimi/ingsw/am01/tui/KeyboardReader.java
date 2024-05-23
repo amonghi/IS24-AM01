@@ -24,24 +24,64 @@ public class KeyboardReader {
 
     public Optional<Key> nextKey() throws IOException {
         char c1 = this.readChar();
+
+        if (c1 == 127) {
+            return Optional.of(new Key.Backspace());
+        }
+
         if (c1 != '\033') {
             return Optional.of(new Key.Character(c1));
         }
 
         char c2 = this.readChar();
-        if (c2 != '[') {
-            return Optional.empty();
-        }
+        Key k = switch (c2) {
+            case '[' -> {
+                char c3 = this.readChar();
+                yield switch (c3) {
+                    case 'A' -> new Key.Arrow(Key.Arrow.Direction.UP);
+                    case 'B' -> new Key.Arrow(Key.Arrow.Direction.DOWN);
+                    case 'C' -> new Key.Arrow(Key.Arrow.Direction.RIGHT);
+                    case 'D' -> new Key.Arrow(Key.Arrow.Direction.LEFT);
+                    case 'H' -> new Key.Home();
+                    case 'F' -> new Key.End();
 
-        char c3 = this.readChar();
-        Key arrow = switch (c3) {
-            case 'A' -> new Key.Arrow(Key.Arrow.Direction.UP);
-            case 'B' -> new Key.Arrow(Key.Arrow.Direction.DOWN);
-            case 'C' -> new Key.Arrow(Key.Arrow.Direction.RIGHT);
-            case 'D' -> new Key.Arrow(Key.Arrow.Direction.LEFT);
+                    case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                        int c4 = System.in.read();
+                        if (c4 != '~') {
+                            yield null;
+                        }
+
+                        yield switch (c3) {
+                            case '1', '7':
+                                yield new Key.Home();
+                            case '3':
+                                yield new Key.Del();
+                            case '4', '8':
+                                yield new Key.End();
+                            case '5':
+                                yield new Key.PageUp();
+                            case '6':
+                                yield new Key.PageDown();
+                            default:
+                                yield null;
+                        };
+                    }
+
+                    default -> null;
+                };
+            }
+            case 'O' -> {
+                char c3 = this.readChar();
+                yield switch (c3) {
+                    case 'H' -> new Key.Home();
+                    case 'F' -> new Key.End();
+                    default -> null;
+                };
+            }
             default -> null;
         };
-        return Optional.ofNullable(arrow);
+
+        return Optional.ofNullable(k);
     }
 
     private char readChar() throws IOException {
