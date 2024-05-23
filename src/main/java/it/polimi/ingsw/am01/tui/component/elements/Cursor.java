@@ -9,26 +9,15 @@ import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
 
 import java.util.List;
 
-public class Text implements Component {
-    private final String text;
-
-    public Text(String text) {
-        this.text = text;
-    }
-
+public class Cursor implements Component {
     @Override
     public Sized layout(Constraint constraint) {
-        return new Sized(
-                this,
-                Dimensions.constrained(constraint, this.text.length(), 1),
-                List.of()
-        );
+        Dimensions d = Dimensions.constrained(constraint, 1, 1);
+        return new Sized(this, d, List.of());
     }
 
     @Override
     public void drawSelf(RenderingContext ctx, DrawArea a) {
-        for (int i = 0; i < this.text.length(); i++) {
-            a.draw(i, 0, this.text.charAt(i));
-        }
+        ctx.global().setCursorPosition(ctx.local().getOffset());
     }
 }

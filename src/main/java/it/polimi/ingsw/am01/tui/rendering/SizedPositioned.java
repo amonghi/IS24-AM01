@@ -11,12 +11,16 @@ public record SizedPositioned(
         Position position,
         List<SizedPositioned> children
 ) {
-    public void draw(DrawArea parentArea) {
-        DrawArea a = parentArea.window(position, dimensions);
-        this.component.drawSelf(a);
+    public void draw(RenderingContext ctx, DrawArea parentArea) {
+        RenderingContext newCtx = new RenderingContext(
+                ctx.global(),
+                new RenderingContext.Local(ctx.local().getOffset().add(this.position()))
+        );
+        DrawArea da = parentArea.window(position, dimensions);
+        this.component.drawSelf(newCtx, da);
 
         for (SizedPositioned child : children) {
-            child.draw(a);
+            child.draw(newCtx, da);
         }
     }
 }
