@@ -40,7 +40,6 @@ public class WindowDrawArea implements DrawArea {
 
     @Override
     public DrawArea window(Position p, Dimensions d) {
-        // FIXME: avoid cascade effect
         return new WindowDrawArea(this.baseDrawArea, this.position.add(p), d);
     }
 }
