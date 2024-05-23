@@ -9,4 +9,22 @@ public sealed interface Key {
             UP, DOWN, LEFT, RIGHT
         }
     }
+
+    record Backspace() implements Key {
+    }
+
+    record Del() implements Key {
+    }
+
+    record Home() implements Key {
+    }
+
+    record End() implements Key {
+    }
+
+    record PageUp() implements Key {
+    }
+
+    record PageDown() implements Key {
+    }
 }

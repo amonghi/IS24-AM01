@@ -1,10 +1,7 @@
 package it.polimi.ingsw.am01.tui.component.elements;
 
 import it.polimi.ingsw.am01.tui.component.Component;
-import it.polimi.ingsw.am01.tui.rendering.Constraint;
-import it.polimi.ingsw.am01.tui.rendering.Position;
-import it.polimi.ingsw.am01.tui.rendering.Sized;
-import it.polimi.ingsw.am01.tui.rendering.SizedPositioned;
+import it.polimi.ingsw.am01.tui.rendering.*;
 import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
 
 import java.util.List;
@@ -32,7 +29,7 @@ public class Border implements Component {
     }
 
     @Override
-    public void drawSelf(DrawArea a) {
+    public void drawSelf(RenderingContext ctx, DrawArea a) {
         int w = a.dimensions().width() - 1;
         int h = a.dimensions().height() - 1;
 

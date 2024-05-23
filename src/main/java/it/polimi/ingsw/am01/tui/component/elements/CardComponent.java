@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.tui.component.elements;
 import it.polimi.ingsw.am01.tui.component.Component;
 import it.polimi.ingsw.am01.tui.rendering.Constraint;
 import it.polimi.ingsw.am01.tui.rendering.Dimensions;
+import it.polimi.ingsw.am01.tui.rendering.RenderingContext;
 import it.polimi.ingsw.am01.tui.rendering.Sized;
 import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
 
@@ -45,7 +46,7 @@ public class CardComponent implements Component {
     }
 
     @Override
-    public void drawSelf(DrawArea a) {
+    public void drawSelf(RenderingContext ctx, DrawArea a) {
         // TODO: render a card for real
         for (int y = 0; y < CARD_H && y < a.dimensions().height(); y++) {
             for (int x = 0; x < CARD_W && x < a.dimensions().width(); x++) {
