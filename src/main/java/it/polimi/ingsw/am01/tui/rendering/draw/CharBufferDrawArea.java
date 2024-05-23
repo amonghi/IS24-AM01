@@ -26,6 +26,11 @@ public class CharBufferDrawArea implements DrawArea {
 
     @Override
     public void draw(int x, int y, char c) {
+        // ensure draw is within bounds
+        if (x < 0 || y < 0 || x >= dimensions.width() || y >= dimensions.height()) {
+            return;
+        }
+
         this.buffer[y * dimensions.width() + x] = c;
     }
 
