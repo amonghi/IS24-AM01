@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am01.tui.rendering;
 
-// FIXME: disallow negative values
 public record Dimensions(int width, int height) {
     public static final Dimensions ZERO = new Dimensions(0, 0);
 
@@ -18,6 +17,12 @@ public record Dimensions(int width, int height) {
         h = Math.min(h, constraint.max().height);
 
         return new Dimensions(w, h);
+    }
+
+    public Dimensions {
+        if (width < 0 || height < 0) {
+            throw new IllegalArgumentException("Dimensions must have positive width and height");
+        }
     }
 
     public Dimensions constrain(Constraint constraint) {
