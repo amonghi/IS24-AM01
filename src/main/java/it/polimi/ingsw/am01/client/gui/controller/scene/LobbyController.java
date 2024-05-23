@@ -1,14 +1,15 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.gui.controller.component.PlayerSlotController;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 
 public class LobbyController extends SceneController {
     @FXML
-    private VBox playerList;
+    private HBox playerList;
 
     @FXML
     private Label gameId;
@@ -27,8 +28,13 @@ public class LobbyController extends SceneController {
 
     private void updatePlayerList(PlayerListChangedEvent event) {
         playerList.getChildren().clear();
+
         for (String player : event.playerList()) {
-            playerList.getChildren().add(new Label(player));
+            playerList.getChildren().add(PlayerSlotController.of(player));
+        }
+        // TODO: replace 4 with maxPlayers
+        for (int i = 0; i < 4 - event.playerList().size(); i++) {
+            playerList.getChildren().add(PlayerSlotController.empty());
         }
     }
 
@@ -36,5 +42,11 @@ public class LobbyController extends SceneController {
     @Override
     public String getFXMLFileName() {
         return "lobby";
+    }
+
+
+    @FXML
+    private void start() {
+
     }
 }
