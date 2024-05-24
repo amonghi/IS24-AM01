@@ -17,7 +17,7 @@ public abstract class PopupController implements GUIElement {
 
     public void loadPopup(Stage primaryStage) {
         FXMLLoader fxmlLoader = new FXMLLoader(ComponentController.class.getResource(
-                Constants.RESOURCES_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
+                Constants.FXML_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
         ));
 
         fxmlLoader.setController(this);

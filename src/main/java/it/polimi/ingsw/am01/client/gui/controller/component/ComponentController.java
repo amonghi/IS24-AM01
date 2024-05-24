@@ -10,7 +10,7 @@ public interface ComponentController extends GUIElement {
 
     default void loadComponent() {
         FXMLLoader fxmlLoader = new FXMLLoader(ComponentController.class.getResource(
-                Constants.RESOURCES_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
+                Constants.FXML_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
         ));
 
         fxmlLoader.setRoot(this);

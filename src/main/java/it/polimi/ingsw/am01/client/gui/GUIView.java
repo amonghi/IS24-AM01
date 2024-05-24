@@ -6,6 +6,9 @@ import it.polimi.ingsw.am01.client.gui.event.*;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
+import it.polimi.ingsw.am01.model.game.GameAssets;
+import it.polimi.ingsw.am01.model.game.GameStatus;
+import it.polimi.ingsw.am01.model.game.PlayArea;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
@@ -15,6 +18,7 @@ import it.polimi.ingsw.am01.network.message.s2c.*;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +32,26 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private final GameListController GAME_LIST_CONTROLLER;
     private final PlayAreaController PLAY_CONTROLLER;
     private final LobbyController LOBBY_CONTROLLER;
+    private final SelectStartingCardSideController STARTING_CARD_SIDE_CHOICE_CONTROLLER;
+    private final SelectPlayerColorController PLAYER_COLOR_CHOICE_CONTROLLER;
+    private final SelectObjectiveController OBJECTIVE_CHOICE_CONTROLLER;
 
     private SceneController currentSceneController;
     private Map<Integer, UpdateGameListS2C.GameStat> games;
     private String playerName;
     private int gameId;
 
+    private Map<String, PlayArea> playAreas;
+    private int startingCardId;
+    private List<String> playersInGame;
+
+    private int secretObjectiveChoiceId;
+    private List<Integer> secretObjectivesId;
+
+
     /*
     private List<Message> messages;
     private Map<String, PlayerColor> playerColors;
-    private Map<String, PlayArea> playAreas;
     private Map<String, Integer> scores;
 
     private GameStatus gameStatus;
@@ -49,7 +63,6 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private List<Objective> commonObjectives;
     private List<FaceUpCard> faceUpCards;
     private List<Card> hand;
-    private Objective secretObjective;
     private Map<DeckLocation, Boolean> decksAreEmpty;
 
     private List<SetPlayablePositionsS2C.PlayablePosition> playablePositions; //FIXME: maybe useless
@@ -73,12 +86,17 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.GAME_LIST_CONTROLLER = new GameListController();
         this.PLAY_CONTROLLER = new PlayAreaController();
         this.LOBBY_CONTROLLER = new LobbyController();
-
+        this.STARTING_CARD_SIDE_CHOICE_CONTROLLER = new SelectStartingCardSideController();
+        this.PLAYER_COLOR_CHOICE_CONTROLLER = new SelectPlayerColorController();
+        this.OBJECTIVE_CHOICE_CONTROLLER = new SelectObjectiveController();
 
         AUTH_CONTROLLER.loadScene(stage, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         currentSceneController = AUTH_CONTROLLER;
 
         this.games = new HashMap<>();
+        this.playAreas = new HashMap<>();
+        this.playersInGame = new ArrayList<>();
+        this.secretObjectivesId = new ArrayList<>();
         //TODO: initialize others...
 
         new Thread(() -> {
@@ -95,6 +113,11 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case InvalidPlacementS2C m -> handleMessage(m);
                             case GameJoinedS2C m -> handleMessage(m);
                             case UpdatePlayerListS2C m -> handleMessage(m);
+                            case SetStartingCardS2C m -> handleMessage(m);
+                            case UpdateGameStatusS2C m -> handleMessage(m);
+                            case UpdatePlayerColorS2C m -> handleMessage(m);
+                            case UpdateGameStatusAndSetupObjectiveS2C m -> handleMessage(m);
+                            case UpdateObjectiveSelectedS2C m -> handleMessage(m);
                             case PlayerDisconnectedS2C m -> {
                             }
                             case PingS2C m -> {
@@ -141,7 +164,19 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(UpdatePlayAreaS2C message) {
-        emitter.emit(new UpdatePlayAreaEvent());
+        emitter.emit(new UpdatePlayAreaEvent(
+                message.playerName(),
+                message.i(),
+                message.j(),
+                message.cardId(),
+                message.side(),
+                message.seq(),
+                message.points()
+        ));
+
+        if (!playAreas.containsKey(message.playerName())) {
+            playAreas.put(message.playerName(), new PlayArea(GameAssets.getInstance().getCardById(message.cardId()).get(), message.side())); //TODO: manage get() exception
+        }
     }
 
     private void handleMessage(InvalidPlacementS2C message) {
@@ -155,9 +190,44 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     private void handleMessage(UpdatePlayerListS2C m) {
         emitter.emit(new PlayerListChangedEvent(m.playerList()));
+        playersInGame.clear();
+        playersInGame.addAll(m.playerList());
     }
 
-    private void changeScene(SceneController newSceneController) { //TODO: newTitle input or static value?
+    private void handleMessage(SetStartingCardS2C m) {
+        startingCardId = m.startingCardId();
+        changeScene(STARTING_CARD_SIDE_CHOICE_CONTROLLER);
+    }
+
+    private void handleMessage(UpdateGameStatusS2C m) {
+        if (m.gameStatus().equals(GameStatus.SETUP_COLOR)) {
+            changeScene(PLAYER_COLOR_CHOICE_CONTROLLER);
+        }
+    }
+
+    private void handleMessage(UpdatePlayerColorS2C m) {
+        emitter.emit(new UpdatePlayerColorEvent(
+                m.player(),
+                m.color()
+        ));
+    }
+
+    private void handleMessage(UpdateGameStatusAndSetupObjectiveS2C m) {
+        secretObjectivesId.addAll(
+                List.of(
+                        m.objectiveId1(), m.objectiveId2()
+                )
+        );
+        changeScene(OBJECTIVE_CHOICE_CONTROLLER);
+    }
+
+    private void handleMessage(UpdateObjectiveSelectedS2C m) {
+        emitter.emit(new UpdateSecretObjectiveChoiceEvent(
+                m.playersHaveChosen().stream().toList()
+        ));
+    }
+
+    private void changeScene(SceneController newSceneController) {
         currentSceneController.getViewRegistrations().forEach(this::unregister);
         currentSceneController.getViewRegistrations().clear();
 
@@ -167,6 +237,18 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     public String getPlayerName() {
         return playerName;
+    }
+
+    public int getStartingCardId() {
+        return startingCardId;
+    }
+
+    public List<String> getPlayersInGame() {
+        return playersInGame;
+    }
+
+    public List<Integer> getSecretObjectivesId() {
+        return secretObjectivesId;
     }
 
     public void sendMessage(C2SNetworkMessage message) {

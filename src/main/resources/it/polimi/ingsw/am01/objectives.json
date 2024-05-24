@@ -148,15 +148,6 @@
     "objective": {
       "id": 14,
       "points": 2,
-      "requiredCollectible": "FUNGI",
-      "requiredNumber": 3
-    }
-  },
-  {
-    "type": "same",
-    "objective": {
-      "id": 15,
-      "points": 2,
       "requiredCollectible": "MANUSCRIPT",
       "requiredNumber": 2
     }
@@ -164,7 +155,7 @@
   {
     "type": "same",
     "objective": {
-      "id": 16,
+      "id": 15,
       "points": 2,
       "requiredCollectible": "INKWELL",
       "requiredNumber": 2
@@ -173,7 +164,7 @@
   {
     "type": "same",
     "objective": {
-      "id": 17,
+      "id": 16,
       "points": 2,
       "requiredCollectible": "QUILL",
       "requiredNumber": 2

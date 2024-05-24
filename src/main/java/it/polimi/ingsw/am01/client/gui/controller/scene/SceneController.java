@@ -23,7 +23,7 @@ public abstract class SceneController implements GUIElement {
 
     public void loadScene(Stage stage, double width, double height) {
         FXMLLoader fxmlLoader = new FXMLLoader(SceneController.class.getResource(
-                Constants.RESOURCES_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
+                Constants.FXML_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
         ));
 
         fxmlLoader.setController(this);
