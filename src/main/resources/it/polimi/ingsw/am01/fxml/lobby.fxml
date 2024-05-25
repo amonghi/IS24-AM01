@@ -33,18 +33,6 @@
         <VBox alignment="CENTER" prefWidth="100.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <children>
                 <Button fx:id="startButton" mnemonicParsing="false" onAction="#start" text="Start" />
-            <AnchorPane prefHeight="0.0" prefWidth="561.0">
-               <children>
-                  <Label fx:id="messageLabel" alignment="CENTER" prefHeight="25.0" prefWidth="561.0" text="Insufficient players! Please wait for other people to join" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-               </children>
-               <VBox.margin>
-                  <Insets top="20.0" />
-               </VBox.margin>
-            </AnchorPane>
             </children>
         </VBox>
     </children>
