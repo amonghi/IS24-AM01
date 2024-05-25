@@ -118,6 +118,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case UpdatePlayerColorS2C m -> handleMessage(m);
                             case UpdateGameStatusAndSetupObjectiveS2C m -> handleMessage(m);
                             case UpdateObjectiveSelectedS2C m -> handleMessage(m);
+                            case NotEnoughPlayersS2C m -> handleMessage(m);
                             case PlayerDisconnectedS2C m -> {
                             }
                             case PingS2C m -> {
@@ -224,6 +225,12 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private void handleMessage(UpdateObjectiveSelectedS2C m) {
         emitter.emit(new UpdateSecretObjectiveChoiceEvent(
                 m.playersHaveChosen().stream().toList()
+        ));
+    }
+
+    private void handleMessage(NotEnoughPlayersS2C m) {
+        emitter.emit(new InvalidStartGameRequestEvent(
+                m.actualPlayers()
         ));
     }
 

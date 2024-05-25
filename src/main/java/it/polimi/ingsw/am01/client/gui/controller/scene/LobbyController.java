@@ -2,11 +2,14 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.component.PlayerSlotController;
+import it.polimi.ingsw.am01.client.gui.event.InvalidStartGameRequestEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.network.message.c2s.StartGameC2S;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+
+import java.util.List;
 
 public class LobbyController extends SceneController {
     @FXML
@@ -16,15 +19,19 @@ public class LobbyController extends SceneController {
     private Label gameId;
 
     @FXML
+    private Label messageLabel;
+
+    @FXML
     private void initialize() {
         gameId.setText("In game #" + GUIView.getInstance().getGameId());
     }
 
     @Override
     protected void registerListeners() {
-        getViewRegistrations().add(
-                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList)
-        );
+        getViewRegistrations().addAll(List.of(
+                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
+                GUIView.getInstance().on(InvalidStartGameRequestEvent.class, this::invalidStart)
+        ));
     }
 
     private void updatePlayerList(PlayerListChangedEvent event) {
@@ -39,6 +46,9 @@ public class LobbyController extends SceneController {
         }
     }
 
+    private void invalidStart(InvalidStartGameRequestEvent event) {
+        messageLabel.setVisible(true);
+    }
 
     @Override
     public String getFXMLFileName() {
