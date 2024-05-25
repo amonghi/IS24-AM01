@@ -251,6 +251,14 @@ public class GUIView implements EventEmitter<ViewEvent> {
         return secretObjectivesId;
     }
 
+    public int getGameId() {
+        return gameId;
+    }
+
+    public int getMaxPlayers() {
+        return games.get(gameId).maxPlayers();
+    }
+
     public void sendMessage(C2SNetworkMessage message) {
         try {
             connection.send(message);
@@ -274,7 +282,4 @@ public class GUIView implements EventEmitter<ViewEvent> {
         return emitter.unregister(registration);
     }
 
-    public int getGameId() {
-        return gameId;
-    }
 }

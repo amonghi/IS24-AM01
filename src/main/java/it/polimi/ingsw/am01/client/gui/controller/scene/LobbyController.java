@@ -32,8 +32,8 @@ public class LobbyController extends SceneController {
         for (String player : event.playerList()) {
             playerList.getChildren().add(PlayerSlotController.of(player));
         }
-        // TODO: replace 4 with maxPlayers
-        for (int i = 0; i < 4 - event.playerList().size(); i++) {
+        int maxPlayers = GUIView.getInstance().getMaxPlayers();
+        for (int i = 0; i < maxPlayers - event.playerList().size(); i++) {
             playerList.getChildren().add(PlayerSlotController.empty());
         }
     }
