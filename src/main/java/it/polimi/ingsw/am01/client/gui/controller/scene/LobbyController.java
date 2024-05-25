@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.component.PlayerSlotController;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
+import it.polimi.ingsw.am01.network.message.c2s.StartGameC2S;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -47,6 +48,8 @@ public class LobbyController extends SceneController {
 
     @FXML
     private void start() {
-
+        GUIView.getInstance().sendMessage(
+                new StartGameC2S()
+        );
     }
 }
