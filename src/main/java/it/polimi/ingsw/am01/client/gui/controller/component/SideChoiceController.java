@@ -31,7 +31,7 @@ public class SideChoiceController extends AnchorPane implements ComponentControl
 
     }
 
-    public void setChoice(int cardId, Side side) { //TODO: maybe define an inner enum "Side"?
+    public void setChoice(int cardId, Side side) {
         String path = null;
         switch (side) {
             case FRONT -> {
@@ -49,7 +49,7 @@ public class SideChoiceController extends AnchorPane implements ComponentControl
                 }
             }
         }
-        cardImage.setImage(new Image(Objects.requireNonNull(SideChoiceController.class.getResource(path)).toString())); //FIXME: good?
+        cardImage.setImage(new Image(Objects.requireNonNull(SideChoiceController.class.getResource(path)).toString()));
         cardImage.setVisible(true);
         playerNameLabel.setText(playerName + ":");
     }

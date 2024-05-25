@@ -49,12 +49,12 @@ public class SelectObjectiveController extends SceneController {
 
         firstObjectiveImage.setImage(new Image(Objects.requireNonNull(SelectObjectiveController.class.getResource(
                 Constants.OBJECTIVE_PATH + GUIView.getInstance().getSecretObjectivesId().getFirst() + Constants.IMAGE_EXTENSION
-        )).toString())); //FIXME: good?
+        )).toString()));
 
 
         secondObjectiveImage.setImage(new Image(Objects.requireNonNull(SelectObjectiveController.class.getResource(
                 Constants.OBJECTIVE_PATH + GUIView.getInstance().getSecretObjectivesId().get(1) + Constants.IMAGE_EXTENSION
-        )).toString())); //FIXME: good?
+        )).toString()));
 
         GUIView.getInstance().getPlayersInGame().forEach(player -> {
             ObjectiveChoiceController controller = new ObjectiveChoiceController(player);

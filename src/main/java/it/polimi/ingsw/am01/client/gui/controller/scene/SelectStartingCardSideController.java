@@ -55,11 +55,11 @@ public class SelectStartingCardSideController extends SceneController {
         gameId.setText("In game #" + GUIView.getInstance().getGameId());
         frontImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
                 Constants.FRONT_CARD_PATH + GUIView.getInstance().getStartingCardId() + Constants.IMAGE_EXTENSION
-        )).toString())); //FIXME: good? starting cards has high ids. we don't need to check if card is lower that 10 in order to add an initial "0"
+        )).toString()));
 
         backImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
                 Constants.BACK_CARD_PATH + GUIView.getInstance().getStartingCardId() + Constants.IMAGE_EXTENSION
-        )).toString())); //FIXME: good? starting cards has high ids. we don't need to check if card is lower that 10 in order to add an initial "0"
+        )).toString()));
 
         GUIView.getInstance().getPlayersInGame().forEach(player -> {
             SideChoiceController controller = new SideChoiceController(player);

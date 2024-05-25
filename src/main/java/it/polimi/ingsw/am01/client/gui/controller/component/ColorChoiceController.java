@@ -25,7 +25,7 @@ public class ColorChoiceController extends AnchorPane implements ComponentContro
         playerNameLabel.setText(playerName + ": . . .");
     }
 
-    public void setChoice(PlayerColor playerColor) { //TODO: maybe create inner enum?
+    public void setChoice(PlayerColor playerColor) {
         playerColorCircle.setFill(
                 switch (playerColor) {
                     case BLUE -> javafx.scene.paint.Color.BLUE;
