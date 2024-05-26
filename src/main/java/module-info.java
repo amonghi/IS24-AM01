@@ -49,4 +49,6 @@ module it.polimi.ingsw.am01 {
     exports it.polimi.ingsw.am01.eventemitter to javafx.graphics;
     exports it.polimi.ingsw.am01.client.gui.controller to javafx.graphics;
     exports it.polimi.ingsw.am01.client.gui.controller.popup to javafx.graphics;
+    exports it.polimi.ingsw.am01.client.gui.model to javafx.graphics;
+    opens it.polimi.ingsw.am01.client.gui.model to javafx.fxml;
 }

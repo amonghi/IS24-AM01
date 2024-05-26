@@ -14,6 +14,8 @@ import java.io.IOException;
 public abstract class PopupController implements GUIElement {
 
     private Stage popupStage;
+    private double width = Constants.POPUP_WIDTH;
+    private double height = Constants.POPUP_HEIGHT;
 
     public void loadPopup(Stage primaryStage) {
         FXMLLoader fxmlLoader = new FXMLLoader(ComponentController.class.getResource(
@@ -25,7 +27,7 @@ public abstract class PopupController implements GUIElement {
 
         try {
             layout = fxmlLoader.load();
-            Scene scene = new Scene(layout, Constants.POPUP_WIDTH, Constants.POPUP_HEIGHT);
+            Scene scene = new Scene(layout, width, height);
 
             Stage popupStage = new Stage();
 
@@ -41,6 +43,14 @@ public abstract class PopupController implements GUIElement {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected void setWidth(double width) {
+        this.width = width;
+    }
+
+    protected void setHeight(double height) {
+        this.height = height;
     }
 
     protected void closePopup() {

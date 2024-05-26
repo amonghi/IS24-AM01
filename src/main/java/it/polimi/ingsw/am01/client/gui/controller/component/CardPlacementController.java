@@ -1,11 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.Position;
-import it.polimi.ingsw.am01.client.gui.event.PositionSelectedEvent;
-import it.polimi.ingsw.am01.client.gui.event.ViewEvent;
-import it.polimi.ingsw.am01.eventemitter.EventEmitter;
-import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
-import it.polimi.ingsw.am01.eventemitter.EventListener;
+import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.gui.model.Position;
 import it.polimi.ingsw.am01.model.card.Side;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,20 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class CardPlacementController implements ComponentController, EventEmitter<ViewEvent> {
+import static it.polimi.ingsw.am01.client.gui.controller.Constants.*;
 
-    private static final int OFFSET_X = 224;
-    private static final int OFFSET_Y = 111;
-    private static final int BASE_X = 5000;
-    private static final int BASE_Y = 5000;
-    private static final int SUFFIX_CARD_ID_LENGTH = 7;
-    private static final String path_front = "/cards/Fronts/";
-    private static final String path_back = "/cards/Backs/";
-    private final EventEmitterImpl<ViewEvent> emitter;
-    private final int id;
-    private final Side side;
+public class CardPlacementController extends CardController implements Comparable<CardPlacementController> {
+
     private final Map<Position, Button> btnPositions;
     private Position position;
+    private int seq;
     @FXML
     private ImageView imageView;
     @FXML
@@ -47,26 +36,16 @@ public class CardPlacementController implements ComponentController, EventEmitte
     private Button BOTTOM_RIGHT;
 
     public CardPlacementController(int id, Side side) {
-        this.btnPositions = new HashMap<>();
-        this.emitter = new EventEmitterImpl<>();
-        this.id = id;
-        this.side = side;
-
+        super(id, side);
         loadComponent();
 
-        setImage();
+        this.btnPositions = new HashMap<>();
     }
 
-    public void setImage() {
-        String path = switch (side) {
-            case Side.FRONT:
-                yield path_front;
-            case Side.BACK:
-                yield path_back;
-        };
-        String formattedId = "000" + id + ".png";
-        formattedId = formattedId.substring(formattedId.length() - SUFFIX_CARD_ID_LENGTH);
-        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path + formattedId)).toString()));
+    @FXML
+    private void initialize() {
+        String path = side.equals(Side.FRONT) ? setFrontImage() : setBackImage();
+        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString()));
     }
 
     public Position getPosition() {
@@ -78,6 +57,10 @@ public class CardPlacementController implements ComponentController, EventEmitte
         card.setLayoutX(computeXPosition(position.i(), position.j()));
         card.setLayoutY(computeYPosition(position.i(), position.j()));
         setCornerPositions();
+    }
+
+    public void setSeq(int seq) {
+        this.seq = seq;
     }
 
     private void setCornerPositions() {
@@ -131,38 +114,20 @@ public class CardPlacementController implements ComponentController, EventEmitte
         return this.btnPositions;
     }
 
-    public int getId() {
-        return this.id;
-    }
-
-    public Side getSide() {
-        return this.side;
-    }
-
     public void placeCardRequest(ActionEvent event) {
         Node node = (Node) event.getSource();
         Position position = (Position) node.getUserData();
-        emitter.emit(new PositionSelectedEvent(position.i(), position.j()));
-    }
-
-    @Override
-    public Registration onAny(EventListener<ViewEvent> listener) {
-        return emitter.onAny(listener);
-    }
-
-    @Override
-    public <T extends ViewEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
-        return emitter.on(eventClass, listener);
-    }
-
-    @Override
-    public boolean unregister(Registration registration) {
-        return emitter.unregister(registration);
+        GUIView.getInstance().getPlayAreaController().placeCard(position.i(), position.j());
     }
 
     @Override
     public String getFXMLFileName() {
-        return "card_layout";
+        return "card_placement";
+    }
+
+    @Override
+    public int compareTo(CardPlacementController other) {
+        return Integer.compare(this.seq, other.seq);
     }
 }
 

@@ -99,6 +99,7 @@ public class SelectObjectiveController extends SceneController {
 
     @FXML
     private void confirm() {
+        GUIView.getInstance().setSecretObjectiveChoiceId(choice);
         GUIView.getInstance().sendMessage(new SelectSecretObjectiveC2S(
                 choice
         ));

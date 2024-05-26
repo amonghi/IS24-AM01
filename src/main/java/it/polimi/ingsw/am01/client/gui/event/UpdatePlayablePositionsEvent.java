@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.event;
 
-import it.polimi.ingsw.am01.client.gui.Position;
+import it.polimi.ingsw.am01.client.gui.model.Position;
 
 import java.util.List;
 

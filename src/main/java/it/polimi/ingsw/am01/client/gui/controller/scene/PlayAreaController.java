@@ -1,45 +1,129 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
-import it.polimi.ingsw.am01.client.gui.controller.component.CardPlacementController;
+import it.polimi.ingsw.am01.client.gui.controller.component.*;
+import it.polimi.ingsw.am01.client.gui.controller.popup.ShowObjectivePopupController;
 import it.polimi.ingsw.am01.client.gui.event.*;
+import it.polimi.ingsw.am01.client.gui.model.GUIPlacement;
+import it.polimi.ingsw.am01.controller.DeckLocation;
+import it.polimi.ingsw.am01.model.card.CardColor;
+import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.network.message.c2s.DrawCardFromDeckC2S;
+import it.polimi.ingsw.am01.network.message.c2s.DrawCardFromFaceUpCardsC2S;
 import it.polimi.ingsw.am01.network.message.c2s.PlaceCardC2S;
+import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class PlayAreaController extends SceneController {
-
-    //TODO: define FXML style
-
-    private final Set<CardPlacementController> placements;
-    private CardPlacementController cardPlacement;
+    private final SortedSet<CardPlacementController> placements;
+    private final List<Integer> playerObjectives;
+    private boolean cardSelected;
+    private int selectedId;
+    private Side selectedSide;
+    @FXML
+    private AnchorPane playarea;
+    @FXML
+    private HBox board;
+    @FXML
+    private VBox fu_slot1;
+    @FXML
+    private VBox fu_slot2;
+    @FXML
+    private VBox deck;
+    @FXML
+    private HBox hand;
+    @FXML
+    private HBox play_status;
+    @FXML
+    private HBox utility_buttons;
 
     public PlayAreaController() {
-        cardPlacement = null;
-        placements = new HashSet<>();
+        cardSelected = false;
+        selectedId = 0;
+        selectedSide = null;
+        placements = new TreeSet<>();
+        playerObjectives = new ArrayList<>();
     }
 
-    private void setCardPlacement(CardSelectedEvent event) {
-        cardPlacement = new CardPlacementController(event.id(), event.side());
+    @FXML
+    private void initialize() {
+        Button showBoard = new Button("Show/Hide Board");
+        showBoard.setOnAction(event -> {
+            showHideBoard();
+        });
+        Button showObj = new Button("Show Objectives");
+        showObj.setOnAction(event -> {
+            showHideObj();
+        });
+        utility_buttons.getChildren().add(showBoard);
+        utility_buttons.getChildren().add(showObj);
     }
 
-    private void placeCard(PositionSelectedEvent event) {
-        if (cardPlacement == null) {
+    public void setCardPlacement(int id, Side side) {
+        selectedId = id;
+        selectedSide = side;
+        cardSelected = true;
+    }
+
+    public void placeCard(int i, int j) {
+        if (!cardSelected) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setContentText("You have to select which card you want to place!");
             alert.show();
             return;
         }
-        cardPlacement.setPosition(event.i(), event.j());
-        GUIView.getInstance().sendMessage(new PlaceCardC2S(
-                cardPlacement.getId(),
-                cardPlacement.getSide(),
-                cardPlacement.getPosition().i(),
-                cardPlacement.getPosition().j()
-        ));
+
+        for (CardPlacementController cp : placements) {
+            cp.getBtnPositions().values().forEach(button -> {
+                button.setDisable(true);
+            });
+        }
+
+        hand.setDisable(true);
+
+        GUIView.getInstance().sendMessage(new PlaceCardC2S(selectedId, selectedSide, i, j));
+    }
+
+    private void setFaceUpCards(SetFaceUpCardsEvent event) {
+        //TODO: redesign board to unify slot1 and slot2
+        fu_slot1.getChildren().clear();
+        fu_slot2.getChildren().clear();
+        fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(0)));
+        fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(1)));
+        fu_slot2.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(2)));
+        fu_slot2.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(3)));
+    }
+
+    private void setDeck(SetDeckEvent event) {
+        deck.getChildren().clear();
+
+        deck.getChildren().add(new DeckSourceController(event.goldenDeck().orElse(CardColor.RED), DeckLocation.GOLDEN_CARD_DECK));
+        deck.getChildren().add(new DeckSourceController(event.resourceDeck().orElse(CardColor.RED), DeckLocation.RESOURCE_CARD_DECK));
+
+        deck.getChildren().get(0).setDisable(event.goldenDeckIsEmpty());
+        deck.getChildren().get(1).setDisable(event.resourceDeckIsEmpty());
+    }
+
+    private void setHand(SetHandEvent event) {
+        hand.getChildren().clear();
+        for (Integer cardId : event.hand()) {
+            hand.getChildren().add(new HandCardController(cardId, Side.FRONT));
+        }
+    }
+
+    private void setObjectives(SetObjectives event) {
+        this.playerObjectives.addAll(event.objectives());
+        this.playerObjectives.add(event.secretObjective());
     }
 
     private void disableInvalidPositions(UpdatePlayablePositionsEvent event) {
@@ -60,32 +144,124 @@ public class PlayAreaController extends SceneController {
         }
     }
 
-    private void renderPlacement(UpdatePlayAreaEvent event) {
+    private void updatePlayArea(UpdatePlayAreaEvent event) {
+
+        for (Node playerInfo : play_status.getChildren()) {
+            if (((PlayerInfoController) playerInfo).getName().equals(event.playerName())) {
+                ((PlayerInfoController) playerInfo).setScore(GUIView.getInstance().getScore(event.playerName()));
+            }
+        }
+
+        if (!event.playerName().equals(GUIView.getInstance().getPlayerName())) {
+            return;
+        }
+
+        CardPlacementController cardPlacement = new CardPlacementController(event.cardId(), event.side());
+        cardPlacement.setPosition(event.i(), event.j());
+        cardPlacement.setSeq(event.seq());
         placements.add(cardPlacement);
-        //TODO: define FXML file for the playarea and add the card
-        cardPlacement = null;
+
+        playarea.getChildren().add(cardPlacement);
+        cardSelected = false;
+    }
+
+    private void removePlacement(RemoveLastPlacementEvent event) {
+        //TODO: this has to be tested!!!
+        placements.removeLast();
+        playarea.getChildren().removeLast();
     }
 
     private void invalidPlacement(InvalidPlacementEvent event) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setContentText("Invalid placement!");
         alert.show();
+        cardSelected = false;
+        //TODO: make out why it disables everything
+        hand.setDisable(false);
+        setCurrentView(GUIView.getInstance().getPlayerName());
+    }
+
+    private void showHideObj() {
+        openPopup(new ShowObjectivePopupController(playerObjectives));
+    }
+
+    private void showHideBoard() {
+        board.setVisible(!board.isVisible());
+        hand.setVisible(!hand.isVisible());
+    }
+
+    private void handleTurn(UpdateGameTurnEvent event) {
+        if (!event.currentPlayer().equals(event.player())) {
+            //It's not my turn
+            hand.setDisable(true);
+            board.setDisable(true);
+            return;
+        }
+        if (event.turnPhase().equals("PLACING")) {
+            board.setDisable(true);
+            hand.setDisable(false);
+        } else {
+            board.setDisable(false);
+            hand.setDisable(true);
+        }
+        //TODO: remove or change
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(event.player() + ": it's your turn -> " + event.turnPhase());
+        alert.show();
+    }
+
+    private void updatePlayStatus(SetPlayStatusEvent event) {
+        play_status.getChildren().clear();
+        for (String player : event.players()) {
+            play_status.getChildren().add(new PlayerInfoController(
+                    player,
+                    event.colors().get(player),
+                    event.scores().get(player)
+            ));
+        }
+    }
+
+    public void drawFromFaceUp(int cardId) {
+        GUIView.getInstance().sendMessage(new DrawCardFromFaceUpCardsC2S(cardId));
+    }
+
+    public void drawFromDeck(DeckLocation deckLocation) {
+        GUIView.getInstance().sendMessage(new DrawCardFromDeckC2S(deckLocation));
+    }
+
+    public void setCurrentView(String player) {
+        if (!GUIView.getInstance().getPlayersInGame().contains(player))
+            return;
+        hand.setVisible(GUIView.getInstance().getPlayerName().equals(player));
+        board.setVisible(GUIView.getInstance().getPlayerName().equals(player));
+        playarea.getChildren().clear();
+        for (GUIPlacement placement : GUIView.getInstance().getPlacements(player)) {
+            CardPlacementController cp = new CardPlacementController(placement.id(), placement.side());
+            cp.setPosition(placement.pos().i(), placement.pos().j());
+            cp.setSeq(placement.seq());
+            cp.setDisable(!GUIView.getInstance().getPlayerName().equals(player));
+            playarea.getChildren().add(cp);
+        }
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                GUIView.getInstance().on(CardSelectedEvent.class, this::setCardPlacement),
-                GUIView.getInstance().on(PositionSelectedEvent.class, this::placeCard),
                 GUIView.getInstance().on(UpdatePlayablePositionsEvent.class, this::disableInvalidPositions),
-                GUIView.getInstance().on(UpdatePlayAreaEvent.class, this::renderPlacement),
-                GUIView.getInstance().on(InvalidPlacementEvent.class, this::invalidPlacement)
+                GUIView.getInstance().on(UpdatePlayAreaEvent.class, this::updatePlayArea),
+                GUIView.getInstance().on(InvalidPlacementEvent.class, this::invalidPlacement),
+                GUIView.getInstance().on(RemoveLastPlacementEvent.class, this::removePlacement),
+                GUIView.getInstance().on(SetFaceUpCardsEvent.class, this::setFaceUpCards),
+                GUIView.getInstance().on(SetDeckEvent.class, this::setDeck),
+                GUIView.getInstance().on(SetHandEvent.class, this::setHand),
+                GUIView.getInstance().on(SetObjectives.class, this::setObjectives),
+                GUIView.getInstance().on(UpdateGameTurnEvent.class, this::handleTurn),
+                GUIView.getInstance().on(SetPlayStatusEvent.class, this::updatePlayStatus)
         ));
     }
 
     @Override
     public String getFXMLFileName() {
-        //TODO: define FXML style
         return "playarea";
     }
 }
