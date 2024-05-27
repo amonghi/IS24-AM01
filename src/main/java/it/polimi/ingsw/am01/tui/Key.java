@@ -10,7 +10,13 @@ public sealed interface Key {
         }
     }
 
+    record Enter() implements Key {
+    }
+
     record Backspace() implements Key {
+    }
+
+    record Tab() implements Key {
     }
 
     record Del() implements Key {

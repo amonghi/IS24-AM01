@@ -29,6 +29,14 @@ public class KeyboardReader {
             return Optional.of(new Key.Backspace());
         }
 
+        if (c1 == '\r') {
+            return Optional.of(new Key.Enter());
+        }
+
+        if (c1 == '\t') {
+            return Optional.of(new Key.Tab());
+        }
+
         if (c1 != '\033') {
             return Optional.of(new Key.Character(c1));
         }
