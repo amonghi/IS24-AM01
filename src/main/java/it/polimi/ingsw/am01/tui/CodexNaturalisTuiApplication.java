@@ -1,5 +1,9 @@
 package it.polimi.ingsw.am01.tui;
 
+import it.polimi.ingsw.am01.tui.command.CommandBuilder;
+import it.polimi.ingsw.am01.tui.command.CommandNode;
+import it.polimi.ingsw.am01.tui.command.SequenceBuilder;
+import it.polimi.ingsw.am01.tui.command.WordArgumentParser;
 import it.polimi.ingsw.am01.tui.component.Component;
 import it.polimi.ingsw.am01.tui.component.elements.*;
 import it.polimi.ingsw.am01.tui.component.layout.Centered;
@@ -19,11 +23,42 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
     public CodexNaturalisTuiApplication(Terminal terminal) {
         super(terminal, new State());
 
+        CommandNode cmd = CommandBuilder.root()
+                .branch(
+                        SequenceBuilder
+                                .literal("ping")
+                                .thenWhitespace()
+                                .thenLiteral("pong")
+                                .executes(commandContext -> this.updateState(state -> state.output = "selected: ping pong"))
+                                .end()
+                )
+                .branch(
+                        SequenceBuilder
+                                .literal("bing")
+                                .thenWhitespace()
+                                .thenLiteral("bong")
+                                .executes(commandContext -> this.updateState(state -> state.output = "selected: ping pong"))
+                                .end()
+                )
+                .branch(
+                        SequenceBuilder
+                                .literal("hello")
+                                .thenWhitespace()
+                                .then(new WordArgumentParser("name"))
+                                .executes(commandContext -> this.updateState(state -> state.output = "selected: hello, with name=" + commandContext.getString("name")))
+                                .end()
+                )
+                .build();
+
         Thread keyboardListenerThread = new Thread(new Runnable() {
             private final KeyboardReader keyboardReader = new KeyboardReader(System.in);
+            private String input = "";
+            private String completion = "";
 
             @Override
             public void run() {
+                this.completeAndUpdateInput();
+
                 while (true) {
                     try {
                         Key key = keyboardReader.nextSupportedKey();
@@ -45,6 +80,8 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                             }
                             case Key.Backspace() -> erase();
                             case Key.Del() -> erase();
+                            case Key.Enter() -> runCommand();
+                            case Key.Tab() -> complete();
                             default -> {
                             }
                         }
@@ -62,16 +99,40 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
             }
 
             private void write(char c) {
-                CodexNaturalisTuiApplication.this.updateState(state -> {
-                    state.input += c;
-                });
+                this.input += c;
+                completeAndUpdateInput();
             }
 
             private void erase() {
+                if (!this.input.isEmpty()) {
+                    this.input = this.input.substring(0, this.input.length() - 1);
+                }
+                completeAndUpdateInput();
+            }
+
+            private void runCommand() {
+                cmd.parse(this.input).getCommandRunnable().ifPresent(cmd -> {
+                    cmd.run();
+                    this.input = "";
+                });
+                completeAndUpdateInput();
+            }
+
+            private void complete() {
+                this.input = this.input + completion;
+                this.completion = "";
+                updateInput();
+            }
+
+            private void completeAndUpdateInput() {
+                this.completion = cmd.parse(this.input).getCompletions().stream().findFirst().orElse("");
+                updateInput();
+            }
+
+            private void updateInput() {
                 CodexNaturalisTuiApplication.this.updateState(state -> {
-                    if (!state.input.isEmpty()) {
-                        state.input = state.input.substring(0, state.input.length() - 1);
-                    }
+                    state.input = this.input;
+                    state.completion = this.completion;
                 });
             }
         });
@@ -98,7 +159,13 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                         new Border(BorderStyle.DEFAULT,
                                 new Row(List.of(
                                         new Text("Input: " + state.input),
-                                        new Cursor()
+                                        new Cursor(),
+                                        new Text(state.completion)
+                                ))
+                        ),
+                        new Border(BorderStyle.DEFAULT,
+                                new Row(List.of(
+                                        new Text("Output: " + state.output)
                                 ))
                         )
                 ))
@@ -107,6 +174,8 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
 
     public static class State extends TuiApplication.State {
         public String input = "";
+        public String completion = "";
+        public String output = "";
         public Key lastKey;
     }
 }
