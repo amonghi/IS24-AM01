@@ -2,7 +2,9 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
+import it.polimi.ingsw.am01.client.gui.controller.component.ObjectiveChoiceController;
 import it.polimi.ingsw.am01.client.gui.controller.component.SideChoiceController;
+import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayAreaEvent;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.network.message.c2s.SelectStartingCardSideC2S;
@@ -117,9 +119,22 @@ public class SelectStartingCardSideController extends SceneController {
 
     @Override
     protected void registerListeners() {
-        getViewRegistrations().add(
-                GUIView.getInstance().on(UpdatePlayAreaEvent.class, this::updateChoices)
-        );
+        getViewRegistrations().addAll(List.of(
+                GUIView.getInstance().on(UpdatePlayAreaEvent.class, this::updateChoices),
+                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayersList)
+        ));
+    }
+
+    private void updatePlayersList(PlayerListChangedEvent event) {
+        playersBox.getChildren().clear();
+
+        choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+
+        for (SideChoiceController controller : choiceControllers) {
+            playersBox.getChildren().add(
+                    controller
+            );
+        }
     }
 
     @Override

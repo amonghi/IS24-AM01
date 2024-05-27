@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.component.ColorChoiceController;
+import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayerColorEvent;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.network.message.c2s.SelectColorC2S;
@@ -61,9 +62,22 @@ public class SelectPlayerColorController extends SceneController {
 
     @Override
     protected void registerListeners() {
-        getViewRegistrations().add(
-                GUIView.getInstance().on(UpdatePlayerColorEvent.class, this::updatePlayersColor)
-        );
+        getViewRegistrations().addAll(List.of(
+                GUIView.getInstance().on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
+                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList)
+        ));
+    }
+
+    private void updatePlayerList(PlayerListChangedEvent event) {
+        playersBox.getChildren().clear();
+
+        colorChoiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+
+        for (ColorChoiceController controller : colorChoiceControllers) {
+            playersBox.getChildren().add(
+                    controller
+            );
+        }
     }
 
     @FXML

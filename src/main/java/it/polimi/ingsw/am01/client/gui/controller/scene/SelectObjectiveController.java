@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.component.ObjectiveChoiceController;
+import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdateSecretObjectiveChoiceEvent;
 import it.polimi.ingsw.am01.network.message.c2s.SelectSecretObjectiveC2S;
 import javafx.event.Event;
@@ -69,9 +70,22 @@ public class SelectObjectiveController extends SceneController {
 
     @Override
     protected void registerListeners() {
-        getViewRegistrations().add(
-                GUIView.getInstance().on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices)
-        );
+        getViewRegistrations().addAll(List.of(
+                GUIView.getInstance().on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices),
+                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList)
+        ));
+    }
+
+    private void updatePlayerList(PlayerListChangedEvent event) {
+        playersBox.getChildren().clear();
+
+        choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+
+        for (ObjectiveChoiceController controller : choiceControllers) {
+            playersBox.getChildren().add(
+                    controller
+            );
+        }
     }
 
     private void updateChoices(UpdateSecretObjectiveChoiceEvent event) {
