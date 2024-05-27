@@ -12,7 +12,7 @@ import java.util.List;
 public class Cursor implements Component {
     @Override
     public Sized layout(Constraint constraint) {
-        Dimensions d = Dimensions.constrained(constraint, 1, 1);
+        Dimensions d = Dimensions.constrained(constraint, 0, 1);
         return new Sized(this, d, List.of());
     }
 
