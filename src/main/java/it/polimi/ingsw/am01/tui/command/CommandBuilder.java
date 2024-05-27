@@ -44,7 +44,7 @@ public class CommandBuilder {
         return branch(child.build());
     }
 
-    CommandNode build() {
+    public CommandNode build() {
         return new CommandNode(this.parser, this.executor, this.children);
     }
 }
