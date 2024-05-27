@@ -19,6 +19,10 @@ public class CommandNode {
         this.children = children;
     }
 
+    public Result parse(String command) {
+        return parse(new CommandContext(), command);
+    }
+
     public Result parse(CommandContext context, String command) {
         Parser.Result tokenResult;
         try {
