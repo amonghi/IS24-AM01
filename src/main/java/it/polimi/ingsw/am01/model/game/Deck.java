@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.model.game;
 
 import it.polimi.ingsw.am01.model.card.Card;
+import it.polimi.ingsw.am01.model.card.CardColor;
 
 import java.util.*;
 
@@ -50,12 +51,25 @@ public class Deck implements DrawSource {
 
     /**
      * Creates a copy of {@code this} and queue the cards stored in {@code newCards}
+     *
      * @return Returns a new {@code Deck}
      */
     public Deck createMergedDeck(List<Card> newCards) {
         List<Card> newCardList = new ArrayList<>(cards);
         newCardList.addAll(cards.size(), newCards);
         return new Deck(newCardList);
+    }
+
+    /**
+     * Provides the {@link CardColor} of the last {@link Card} of deck (the one on top), if deck is not empty. This color is shown to players
+     *
+     * @return Returns the color of the last card of deck if deck is not empty, otherwise returns {@code Optional.empty()}
+     */
+    public Optional<CardColor> getVisibleColor() {
+        if (cards.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(cards.getLast().color());
     }
 
     /**
