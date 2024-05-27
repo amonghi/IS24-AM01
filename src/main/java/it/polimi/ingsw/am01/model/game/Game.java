@@ -34,16 +34,16 @@ public class Game implements EventEmitter<GameEvent> {
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
-    transient private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
     private final Map<PlayerProfile, Card> startingCards;
-    transient private SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
-    transient private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
     private final Map<PlayerProfile, Boolean> connections;
     private final Set<Objective> commonObjectives;
     private final int maxPlayers;
     private final Board board;
+    transient private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
+    transient private SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
+    transient private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
     transient private EventEmitterImpl<GameEvent> emitter;
     private GameStatus status;
     private TurnPhase turnPhase;
@@ -560,7 +560,14 @@ public class Game implements EventEmitter<GameEvent> {
             //all players had chosen their objective -> go to the next state (start "turn phase")
             setupAndStartTurnPhase();
 
-            getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+            getEmitter().emit(new SetUpPhaseFinishedEvent(
+                    board.getResourceCardDeck(),
+                    board.getGoldenCardDeck(),
+                    commonObjectives,
+                    board.getFaceUpCards(),
+                    playersData
+            ));
+
             getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
         }
     }
@@ -809,7 +816,14 @@ public class Game implements EventEmitter<GameEvent> {
             getEmitter().emit(new AllColorChoicesSettledEvent());
         } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveSelectionPhase.isConcluded()) {
             setupAndStartTurnPhase();
-            getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+            getEmitter().emit(new SetUpPhaseFinishedEvent(
+                    board.getResourceCardDeck(),
+                    board.getGoldenCardDeck(),
+                    commonObjectives,
+                    board.getFaceUpCards(),
+                    playersData
+            ));
+
             try {
                 getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
             } catch (IllegalGameStateException e) {

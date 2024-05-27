@@ -313,8 +313,8 @@ public class VirtualView implements Runnable {
     private void updateDeckStatus(CardDrawnFromDeckEvent event) throws NetworkException {
         connection.send(
                 new UpdateDeckStatusS2C(
-                        event.resourceCardDeck().isEmpty(),
-                        event.goldenCardDeck().isEmpty()
+                        event.resourceCardDeck().getVisibleColor().orElse(null),
+                        event.goldenCardDeck().getVisibleColor().orElse(null)
                 )
         );
     }
@@ -347,6 +347,8 @@ public class VirtualView implements Runnable {
 
         connection.send(
                 new SetBoardAndHandS2C(
+                        event.resourceDeck().getVisibleColor().orElse(null),
+                        event.goldenDeck().getVisibleColor().orElse(null),
                         commonObjectives,
                         faceUpCards,
                         hand
@@ -510,8 +512,8 @@ public class VirtualView implements Runnable {
                                 )),
                         game.getPlayerData(playerProfile).getObjectiveChoice().getId(),
                         game.getCommonObjectives().stream().map(Objective::getId).collect(Collectors.toList()),
-                        game.getBoard().getResourceCardDeck().isEmpty(),
-                        game.getBoard().getGoldenCardDeck().isEmpty(),
+                        game.getBoard().getResourceCardDeck().getVisibleColor().orElse(null),
+                        game.getBoard().getGoldenCardDeck().getVisibleColor().orElse(null),
                         game.getBoard().getFaceUpCards().stream()
                                 .filter(fuc -> fuc.getCard().isPresent())
                                 .map(fuc -> fuc.getCard().get().id())

@@ -533,6 +533,7 @@ package game {
         + isEmpty() boolean
         + draw() Optional<Card>
         + createMergedDeck(List<Card> newCards) Deck
+        + getVisibleColor() Optional<CardColor>
     }
     'Decks are aggregations of Cards
     Card --o Deck
