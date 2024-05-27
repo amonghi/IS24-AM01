@@ -120,6 +120,10 @@ public class CommandNode {
             return consumed;
         }
 
+        public List<String> getCompletions() {
+            return completions;
+        }
+
         public Optional<Runnable> getCommandRunnable() {
             return Optional.ofNullable(commandRunnable);
         }
