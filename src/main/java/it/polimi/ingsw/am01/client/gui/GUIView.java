@@ -38,7 +38,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private final SelectObjectiveController OBJECTIVE_CHOICE_CONTROLLER;
     private final Set<Integer> faceUpCards;
     private final Set<Integer> hand;
-    private final Map<DeckLocation, Boolean> decksAreEmpty;
+    private final Map<DeckLocation, CardColor> decksColor;
     private final Map<String, SortedSet<GUIPlacement>> playAreas;
     private final List<String> playersInGame;
     private final Map<String, PlayerColor> playerColors;
@@ -95,7 +95,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.commonObjectivesId = new ArrayList<>();
         this.hand = new HashSet<>();
         this.faceUpCards = new HashSet<>();
-        this.decksAreEmpty = new HashMap<>();
+        this.decksColor = new HashMap<>();
         this.scores = new HashMap<>();
         this.playerColors = new HashMap<>();
         //TODO: initialize others...
@@ -205,8 +205,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
         faceUpCards.addAll(message.faceUpCards());
         hand.clear();
         hand.addAll(message.hand());
-        decksAreEmpty.put(DeckLocation.RESOURCE_CARD_DECK, false);
-        decksAreEmpty.put(DeckLocation.GOLDEN_CARD_DECK, false);
+        decksColor.put(DeckLocation.RESOURCE_CARD_DECK, message.resourceDeckColor());
+        decksColor.put(DeckLocation.GOLDEN_CARD_DECK, message.goldenDeckColor());
 
         changeScene(PLAY_CONTROLLER);
 
@@ -214,10 +214,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
         emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
         emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
         emitter.emit(new SetDeckEvent(
-                Optional.of(CardColor.RED), //TODO: fix server
-                Optional.of(CardColor.RED),
-                decksAreEmpty.get(DeckLocation.GOLDEN_CARD_DECK),
-                decksAreEmpty.get(DeckLocation.RESOURCE_CARD_DECK)
+                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
         ));
         emitter.emit(new SetHandEvent(hand));
 
@@ -242,13 +240,11 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(UpdateDeckStatusS2C message) {
-        decksAreEmpty.replace(DeckLocation.RESOURCE_CARD_DECK, message.resourceCardDeckIsEmpty());
-        decksAreEmpty.replace(DeckLocation.GOLDEN_CARD_DECK, message.goldenCardDeckIsEmpty());
-        emitter.emit(new DeckUpdateEvent(
-                Optional.of(CardColor.RED),  //TODO: retrieve from the server
-                Optional.of(CardColor.RED),
-                decksAreEmpty.get(DeckLocation.RESOURCE_CARD_DECK),
-                decksAreEmpty.get(DeckLocation.GOLDEN_CARD_DECK)
+        decksColor.replace(DeckLocation.RESOURCE_CARD_DECK, message.resourceDeckColor());
+        decksColor.replace(DeckLocation.GOLDEN_CARD_DECK, message.goldenDeckColor());
+        emitter.emit(new SetDeckEvent(
+                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
         ));
     }
 
