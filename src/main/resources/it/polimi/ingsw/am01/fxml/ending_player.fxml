@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+
+<fx:root type="HBox" alignment="CENTER_LEFT" minHeight="50.0" prefHeight="100.0" prefWidth="200.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Label fx:id="placementLabel" text="1.">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Label>
+        <StackPane>
+            <children>
+                <Circle fx:id="pawn" fill="DODGERBLUE" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
+                <ImageView fx:id="crown" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true"/>
+            </children>
+        </StackPane>
+        <Label text="playerName" fx:id="playerLabel">
+            <font>
+                <Font size="16.0" />
+            </font>
+        </Label>
+        <Label fx:id="pointsLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="25.0" prefWidth="177.0" text="22 points" textAlignment="RIGHT">
+            <font>
+                <Font size="16.0" />
+            </font>
+        </Label>
+    </children>
+</fx:root>

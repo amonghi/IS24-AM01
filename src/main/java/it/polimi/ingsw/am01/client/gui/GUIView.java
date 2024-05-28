@@ -36,6 +36,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private final SelectStartingCardSideController STARTING_CARD_SIDE_CHOICE_CONTROLLER;
     private final SelectPlayerColorController PLAYER_COLOR_CHOICE_CONTROLLER;
     private final SelectObjectiveController OBJECTIVE_CHOICE_CONTROLLER;
+    private final EndingController ENDING_CONTROLLER;
     private final Set<Integer> faceUpCards;
     private final Set<Integer> hand;
     private final Map<DeckLocation, CardColor> decksColor;
@@ -82,6 +83,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.STARTING_CARD_SIDE_CHOICE_CONTROLLER = new SelectStartingCardSideController();
         this.PLAYER_COLOR_CHOICE_CONTROLLER = new SelectPlayerColorController();
         this.OBJECTIVE_CHOICE_CONTROLLER = new SelectObjectiveController();
+        this.ENDING_CONTROLLER = new EndingController();
 
         AUTH_CONTROLLER.loadScene(stage, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         currentSceneController = AUTH_CONTROLLER;
@@ -132,6 +134,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case SetupAfterReconnectionS2C m -> handleMessage(m);
                             case SetGamePauseS2C m -> handleMessage(m);
                             case GameResumedS2C m -> handleMessage(m);
+                            case GameFinishedS2C m -> handleMessage(m);
                             case PingS2C m -> {
                             }
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
@@ -213,6 +216,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         decksColor.put(DeckLocation.RESOURCE_CARD_DECK, message.resourceDeckColor());
         decksColor.put(DeckLocation.GOLDEN_CARD_DECK, message.goldenDeckColor());
 
+        stage.setFullScreen(true);
         changeScene(PLAY_CONTROLLER);
 
 
@@ -325,6 +329,11 @@ public class GUIView implements EventEmitter<ViewEvent> {
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
+    private void handleMessage(GameFinishedS2C m) {
+        changeScene(ENDING_CONTROLLER);
+        emitter.emit(new SetFinalScoresEvent(m.finalScores()));
+    }
+
     private void handleMessage(SetupAfterReconnectionS2C m) {
         currentPlayer = m.currentPlayer();
         playersInGame.addAll(m.playAreas().keySet());
@@ -357,7 +366,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
                 playAreas.get(player).stream().mapToInt(GUIPlacement::points).sum()
         ));
 
-
+        stage.setFullScreen(true);
         changeScene(PLAY_CONTROLLER);
 
         emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
@@ -414,6 +423,10 @@ public class GUIView implements EventEmitter<ViewEvent> {
     public int getScore(String player) {
         //player part of the game as a pre-condition
         return scores.get(player);
+    }
+
+    public PlayerColor getPlayerColor(String player){
+        return playerColors.get(player);
     }
 
     public int getMaxPlayers() {

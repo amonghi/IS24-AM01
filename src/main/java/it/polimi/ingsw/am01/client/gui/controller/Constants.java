@@ -7,6 +7,7 @@ public class Constants {
     public static final String BACK_CARD_PATH = RESOURCES_PATH + "cards/back/";
     public static final String FRONT_CARD_PATH = RESOURCES_PATH + "cards/front/";
     public static final String OBJECTIVE_PATH = RESOURCES_PATH + "objectives/";
+    public static final String ICONS_PATH = RESOURCES_PATH + "icons/";
 
     public static final String FXML_EXTENSION = ".fxml";
     public static final String IMAGE_EXTENSION = ".png";
