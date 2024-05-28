@@ -45,11 +45,12 @@ class CommonPoolSelectionStrategyTest {
 
         @Test
         void dropoutsAreRemovedFromSelectionPhase() {
+            this.phase.getSelectorFor("alice").expressPreference("a");
             this.phase.getSelectorFor("alice").dropOut();
-            this.phase.getSelectorFor("bob").expressPreference("b");
+            this.phase.getSelectorFor("bob").expressPreference("a");
 
             assertTrue(phase.isConcluded());
-            assertEquals(Map.of("bob", "b"), phase.getResults());
+            assertEquals(Map.of("bob", "a"), phase.getResults());
         }
     }
 
@@ -87,11 +88,12 @@ class CommonPoolSelectionStrategyTest {
 
         @Test
         void dropoutsAreRemovedFromSelectionPhase() {
+            this.phase.getSelectorFor("alice").expressPreference("a");
+            this.phase.getSelectorFor("bob").expressPreference("a");
             this.phase.getSelectorFor("alice").dropOut();
-            this.phase.getSelectorFor("bob").expressPreference("b");
 
             assertTrue(phase.isConcluded());
-            assertEquals(Map.of("bob", "b"), phase.getResults());
+            assertEquals(Map.of("bob", "a"), phase.getResults());
         }
     }
 }
