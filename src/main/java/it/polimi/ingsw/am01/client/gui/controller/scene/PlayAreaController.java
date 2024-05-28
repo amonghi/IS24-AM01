@@ -222,6 +222,18 @@ public class PlayAreaController extends SceneController {
         }
     }
 
+    private void disconnectPlayer(PlayerDisconnectedEvent event) {
+        play_status.getChildren().stream()
+                .filter(node -> ((PlayerInfoController) node).getName().equals(event.player()))
+                .forEach(node -> ((PlayerInfoController) node).setConnection(false));
+    }
+
+    private void reconnectPlayer(PlayerReconnectedEvent event) {
+        play_status.getChildren().stream()
+                .filter(node -> ((PlayerInfoController) node).getName().equals(event.player()))
+                .forEach(node -> ((PlayerInfoController) node).setConnection(true));
+    }
+
     public void drawFromFaceUp(int cardId) {
         GUIView.getInstance().sendMessage(new DrawCardFromFaceUpCardsC2S(cardId));
     }
@@ -257,9 +269,13 @@ public class PlayAreaController extends SceneController {
                 GUIView.getInstance().on(SetHandEvent.class, this::setHand),
                 GUIView.getInstance().on(SetObjectives.class, this::setObjectives),
                 GUIView.getInstance().on(UpdateGameTurnEvent.class, this::handleTurn),
-                GUIView.getInstance().on(SetPlayStatusEvent.class, this::updatePlayStatus)
+                GUIView.getInstance().on(SetPlayStatusEvent.class, this::updatePlayStatus),
+                GUIView.getInstance().on(PlayerDisconnectedEvent.class, this::disconnectPlayer),
+                GUIView.getInstance().on(PlayerReconnectedEvent.class, this::reconnectPlayer)
         ));
     }
+
+
 
     @Override
     public String getFXMLFileName() {

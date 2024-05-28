@@ -69,6 +69,10 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
         points.setText(String.valueOf(score));
     }
 
+    public void setConnection(boolean isConnected){
+        connectionState.setText(isConnected ? "connected" : "disconnected");
+    }
+
     @Override
     public String getFXMLFileName() {
         return "player_info";

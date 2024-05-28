@@ -125,8 +125,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case UpdateDeckStatusS2C m -> handleMessage(m);
                             case UpdateGameStatusAndTurnS2C m -> handleMessage(m);
                             case UpdateFaceUpCardsS2C m -> handleMessage(m);
-                            case PlayerDisconnectedS2C m -> {
-                            }
+                            case PlayerDisconnectedS2C m -> handleMessage(m);
+                            case PlayerReconnectedS2C m -> handleMessage(m);
                             case PingS2C m -> {
                             }
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
@@ -304,6 +304,14 @@ public class GUIView implements EventEmitter<ViewEvent> {
         emitter.emit(new UpdateSecretObjectiveChoiceEvent(
                 m.playersHaveChosen().stream().toList()
         ));
+    }
+
+    private void handleMessage(PlayerDisconnectedS2C m) {
+        emitter.emit(new PlayerDisconnectedEvent(m.playerName()));
+    }
+
+    private void handleMessage(PlayerReconnectedS2C m) {
+        emitter.emit(new PlayerReconnectedEvent(m.playerName()));
     }
 
     private void changeScene(SceneController newSceneController) {
