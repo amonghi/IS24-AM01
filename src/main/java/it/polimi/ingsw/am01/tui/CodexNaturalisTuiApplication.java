@@ -8,9 +8,9 @@ import it.polimi.ingsw.am01.tui.component.Component;
 import it.polimi.ingsw.am01.tui.component.elements.*;
 import it.polimi.ingsw.am01.tui.component.layout.Centered;
 import it.polimi.ingsw.am01.tui.component.layout.Column;
-import it.polimi.ingsw.am01.tui.component.layout.Row;
+import it.polimi.ingsw.am01.tui.component.layout.Padding;
+import it.polimi.ingsw.am01.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.tui.component.layout.flex.FlexChild;
-import it.polimi.ingsw.am01.tui.component.layout.flex.FlexRow;
 import it.polimi.ingsw.am01.tui.terminal.Terminal;
 
 import java.io.IOException;
@@ -141,35 +141,32 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
 
     @Override
     Component compose(State state) {
-        return Centered.vertically(
-                new Column(List.of(
-                        new FlexRow(List.of(
-                                new FlexChild.Flexible(1, Centered.horizontally(
-                                        new CardComponent()
+        return Flex.column(List.of(
+                // top part of screen
+                new FlexChild.Flexible(1, Centered.both(
+                        new Column(List.of(
+                                Flex.row(List.of(
+                                        new FlexChild.Flexible(1, Centered.horizontally(
+                                                new CardComponent()
+                                        )),
+                                        new FlexChild.Flexible(1, Centered.horizontally(
+                                                new CardComponent()
+                                        ))
                                 )),
-                                new FlexChild.Flexible(1, Centered.horizontally(
-                                        new CardComponent()
-                                ))
-                        )),
-                        new FlexRow(List.of(
-                                new FlexChild.Flexible(1, Centered.horizontally(
-                                        new Text("last key: " + state.lastKey)
-                                ))
-                        )),
-                        new Border(BorderStyle.DEFAULT,
-                                new Row(List.of(
-                                        new Text("Input: " + state.input),
-                                        new Cursor(),
-                                        new Text(state.completion)
-                                ))
-                        ),
-                        new Border(BorderStyle.DEFAULT,
-                                new Row(List.of(
-                                        new Text("Output: " + state.output)
-                                ))
-                        )
+                                Centered.horizontally(Padding.around(1, new Text("last key: " + state.lastKey))),
+                                Centered.horizontally(Padding.around(1, new Text("last command output: " + state.output)))
+                        )))
+                ),
+
+                // bottom input
+                new FlexChild.Fixed(new Border(BorderStyle.DEFAULT,
+                        Flex.row(List.of(
+                                new FlexChild.Fixed(new Text("> " + state.input)),
+                                new FlexChild.Fixed(new Cursor()),
+                                new FlexChild.Flexible(1, new Text(state.completion))
+                        ))
                 ))
-        );
+        ));
     }
 
     public static class State extends TuiApplication.State {
