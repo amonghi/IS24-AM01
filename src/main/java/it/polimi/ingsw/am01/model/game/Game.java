@@ -786,13 +786,13 @@ public class Game implements EventEmitter<GameEvent> {
         startingCards.remove(pp);
         playersData.remove(pp);
         playAreas.remove(pp);
-        if (startingCardSideSelectionPhase != null) {
+        if (startingCardSideSelectionPhase != null && !startingCardSideSelectionPhase.isConcluded()) {
             startingCardSideSelectionPhase.getSelectorFor(pp).dropOut();
         }
-        if (colorSelectionPhase != null) {
+        if (colorSelectionPhase != null && !colorSelectionPhase.isConcluded()) {
             colorSelectionPhase.getSelectorFor(pp).dropOut();
         }
-        if (objectiveSelectionPhase != null) {
+        if (objectiveSelectionPhase != null && !objectiveSelectionPhase.isConcluded()) {
             objectiveSelectionPhase.getSelectorFor(pp).dropOut();
         }
         getEmitter().emit(new PlayerLeftEvent(pp));
