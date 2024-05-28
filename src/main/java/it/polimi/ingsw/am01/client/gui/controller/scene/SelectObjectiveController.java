@@ -46,6 +46,7 @@ public class SelectObjectiveController extends SceneController {
 
     @FXML
     private void initialize() {
+        choiceControllers.clear();
         gameId.setText("In game #" + GUIView.getInstance().getGameId());
 
         firstObjectiveImage.setImage(new Image(Objects.requireNonNull(SelectObjectiveController.class.getResource(

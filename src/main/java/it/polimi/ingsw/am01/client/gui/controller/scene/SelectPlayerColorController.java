@@ -50,6 +50,8 @@ public class SelectPlayerColorController extends SceneController {
 
     @FXML
     private void initialize() {
+        colorChoiceControllers.clear();
+        colorChoice = null;
         gameId.setText("In game #" + GUIView.getInstance().getGameId());
         GUIView.getInstance().getPlayersInGame().forEach(player -> {
             ColorChoiceController controller = new ColorChoiceController(player);

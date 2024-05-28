@@ -49,10 +49,13 @@
       </HBox>
       <VBox alignment="CENTER" layoutY="72.0" prefHeight="30.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
-            <Label fx:id="gameStatusLabel" alignment="CENTER" prefHeight="17.0" prefWidth="604.0" text="Game status" textFill="#b52727">
+            <Label fx:id="gameStatusLabel" alignment="CENTER" prefHeight="17.0" prefWidth="600.0" text="Game status" textFill="#b52727">
                <font>
                   <Font size="15.0" />
                </font>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
             </Label>
          </children>
       </VBox>

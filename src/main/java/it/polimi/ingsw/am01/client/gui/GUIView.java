@@ -20,6 +20,7 @@ import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.util.*;
@@ -135,6 +136,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case SetGamePauseS2C m -> handleMessage(m);
                             case GameResumedS2C m -> handleMessage(m);
                             case GameFinishedS2C m -> handleMessage(m);
+                            case KickedFromGameS2C m -> handleMessage(m);
                             case PingS2C m -> {
                             }
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
@@ -206,7 +208,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     private void handleMessage(SetBoardAndHandS2C message) {
         //Set Objectives:
-        commonObjectivesId = message.commonObjectives().stream().toList();
+        commonObjectivesId = new ArrayList<>(message.commonObjectives());
 
         //Set board
         faceUpCards.clear();
@@ -391,6 +393,32 @@ public class GUIView implements EventEmitter<ViewEvent> {
         emitter.emit(new GameResumedEvent());
     }
 
+    private void handleMessage(KickedFromGameS2C m) {
+        changeScene(GAME_LIST_CONTROLLER);
+
+        //clear all data related to cancelled game
+        faceUpCards.clear();
+        hand.clear();
+        playAreas.clear();
+        playersInGame.clear();
+        playerColors.clear();
+        scores.clear();
+        secretObjectivesId.clear();
+        connections.clear();
+        gameId = -1; //FIXME: can't set to null...
+        startingCardId = -1; //FIXME: can't set to null...
+        gameStatus = null;
+        turnPhase = null;
+        currentPlayer = null;
+        secretObjectiveChoiceId = -1; //FIXME: can't set to null...
+        commonObjectivesId.clear();
+
+        //TODO: remove or change
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText("Game was cancelled as there were not enough players connected!");
+        alert.show();
+    }
+
     private void changeScene(SceneController newSceneController) {
         currentSceneController.getViewRegistrations().forEach(this::unregister);
         currentSceneController.getViewRegistrations().clear();
@@ -425,7 +453,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         return scores.get(player);
     }
 
-    public PlayerColor getPlayerColor(String player){
+    public PlayerColor getPlayerColor(String player) {
         return playerColors.get(player);
     }
 

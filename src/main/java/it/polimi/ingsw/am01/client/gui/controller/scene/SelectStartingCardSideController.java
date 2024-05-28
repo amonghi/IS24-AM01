@@ -2,7 +2,6 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
-import it.polimi.ingsw.am01.client.gui.controller.component.ObjectiveChoiceController;
 import it.polimi.ingsw.am01.client.gui.controller.component.SideChoiceController;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayAreaEvent;
@@ -23,37 +22,28 @@ import java.util.Objects;
 public class SelectStartingCardSideController extends SceneController {
 
     private final static String BUTTONS_STYLE = "-fx-background-color:  CF624B";
-
+    private final List<SideChoiceController> choiceControllers = new ArrayList<>();
     @FXML
     private Label gameId;
-
     @FXML
     private Label titleLabel;
-
     @FXML
     private VBox playersBox;
-
     @FXML
     private Button frontButton;
-
     @FXML
     private ImageView frontImage;
-
     @FXML
     private Button backButton;
-
     @FXML
     private Button confirmButton;
-
     @FXML
     private ImageView backImage;
-
     private Side choosenSide;
-
-    private final List<SideChoiceController> choiceControllers = new ArrayList<>();
 
     @FXML
     private void initialize() {
+        choiceControllers.clear();
         gameId.setText("In game #" + GUIView.getInstance().getGameId());
         frontImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
                 Constants.FRONT_CARD_PATH + GUIView.getInstance().getStartingCardId() + Constants.IMAGE_EXTENSION
