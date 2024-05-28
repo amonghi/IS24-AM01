@@ -8,14 +8,22 @@ import it.polimi.ingsw.am01.tui.rendering.SizedPositioned;
 
 import java.util.List;
 
-public class SpaceAround extends LayoutComponent {
+public class Padding extends LayoutComponent {
     private final int top;
     private final int right;
     private final int bottom;
     private final int left;
     private final Component child;
 
-    public SpaceAround(int top, int right, int bottom, int left, Component child) {
+    public static Padding around(int padding, Component child) {
+        return new Padding(padding,padding, padding, padding, child);
+    }
+
+    public static Padding hv(int horizontal, int vertical, Component child) {
+        return new Padding(horizontal, vertical, horizontal, vertical, child);
+    }
+
+    public Padding(int top, int right, int bottom, int left, Component child) {
         this.top = top;
         this.right = right;
         this.bottom = bottom;
@@ -27,7 +35,7 @@ public class SpaceAround extends LayoutComponent {
     public Sized layout(Constraint constraint) {
         SizedPositioned child = this.child
                 .layout(constraint.shrinkMax(left + right, top + bottom))
-                .placeAt(Position.of(this.top, this.left));
+                .placeAt(Position.of(this.left, this.top));
 
         return new Sized(
                 this,
