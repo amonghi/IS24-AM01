@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.client.gui.model.GUIPlacement;
 import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.network.message.c2s.DrawCardFromDeckC2S;
 import it.polimi.ingsw.am01.network.message.c2s.DrawCardFromFaceUpCardsC2S;
 import it.polimi.ingsw.am01.network.message.c2s.PlaceCardC2S;
@@ -15,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -46,6 +48,8 @@ public class PlayAreaController extends SceneController {
     private HBox play_status;
     @FXML
     private HBox utility_buttons;
+    @FXML
+    private Label gameStatusLabel;
 
     public PlayAreaController() {
         cardSelected = false;
@@ -193,6 +197,11 @@ public class PlayAreaController extends SceneController {
     }
 
     private void handleTurn(UpdateGameTurnEvent event) {
+        if (!event.gameStatus().equals(GameStatus.SECOND_LAST_TURN.toString())) {
+            gameStatusLabel.setText("Game status: " + event.gameStatus());
+        } else {
+            gameStatusLabel.setText("Game status: " + GameStatus.PLAY);
+        }
         if (!event.currentPlayer().equals(event.player())) {
             //It's not my turn
             hand.setDisable(true);
@@ -260,8 +269,9 @@ public class PlayAreaController extends SceneController {
                 GUIView.getInstance().on(SetObjectives.class, this::setObjectives),
                 GUIView.getInstance().on(UpdateGameTurnEvent.class, this::handleTurn),
                 GUIView.getInstance().on(SetPlayStatusEvent.class, this::updatePlayStatus),
-                GUIView.getInstance().on(SetPlayAreaEvent.class, this::setPlayArea)
-
+                GUIView.getInstance().on(SetPlayAreaEvent.class, this::setPlayArea),
+                GUIView.getInstance().on(GamePausedEvent.class, this::pauseGame),
+                GUIView.getInstance().on(GameResumedEvent.class, this::resumeGame)
         ));
     }
 
@@ -276,6 +286,14 @@ public class PlayAreaController extends SceneController {
         });
     }
 
+    private void pauseGame(GamePausedEvent event) {
+        gameStatusLabel.setText("Game status: " + event.getGameStatus().toString());
+        playarea.setDisable(true);
+    }
+
+    private void resumeGame(GameResumedEvent event) {
+        playarea.setDisable(false);
+    }
 
     @Override
     public String getFXMLFileName() {

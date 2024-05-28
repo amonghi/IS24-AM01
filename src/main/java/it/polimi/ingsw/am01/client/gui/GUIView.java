@@ -44,6 +44,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private final Map<String, PlayerColor> playerColors;
     private final Map<String, Integer> scores;
     private final List<Integer> secretObjectivesId;
+    private final Map<String, Boolean> connections;
     private SceneController currentSceneController;
     private Map<Integer, UpdateGameListS2C.GameStat> games;
     private String playerName;
@@ -54,7 +55,6 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private String currentPlayer;
     private int secretObjectiveChoiceId;
     private List<Integer> commonObjectivesId;
-    private final Map<String, Boolean> connections;
 
     /*
         TODO:
@@ -130,6 +130,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case PlayerDisconnectedS2C m -> handleMessage(m);
                             case PlayerReconnectedS2C m -> handleMessage(m);
                             case SetupAfterReconnectionS2C m -> handleMessage(m);
+                            case SetGamePauseS2C m -> handleMessage(m);
+                            case GameResumedS2C m -> handleMessage(m);
                             case PingS2C m -> {
                             }
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
@@ -141,7 +143,6 @@ public class GUIView implements EventEmitter<ViewEvent> {
             }
         }).start();
     }
-
 
     public static GUIView getInstance() {
         if (instance != null) {
@@ -372,6 +373,14 @@ public class GUIView implements EventEmitter<ViewEvent> {
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
+    private void handleMessage(SetGamePauseS2C m) {
+        gameStatus = m.getGameStatus();
+        emitter.emit(new GamePausedEvent());
+    }
+
+    private void handleMessage(GameResumedS2C m) {
+        emitter.emit(new GameResumedEvent());
+    }
 
     private void changeScene(SceneController newSceneController) {
         currentSceneController.getViewRegistrations().forEach(this::unregister);
