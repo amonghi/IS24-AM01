@@ -54,6 +54,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private String currentPlayer;
     private int secretObjectiveChoiceId;
     private List<Integer> commonObjectivesId;
+    private final Map<String, Boolean> connections;
 
     /*
         TODO:
@@ -98,6 +99,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.decksColor = new HashMap<>();
         this.scores = new HashMap<>();
         this.playerColors = new HashMap<>();
+        this.connections = new HashMap<>();
         //TODO: initialize others...
 
         new Thread(() -> {
@@ -127,6 +129,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case UpdateFaceUpCardsS2C m -> handleMessage(m);
                             case PlayerDisconnectedS2C m -> handleMessage(m);
                             case PlayerReconnectedS2C m -> handleMessage(m);
+                            case SetupAfterReconnectionS2C m -> handleMessage(m);
                             case PingS2C m -> {
                             }
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
@@ -138,6 +141,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
             }
         }).start();
     }
+
 
     public static GUIView getInstance() {
         if (instance != null) {
@@ -174,7 +178,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         if (!playAreas.containsKey(message.playerName()))
             playAreas.put(message.playerName(), new TreeSet<>());
 
-        playAreas.get(message.playerName()).add(new GUIPlacement(message.cardId(), message.side(), new Position(message.i(), message.j()), message.seq()));
+        playAreas.get(message.playerName()).add(new GUIPlacement(message.cardId(), message.side(), new Position(message.i(), message.j()), message.seq(), message.points()));
         scores.put(message.playerName(), scores.getOrDefault(message.playerName(), 0) + message.points());
 
         emitter.emit(new UpdatePlayAreaEvent(
@@ -230,7 +234,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
                 starterCard.seq(),
                 scores.get(playerName)
         ));
-        emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores));
+        emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
     private void handleMessage(UpdatePlayerHandS2C message) {
@@ -270,6 +274,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
         emitter.emit(new PlayerListChangedEvent(m.playerList()));
         playersInGame.clear();
         playersInGame.addAll(m.playerList());
+        connections.clear();
+        playersInGame.forEach(p -> connections.put(p, true));
     }
 
     private void handleMessage(SetStartingCardS2C m) {
@@ -307,12 +313,65 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(PlayerDisconnectedS2C m) {
-        emitter.emit(new PlayerDisconnectedEvent(m.playerName()));
+        if (connections.get(m.playerName()) != null) {
+            connections.replace(m.playerName(), false);
+        }
+        emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
     private void handleMessage(PlayerReconnectedS2C m) {
-        emitter.emit(new PlayerReconnectedEvent(m.playerName()));
+        connections.replace(m.playerName(), true);
+        emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
+
+    private void handleMessage(SetupAfterReconnectionS2C m) {
+        currentPlayer = m.currentPlayer();
+        playersInGame.addAll(m.playAreas().keySet());
+        turnPhase = m.turnPhase();
+        gameStatus = m.status();
+        hand.addAll(m.hand());
+        playerColors.putAll(m.playerColors());
+        commonObjectivesId = m.commonObjectives();
+        secretObjectiveChoiceId = m.secretObjective();
+        decksColor.put(DeckLocation.RESOURCE_CARD_DECK, m.resourceDeckColor());
+        decksColor.put(DeckLocation.GOLDEN_CARD_DECK, m.goldenDeckColor());
+        faceUpCards.addAll(m.faceUpCards());
+        connections.putAll(m.connections());
+
+        m.playAreas().forEach((player, pa) -> {
+            playAreas.put(player, new TreeSet<>());
+            pa.forEach(((position, cardPlacement) -> {
+                playAreas.get(player).add(new GUIPlacement(
+                        cardPlacement.cardId(),
+                        cardPlacement.side(),
+                        new Position(position.i(), position.j()),
+                        cardPlacement.seq(),
+                        cardPlacement.points()
+                ));
+            }));
+        });
+        // TODO: add chat messages
+
+        playersInGame.forEach(player -> scores.put(player,
+                playAreas.get(player).stream().mapToInt(GUIPlacement::points).sum()
+        ));
+
+
+        changeScene(PLAY_CONTROLLER);
+
+        emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
+        emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
+        emitter.emit(new SetDeckEvent(
+                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
+        ));
+        emitter.emit(new SetHandEvent(hand));
+
+        emitter.emit(new SetPlayAreaEvent(playAreas.get(playerName)));
+
+        emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
+    }
+
 
     private void changeScene(SceneController newSceneController) {
         currentSceneController.getViewRegistrations().forEach(this::unregister);

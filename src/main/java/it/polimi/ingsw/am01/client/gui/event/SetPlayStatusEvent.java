@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.Map;
 
 public record SetPlayStatusEvent(List<String> players, Map<String, PlayerColor> colors,
-                                 Map<String, Integer> scores) implements ViewEvent {
+                                 Map<String, Integer> scores, Map<String, Boolean> connections) implements ViewEvent {
 }

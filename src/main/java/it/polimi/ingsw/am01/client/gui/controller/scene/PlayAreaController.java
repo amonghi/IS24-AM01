@@ -172,6 +172,7 @@ public class PlayAreaController extends SceneController {
         playarea.getChildren().removeLast();
     }
 
+
     private void invalidPlacement(InvalidPlacementEvent event) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setContentText("Invalid placement!");
@@ -217,21 +218,10 @@ public class PlayAreaController extends SceneController {
             play_status.getChildren().add(new PlayerInfoController(
                     player,
                     event.colors().get(player),
-                    event.scores().get(player)
-            ));
+                    event.scores().get(player),
+                    event.connections().get(player))
+            );
         }
-    }
-
-    private void disconnectPlayer(PlayerDisconnectedEvent event) {
-        play_status.getChildren().stream()
-                .filter(node -> ((PlayerInfoController) node).getName().equals(event.player()))
-                .forEach(node -> ((PlayerInfoController) node).setConnection(false));
-    }
-
-    private void reconnectPlayer(PlayerReconnectedEvent event) {
-        play_status.getChildren().stream()
-                .filter(node -> ((PlayerInfoController) node).getName().equals(event.player()))
-                .forEach(node -> ((PlayerInfoController) node).setConnection(true));
     }
 
     public void drawFromFaceUp(int cardId) {
@@ -270,11 +260,21 @@ public class PlayAreaController extends SceneController {
                 GUIView.getInstance().on(SetObjectives.class, this::setObjectives),
                 GUIView.getInstance().on(UpdateGameTurnEvent.class, this::handleTurn),
                 GUIView.getInstance().on(SetPlayStatusEvent.class, this::updatePlayStatus),
-                GUIView.getInstance().on(PlayerDisconnectedEvent.class, this::disconnectPlayer),
-                GUIView.getInstance().on(PlayerReconnectedEvent.class, this::reconnectPlayer)
+                GUIView.getInstance().on(SetPlayAreaEvent.class, this::setPlayArea)
+
         ));
     }
 
+    private void setPlayArea(SetPlayAreaEvent event) {
+        event.guiPlacements().forEach(placement -> {
+            CardPlacementController cardPlacement = new CardPlacementController(placement.id(), placement.side());
+            cardPlacement.setPosition(placement.pos().i(), placement.pos().j());
+            cardPlacement.setSeq(placement.seq());
+            placements.add(cardPlacement);
+
+            playarea.getChildren().add(cardPlacement);
+        });
+    }
 
 
     @Override

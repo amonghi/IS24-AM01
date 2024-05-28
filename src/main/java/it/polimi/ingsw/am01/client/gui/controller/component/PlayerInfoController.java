@@ -12,6 +12,7 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
     private String name;
     private PlayerColor color;
     private int score;
+    private boolean connected;
     @FXML
     private Button playerColor;
     @FXML
@@ -21,10 +22,11 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
     @FXML
     private Label connectionState;
 
-    public PlayerInfoController(String name, PlayerColor color, int score) {
+    public PlayerInfoController(String name, PlayerColor color, int score, boolean connected) {
         this.name = name;
         this.color = color;
         this.score = score;
+        this.connected = connected;
         loadComponent();
     }
 
@@ -33,7 +35,7 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
         playerColor.setStyle("-fx-background-color: " + getColor() + "; -fx-background-radius: 50%");
         points.setText(String.valueOf(score));
         playerName.setText(name);
-        connectionState.setText("connected");   //TODO: handle disconnection
+        connectionState.setText(connected ? "connected" : "disconnected");
         initializeButtons();
     }
 
@@ -67,10 +69,6 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
     public void setScore(int newScore) {
         score = newScore;
         points.setText(String.valueOf(score));
-    }
-
-    public void setConnection(boolean isConnected){
-        connectionState.setText(isConnected ? "connected" : "disconnected");
     }
 
     @Override
