@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 public class UnixTerminal implements Terminal {
     private LibC.Termios originalAttributes;
-    private EventEmitterImpl<ResizeEvent> emitter;
+    private final EventEmitterImpl<ResizeEvent> emitter;
 
     public UnixTerminal() {
         this.emitter = new EventEmitterImpl<>();
