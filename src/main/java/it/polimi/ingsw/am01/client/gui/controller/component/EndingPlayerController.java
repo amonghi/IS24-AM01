@@ -2,13 +2,12 @@ package it.polimi.ingsw.am01.client.gui.controller.component;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
-import it.polimi.ingsw.am01.model.player.PlayerColor;
+import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.util.Objects;
@@ -37,20 +36,13 @@ public class EndingPlayerController extends HBox implements ComponentController 
         playerLabel.setText(player);
         placementLabel.setText(placement + ".");
         pointsLabel.setText(points + " points");
-        pawn.setFill(convertColor(GUIView.getInstance().getPlayerColor(player)));
+        pawn.setFill(Utils.convertColor(GUIView.getInstance().getPlayerColor(player)));
         if (placement == 1) {
             crown.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "crown.png")).toString()));
         }
     }
 
-    private Color convertColor(PlayerColor playerColor) {
-        return switch (playerColor) {
-            case RED -> Color.RED;
-            case YELLOW -> Color.YELLOW;
-            case BLUE -> Color.BLUE;
-            case GREEN -> Color.GREEN;
-        };
-    }
+
 
 
     public EndingPlayerController(String player, int points, int placement) {

@@ -37,6 +37,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private final SelectStartingCardSideController STARTING_CARD_SIDE_CHOICE_CONTROLLER;
     private final SelectPlayerColorController PLAYER_COLOR_CHOICE_CONTROLLER;
     private final SelectObjectiveController OBJECTIVE_CHOICE_CONTROLLER;
+    private final RestoringLobbyController RESTORING_LOBBY_CONTROLLER;
     private final EndingController ENDING_CONTROLLER;
     private final Set<Integer> faceUpCards;
     private final Set<Integer> hand;
@@ -85,6 +86,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.PLAYER_COLOR_CHOICE_CONTROLLER = new SelectPlayerColorController();
         this.OBJECTIVE_CHOICE_CONTROLLER = new SelectObjectiveController();
         this.ENDING_CONTROLLER = new EndingController();
+        this.RESTORING_LOBBY_CONTROLLER = new RestoringLobbyController();
 
         AUTH_CONTROLLER.loadScene(stage, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         currentSceneController = AUTH_CONTROLLER;
@@ -367,19 +369,21 @@ public class GUIView implements EventEmitter<ViewEvent> {
         playersInGame.forEach(player -> scores.put(player,
                 playAreas.get(player).stream().mapToInt(GUIPlacement::points).sum()
         ));
+        if(gameStatus == GameStatus.RESTORING){
+            changeScene(RESTORING_LOBBY_CONTROLLER);
+        } else {
+            stage.setFullScreen(true);
+            changeScene(PLAY_CONTROLLER);
+            emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
+            emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
+            emitter.emit(new SetDeckEvent(
+                    Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                    Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
+            ));
+            emitter.emit(new SetHandEvent(hand));
 
-        stage.setFullScreen(true);
-        changeScene(PLAY_CONTROLLER);
-
-        emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
-        emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
-        emitter.emit(new SetDeckEvent(
-                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
-                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
-        ));
-        emitter.emit(new SetHandEvent(hand));
-
-        emitter.emit(new SetPlayAreaEvent(playAreas.get(playerName)));
+            emitter.emit(new SetPlayAreaEvent(playAreas.get(playerName)));
+        }
 
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
@@ -390,7 +394,24 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(GameResumedS2C m) {
-        emitter.emit(new GameResumedEvent());
+        if(gameStatus == GameStatus.RESTORING){
+            stage.setFullScreen(true);
+            changeScene(PLAY_CONTROLLER);
+
+            emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
+            emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
+            emitter.emit(new SetDeckEvent(
+                    Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                    Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
+            ));
+            emitter.emit(new SetHandEvent(hand));
+
+            emitter.emit(new SetPlayAreaEvent(playAreas.get(playerName)));
+
+            emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
+        } else {
+            emitter.emit(new GameResumedEvent());
+        }
     }
 
     private void handleMessage(KickedFromGameS2C m) {
@@ -467,6 +488,10 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     public void setSecretObjectiveChoiceId(int secretObjectiveChoiceId) {
         this.secretObjectiveChoiceId = secretObjectiveChoiceId;
+    }
+
+    public boolean isConnected(String player){
+        return connections.get(player);
     }
 
     public PlayAreaController getPlayAreaController() {
