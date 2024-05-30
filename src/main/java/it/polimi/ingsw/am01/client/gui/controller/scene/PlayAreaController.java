@@ -51,6 +51,13 @@ public class PlayAreaController extends SceneController {
     private HBox utility_buttons;
     @FXML
     private Label gameStatusLabel;
+    @FXML
+    private AnchorPane chatPane;
+    @FXML
+    private Button openChatButton;
+    @FXML
+    private Button closeChatButton;
+    private ChatBoxController chatBoxController;
 
     public PlayAreaController() {
         cardSelected = false;
@@ -63,6 +70,11 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void initialize() {
+        chatPane.setVisible(false);
+        chatBoxController = new ChatBoxController();
+        chatPane.getChildren().add(chatBoxController);
+        closeChatButton.setVisible(false);
+
         Button showBoard = new Button("Show/Hide Board");
         showBoard.setOnAction(event -> {
             showHideBoard();
@@ -162,7 +174,7 @@ public class PlayAreaController extends SceneController {
         CardPlacementController cardPlacement = new CardPlacementController(event.cardId(), event.side());
         cardPlacement.setPosition(event.i(), event.j());
         cardPlacement.setSeq(event.seq());
-        if (event.playerName().equals(GUIView.getInstance().getPlayerName())){
+        if (event.playerName().equals(GUIView.getInstance().getPlayerName())) {
             placements.add(cardPlacement);
             playarea.getChildren().add(cardPlacement);
             cardSelected = false;
@@ -173,7 +185,7 @@ public class PlayAreaController extends SceneController {
 
     private void removePlacement(RemoveLastPlacementEvent event) {
         GUIView.getInstance().removeLastPlacement(event.player());
-        if(event.player().equals(GUIView.getInstance().getPlayerName())){
+        if (event.player().equals(GUIView.getInstance().getPlayerName())) {
             playarea.getChildren().removeLast();
         }
     }
@@ -277,7 +289,8 @@ public class PlayAreaController extends SceneController {
                 GUIView.getInstance().on(SetPlayStatusEvent.class, this::updatePlayStatus),
                 GUIView.getInstance().on(SetPlayAreaEvent.class, this::setPlayArea),
                 GUIView.getInstance().on(GamePausedEvent.class, this::pauseGame),
-                GUIView.getInstance().on(GameResumedEvent.class, this::resumeGame)
+                GUIView.getInstance().on(GameResumedEvent.class, this::resumeGame),
+                GUIView.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
@@ -299,6 +312,20 @@ public class PlayAreaController extends SceneController {
 
     private void resumeGame(GameResumedEvent event) {
         playarea.setDisable(false);
+    }
+
+    @FXML
+    private void openChat() {
+        chatPane.setVisible(true);
+        openChatButton.setVisible(false);
+        closeChatButton.setVisible(true);
+    }
+
+    @FXML
+    private void closeChat() {
+        chatPane.setVisible(false);
+        openChatButton.setVisible(true);
+        closeChatButton.setVisible(false);
     }
 
     @Override

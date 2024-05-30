@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -59,5 +60,8 @@
             </Label>
          </children>
       </VBox>
+      <Button fx:id="openChatButton" layoutX="866.0" layoutY="568.0" mnemonicParsing="false" onAction="#openChat" prefHeight="36.0" prefWidth="86.0" text="Open chat" AnchorPane.bottomAnchor="210.0" AnchorPane.rightAnchor="10.0" />
+      <AnchorPane fx:id="chatPane" layoutX="686.0" layoutY="61.0" prefHeight="525.0" prefWidth="356.0" AnchorPane.bottomAnchor="210.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <Button fx:id="closeChatButton" layoutX="486.0" layoutY="550.0" mnemonicParsing="false" onAction="#closeChat" text="Close chat" AnchorPane.bottomAnchor="210.0" AnchorPane.rightAnchor="390.0" />
     </children>
 </AnchorPane>

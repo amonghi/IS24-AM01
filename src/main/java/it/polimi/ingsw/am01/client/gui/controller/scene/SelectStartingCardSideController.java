@@ -2,7 +2,9 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
+import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.SideChoiceController;
+import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayAreaEvent;
 import it.polimi.ingsw.am01.model.card.Side;
@@ -13,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -39,10 +42,22 @@ public class SelectStartingCardSideController extends SceneController {
     private Button confirmButton;
     @FXML
     private ImageView backImage;
+    @FXML
+    private AnchorPane chatPane;
+    @FXML
+    private Button openChatButton;
+    @FXML
+    private Button closeChatButton;
     private Side choosenSide;
+    private ChatBoxController chatBoxController;
 
     @FXML
     private void initialize() {
+        chatPane.setVisible(false);
+        chatBoxController = new ChatBoxController();
+        chatPane.getChildren().add(chatBoxController);
+        closeChatButton.setVisible(false);
+
         choiceControllers.clear();
         gameId.setText("In game #" + GUIView.getInstance().getGameId());
         frontImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
@@ -96,7 +111,16 @@ public class SelectStartingCardSideController extends SceneController {
 
     @FXML
     private void openChat() {
-        //TODO: todo
+        chatPane.setVisible(true);
+        openChatButton.setVisible(false);
+        closeChatButton.setVisible(true);
+    }
+
+    @FXML
+    private void closeChat() {
+        chatPane.setVisible(false);
+        openChatButton.setVisible(true);
+        closeChatButton.setVisible(false);
     }
 
     private void updateChoices(UpdatePlayAreaEvent event) {
@@ -111,7 +135,8 @@ public class SelectStartingCardSideController extends SceneController {
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
                 GUIView.getInstance().on(UpdatePlayAreaEvent.class, this::updateChoices),
-                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayersList)
+                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayersList),
+                GUIView.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
@@ -119,6 +144,7 @@ public class SelectStartingCardSideController extends SceneController {
         playersBox.getChildren().clear();
 
         choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+        chatBoxController.updatePlayersList(event);
 
         for (SideChoiceController controller : choiceControllers) {
             playersBox.getChildren().add(

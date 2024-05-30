@@ -9,95 +9,94 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="572.0" prefWidth="892.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+
+<AnchorPane prefHeight="576.0" prefWidth="942.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <AnchorPane maxHeight="50.0" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="50.0" style="-fx-background-color: lightgrey;">
+      <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="576.0" prefWidth="942.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
-            <Label fx:id="gameId" alignment="CENTER" text="In game #0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-         </children>
-      </AnchorPane>
-      <Label fx:id="titleLabel" text="Choose a color!">
-         <font>
-            <Font size="22.0" />
-         </font>
-         <VBox.margin>
-            <Insets top="30.0" />
-         </VBox.margin>
-      </Label>
-      <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <VBox alignment="TOP_CENTER">
+            <AnchorPane maxHeight="50.0" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="50.0" prefWidth="930.0" style="-fx-background-color: lightgrey;">
                <children>
-                  <Label text="Choices" textFill="#8a7848">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Label>
-                  <VBox fx:id="playersBox" alignment="TOP_CENTER" style="-fx-border-color: black;">
-                     <VBox.margin>
-                        <Insets right="15.0" />
-                     </VBox.margin>
+                  <Label fx:id="gameId" alignment="CENTER" text="In game #0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+            <Label fx:id="titleLabel" text="Choose a color!">
+               <font>
+                  <Font size="22.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="30.0" />
+               </VBox.margin>
+            </Label>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <VBox alignment="TOP_CENTER">
+                     <children>
+                        <Label text="Choices" textFill="#8a7848">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <VBox fx:id="playersBox" alignment="TOP_CENTER" style="-fx-border-color: black;">
+                           <VBox.margin>
+                              <Insets right="15.0" />
+                           </VBox.margin>
+                        </VBox>
+                     </children>
                   </VBox>
                </children>
-            </VBox>
-         </children>
-         <VBox.margin>
-            <Insets bottom="30.0" />
-         </VBox.margin>
-      </HBox>
-      <HBox alignment="CENTER" prefHeight="185.0" prefWidth="892.0">
-         <VBox.margin>
-            <Insets bottom="20.0" />
-         </VBox.margin>
-         <children>
-            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+               <VBox.margin>
+                  <Insets bottom="30.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="185.0" prefWidth="892.0">
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
                <children>
-                  <Button fx:id="yelloButton" mnemonicParsing="false" onAction="#confirm">
-                     <graphic>
-                        <Circle fx:id="yelloCircle" fill="#fff600" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
-                     </graphic>
-                  </Button>
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Button fx:id="yelloButton" mnemonicParsing="false" onAction="#confirm">
+                           <graphic>
+                              <Circle fx:id="yelloCircle" fill="#fff600" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Button fx:id="redButton" mnemonicParsing="false" onAction="#confirm">
+                           <graphic>
+                              <Circle fx:id="redCircle" fill="#ff1f1f" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
+                           </graphic>
+                           <VBox.margin>
+                              <Insets bottom="51.0" />
+                           </VBox.margin>
+                        </Button>
+                        <Button fx:id="blueButton" mnemonicParsing="false" onAction="#confirm">
+                           <graphic>
+                              <Circle fx:id="blueCircle" fill="#1f21ff" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
+                           </graphic>
+                           <VBox.margin>
+                              <Insets top="51.0" />
+                           </VBox.margin>
+                        </Button>
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Button fx:id="greenButton" mnemonicParsing="false" onAction="#confirm">
+                           <graphic>
+                              <Circle fx:id="greenCircle" fill="#077220" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </VBox>
                </children>
-            </VBox>
-            <VBox>
-               <children>
-                  <Button fx:id="redButton" mnemonicParsing="false" onAction="#confirm">
-                     <graphic>
-                        <Circle fx:id="redCircle" fill="#ff1f1f" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
-                     </graphic>
-                     <VBox.margin>
-                        <Insets bottom="51.0" />
-                     </VBox.margin>
-                  </Button>
-                  <Button fx:id="blueButton" mnemonicParsing="false" onAction="#confirm">
-                     <graphic>
-                        <Circle fx:id="blueCircle" fill="#1f21ff" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
-                     </graphic>
-                     <VBox.margin>
-                        <Insets top="51.0" />
-                     </VBox.margin>
-                  </Button>
-               </children>
-            </VBox>
-            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <Button fx:id="greenButton" mnemonicParsing="false" onAction="#confirm">
-                     <graphic>
-                        <Circle fx:id="greenCircle" fill="#077220" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
-                     </graphic>
-                  </Button>
-               </children>
-            </VBox>
+            </HBox>
          </children>
-      </HBox>
-      <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <Button mnemonicParsing="false" onAction="#openChat" prefHeight="36.0" prefWidth="86.0" text="Open chat">
-               <HBox.margin>
-                  <Insets right="30.0" />
-               </HBox.margin>
-            </Button>
-         </children>
-      </HBox>
+      </VBox>
+      <AnchorPane fx:id="chatPane" layoutX="535.0" layoutY="51.0" prefHeight="525.0" prefWidth="356.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0" />
+      <Button fx:id="closeChatButton" layoutX="486.0" layoutY="503.0" mnemonicParsing="false" onAction="#closeChat" text="Close chat" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="395.0" />
+      <Button fx:id="openChatButton" mnemonicParsing="false" onAction="#openChat" prefHeight="36.0" prefWidth="86.0" text="Open chat" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
    </children>
-</VBox>
+</AnchorPane>

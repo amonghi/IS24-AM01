@@ -10,6 +10,7 @@ import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
 import it.polimi.ingsw.am01.model.card.CardColor;
+import it.polimi.ingsw.am01.model.chat.MessageType;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -48,6 +49,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private final Map<String, Integer> scores;
     private final List<Integer> secretObjectivesId;
     private final Map<String, Boolean> connections;
+    private final List<Message> messages;
     private SceneController currentSceneController;
     private Map<Integer, UpdateGameListS2C.GameStat> games;
     private String playerName;
@@ -58,11 +60,6 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private String currentPlayer;
     private int secretObjectiveChoiceId;
     private List<Integer> commonObjectivesId;
-
-    /*
-        TODO:
-        private List<Message> messages;
-    */
 
     public GUIView(Connection<C2SNetworkMessage, S2CNetworkMessage> connection, Stage stage) {
         this.emitter = new EventEmitterImpl<>();
@@ -105,6 +102,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.scores = new HashMap<>();
         this.playerColors = new HashMap<>();
         this.connections = new HashMap<>();
+        this.messages = new ArrayList<>();
         //TODO: initialize others...
 
         new Thread(() -> {
@@ -139,6 +137,9 @@ public class GUIView implements EventEmitter<ViewEvent> {
                             case GameResumedS2C m -> handleMessage(m);
                             case GameFinishedS2C m -> handleMessage(m);
                             case KickedFromGameS2C m -> handleMessage(m);
+                            case NewMessageS2C m -> handleMessage(m);
+                            case BroadcastMessageSentS2C m -> handleMessage(m);
+                            case DirectMessageSentS2C m -> handleMessage(m);
                             case PingS2C m -> {
                             }
                             default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
@@ -335,6 +336,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     private void handleMessage(GameFinishedS2C m) {
         changeScene(ENDING_CONTROLLER);
+        //TODO: reset all data related to finished game (create a function in order to do this)
         emitter.emit(new SetFinalScoresEvent(m.finalScores()));
     }
 
@@ -352,6 +354,15 @@ public class GUIView implements EventEmitter<ViewEvent> {
         faceUpCards.addAll(m.faceUpCards());
         connections.putAll(m.connections());
 
+        for (SetupAfterReconnectionS2C.Message msg : m.chat()) {
+            messages.add(new Message(
+                    msg.messageType(),
+                    msg.sender(),
+                    msg.content(),
+                    msg.timestamp()
+            ));
+        }
+
         m.playAreas().forEach((player, pa) -> {
             playAreas.put(player, new TreeSet<>());
             pa.forEach(((position, cardPlacement) -> {
@@ -364,12 +375,11 @@ public class GUIView implements EventEmitter<ViewEvent> {
                 ));
             }));
         });
-        // TODO: add chat messages
 
         playersInGame.forEach(player -> scores.put(player,
                 playAreas.get(player).stream().mapToInt(GUIPlacement::points).sum()
         ));
-        if(gameStatus == GameStatus.RESTORING){
+        if (gameStatus == GameStatus.RESTORING) {
             changeScene(RESTORING_LOBBY_CONTROLLER);
         } else {
             stage.setFullScreen(true);
@@ -394,7 +404,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(GameResumedS2C m) {
-        if(gameStatus == GameStatus.RESTORING){
+        if (gameStatus == GameStatus.RESTORING) {
             stage.setFullScreen(true);
             changeScene(PLAY_CONTROLLER);
 
@@ -433,11 +443,42 @@ public class GUIView implements EventEmitter<ViewEvent> {
         currentPlayer = null;
         secretObjectiveChoiceId = -1; //FIXME: can't set to null...
         commonObjectivesId.clear();
+        messages.clear();
 
         //TODO: remove or change
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setContentText("Game was cancelled as there were not enough players connected!");
         alert.show();
+    }
+
+    private void handleMessage(NewMessageS2C m) {
+        Message newMessage = new Message(m.messageType(), m.sender(), m.content(), m.timestamp());
+
+        messages.add(newMessage);
+
+        emitter.emit(new NewMessageEvent(
+                newMessage
+        ));
+    }
+
+    private void handleMessage(BroadcastMessageSentS2C m) {
+        Message newMessage = new Message(MessageType.BROADCAST, m.sender(), m.content(), m.timestamp());
+
+        messages.add(newMessage);
+
+        emitter.emit(new NewMessageEvent(
+                newMessage
+        ));
+    }
+
+    private void handleMessage(DirectMessageSentS2C m) {
+        Message newMessage = new Message(MessageType.DIRECT, m.sender(), m.content(), m.timestamp());
+
+        messages.add(newMessage);
+
+        emitter.emit(new NewMessageEvent(
+                newMessage
+        ));
     }
 
     private void changeScene(SceneController newSceneController) {
@@ -494,12 +535,16 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.secretObjectiveChoiceId = secretObjectiveChoiceId;
     }
 
-    public boolean isConnected(String player){
+    public boolean isConnected(String player) {
         return connections.get(player);
     }
 
     public PlayAreaController getPlayAreaController() {
         return PLAY_CONTROLLER;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
     }
 
     public void sendMessage(C2SNetworkMessage message) {
@@ -523,5 +568,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
     @Override
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
+    }
+
+    public record Message(MessageType type, String sender, String content, String timestamp) {
     }
 }

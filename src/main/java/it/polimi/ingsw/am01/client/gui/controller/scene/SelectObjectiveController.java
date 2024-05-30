@@ -2,7 +2,9 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
+import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.ObjectiveChoiceController;
+import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdateSecretObjectiveChoiceEvent;
 import it.polimi.ingsw.am01.network.message.c2s.SelectSecretObjectiveC2S;
@@ -12,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -41,11 +44,23 @@ public class SelectObjectiveController extends SceneController {
     private ImageView secondObjectiveImage;
     @FXML
     private Button confirmButton;
+    @FXML
+    private AnchorPane chatPane;
+    @FXML
+    private Button openChatButton;
+    @FXML
+    private Button closeChatButton;
+    private ChatBoxController chatBoxController;
 
     private int choice;
 
     @FXML
     private void initialize() {
+        chatPane.setVisible(false);
+        chatBoxController = new ChatBoxController();
+        chatPane.getChildren().add(chatBoxController);
+        closeChatButton.setVisible(false);
+
         choiceControllers.clear();
         gameId.setText("In game #" + GUIView.getInstance().getGameId());
 
@@ -73,7 +88,8 @@ public class SelectObjectiveController extends SceneController {
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
                 GUIView.getInstance().on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices),
-                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList)
+                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
+                GUIView.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
@@ -81,6 +97,7 @@ public class SelectObjectiveController extends SceneController {
         playersBox.getChildren().clear();
 
         choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+        chatBoxController.updatePlayersList(event);
 
         for (ObjectiveChoiceController controller : choiceControllers) {
             playersBox.getChildren().add(
@@ -95,6 +112,20 @@ public class SelectObjectiveController extends SceneController {
                 controller.setChoice();
             }
         }
+    }
+
+    @FXML
+    private void openChat() {
+        chatPane.setVisible(true);
+        openChatButton.setVisible(false);
+        closeChatButton.setVisible(true);
+    }
+
+    @FXML
+    private void closeChat() {
+        chatPane.setVisible(false);
+        openChatButton.setVisible(true);
+        closeChatButton.setVisible(false);
     }
 
     @FXML
@@ -128,11 +159,6 @@ public class SelectObjectiveController extends SceneController {
                 controller.setChoice();
             }
         }
-    }
-
-    @FXML
-    private void openChat() {
-        //TODO: todo
     }
 
     @Override

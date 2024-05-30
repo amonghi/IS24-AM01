@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.ColorChoiceController;
+import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayerColorEvent;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
@@ -10,6 +12,7 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 
@@ -45,11 +48,23 @@ public class SelectPlayerColorController extends SceneController {
     private Circle blueCircle;
     @FXML
     private Circle greenCircle;
+    @FXML
+    private AnchorPane chatPane;
+    @FXML
+    private Button openChatButton;
+    @FXML
+    private Button closeChatButton;
+    private ChatBoxController chatBoxController;
 
     private PlayerColor colorChoice;
 
     @FXML
     private void initialize() {
+        chatPane.setVisible(false);
+        chatBoxController = new ChatBoxController();
+        chatPane.getChildren().add(chatBoxController);
+        closeChatButton.setVisible(false);
+
         colorChoiceControllers.clear();
         colorChoice = null;
         gameId.setText("In game #" + GUIView.getInstance().getGameId());
@@ -66,7 +81,8 @@ public class SelectPlayerColorController extends SceneController {
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
                 GUIView.getInstance().on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
-                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList)
+                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
+                GUIView.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
@@ -74,6 +90,7 @@ public class SelectPlayerColorController extends SceneController {
         playersBox.getChildren().clear();
 
         colorChoiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+        chatBoxController.updatePlayersList(event);
 
         for (ColorChoiceController controller : colorChoiceControllers) {
             playersBox.getChildren().add(
@@ -84,7 +101,16 @@ public class SelectPlayerColorController extends SceneController {
 
     @FXML
     private void openChat() {
-        //TODO: todo
+        chatPane.setVisible(true);
+        openChatButton.setVisible(false);
+        closeChatButton.setVisible(true);
+    }
+
+    @FXML
+    private void closeChat() {
+        chatPane.setVisible(false);
+        openChatButton.setVisible(true);
+        closeChatButton.setVisible(false);
     }
 
     @FXML
