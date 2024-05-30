@@ -16,7 +16,7 @@ public record SizedPositioned(
                 ctx.global(),
                 new RenderingContext.Local(ctx.local().getOffset().add(this.position()))
         );
-        DrawArea da = parentArea.window(position, dimensions);
+        DrawArea da = parentArea.getSubarea(position, dimensions);
         this.component.drawSelf(newCtx, da);
 
         for (SizedPositioned child : children) {

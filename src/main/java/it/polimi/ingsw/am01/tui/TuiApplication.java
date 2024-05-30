@@ -3,8 +3,7 @@ package it.polimi.ingsw.am01.tui;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.tui.component.Component;
 import it.polimi.ingsw.am01.tui.rendering.*;
-import it.polimi.ingsw.am01.tui.rendering.draw.CharBufferDrawArea;
-import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
+import it.polimi.ingsw.am01.tui.rendering.draw.DrawBuffer;
 import it.polimi.ingsw.am01.tui.terminal.ResizeEvent;
 import it.polimi.ingsw.am01.tui.terminal.Terminal;
 
@@ -68,8 +67,8 @@ public abstract class TuiApplication<S extends TuiApplication.State> {
                 new RenderingContext.Global(drawDimensions),
                 new RenderingContext.Local(Position.ZERO)
         );
-        DrawArea drawArea = new CharBufferDrawArea(drawDimensions, ' ');
-        layoutRoot.draw(rootRenderingContext, drawArea);
+        DrawBuffer drawBuffer = new DrawBuffer(drawDimensions, ' ');
+        layoutRoot.draw(rootRenderingContext, drawBuffer.getDrawArea());
 
         long t3 = System.nanoTime(); // done drawing
 
@@ -77,7 +76,7 @@ public abstract class TuiApplication<S extends TuiApplication.State> {
         StringBuilder builder = new StringBuilder();
         builder
                 .append("\033[H\033[2J") // clear screen and move cursor to 0,0
-                .append(drawArea); // draw screen
+                .append(drawBuffer); // draw screen
 
         if (this.state.debugEnabled) {
             long compose = (t1 - t0) / 1000;
