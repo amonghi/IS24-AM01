@@ -208,14 +208,17 @@ public class PlayAreaController extends SceneController {
             //It's not my turn
             hand.setDisable(true);
             board.setDisable(true);
+            playarea.setDisable(true);
             return;
         }
         if (event.turnPhase().equals("PLACING")) {
             board.setDisable(true);
             hand.setDisable(false);
+            playarea.setDisable(false);
         } else {
             board.setDisable(false);
             hand.setDisable(true);
+            playarea.setDisable(true);
         }
         //TODO: remove or change
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
