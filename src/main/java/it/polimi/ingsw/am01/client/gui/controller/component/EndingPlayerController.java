@@ -7,12 +7,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
 
 import java.util.Objects;
 
-public class EndingPlayerController extends HBox implements ComponentController {
+public class EndingPlayerController extends AnchorPane implements ComponentController {
     private final String player;
     private final int points;
     private final int placement;
