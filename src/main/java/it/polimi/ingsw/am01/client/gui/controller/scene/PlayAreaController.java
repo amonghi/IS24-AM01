@@ -172,9 +172,10 @@ public class PlayAreaController extends SceneController {
     }
 
     private void removePlacement(RemoveLastPlacementEvent event) {
-        //TODO: this has to be tested!!!
-        placements.removeLast();
-        playarea.getChildren().removeLast();
+        GUIView.getInstance().removeLastPlacement(event.player());
+        if(event.player().equals(GUIView.getInstance().getPlayerName())){
+            playarea.getChildren().removeLast();
+        }
     }
 
 

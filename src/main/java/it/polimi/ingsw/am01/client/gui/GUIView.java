@@ -205,7 +205,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(UpdatePlayAreaAfterUndoS2C message) {
-        emitter.emit(new RemoveLastPlacementEvent());
+        emitter.emit(new RemoveLastPlacementEvent(message.profile()));
     }
 
     private void handleMessage(SetBoardAndHandS2C message) {
@@ -467,6 +467,10 @@ public class GUIView implements EventEmitter<ViewEvent> {
     public SortedSet<GUIPlacement> getPlacements(String player) {
         //player part of the game as a pre-condition
         return playAreas.get(player);
+    }
+
+    public void removeLastPlacement(String player) {
+        playAreas.get(player).removeLast();
     }
 
     public int getScore(String player) {
