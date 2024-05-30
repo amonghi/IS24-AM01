@@ -14,7 +14,7 @@
                   <Insets left="10.0" />
                </HBox.margin>
             </Label>
-                <Label fx:id="senderLabel" text="Sender:">
+                <Label fx:id="infoLabel" text="Sender:">
                <HBox.margin>
                   <Insets left="10.0" />
                </HBox.margin>

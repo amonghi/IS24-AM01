@@ -53,6 +53,7 @@ public class ChatBoxController extends AnchorPane implements ComponentController
                     new ChatMessageController(
                             message.type().toString(),
                             message.sender(),
+                            message.recipient(),
                             message.content(),
                             message.timestamp()
                     )
@@ -86,6 +87,7 @@ public class ChatBoxController extends AnchorPane implements ComponentController
                 new ChatMessageController(
                         event.message().type().toString(),
                         event.message().sender(),
+                        event.message().recipient(),
                         event.message().content(),
                         event.message().timestamp()
                 )

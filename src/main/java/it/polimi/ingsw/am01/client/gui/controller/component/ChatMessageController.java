@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.model.chat.MessageType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -10,21 +11,19 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
     private final String type;
     private final String sender;
     private final String content;
+    private final String recipient;
     private final String timestamp;
     @FXML
     private Label typeLabel;
     @FXML
-    private Label senderLabel;
+    private Label infoLabel;
     @FXML
     private Label contentLabel;
 
-    public ChatMessageController(String type, String sender, String content, String timestamp) {
+    public ChatMessageController(String type, String sender, String recipient, String content, String timestamp) {
+        this.sender = sender;
+        this.recipient = recipient;
         this.type = type;
-        if (sender.equals(GUIView.getInstance().getPlayerName())) {
-            this.sender = "You";
-        } else {
-            this.sender = sender;
-        }
         this.content = content;
         this.timestamp = timestamp;
 
@@ -33,8 +32,19 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
 
     @FXML
     private void initialize() {
+        String recString = "";
+        String senderString = sender;
         typeLabel.setText("[" + type.split("")[0] + "]");
-        senderLabel.setText("(" + timestamp.split("T")[1].split("\\.")[0] + ") " + sender + ": ");
+
+        if (sender.equals(GUIView.getInstance().getPlayerName())) {
+            senderString = "You";
+        }
+
+        if (type.equals(MessageType.DIRECT.toString()) && sender.equals(GUIView.getInstance().getPlayerName())) {
+            recString = " --> " + recipient;
+        }
+
+        infoLabel.setText("(" + timestamp.split("T")[1].split("\\.")[0] + ") " + senderString + recString + ": ");
         contentLabel.setText(content);
     }
 

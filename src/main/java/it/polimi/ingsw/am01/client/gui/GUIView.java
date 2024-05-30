@@ -358,6 +358,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
             messages.add(new Message(
                     msg.messageType(),
                     msg.sender(),
+                    msg.recipient(),
                     msg.content(),
                     msg.timestamp()
             ));
@@ -452,7 +453,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(NewMessageS2C m) {
-        Message newMessage = new Message(m.messageType(), m.sender(), m.content(), m.timestamp());
+        Message newMessage = new Message(m.messageType(), m.sender(), playerName, m.content(), m.timestamp());
 
         messages.add(newMessage);
 
@@ -462,7 +463,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(BroadcastMessageSentS2C m) {
-        Message newMessage = new Message(MessageType.BROADCAST, m.sender(), m.content(), m.timestamp());
+        Message newMessage = new Message(MessageType.BROADCAST, m.sender(), playerName, m.content(), m.timestamp());
 
         messages.add(newMessage);
 
@@ -472,7 +473,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(DirectMessageSentS2C m) {
-        Message newMessage = new Message(MessageType.DIRECT, m.sender(), m.content(), m.timestamp());
+        Message newMessage = new Message(MessageType.DIRECT, m.sender(), m.recipient(), m.content(), m.timestamp());
 
         messages.add(newMessage);
 
@@ -570,6 +571,6 @@ public class GUIView implements EventEmitter<ViewEvent> {
         return emitter.unregister(registration);
     }
 
-    public record Message(MessageType type, String sender, String content, String timestamp) {
+    public record Message(MessageType type, String sender, String recipient, String content, String timestamp) {
     }
 }
