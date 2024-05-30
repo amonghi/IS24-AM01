@@ -68,14 +68,18 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                         });
 
                         switch (key) {
-                            case Key.Character(char c) -> {
-                                switch (c) {
-                                    case QUIT_CHAR -> {
+                            case Key.Character(boolean ctrl, char c) -> {
+                                if (!ctrl) {
+                                    write(c);
+                                } else {
+                                    if (c == DEBUG_CHAR) {
+                                        debug();
+                                    }
+
+                                    if (c == QUIT_CHAR) {
                                         CodexNaturalisTuiApplication.this.shutdown();
                                         return;
                                     }
-                                    case DEBUG_CHAR -> debug();
-                                    default -> write(c);
                                 }
                             }
                             case Key.Backspace() -> erase();

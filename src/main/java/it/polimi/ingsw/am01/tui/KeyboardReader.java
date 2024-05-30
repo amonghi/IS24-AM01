@@ -25,7 +25,7 @@ public class KeyboardReader {
     public Optional<Key> nextKey() throws IOException {
         char c1 = this.readChar();
 
-        if (c1 == 127) {
+        if (c1 == '\177') {
             return Optional.of(new Key.Backspace());
         }
 
@@ -38,7 +38,13 @@ public class KeyboardReader {
         }
 
         if (c1 != '\033') {
-            return Optional.of(new Key.Character(c1));
+            boolean ctrl = false;
+            if (c1 <= 31) {
+                ctrl = true;
+                c1 = (char) (c1 + 96);
+            }
+
+            return Optional.of(new Key.Character(ctrl, c1));
         }
 
         char c2 = this.readChar();
