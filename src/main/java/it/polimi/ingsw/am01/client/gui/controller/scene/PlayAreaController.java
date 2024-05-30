@@ -32,6 +32,7 @@ public class PlayAreaController extends SceneController {
     private boolean cardSelected;
     private int selectedId;
     private Side selectedSide;
+    private String focussedPlayer;
     @FXML
     private AnchorPane playarea;
     @FXML
@@ -57,6 +58,7 @@ public class PlayAreaController extends SceneController {
         selectedSide = null;
         placements = new TreeSet<>();
         playerObjectives = new ArrayList<>();
+        focussedPlayer = GUIView.getInstance().getPlayerName();
     }
 
     @FXML
@@ -157,17 +159,16 @@ public class PlayAreaController extends SceneController {
             }
         }
 
-        if (!event.playerName().equals(GUIView.getInstance().getPlayerName())) {
-            return;
-        }
-
         CardPlacementController cardPlacement = new CardPlacementController(event.cardId(), event.side());
         cardPlacement.setPosition(event.i(), event.j());
         cardPlacement.setSeq(event.seq());
-        placements.add(cardPlacement);
-
-        playarea.getChildren().add(cardPlacement);
-        cardSelected = false;
+        if (event.playerName().equals(GUIView.getInstance().getPlayerName())){
+            placements.add(cardPlacement);
+            playarea.getChildren().add(cardPlacement);
+            cardSelected = false;
+        } else if (event.playerName().equals(focussedPlayer)) {
+            playarea.getChildren().add(cardPlacement);
+        }
     }
 
     private void removePlacement(RemoveLastPlacementEvent event) {
@@ -254,6 +255,7 @@ public class PlayAreaController extends SceneController {
             cp.setDisable(!GUIView.getInstance().getPlayerName().equals(player));
             playarea.getChildren().add(cp);
         }
+        focussedPlayer = player;
     }
 
     @Override
