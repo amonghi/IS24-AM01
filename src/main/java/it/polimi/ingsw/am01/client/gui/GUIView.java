@@ -336,7 +336,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     private void handleMessage(GameFinishedS2C m) {
         changeScene(ENDING_CONTROLLER);
-        //TODO: reset all data related to finished game (create a function in order to do this)
+        clearData();
         emitter.emit(new SetFinalScoresEvent(m.finalScores()));
     }
 
@@ -428,23 +428,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private void handleMessage(KickedFromGameS2C m) {
         changeScene(GAME_LIST_CONTROLLER);
 
-        //clear all data related to cancelled game
-        faceUpCards.clear();
-        hand.clear();
-        playAreas.clear();
-        playersInGame.clear();
-        playerColors.clear();
-        scores.clear();
-        secretObjectivesId.clear();
-        connections.clear();
-        gameId = -1; //FIXME: can't set to null...
-        startingCardId = -1; //FIXME: can't set to null...
-        gameStatus = null;
-        turnPhase = null;
-        currentPlayer = null;
-        secretObjectiveChoiceId = -1; //FIXME: can't set to null...
-        commonObjectivesId.clear();
-        messages.clear();
+        //clear all data related to game just deleted
+        clearData();
 
         //TODO: remove or change
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -546,6 +531,23 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     public List<Message> getMessages() {
         return messages;
+    }
+
+    private void clearData() {
+        faceUpCards.clear();
+        hand.clear();
+        decksColor.clear();
+        playAreas.clear();
+        playersInGame.clear();
+        playerColors.clear();
+        scores.clear();
+        secretObjectivesId.clear();
+        connections.clear();
+        gameStatus = null;
+        turnPhase = null;
+        currentPlayer = null;
+        commonObjectivesId.clear();
+        messages.clear();
     }
 
     public void sendMessage(C2SNetworkMessage message) {

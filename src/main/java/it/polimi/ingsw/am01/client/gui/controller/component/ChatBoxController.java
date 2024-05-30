@@ -103,17 +103,17 @@ public class ChatBoxController extends AnchorPane implements ComponentController
                 recipientOptionsChoiceBox.getItems().add(player);
             }
         }
-        recipientOptionsChoiceBox.getItems().add("BROADCAST");
+        recipientOptionsChoiceBox.getItems().add(MessageType.BROADCAST.toString());
 
-        if (oldValue != null && !event.playerList().contains(oldValue) && !oldValue.equals("BROADCAST")) {
+        if (oldValue == null) {
+            recipientOptionsChoiceBox.getSelectionModel().selectLast();
+            return;
+        }
+
+        if (!event.playerList().contains(oldValue) && !oldValue.equals(MessageType.BROADCAST.toString())) {
             recipientOptionsChoiceBox.getSelectionModel().selectLast();
         } else {
             recipientOptionsChoiceBox.getSelectionModel().select(oldValue);
-        }
-
-        //FIXME: maybe useless
-        if (oldValue == null) {
-            recipientOptionsChoiceBox.getSelectionModel().selectLast();
         }
     }
 
