@@ -9,6 +9,7 @@ import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
+import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.network.message.c2s.DrawCardFromDeckC2S;
 import it.polimi.ingsw.am01.network.message.c2s.DrawCardFromFaceUpCardsC2S;
 import it.polimi.ingsw.am01.network.message.c2s.PlaceCardC2S;
@@ -210,12 +211,24 @@ public class PlayAreaController extends SceneController {
         hand.setVisible(!hand.isVisible());
     }
 
+    private String backgroundColorHex(PlayerColor playerColor) {
+        return switch (playerColor) {
+            case RED -> "#ff8080";
+            case YELLOW -> "#ffe680";
+            case BLUE -> "#8080ff";
+            case GREEN -> "#99e699";
+        };
+    }
+
     private void handleTurn(UpdateGameTurnEvent event) {
-        if (!event.gameStatus().equals(GameStatus.SECOND_LAST_TURN.toString())) {
-            gameStatusLabel.setText("Game status: " + event.gameStatus());
-        } else {
-            gameStatusLabel.setText("Game status: " + GameStatus.PLAY);
+        String statusText = event.currentPlayer() + " is " + event.turnPhase().toLowerCase();
+
+        if (event.gameStatus().equals(GameStatus.LAST_TURN.toString())) {
+            statusText = "Last turn!" + statusText;
         }
+        gameStatusLabel.setText(statusText);
+        gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(GUIView.getInstance().getPlayerColor(event.currentPlayer())) + "; -fx-background-radius: 20;");
+
         if (!event.currentPlayer().equals(event.player())) {
             //It's not my turn
             hand.setDisable(true);
@@ -232,10 +245,6 @@ public class PlayAreaController extends SceneController {
             hand.setDisable(true);
             playarea.setDisable(true);
         }
-        //TODO: remove or change
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText(event.player() + ": it's your turn -> " + event.turnPhase());
-        alert.show();
     }
 
     private void updatePlayStatus(SetPlayStatusEvent event) {
@@ -306,7 +315,9 @@ public class PlayAreaController extends SceneController {
     }
 
     private void pauseGame(GamePausedEvent event) {
-        gameStatusLabel.setText("Game status: " + event.getGameStatus().toString());
+        gameStatusLabel.setText("Game suspended. Waiting for players...");
+        gameStatusLabel.setStyle("-fx-background-color: lightgray; -fx-background-radius: 20;");
+
         playarea.setDisable(true);
     }
 

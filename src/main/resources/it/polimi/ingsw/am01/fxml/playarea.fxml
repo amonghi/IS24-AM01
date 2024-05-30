@@ -9,7 +9,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+            prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <ScrollPane hbarPolicy="NEVER" hmax="10000.0" hvalue="5150.0" maxHeight="10000.0" maxWidth="10000.0" minHeight="10000.0" minWidth="10000.0" pannable="true" prefHeight="400.0" prefWidth="600.0" vbarPolicy="NEVER" vmax="10000.0" vvalue="5100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
@@ -48,15 +49,18 @@
             </HBox>
          </children>
       </HBox>
-      <VBox alignment="CENTER" layoutY="72.0" prefHeight="30.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <VBox alignment="CENTER" fillWidth="false" layoutY="72.0" prefHeight="30.0" prefWidth="600.0"
+              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
-            <Label fx:id="gameStatusLabel" alignment="CENTER" prefHeight="17.0" prefWidth="600.0" text="Game status" textFill="#b52727">
+             <Label fx:id="gameStatusLabel" alignment="CENTER" prefHeight="17.0"
+                    style="-fx-background-color: lightblue; -fx-background-radius: 20;" text="Game status"
+                    textFill="#000000">
                <font>
-                  <Font size="15.0" />
+                   <Font name="System Bold" size="15.0"/>
                </font>
-               <VBox.margin>
-                  <Insets top="20.0" />
-               </VBox.margin>
+                 <padding>
+                     <Insets bottom="2.0" left="20.0" right="20.0" top="2.0"/>
+                 </padding>
             </Label>
          </children>
       </VBox>
