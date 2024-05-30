@@ -9,8 +9,11 @@ import it.polimi.ingsw.am01.tui.component.elements.*;
 import it.polimi.ingsw.am01.tui.component.layout.Centered;
 import it.polimi.ingsw.am01.tui.component.layout.Column;
 import it.polimi.ingsw.am01.tui.component.layout.Padding;
+import it.polimi.ingsw.am01.tui.component.layout.Row;
 import it.polimi.ingsw.am01.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.tui.component.layout.flex.FlexChild;
+import it.polimi.ingsw.am01.tui.rendering.ansi.GraphicalRendition;
+import it.polimi.ingsw.am01.tui.rendering.ansi.GraphicalRenditionProperty;
 import it.polimi.ingsw.am01.tui.terminal.Terminal;
 
 import java.io.IOException;
@@ -158,16 +161,42 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                                         ))
                                 )),
                                 Centered.horizontally(Padding.around(1, new Text("last key: " + state.lastKey))),
-                                Centered.horizontally(Padding.around(1, new Text("last command output: " + state.output)))
+                                Centered.horizontally(Padding.around(1, new Text("last command output: " + state.output))),
+                                Centered.horizontally(Padding.around(2, new Row(List.of(
+                                        new Text("Some"),
+                                        new Text(" "),
+                                        new Text(GraphicalRendition.DEFAULT
+                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED),
+                                                "red"),
+                                        new Text(" "),
+                                        new Text(GraphicalRendition.DEFAULT
+                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
+                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD),
+                                                "bold"),
+                                        new Text(" "),
+                                        new Text(GraphicalRendition.DEFAULT
+                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
+                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD)
+                                                .withItalics(GraphicalRenditionProperty.Italics.ON),
+                                                "text")
+                                ))))
                         )))
                 ),
 
                 // bottom input
                 new FlexChild.Fixed(new Border(BorderStyle.DEFAULT,
                         Flex.row(List.of(
-                                new FlexChild.Fixed(new Text("> " + state.input)),
+                                new FlexChild.Fixed(new Text(
+                                        GraphicalRendition.DEFAULT
+                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD),
+                                        "> " + state.input
+                                )),
                                 new FlexChild.Fixed(new Cursor()),
-                                new FlexChild.Flexible(1, new Text(state.completion))
+                                new FlexChild.Flexible(1, new Text(
+                                        GraphicalRendition.DEFAULT
+                                                .withWeight(GraphicalRenditionProperty.Weight.DIM),
+                                        state.completion
+                                ))
                         ))
                 ))
         ));
