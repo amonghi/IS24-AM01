@@ -8,7 +8,6 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         Terminal terminal = new UnixTerminal();
-        CodexNaturalisTuiApplication app = new CodexNaturalisTuiApplication(terminal);
-        Runtime.getRuntime().addShutdownHook(new Thread(app::shutdown));
+        new CodexNaturalisTuiApplication(terminal);
     }
 }
