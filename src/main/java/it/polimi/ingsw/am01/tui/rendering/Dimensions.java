@@ -30,7 +30,7 @@ public record Dimensions(int width, int height) {
     }
 
     public Dimensions shrink(int shrinkW, int shrinkH) {
-        return new Dimensions(width - shrinkW, height - shrinkH);
+        return new Dimensions(Math.max(0, width - shrinkW), Math.max(0, height - shrinkH));
     }
 
     public Dimensions grow(int growW, int growH) {
