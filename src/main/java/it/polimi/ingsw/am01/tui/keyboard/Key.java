@@ -1,6 +1,8 @@
-package it.polimi.ingsw.am01.tui;
+package it.polimi.ingsw.am01.tui.keyboard;
 
-public sealed interface Key {
+import it.polimi.ingsw.am01.eventemitter.Event;
+
+public sealed interface Key extends Event {
     record Character(boolean ctrl, char character) implements Key {
     }
 

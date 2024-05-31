@@ -12,21 +12,24 @@ import it.polimi.ingsw.am01.tui.component.layout.Padding;
 import it.polimi.ingsw.am01.tui.component.layout.Row;
 import it.polimi.ingsw.am01.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.tui.component.layout.flex.FlexChild;
+import it.polimi.ingsw.am01.tui.keyboard.Key;
+import it.polimi.ingsw.am01.tui.keyboard.Keyboard;
 import it.polimi.ingsw.am01.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.tui.rendering.ansi.GraphicalRenditionProperty;
 import it.polimi.ingsw.am01.tui.terminal.Terminal;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisTuiApplication.State> {
     private static final char QUIT_CHAR = 'q';
     private static final char DEBUG_CHAR = 'd';
+    private final CommandNode rootCmd;
 
     public CodexNaturalisTuiApplication(Terminal terminal) {
         super(terminal, new State());
 
-        CommandNode cmd = CommandBuilder.root()
+        this.rootCmd = CommandBuilder.root()
                 .branch(
                         SequenceBuilder
                                 .literal("ping")
@@ -53,97 +56,69 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                 )
                 .build();
 
-        Thread keyboardListenerThread = new Thread(new Runnable() {
-            private final KeyboardReader keyboardReader = new KeyboardReader(System.in);
-            private String input = "";
-            private String completion = "";
+        Keyboard keyboard = Keyboard.getInstance();
+        keyboard.onAny(key -> updateState(state -> state.lastKey = key));
 
-            @Override
-            public void run() {
-                this.completeAndUpdateInput();
-
-                while (true) {
-                    try {
-                        Key key = keyboardReader.nextSupportedKey();
-
-                        CodexNaturalisTuiApplication.this.updateState(state -> {
-                            state.lastKey = key;
-                        });
-
-                        switch (key) {
-                            case Key.Character(boolean ctrl, char c) -> {
-                                if (!ctrl) {
-                                    write(c);
-                                } else {
-                                    if (c == DEBUG_CHAR) {
-                                        debug();
-                                    }
-
-                                    if (c == QUIT_CHAR) {
-                                        CodexNaturalisTuiApplication.this.shutdown();
-                                        return;
-                                    }
-                                }
-                            }
-                            case Key.Backspace() -> erase();
-                            case Key.Del() -> erase();
-                            case Key.Enter() -> runCommand();
-                            case Key.Tab() -> complete();
-                            default -> {
-                            }
-                        }
-                    } catch (IOException e) {
-                        CodexNaturalisTuiApplication.this.shutdown();
-                        return;
-                    }
-                }
+        keyboard.on(Key.Character.class, key -> {
+            if (key.ctrl() && key.character() == QUIT_CHAR) {
+                this.quitApplication();
+                return;
             }
 
-            private void debug() {
-                CodexNaturalisTuiApplication.this.updateState(state -> {
-                    state.debugEnabled = !state.debugEnabled;
-                });
+            if (key.ctrl() && key.character() == DEBUG_CHAR) {
+                this.toggleDebug();
+                return;
             }
 
-            private void write(char c) {
-                this.input += c;
-                completeAndUpdateInput();
-            }
+            this.writeChar(key.character());
+        });
+        keyboard.on(Key.Backspace.class, event -> this.eraseChar());
+        keyboard.on(Key.Del.class, event -> this.eraseChar());
+        keyboard.on(Key.Tab.class, key -> this.writeCompletion());
+        keyboard.on(Key.Enter.class, key -> this.runCommand());
+    }
 
-            private void erase() {
-                if (!this.input.isEmpty()) {
-                    this.input = this.input.substring(0, this.input.length() - 1);
-                }
-                completeAndUpdateInput();
-            }
+    private void quitApplication() {
+        System.exit(0);
+    }
 
-            private void runCommand() {
-                cmd.parse(this.input).getCommandRunnable().ifPresent(cmd -> {
-                    cmd.run();
-                    this.input = "";
-                });
-                completeAndUpdateInput();
-            }
+    private void toggleDebug() {
+        updateState(state -> state.debugEnabled = !state.debugEnabled);
+    }
 
-            private void complete() {
-                this.input = this.input + completion;
-                this.completion = "";
-                updateInput();
-            }
+    private void writeChar(char c) {
+        updateState(state -> {
+            state.input += c;
+            state.parseResult = rootCmd.parse(state.input);
+        });
+    }
 
-            private void completeAndUpdateInput() {
-                this.completion = cmd.parse(this.input).getCompletions().stream().findFirst().orElse("");
-                updateInput();
+    private void eraseChar() {
+        updateState(state -> {
+            if (!state.input.isEmpty()) {
+                state.input = state.input.substring(0, state.input.length() - 1);
             }
+            state.parseResult = rootCmd.parse(state.input);
+        });
+    }
 
-            private void updateInput() {
-                CodexNaturalisTuiApplication.this.updateState(state -> {
-                    state.input = this.input;
-                    state.completion = this.completion;
-                });
+    private void writeCompletion() {
+        updateState(state -> {
+            String completion = state.parseResult.getCompletions().stream().findFirst().orElse("");
+            state.input = state.input + completion;
+            state.parseResult = rootCmd.parse(state.input);
+        });
+    }
+
+    private void runCommand() {
+        updateState(state -> {
+            Optional<Runnable> runnable = state.parseResult.getCommandRunnable();
+            if (runnable.isPresent()) {
+                runnable.get().run();
+                state.input = "";
+                state.parseResult = rootCmd.parse(state.input);
             }
         });
-        keyboardListenerThread.start();
     }
 
     @Override
@@ -195,7 +170,7 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                                 new FlexChild.Flexible(1, new Text(
                                         GraphicalRendition.DEFAULT
                                                 .withWeight(GraphicalRenditionProperty.Weight.DIM),
-                                        state.completion
+                                        state.parseResult.getCompletions().stream().findFirst().orElse("")
                                 ))
                         ))
                 ))
@@ -204,7 +179,7 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
 
     public static class State extends TuiApplication.State {
         public String input = "";
-        public String completion = "";
+        public CommandNode.Result parseResult = null;
         public String output = "";
         public Key lastKey;
     }
