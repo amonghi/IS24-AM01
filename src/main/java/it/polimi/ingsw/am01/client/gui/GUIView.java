@@ -336,8 +336,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
 
     private void handleMessage(GameFinishedS2C m) {
         changeScene(ENDING_CONTROLLER);
-        clearData();
         emitter.emit(new SetFinalScoresEvent(m.finalScores()));
+        clearData();
     }
 
     private void handleMessage(SetupAfterReconnectionS2C m) {
