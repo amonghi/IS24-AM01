@@ -3,7 +3,13 @@ package it.polimi.ingsw.am01.tui.keyboard;
 import it.polimi.ingsw.am01.eventemitter.Event;
 
 public sealed interface Key extends Event {
-    record Character(boolean ctrl, char character) implements Key {
+    record Character(char character) implements Key {
+    }
+
+    record Ctrl(char character) implements Key {
+    }
+
+    record Alt(char character) implements Key {
     }
 
     record Arrow(Direction direction) implements Key {

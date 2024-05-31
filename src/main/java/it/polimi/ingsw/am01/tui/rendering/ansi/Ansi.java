@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Ansi {
-    public static final String ESC = "\033";
+    public static final char ESC = '\033';
     // Control Sequence Introducer
     public static final String CSI = ESC + "[";
 

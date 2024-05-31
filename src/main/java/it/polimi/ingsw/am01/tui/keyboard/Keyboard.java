@@ -29,7 +29,7 @@ public class Keyboard implements EventEmitter<Key> {
     private void run() {
         while (true) {
             try {
-                Key key = this.decoder.nextSupportedKey();
+                Key key = this.decoder.nextKey();
                 this.emitter.emit(key);
             } catch (IOException e) {
                 e.printStackTrace();

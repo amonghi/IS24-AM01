@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisTuiApplication.State> {
-    private static final char QUIT_CHAR = 'q';
-    private static final char DEBUG_CHAR = 'd';
     private final CommandNode rootCmd;
 
     public CodexNaturalisTuiApplication(Terminal terminal) {
@@ -59,19 +57,19 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
         Keyboard keyboard = Keyboard.getInstance();
         keyboard.onAny(key -> updateState(state -> state.lastKey = key));
 
-        keyboard.on(Key.Character.class, key -> {
-            if (key.ctrl() && key.character() == QUIT_CHAR) {
-                this.quitApplication();
-                return;
-            }
-
-            if (key.ctrl() && key.character() == DEBUG_CHAR) {
+        keyboard.on(Key.Alt.class, key -> {
+            // ALT+D toggles debug
+            if (key.character() == 'd') {
                 this.toggleDebug();
-                return;
             }
-
-            this.writeChar(key.character());
         });
+        keyboard.on(Key.Ctrl.class, key -> {
+            // CTRL+C or CTRL+Q or CTRL+D quits the application
+            switch (key.character()) {
+                case 'c', 'q', 'd' -> this.quitApplication();
+            }
+        });
+        keyboard.on(Key.Character.class, key -> this.writeChar(key.character()));
         keyboard.on(Key.Backspace.class, event -> this.eraseChar());
         keyboard.on(Key.Del.class, event -> this.eraseChar());
         keyboard.on(Key.Tab.class, key -> this.writeCompletion());
