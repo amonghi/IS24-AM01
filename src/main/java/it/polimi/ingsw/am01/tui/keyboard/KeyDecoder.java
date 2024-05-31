@@ -1,14 +1,14 @@
-package it.polimi.ingsw.am01.tui;
+package it.polimi.ingsw.am01.tui.keyboard;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
-public class KeyboardReader {
+public class KeyDecoder {
     private final InputStream inputStream;
 
-    public KeyboardReader(InputStream inputStream) {
+    public KeyDecoder(InputStream inputStream) {
         this.inputStream = inputStream;
     }
 
