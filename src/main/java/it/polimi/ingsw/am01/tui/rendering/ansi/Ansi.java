@@ -23,4 +23,13 @@ public class Ansi {
                 .collect(Collectors.joining(";"));
         return CSI + str + "m";
     }
+
+
+    // note: cursor position in the terminal is 1-based but everywhere else in this application we use 0-based
+    public static String setCursorPosition(int row, int col) {
+        return CSI + (row + 1) + ";" + (col + 1) + "H";
+    }
+
+    // actually, there are various options be this is the only one I need
+    public static String eraseInDisplay = CSI + "J";
 }
