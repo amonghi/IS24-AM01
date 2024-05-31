@@ -5,12 +5,13 @@ import it.polimi.ingsw.am01.tui.rendering.ansi.Ansi;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class KeyDecoder {
-    private final InputStream inputStream;
+    private final InputStreamReader reader;
 
     public KeyDecoder(InputStream inputStream) {
-        this.inputStream = inputStream;
+        this.reader = new InputStreamReader(inputStream);
     }
 
     public Key nextKey() throws IOException {
@@ -48,19 +49,13 @@ public class KeyDecoder {
         }
 
         // ascii printable characters are between 32 and 127
-        if (isPrintableAscii(c1)) {
-            return new Key.Character(c1);
-        }
-
-        return null;
+        return new Key.Character(c1);
     }
 
     private Key parseEscapeSequence() throws IOException {
         char c2 = this.readChar();
         if (c2 != '[') {
-            return isPrintableAscii(c2)
-                    ? new Key.Alt(c2)
-                    : null;
+            return new Key.Alt(c2);
         }
 
         char c3 = this.readChar();
@@ -98,12 +93,8 @@ public class KeyDecoder {
         };
     }
 
-    private boolean isPrintableAscii(char c) {
-        return c >= 32 && c <= 127;
-    }
-
     private char readChar() throws IOException {
-        int in = this.inputStream.read();
+        int in = this.reader.read();
         if (in == -1) {
             // as per the docs, read() will return "-1 if the end of the stream is reached"
             throw new EOFException();
