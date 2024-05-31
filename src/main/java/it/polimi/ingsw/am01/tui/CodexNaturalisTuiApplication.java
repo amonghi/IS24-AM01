@@ -168,7 +168,9 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                                 new FlexChild.Flexible(1, new Text(
                                         GraphicalRendition.DEFAULT
                                                 .withWeight(GraphicalRenditionProperty.Weight.DIM),
-                                        state.parseResult.getCompletions().stream().findFirst().orElse("")
+                                        Optional.ofNullable(state.parseResult)
+                                                .flatMap(result -> result.getCompletions().stream().findFirst())
+                                                .orElse("")
                                 ))
                         ))
                 ))
