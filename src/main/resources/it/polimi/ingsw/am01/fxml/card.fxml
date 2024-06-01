@@ -7,8 +7,6 @@
 <fx:root fx:id="card" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="133.3" prefWidth="200.0" style="-fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);" type="AnchorPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <ImageView fx:id="imageView" fitHeight="133.3" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-        <Button fx:id="selectCard" alignment="CENTER" layoutX="120.0" layoutY="87.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" opacity="0.0" prefHeight="63.3" prefWidth="150.0" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="35.0" />
-        <Button fx:id="swapSide" layoutX="-3.0" layoutY="-4.0" mnemonicParsing="false" opacity="0.5" prefHeight="30.0" prefWidth="30.0" text="S" textAlignment="CENTER" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
     </children>
 </fx:root>
 

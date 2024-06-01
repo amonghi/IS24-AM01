@@ -18,6 +18,13 @@ public class Constants {
     public static final int BASE_X = 5000;
     public static final int BASE_Y = 5000;
 
+    //Card size
+    public static final int HAND_CARD_WIDTH = 200;
+    public static final int HAND_CARD_HEIGHT = 133;
+    public static final int BOARD_CARD_WIDTH = 200;
+    public static final int BOARD_CARD_HEIGHT = 133;
+
+
     public static final double SCENE_WIDTH = 812;
     public static final double SCENE_HEIGHT = 484;
     public static final String WINDOW_TITLE = "Codex Naturalis";

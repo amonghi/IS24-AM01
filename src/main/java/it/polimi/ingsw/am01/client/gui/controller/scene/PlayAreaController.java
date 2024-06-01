@@ -1,10 +1,12 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import it.polimi.ingsw.am01.client.gui.controller.component.*;
 import it.polimi.ingsw.am01.client.gui.controller.popup.ShowObjectivePopupController;
 import it.polimi.ingsw.am01.client.gui.event.*;
 import it.polimi.ingsw.am01.client.gui.model.GUIPlacement;
+import it.polimi.ingsw.am01.client.gui.model.Position;
 import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
@@ -18,24 +20,25 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class PlayAreaController extends SceneController {
     private final SortedSet<CardPlacementController> placements;
     private final List<Integer> playerObjectives;
+    private final List<Position> playablePositions;
     private boolean cardSelected;
     private int selectedId;
     private Side selectedSide;
     private String focussedPlayer;
     @FXML
     private AnchorPane playarea;
+    @FXML
+    private AnchorPane positionLayer;
     @FXML
     private HBox board;
     @FXML
@@ -66,6 +69,7 @@ public class PlayAreaController extends SceneController {
         selectedSide = null;
         placements = new TreeSet<>();
         playerObjectives = new ArrayList<>();
+        playablePositions = new ArrayList<>();
         focussedPlayer = GUIView.getInstance().getPlayerName();
     }
 
@@ -77,15 +81,60 @@ public class PlayAreaController extends SceneController {
         closeChatButton.setVisible(false);
 
         Button showBoard = new Button("Show/Hide Board");
+        Button showObj = new Button("Show Objectives");
+        utility_buttons.getChildren().add(showBoard);
+        utility_buttons.getChildren().add(showObj);
+
+        //Event handling
         showBoard.setOnAction(event -> {
             showHideBoard();
         });
-        Button showObj = new Button("Show Objectives");
+
         showObj.setOnAction(event -> {
             showHideObj();
         });
-        utility_buttons.getChildren().add(showBoard);
-        utility_buttons.getChildren().add(showObj);
+
+        positionLayer.setOnDragOver(event -> {
+            for (Position playablePosition : playablePositions) {
+                positionLayer.getChildren().add(new PlayablePositionController(
+                        Utils.computeXPosition(playablePosition.i(), playablePosition.j()),
+                        Utils.computeYPosition(playablePosition.i(), playablePosition.j())
+                ));
+            }
+            event.acceptTransferModes(TransferMode.ANY);
+        });
+
+        positionLayer.setOnDragDropped(event -> {
+            clearPositionLayer();
+            if (isAValidPosition(event.getX(), event.getY()).isPresent()) {
+                Position pos = isAValidPosition(event.getX(), event.getY()).get();
+                placeCard(pos.i(), pos.j());
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Invalid position!");
+                alert.show();
+            }
+        });
+    }
+
+    public void clearPositionLayer() {
+        positionLayer.getChildren().clear();
+    }
+
+    /**
+     * @param x the x-coord from the mouse position
+     * @param y the y-coord from the mouse position
+     * @return the {@link Position} associated with the area in which the card has been dropped, if valid, otherwise {@link Optional#empty()}
+     */
+    private Optional<Position> isAValidPosition(double x, double y) {
+        for (Position position : playablePositions) {
+            int xCoord = Utils.computeXPosition(position.i(), position.j());
+            int yCoord = Utils.computeYPosition(position.i(), position.j());
+            if (x >= xCoord && x <= xCoord + 300 && y >= yCoord && y <= yCoord + 200) {
+                return Optional.of(position);
+            }
+        }
+        return Optional.empty();
     }
 
     public void setCardPlacement(int id, Side side) {
@@ -100,12 +149,6 @@ public class PlayAreaController extends SceneController {
             alert.setContentText("You have to select which card you want to place!");
             alert.show();
             return;
-        }
-
-        for (CardPlacementController cp : placements) {
-            cp.getBtnPositions().values().forEach(button -> {
-                button.setDisable(true);
-            });
         }
 
         hand.setDisable(true);
@@ -146,22 +189,9 @@ public class PlayAreaController extends SceneController {
         this.playerObjectives.add(event.secretObjective());
     }
 
-    private void disableInvalidPositions(UpdatePlayablePositionsEvent event) {
-        for (CardPlacementController cp : placements) {
-            cp.getBtnPositions()
-                    .keySet()
-                    .stream()
-                    .filter(p -> !event.playablePositions().contains(p))
-                    .forEach(p -> cp.getBtnPositions().get(p).setDisable(true));
-
-            cp.getBtnPositions()
-                    .keySet()
-                    .stream()
-                    .filter(p -> event.playablePositions().contains(p))
-                    .forEach(p -> {
-                        cp.getBtnPositions().get(p).setDisable(false);
-                    });
-        }
+    private void updatePlayablePositions(UpdatePlayablePositionsEvent event) {
+        this.playablePositions.clear();
+        this.playablePositions.addAll(event.playablePositions());
     }
 
     private void updatePlayArea(UpdatePlayAreaEvent event) {
@@ -268,10 +298,12 @@ public class PlayAreaController extends SceneController {
     }
 
     public void setCurrentView(String player) {
+        //FIXME: once called, placement is no longer permitted!
         if (!GUIView.getInstance().getPlayersInGame().contains(player))
             return;
         hand.setVisible(GUIView.getInstance().getPlayerName().equals(player));
         board.setVisible(GUIView.getInstance().getPlayerName().equals(player));
+        utility_buttons.setVisible(GUIView.getInstance().getPlayerName().equals(player));
         playarea.getChildren().clear();
         for (GUIPlacement placement : GUIView.getInstance().getPlacements(player)) {
             CardPlacementController cp = new CardPlacementController(placement.id(), placement.side());
@@ -286,7 +318,7 @@ public class PlayAreaController extends SceneController {
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                GUIView.getInstance().on(UpdatePlayablePositionsEvent.class, this::disableInvalidPositions),
+                GUIView.getInstance().on(UpdatePlayablePositionsEvent.class, this::updatePlayablePositions),
                 GUIView.getInstance().on(UpdatePlayAreaEvent.class, this::updatePlayArea),
                 GUIView.getInstance().on(InvalidPlacementEvent.class, this::invalidPlacement),
                 GUIView.getInstance().on(RemoveLastPlacementEvent.class, this::removePlacement),

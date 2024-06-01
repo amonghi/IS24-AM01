@@ -5,7 +5,6 @@ import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.CardColor;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -22,8 +21,6 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
     private int id;
     @FXML
     private ImageView imageView;
-    @FXML
-    private Button selectCard;
 
     public DeckSourceController(CardColor color, DeckLocation deckLocation) {
         this.color = color;
@@ -36,7 +33,11 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
     private void initialize() {
         String path = setImage();
         imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString()));
-        initializeButtons();
+
+        //Event handling
+        imageView.setOnMouseClicked(event -> {
+            GUIView.getInstance().getPlayAreaController().drawFromDeck(this.deckLocation);
+        });
     }
 
     private String setImage() {
@@ -76,14 +77,8 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
         return id;
     }
 
-    private void initializeButtons() {
-        selectCard.setOnAction(event -> {
-            GUIView.getInstance().getPlayAreaController().drawFromDeck(deckLocation);
-        });
-    }
-
     @Override
     public String getFXMLFileName() {
-        return "deck";
+        return "card";
     }
 }

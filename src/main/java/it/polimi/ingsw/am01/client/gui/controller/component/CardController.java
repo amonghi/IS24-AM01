@@ -52,6 +52,19 @@ public abstract class CardController extends AnchorPane implements ComponentCont
         return 0;
     }
 
+    //TODO: unify card and card_placement fxml file and use these methods to set dimensions
+    public void setWidth(int width) {
+        this.setPrefWidth(width);
+        this.setMaxWidth(USE_PREF_SIZE);
+        this.setMinWidth(USE_PREF_SIZE);
+    }
+
+    public void setHeight(int height) {
+        this.setPrefHeight(height);
+        this.setMaxHeight(USE_PREF_SIZE);
+        this.setMinHeight(USE_PREF_SIZE);
+    }
+
     public int getCardId() {
         return this.cardId;
     }
