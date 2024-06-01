@@ -10,7 +10,6 @@
 !procedure $joinGame_res_OK($client, $status, $server=Server)
     $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>)
     hnote over $client : IN_GAME
-    $event_setMessages($client)
 !endprocedure
 
 !procedure $joinGame_res_KO_gameNotFound($client, $server=Server)

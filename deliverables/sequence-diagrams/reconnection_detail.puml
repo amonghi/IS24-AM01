@@ -1,0 +1,19 @@
+@startuml
+
+!includesub auth_detail.puml!PARTS
+
+title Reconnection
+participant Alice
+participant Server
+participant Bob
+
+hnote over Alice : NOT_AUTHENTICATED
+/ hnote over Bob : IN_GAME
+
+$auth_req(Alice, Server)
+Server ->> Alice : setupAfterReconnection(gameData)
+Server ->> Bob : playerReconnected(name)
+
+hnote over Alice : IN_GAME
+
+@enduml

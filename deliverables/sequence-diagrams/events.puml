@@ -125,7 +125,7 @@
 
 !procedure event_seq_setHand($inGame="", $server=Server)
     !foreach $client in %splitstr($inGame, "~")
-        $client <<- $server: setHand(card1, card2, card3, card4)
+        $client <<- $server: setHand(card1, card2, card3)
     !endfor
 !endprocedure
 @enduml

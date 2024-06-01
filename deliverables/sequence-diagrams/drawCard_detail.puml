@@ -8,7 +8,7 @@
 
 !procedure $drawCard_res_OK($inGame, $server=Server)
     !foreach $client in %splitstr($inGame, "~")
-        $client <<- $server: updateDecksStatus(resourceDeckIsEmpty, goldenDeckIsEmpty)
+        $client <<- $server: updateDecksStatus(resourceDeckColor, goldenDeckColor)
     !endfor
 !endprocedure
 
