@@ -1,0 +1,46 @@
+@startuml
+
+!startsub PARTS
+
+'include parts from joinGame because the response of createGame is the same as joinGame
+!includesub joinGame_detail.puml!PARTS
+
+!procedure $createGame_req($client, $server=Server)
+    $client ->> $server : createGameAndJoin(maxPlayers)
+!endprocedure
+
+!procedure $createGame_res_KO_invalidMaxPlayers($client, $server=Server)
+    $client <<- $server : KO, invalidMaxPlayers()
+!endprocedure
+
+!procedure $createGame_seq_OK($client, $outsideGame="", $server=Server)
+    $createGame_req($client, $server)
+    $joinGame_res_OK($client, AWAITING_PLAYERS)
+    $event_updatePlayerList($client)
+
+    !foreach $other in %splitstr($outsideGame, "~")
+        $event_updateGameList($other)
+    !endfor
+!endprocedure
+!endsub
+
+!include events.puml
+
+title Game creation
+participant Alice
+participant Server
+participant Bob
+hnote over Alice : AUTHENTICATED
+/ hnote over Bob : AUTHENTICATED
+
+$createGame_req(Alice)
+
+alt
+    $joinGame_res_OK(Alice, AWAITING_PLAYERS)
+    $event_updatePlayerList(Alice)
+    $event_updateGameList(Bob)
+else maxPlayers < 2 || maxPlayers > 4
+    $createGame_res_KO_invalidMaxPlayers(Alice)
+end
+
+@enduml

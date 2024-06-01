@@ -1,0 +1,69 @@
+@startuml
+
+!startsub PARTS
+!include events.puml
+
+!procedure $placeCard_req($client, $server=Server)
+    $client ->> $server: placeCard(cardPlacement)
+!endprocedure
+
+!procedure $placeCard_res_OK($inGame="", $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $server ->> $client: updatePlayArea(currentPlayer, cardPlacement, score)
+    !endfor
+!endprocedure
+
+!procedure $placeCard_seq_OK($client, $inGame="", $sender=currentPlayer, $server=Server)
+    note over $client : $client's turn
+    $event_setPlayablePosition($client)
+    $placeCard_req($client)
+    $placeCard_res_OK($inGame)
+!endprocedure
+!endsub
+
+title Place a card
+participant Alice
+participant Server
+participant Bob
+
+hnote over Alice : IN_GAME
+/ hnote over Bob : IN_GAME
+
+'$event_seq_newTurn_PLACING($inGame="Alice~Bob")
+event_seq_newStatusAndTurn($status=PLAY, $turnPhase="PLACING", $inGame="Alice~Bob")
+
+|||
+
+$event_setPlayablePosition(Alice)
+note over Alice : Alice's turn
+$placeCard_req(Alice)
+alt
+    $placeCard_res_OK("Alice~Bob")
+
+    alt status is PLAY
+        '$event_seq_newTurn_DRAWING($inGame="Alice~Bob")
+        event_seq_newStatusAndTurn($status=PLAY, $turnPhase="DRAWING", $inGame="Alice~Bob")
+        note over Alice : It's still Alice's turn
+        |||
+    else status is LAST_TURN and currentPlayer is not the last player
+        event_seq_newStatusAndTurn($status=LAST_TURN, $turnPhase="PLACING", $inGame="Alice~Bob")
+        note over Bob : It's Bob's turn
+        |||
+    else status is LAST_TURN and currentPlayer is the last player
+        event_seq_newStatus_FINISHED("Alice~Bob")
+        note over Alice,Bob : Game has finished
+        hnote over Alice : AUTHENTICATED
+        / hnote over Bob : AUTHENTICATED
+        |||
+    end
+
+else Player has not the card in his hand
+    Server ->> Alice: KO, invalidCard()
+else There aren't enough resources
+    Server ->> Alice: KO, insufficientResources()
+else Invalid position chosen
+    Server ->> Alice: KO, invalidPosition()
+else Invalid side chosen
+    Server ->> Alice: KO, invalidSide()
+end
+@enduml

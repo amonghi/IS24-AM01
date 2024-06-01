@@ -1,0 +1,131 @@
+@startuml
+
+'single events
+
+!procedure $event_updateGameList($client, $server=Server)
+    $client <<- $server: updateGameList(gameData1, gameData2, ...)
+!endprocedure
+
+!procedure $event_updatePlayerList($client, $server=Server)
+    $client <<- $server: updatePlayerList(player1, player2, ...)
+!endprocedure
+
+!procedure $event_updateGameStatus($status, $client, $server=Server)
+    $client <<- $server: updateGameStatus(<font:monospace><b>$status</b></font>)
+!endprocedure
+
+!procedure $event_updateGameStatusAndTurn($status, $turnPhase, $client, $server=Server)
+    $client <<- $server: updateGameStatusAndTurn(<font:monospace><b>$status</b></font>, <font:monospace><b>$turnPhase</b></font>, currentPlayer)
+!endprocedure
+
+!procedure $event_updateTurn($turnPhase, $client, $currentPlayer=currentPlayer, $server=Server)
+    $client <<- $server: updateTurn($currentPlayer, <font:monospace><b>$turnPhase</b></font>)
+!endprocedure
+
+!procedure $event_updateFaceUpCards($client, $server=Server)
+    $client <<- $server: updateFaceUpCards(card1, card2, card3, card4)
+!endprocedure
+
+!procedure $event_updatePlayArea($client, $sender=currentPlayer, $server=Server)
+    $client <<- $server: updatePlayArea($sender, cardPlacement, score)
+!endprocedure
+
+!procedure $event_updateMailbox($client, $MessageType, $server=Server)
+    $client <<- $server: updateMailbox(sender, <font:monospace><b>$MessageType</b></font>, content)
+!endprocedure
+
+!procedure $event_setPlayablePosition($client, $server=Server)
+    $client <<- $server: setPlayablePosition(position1, position2, ...)
+!endprocedure
+
+!procedure $event_setMessages($client, $server=Server)
+    $client <<- $server: setMessages(message1, message2, ...)
+!endprocedure
+
+'sequences
+
+!procedure event_seq_newStatus($status, $inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateGameStatus($status, $c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newStatusAndTurn($status,$turnPhase, $inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateGameStatusAndTurn($status, $turnPhase, $c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newStatus_SETUP_STARTING_CARD_SIDE($inGame="", $server=Server)
+    !foreach $c in %splitstr($inGame, "~")
+        $c <<- $server: updateGameStatusAndSetupStartingCard(<font:monospace><b>SETUP_STARTING_CARD_SIDE</b></font>, startingCard)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newStatus_PLAY($turnPhase, $inGame="", $server=Server)
+    !foreach $c in %splitstr($inGame, "~")
+        $c <<- $server: updateGameStatus(<font:monospace><b>PLAY</b></font>, <font:monospace><b>$turnPhase</b></font>, currentPlayer)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newStatus_SETUP_COLOR($inGame="")
+    $event_seq_newStatus(SETUP_COLOR, $inGame)
+!endprocedure
+
+!procedure event_seq_newStatus_SETUP_OBJECTIVE($inGame="", $server=Server)
+    !foreach $c in %splitstr($inGame, "~")
+        $c <<- $server: updateGameStatusAndSetupObjectives(<font:monospace><b>SETUP_OBJECTIVE</b></font>, objective1, objective2)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newStatus_FINISHED($inGame="", $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateGameStatusFinishedGame(<font:monospace><b>FINISHED</b></font>, playerScore1, playerScore2, ...)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newTurn($turnPhase, $inGame="", $currentPlayer)
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateTurn($turnPhase, $c, $currentPlayer)
+    !endfor
+!endprocedure
+
+!procedure event_seq_newTurn_PLACING($inGame="", $currentPlayer=currentPlayer)
+    $event_seq_newTurn(PLACING, $inGame, $currentPlayer)
+!endprocedure
+
+!procedure event_seq_newTurn_DRAWING($inGame="", $currentPlayer=currentPlayer)
+    $event_seq_newTurn(DRAWING, $inGame, $currentPlayer)
+!endprocedure
+
+
+!procedure event_seq_updatePlayArea($inGame="", $sender=currentPlayer)
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updatePlayArea($c, $sender)
+    !endfor
+!endprocedure
+
+!procedure event_seq_updateFaceUpCards($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateFaceUpCards($c)
+    !endfor
+!endprocedure
+
+!procedure event_seq_updateMailboxes($inGame="")
+    !foreach $c in %splitstr($inGame, "~")
+        $event_updateMailbox($c, BROADCAST)
+    !endfor
+!endprocedure
+
+!procedure event_seq_setBoard($inGame="", $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: setBoard(commonObjective1, commonObjective2, faceUpCard1, faceUpCard2, faceUpCard3, faceUpCard4)
+    !endfor
+!endprocedure
+
+!procedure event_seq_setHand($inGame="", $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: setHand(card1, card2, card3)
+    !endfor
+!endprocedure
+@enduml

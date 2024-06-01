@@ -1,0 +1,39 @@
+@startuml
+
+!startsub PARTS
+!include events.puml
+
+!procedure $auth_req($client, $server=Server)
+    $client ->> $server: authenticate(name)
+!endprocedure
+
+!procedure $auth_res_OK($client, $server=Server)
+    $client <<- $server: setName(name)
+    hnote over $client : AUTHENTICATED
+    $client <<- $server: updateGameList(gameData1, gameData2, ...)
+!endprocedure
+
+!procedure $auth_res_KO_nameAlreadyTaken($client, $server=Server)
+    $client <<- $server: KO, nameAlreadyTaken()
+!endprocedure
+
+!procedure $auth_seq_OK($client, $others="", $server=Server)
+    $auth_req($client, $server)
+    $auth_res_OK($client, $server)
+!endprocedure
+
+!endsub
+
+title Authentication
+participant Alice
+participant Server
+hnote over Alice : NOT_AUTHENTICATED
+
+$auth_req(Alice, Server)
+alt
+    $auth_res_OK(Alice)
+else player with that name already exists
+    $auth_res_KO_nameAlreadyTaken(Alice)
+end
+
+@enduml
