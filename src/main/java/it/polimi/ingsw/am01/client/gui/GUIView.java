@@ -206,6 +206,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     }
 
     private void handleMessage(UpdatePlayAreaAfterUndoS2C message) {
+        scores.replace(message.profile(), message.score());
         emitter.emit(new RemoveLastPlacementEvent(message.profile()));
     }
 

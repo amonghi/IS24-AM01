@@ -216,8 +216,18 @@ public class PlayAreaController extends SceneController {
 
     private void removePlacement(RemoveLastPlacementEvent event) {
         GUIView.getInstance().removeLastPlacement(event.player());
-        if (event.player().equals(GUIView.getInstance().getPlayerName())) {
+        if (event.player().equals(focussedPlayer)) {
             playarea.getChildren().removeLast();
+        }
+
+        play_status.getChildren().clear();
+        for (String player : GUIView.getInstance().getPlayersInGame()) {
+            play_status.getChildren().add(new PlayerInfoController(
+                    player,
+                    GUIView.getInstance().getPlayerColor(player),
+                    GUIView.getInstance().getScore(player),
+                    GUIView.getInstance().isConnected(player))
+            );
         }
     }
 
