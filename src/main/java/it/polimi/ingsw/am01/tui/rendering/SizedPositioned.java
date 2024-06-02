@@ -11,7 +11,9 @@ public record SizedPositioned(
         Position position,
         List<SizedPositioned> children
 ) {
-    public void draw(RenderingContext ctx, DrawArea parentArea) {
+    public void onScreen(RenderingContext ctx, DrawArea parentArea) {
+        this.component.onScreen();
+
         RenderingContext newCtx = new RenderingContext(
                 ctx.global(),
                 new RenderingContext.Local(ctx.local().getOffset().add(this.position()))
@@ -20,7 +22,15 @@ public record SizedPositioned(
         this.component.drawSelf(newCtx, da);
 
         for (SizedPositioned child : children) {
-            child.draw(newCtx, da);
+            child.onScreen(newCtx, da);
         }
     }
+
+    public void offScreen() {
+        for (SizedPositioned child : children) {
+            child.offScreen();
+        }
+        this.component.offScreen();
+    }
+
 }

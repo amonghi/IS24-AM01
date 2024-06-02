@@ -23,4 +23,11 @@ public abstract class Component {
     public abstract Sized layout(Constraint constraint);
 
     public abstract void drawSelf(RenderingContext ctx, DrawArea a);
+
+    public void onScreen() {
+    }
+
+    public void offScreen() {
+    }
+
 }

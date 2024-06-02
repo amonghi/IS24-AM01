@@ -16,6 +16,7 @@ public class Renderer {
     private final Terminal terminal;
     private final EventEmitter.Registration registration;
     private final Component rootComponent;
+    private SizedPositioned rootLayout;
     private final ExecutorService executorService;
     private boolean debugViewEnabled;
 
@@ -25,6 +26,7 @@ public class Renderer {
         // init properties and start rendering thread
         this.terminal = terminal;
         this.rootComponent = buildRootComponent(rootComponentBuilder);
+        this.rootLayout = null;
         this.debugViewEnabled = false;
         this.executorService = Executors.newSingleThreadExecutor();
 
@@ -66,6 +68,10 @@ public class Renderer {
     }
 
     private void renderTask() {
+        if (rootLayout != null) {
+            rootLayout.offScreen();
+        }
+
         Dimensions terminalDimensions = this.terminal.getDimensions();
         Dimensions drawDimensions = this.debugViewEnabled
                 ? terminalDimensions.shrink(0, 3)
@@ -73,7 +79,7 @@ public class Renderer {
 
         long t0 = System.nanoTime(); // begin layout
 
-        SizedPositioned layoutRoot = rootComponent
+        this.rootLayout = rootComponent
                 .layout(Constraint.max(drawDimensions))
                 .placeAt(Position.ZERO);
 
@@ -84,7 +90,7 @@ public class Renderer {
                 new RenderingContext.Local(Position.ZERO)
         );
         DrawBuffer drawBuffer = new DrawBuffer(drawDimensions, ' ');
-        layoutRoot.draw(rootRenderingContext, drawBuffer.getDrawArea());
+        rootLayout.onScreen(rootRenderingContext, drawBuffer.getDrawArea());
 
         long t2 = System.nanoTime(); // done drawing
 

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.tui;
 
+import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.tui.command.CommandBuilder;
 import it.polimi.ingsw.am01.tui.command.CommandNode;
 import it.polimi.ingsw.am01.tui.command.SequenceBuilder;
@@ -22,10 +23,13 @@ import it.polimi.ingsw.am01.tui.rendering.Renderer;
 import it.polimi.ingsw.am01.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.tui.rendering.ansi.GraphicalRenditionProperty;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class CodexNaturalisTuiApplication extends Composition {
     private final Renderer renderer;
+    private final List<EventEmitter.Registration> registrations;
 
     private final DynProp<String> input;
     private final DynProp<String> output;
@@ -39,6 +43,7 @@ public class CodexNaturalisTuiApplication extends Composition {
     private CodexNaturalisTuiApplication(BuildContext ctx) {
         super(ctx);
         this.renderer = ctx.getRenderer();
+        this.registrations = new ArrayList<>();
 
         this.input = new DynProp<>("");
         this.output = new DynProp<>("");
@@ -71,27 +76,39 @@ public class CodexNaturalisTuiApplication extends Composition {
                 )
                 .build();
         this.parseResult = input.map(rootCmd::parse);
+    }
 
+    @Override
+    public void onScreen() {
         Keyboard keyboard = Keyboard.getInstance();
-        keyboard.onAny(key -> this.renderer.runOnRenderThread(() -> lastKey.set(key)));
 
-        keyboard.on(Key.Alt.class, key -> {
-            // ALT+D toggles debug
-            if (key.character() == 'd') {
-                this.toggleDebug();
-            }
-        });
-        keyboard.on(Key.Ctrl.class, key -> {
-            // CTRL+C or CTRL+Q or CTRL+D quits the application
-            switch (key.character()) {
-                case 'c', 'q', 'd' -> this.quitApplication();
-            }
-        });
-        keyboard.on(Key.Character.class, key -> this.writeChar(key.character()));
-        keyboard.on(Key.Backspace.class, event -> this.eraseChar());
-        keyboard.on(Key.Del.class, event -> this.eraseChar());
-        keyboard.on(Key.Tab.class, key -> this.writeCompletion());
-        keyboard.on(Key.Enter.class, key -> this.runCommand());
+        this.registrations.addAll(List.of(
+                keyboard.onAny(key -> this.renderer.runOnRenderThread(() -> lastKey.set(key))),
+                keyboard.on(Key.Alt.class, key -> {
+                    // ALT+D toggles debug
+                    if (key.character() == 'd') {
+                        this.toggleDebug();
+                    }
+                }),
+                keyboard.on(Key.Ctrl.class, key -> {
+                    // CTRL+C or CTRL+Q or CTRL+D quits the application
+                    switch (key.character()) {
+                        case 'c', 'q', 'd' -> this.quitApplication();
+                    }
+                }),
+                keyboard.on(Key.Character.class, key -> this.writeChar(key.character())),
+                keyboard.on(Key.Backspace.class, event -> this.eraseChar()),
+                keyboard.on(Key.Del.class, event -> this.eraseChar()),
+                keyboard.on(Key.Tab.class, key -> this.writeCompletion()),
+                keyboard.on(Key.Enter.class, key -> this.runCommand())
+        ));
+    }
+
+    @Override
+    public void offScreen() {
+        Keyboard keyboard = Keyboard.getInstance();
+        this.registrations.forEach(keyboard::unregister);
+        this.registrations.clear();
     }
 
     private void quitApplication() {
