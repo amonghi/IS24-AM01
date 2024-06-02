@@ -4,10 +4,7 @@ import it.polimi.ingsw.am01.tui.component.BuildContext;
 import it.polimi.ingsw.am01.tui.component.Component;
 import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.tui.component.prop.Prop;
-import it.polimi.ingsw.am01.tui.rendering.Constraint;
-import it.polimi.ingsw.am01.tui.rendering.Dimensions;
-import it.polimi.ingsw.am01.tui.rendering.RenderingContext;
-import it.polimi.ingsw.am01.tui.rendering.Sized;
+import it.polimi.ingsw.am01.tui.rendering.*;
 import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
 
 import java.util.List;
@@ -28,9 +25,12 @@ public class Show extends Component {
 
     @Override
     public Sized layout(Constraint constraint) {
-        return this.condition.get(this)
-                ? child.layout(constraint)
-                : new Sized(this, Dimensions.ZERO.constrain(constraint), List.of());
+        if (this.condition.get(this)) {
+            SizedPositioned layout = child.layout(constraint).placeAt(Position.ZERO);
+            return new Sized(this, layout.dimensions(), List.of(layout));
+        }
+
+        return new Sized(this, Dimensions.ZERO.constrain(constraint), List.of());
     }
 
     @Override

@@ -1,9 +1,9 @@
 package it.polimi.ingsw.am01.tui.component;
 
-import it.polimi.ingsw.am01.tui.rendering.Constraint;
-import it.polimi.ingsw.am01.tui.rendering.RenderingContext;
-import it.polimi.ingsw.am01.tui.rendering.Sized;
+import it.polimi.ingsw.am01.tui.rendering.*;
 import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
+
+import java.util.List;
 
 public abstract class Composition extends Component {
     private Component root;
@@ -24,7 +24,8 @@ public abstract class Composition extends Component {
 
     @Override
     public Sized layout(Constraint constraint) {
-        return getRoot().layout(constraint);
+        SizedPositioned layout = getRoot().layout(constraint).placeAt(Position.ZERO);
+        return new Sized(this, layout.dimensions(), List.of(layout));
     }
 
     @Override
