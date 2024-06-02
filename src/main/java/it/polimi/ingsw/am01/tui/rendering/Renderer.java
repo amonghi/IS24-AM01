@@ -1,8 +1,9 @@
-package it.polimi.ingsw.am01.tui;
+package it.polimi.ingsw.am01.tui.rendering;
 
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
+import it.polimi.ingsw.am01.tui.component.BuildContext;
 import it.polimi.ingsw.am01.tui.component.Component;
-import it.polimi.ingsw.am01.tui.rendering.*;
+import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.tui.rendering.ansi.Ansi;
 import it.polimi.ingsw.am01.tui.rendering.draw.DrawBuffer;
 import it.polimi.ingsw.am01.tui.terminal.ResizeEvent;
@@ -10,64 +11,73 @@ import it.polimi.ingsw.am01.tui.terminal.Terminal;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
-public abstract class TuiApplication<S extends TuiApplication.State> {
+public class Renderer {
     private final Terminal terminal;
-    private final S state;
-    private final ExecutorService renderService;
     private final EventEmitter.Registration registration;
+    private final Component rootComponent;
+    private final ExecutorService executorService;
+    private boolean debugViewEnabled;
 
-    public TuiApplication(Terminal terminal, S initialState) {
-        this.terminal = terminal;
-        this.state = initialState;
-        this.renderService = Executors.newSingleThreadExecutor();
-
-        this.terminal.enableRawMode();
-
-        this.registration = this.terminal.on(ResizeEvent.class, event -> {
-            renderService.submit(this::render);
-        });
-
-        // first render
-        this.renderService.submit(this::render);
+    public Renderer(Terminal terminal, ComponentBuilder rootComponentBuilder) {
         Runtime.getRuntime().addShutdownHook(new Thread(this::onShutdown));
+
+        // init properties and start rendering thread
+        this.terminal = terminal;
+        this.rootComponent = buildRootComponent(rootComponentBuilder);
+        this.debugViewEnabled = false;
+        this.executorService = Executors.newSingleThreadExecutor();
+
+        // start rendering
+        this.terminal.enableRawMode();
+        this.registration = this.terminal.on(ResizeEvent.class, event -> this.render());
+        this.render();
+    }
+
+    private Component buildRootComponent(ComponentBuilder rootComponentBuilder) {
+        BuildContext buildContext = new BuildContext(this);
+        return rootComponentBuilder.build(buildContext);
+    }
+
+    public boolean isDebugViewEnabled() {
+        return debugViewEnabled;
+    }
+
+    public void setDebugViewEnabled(boolean debugViewEnabled) {
+        this.debugViewEnabled = debugViewEnabled;
     }
 
     private void onShutdown() {
         this.terminal.unregister(registration);
         this.terminal.disableRawMode();
-        this.renderService.shutdown();
+        this.executorService.shutdownNow();
 
         // clean up the terminal screen
         System.out.println(Ansi.setCursorPosition(0, 0) + Ansi.eraseInDisplay);
         System.out.flush();
     }
 
-    public void updateState(Consumer<S> stateUpdater) {
-        this.renderService.submit(() -> {
-            stateUpdater.accept(this.state);
-            this.render();
-        });
+    public void runOnRenderThread(Runnable task) {
+        executorService.submit(task);
     }
 
-    private void render() {
+    public void render() {
+        this.executorService.submit(this::renderTask);
+    }
+
+    private void renderTask() {
         Dimensions terminalDimensions = this.terminal.getDimensions();
-        Dimensions drawDimensions = this.state.debugEnabled
+        Dimensions drawDimensions = this.debugViewEnabled
                 ? terminalDimensions.shrink(0, 3)
                 : terminalDimensions;
 
-        long t0 = System.nanoTime(); // start time
-
-        Component rootComponent = this.compose(this.state);
-
-        long t1 = System.nanoTime(); // done composing, begin layout
+        long t0 = System.nanoTime(); // begin layout
 
         SizedPositioned layoutRoot = rootComponent
                 .layout(Constraint.max(drawDimensions))
                 .placeAt(Position.ZERO);
 
-        long t2 = System.nanoTime(); // done layout, begin drawing
+        long t1 = System.nanoTime(); // done layout, begin drawing
 
         RenderingContext rootRenderingContext = new RenderingContext(
                 new RenderingContext.Global(drawDimensions),
@@ -76,7 +86,7 @@ public abstract class TuiApplication<S extends TuiApplication.State> {
         DrawBuffer drawBuffer = new DrawBuffer(drawDimensions, ' ');
         layoutRoot.draw(rootRenderingContext, drawBuffer.getDrawArea());
 
-        long t3 = System.nanoTime(); // done drawing
+        long t2 = System.nanoTime(); // done drawing
 
         // print
         StringBuilder builder = new StringBuilder();
@@ -85,14 +95,12 @@ public abstract class TuiApplication<S extends TuiApplication.State> {
                 .append(Ansi.eraseInDisplay)
                 .append(drawBuffer);
 
-        if (this.state.debugEnabled) {
-            long compose = (t1 - t0) / 1000;
-            long layout = (t2 - t1) / 1000;
-            long draw = (t3 - t2) / 1000;
+        if (this.debugViewEnabled) {
+            long layout = (t1 - t0) / 1000;
+            long draw = (t2 - t1) / 1000;
 
             builder
                     .append("\r\n")
-                    .append("compose: ").append(compose).append(" ms\r\n")
                     .append("layout: ").append(layout).append(" ms\r\n")
                     .append("draw: ").append(draw);
         }
@@ -103,11 +111,5 @@ public abstract class TuiApplication<S extends TuiApplication.State> {
 
         System.out.print(builder);
         System.out.flush();
-    }
-
-    abstract Component compose(S state);
-
-    public static class State {
-        public boolean debugEnabled = false;
     }
 }

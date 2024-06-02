@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am01.tui.component.layout;
 
+import it.polimi.ingsw.am01.tui.component.BuildContext;
 import it.polimi.ingsw.am01.tui.component.Component;
+import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.tui.rendering.*;
 
 import java.util.ArrayList;
@@ -9,7 +11,12 @@ import java.util.List;
 public class Row extends LayoutComponent {
     private final List<Component> children;
 
-    public Row(List<Component> children) {
+    public static ComponentBuilder of(ComponentBuilder... children) {
+        return ctx -> new Row(ctx, ComponentBuilder.buildAll(ctx, children));
+    }
+
+    public Row(BuildContext ctx, List<Component> children) {
+        super(ctx);
         this.children = children;
     }
 

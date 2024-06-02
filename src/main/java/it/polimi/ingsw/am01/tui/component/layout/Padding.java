@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am01.tui.component.layout;
 
+import it.polimi.ingsw.am01.tui.component.BuildContext;
 import it.polimi.ingsw.am01.tui.component.Component;
+import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.tui.rendering.Constraint;
 import it.polimi.ingsw.am01.tui.rendering.Position;
 import it.polimi.ingsw.am01.tui.rendering.Sized;
@@ -15,15 +17,16 @@ public class Padding extends LayoutComponent {
     private final int left;
     private final Component child;
 
-    public static Padding around(int padding, Component child) {
-        return new Padding(padding,padding, padding, padding, child);
+    public static ComponentBuilder around(int padding, ComponentBuilder child) {
+        return ctx -> new Padding(ctx, padding, padding, padding, padding, child.build(ctx));
     }
 
-    public static Padding hv(int horizontal, int vertical, Component child) {
-        return new Padding(horizontal, vertical, horizontal, vertical, child);
+    public static ComponentBuilder hv(int horizontal, int vertical, ComponentBuilder child) {
+        return ctx -> new Padding(ctx, vertical, horizontal, vertical, horizontal, child.build(ctx));
     }
 
-    public Padding(int top, int right, int bottom, int left, Component child) {
+    public Padding(BuildContext ctx, int top, int right, int bottom, int left, Component child) {
+        super(ctx);
         this.top = top;
         this.right = right;
         this.bottom = bottom;

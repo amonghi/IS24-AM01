@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am01.tui.component.elements;
 
+import it.polimi.ingsw.am01.tui.component.BuildContext;
 import it.polimi.ingsw.am01.tui.component.Component;
+import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.tui.rendering.Constraint;
 import it.polimi.ingsw.am01.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.tui.rendering.RenderingContext;
@@ -9,7 +11,7 @@ import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
 
 import java.util.List;
 
-public class CardComponent implements Component {
+public class CardComponent extends Component {
     private static final char[][] CARD_BUF;
     private static final int CARD_W;
     private static final int CARD_H;
@@ -28,6 +30,14 @@ public class CardComponent implements Component {
                 """);
         CARD_H = CARD_BUF.length;
         CARD_W = CARD_BUF[0].length;
+    }
+
+    public static ComponentBuilder builder() {
+        return CardComponent::new;
+    }
+
+    public CardComponent(BuildContext ctx) {
+        super(ctx);
     }
 
     private static char[][] toCharMatrix(String s) {

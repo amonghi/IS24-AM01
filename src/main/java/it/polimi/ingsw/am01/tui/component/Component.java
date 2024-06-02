@@ -5,9 +5,22 @@ import it.polimi.ingsw.am01.tui.rendering.RenderingContext;
 import it.polimi.ingsw.am01.tui.rendering.Sized;
 import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
 
-public interface Component {
+public abstract class Component {
+    private final BuildContext context;
 
-    Sized layout(Constraint constraint);
+    protected Component(BuildContext context) {
+        this.context = context;
+    }
 
-    void drawSelf(RenderingContext ctx, DrawArea a);
+    public void update() {
+        context.getRenderer().render();
+    }
+
+    protected BuildContext getContext() {
+        return context;
+    }
+
+    public abstract Sized layout(Constraint constraint);
+
+    public abstract void drawSelf(RenderingContext ctx, DrawArea a);
 }

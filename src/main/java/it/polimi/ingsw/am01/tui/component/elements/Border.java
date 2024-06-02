@@ -1,16 +1,27 @@
 package it.polimi.ingsw.am01.tui.component.elements;
 
+import it.polimi.ingsw.am01.tui.component.BuildContext;
 import it.polimi.ingsw.am01.tui.component.Component;
+import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.tui.rendering.*;
 import it.polimi.ingsw.am01.tui.rendering.draw.DrawArea;
 
 import java.util.List;
 
-public class Border implements Component {
+public class Border extends Component {
     private final BorderStyle style;
     private final Component child;
 
-    public Border(BorderStyle style, Component child) {
+    public static ComponentBuilder around(ComponentBuilder child) {
+        return ctx -> new Border(ctx, BorderStyle.DEFAULT, child.build(ctx));
+    }
+
+    public static ComponentBuilder withStyle(BorderStyle style, ComponentBuilder child) {
+        return ctx -> new Border(ctx, style, child.build(ctx));
+    }
+
+    public Border(BuildContext ctx, BorderStyle style, Component child) {
+        super(ctx);
         this.style = style;
         this.child = child;
     }

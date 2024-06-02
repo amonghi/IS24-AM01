@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am01.tui.component.layout.flex;
 
+import it.polimi.ingsw.am01.tui.component.BuildContext;
 import it.polimi.ingsw.am01.tui.component.Component;
+import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.tui.component.layout.LayoutComponent;
 import it.polimi.ingsw.am01.tui.rendering.*;
 
@@ -10,17 +12,24 @@ import java.util.function.ToIntFunction;
 
 public class Flex extends LayoutComponent {
     private final Direction direction;
-    private final List<FlexChild> children;
+    private final List<ComponentFlexChild> children;
 
-    public static Flex row(List<FlexChild> children) {
-        return new Flex(Direction.ROW, children);
+    public static ComponentBuilder row(FlexChild... children) {
+        return ctx -> new Flex(ctx, Direction.ROW, map(ctx, children));
     }
 
-    public static Flex column(List<FlexChild> children) {
-        return new Flex(Direction.COLUMN, children);
+    public static ComponentBuilder column(FlexChild... children) {
+        return ctx -> new Flex(ctx, Direction.COLUMN, map(ctx, children));
     }
 
-    public Flex(Direction direction, List<FlexChild> children) {
+    private static List<ComponentFlexChild> map(BuildContext ctx, FlexChild[] children) {
+        return Arrays.stream(children)
+                .map(flexChild -> flexChild.build(ctx))
+                .toList();
+    }
+
+    public Flex(BuildContext ctx, Direction direction, List<ComponentFlexChild> children) {
+        super(ctx);
         this.direction = direction;
         this.children = children;
     }
@@ -35,7 +44,7 @@ public class Flex extends LayoutComponent {
 
         for (int i = 0; i < this.children.size(); i++) {
             switch (this.children.get(i)) {
-                case FlexChild.Fixed(Component child) -> {
+                case ComponentFlexChild.Fixed(Component child) -> {
                     Sized s = child.layout(Constraint.max(maxDimensions));
                     sized[i] = s;
 
@@ -45,7 +54,7 @@ public class Flex extends LayoutComponent {
                     };
                 }
 
-                case FlexChild.Flexible(int growFactor, Component ignored) -> {
+                case ComponentFlexChild.Flexible(int growFactor, Component ignored) -> {
                     growSum += growFactor;
                 }
             }
@@ -68,13 +77,13 @@ public class Flex extends LayoutComponent {
 
             switch (this.children.get(i)) {
                 // place fixed child
-                case FlexChild.Fixed ignored -> {
+                case ComponentFlexChild.Fixed ignored -> {
                     Sized s = sized[i];
                     sizedPositioned[i] = s.placeAt(position);
                     offs += s.dimensions().width();
                 }
 
-                case FlexChild.Flexible(int growFactor, Component child) -> {
+                case ComponentFlexChild.Flexible(int growFactor, Component child) -> {
                     // calculate dimensions of a flexible child
                     int allocatedSpace = (int) ((double) flexSpace * ((double) growFactor / (double) growSum));
                     Dimensions max = switch (this.direction) {

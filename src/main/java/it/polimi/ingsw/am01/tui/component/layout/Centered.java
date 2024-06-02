@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am01.tui.component.layout;
 
+import it.polimi.ingsw.am01.tui.component.BuildContext;
 import it.polimi.ingsw.am01.tui.component.Component;
+import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.tui.rendering.*;
 
 import java.util.List;
@@ -10,19 +12,20 @@ public class Centered extends LayoutComponent {
     private final boolean horizontally;
     private final boolean vertically;
 
-    public static Centered horizontally(Component child) {
-        return new Centered(child, true, false);
+    public static ComponentBuilder horizontally(ComponentBuilder child) {
+        return ctx -> new Centered(ctx, child.build(ctx), true, false);
     }
 
-    public static Centered vertically(Component child) {
-        return new Centered(child, false, true);
+    public static ComponentBuilder vertically(ComponentBuilder child) {
+        return ctx -> new Centered(ctx, child.build(ctx), false, true);
     }
 
-    public static Centered both(Component child) {
-        return new Centered(child, true, true);
+    public static ComponentBuilder both(ComponentBuilder child) {
+        return ctx -> new Centered(ctx, child.build(ctx), true, true);
     }
 
-    private Centered(Component child, boolean horizontally, boolean vertically) {
+    private Centered(BuildContext ctx, Component child, boolean horizontally, boolean vertically) {
+        super(ctx);
         this.child = child;
         this.horizontally = horizontally;
         this.vertically = vertically;

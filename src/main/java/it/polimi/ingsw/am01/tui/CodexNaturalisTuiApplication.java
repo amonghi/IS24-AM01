@@ -4,7 +4,9 @@ import it.polimi.ingsw.am01.tui.command.CommandBuilder;
 import it.polimi.ingsw.am01.tui.command.CommandNode;
 import it.polimi.ingsw.am01.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.tui.command.WordArgumentParser;
-import it.polimi.ingsw.am01.tui.component.Component;
+import it.polimi.ingsw.am01.tui.component.BuildContext;
+import it.polimi.ingsw.am01.tui.component.ComponentBuilder;
+import it.polimi.ingsw.am01.tui.component.Composition;
 import it.polimi.ingsw.am01.tui.component.elements.*;
 import it.polimi.ingsw.am01.tui.component.layout.Centered;
 import it.polimi.ingsw.am01.tui.component.layout.Column;
@@ -12,28 +14,43 @@ import it.polimi.ingsw.am01.tui.component.layout.Padding;
 import it.polimi.ingsw.am01.tui.component.layout.Row;
 import it.polimi.ingsw.am01.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.tui.component.layout.flex.FlexChild;
+import it.polimi.ingsw.am01.tui.component.prop.DynProp;
+import it.polimi.ingsw.am01.tui.component.prop.Prop;
 import it.polimi.ingsw.am01.tui.keyboard.Key;
 import it.polimi.ingsw.am01.tui.keyboard.Keyboard;
+import it.polimi.ingsw.am01.tui.rendering.Renderer;
 import it.polimi.ingsw.am01.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.tui.rendering.ansi.GraphicalRenditionProperty;
-import it.polimi.ingsw.am01.tui.terminal.Terminal;
 
-import java.util.List;
 import java.util.Optional;
 
-public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisTuiApplication.State> {
-    private final CommandNode rootCmd;
+public class CodexNaturalisTuiApplication extends Composition {
+    private final Renderer renderer;
 
-    public CodexNaturalisTuiApplication(Terminal terminal) {
-        super(terminal, new State());
+    private final DynProp<String> input;
+    private final DynProp<String> output;
+    private final DynProp<Key> lastKey;
+    private final Prop<CommandNode.Result> parseResult;
 
-        this.rootCmd = CommandBuilder.root()
+    public static ComponentBuilder builder() {
+        return CodexNaturalisTuiApplication::new;
+    }
+
+    private CodexNaturalisTuiApplication(BuildContext ctx) {
+        super(ctx);
+        this.renderer = ctx.getRenderer();
+
+        this.input = new DynProp<>("");
+        this.output = new DynProp<>("");
+        this.lastKey = new DynProp<>(null);
+
+        CommandNode rootCmd = CommandBuilder.root()
                 .branch(
                         SequenceBuilder
                                 .literal("ping")
                                 .thenWhitespace()
                                 .thenLiteral("pong")
-                                .executes(commandContext -> this.updateState(state -> state.output = "selected: ping pong"))
+                                .executes(commandContext -> output.set("selected: ping pong"))
                                 .end()
                 )
                 .branch(
@@ -41,7 +58,7 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                                 .literal("bing")
                                 .thenWhitespace()
                                 .thenLiteral("bong")
-                                .executes(commandContext -> this.updateState(state -> state.output = "selected: ping pong"))
+                                .executes(commandContext -> output.set("selected: ping pong"))
                                 .end()
                 )
                 .branch(
@@ -49,13 +66,14 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
                                 .literal("hello")
                                 .thenWhitespace()
                                 .then(new WordArgumentParser("name"))
-                                .executes(commandContext -> this.updateState(state -> state.output = "selected: hello, with name=" + commandContext.getString("name")))
+                                .executes(commandContext -> output.set("selected: hello, with name=" + commandContext.getString("name")))
                                 .end()
                 )
                 .build();
+        this.parseResult = input.map(rootCmd::parse);
 
         Keyboard keyboard = Keyboard.getInstance();
-        keyboard.onAny(key -> updateState(state -> state.lastKey = key));
+        keyboard.onAny(key -> this.renderer.runOnRenderThread(() -> lastKey.set(key)));
 
         keyboard.on(Key.Alt.class, key -> {
             // ALT+D toggles debug
@@ -81,106 +99,101 @@ public class CodexNaturalisTuiApplication extends TuiApplication<CodexNaturalisT
     }
 
     private void toggleDebug() {
-        updateState(state -> state.debugEnabled = !state.debugEnabled);
+        this.renderer.runOnRenderThread(() -> renderer.setDebugViewEnabled(!renderer.isDebugViewEnabled()));
     }
 
     private void writeChar(char c) {
-        updateState(state -> {
-            state.input += c;
-            state.parseResult = rootCmd.parse(state.input);
+        this.renderer.runOnRenderThread(() -> {
+            input.compute(s -> s + c);
         });
     }
 
     private void eraseChar() {
-        updateState(state -> {
-            if (!state.input.isEmpty()) {
-                state.input = state.input.substring(0, state.input.length() - 1);
-            }
-            state.parseResult = rootCmd.parse(state.input);
+        this.renderer.runOnRenderThread(() -> {
+            input.compute(s -> s.isEmpty() ? s : s.substring(0, s.length() - 1));
         });
     }
 
     private void writeCompletion() {
-        updateState(state -> {
-            String completion = state.parseResult.getCompletions().stream().findFirst().orElse("");
-            state.input = state.input + completion;
-            state.parseResult = rootCmd.parse(state.input);
+        this.renderer.runOnRenderThread(() -> {
+            input.compute(in -> {
+                String completion = parseResult.peek().getCompletions().stream().findFirst().orElse("");
+                return in + completion;
+            });
         });
     }
 
     private void runCommand() {
-        updateState(state -> {
-            Optional<Runnable> runnable = state.parseResult.getCommandRunnable();
+        this.renderer.runOnRenderThread(() -> {
+            Optional<Runnable> runnable = parseResult.peek().getCommandRunnable();
             if (runnable.isPresent()) {
                 runnable.get().run();
-                state.input = "";
-                state.parseResult = rootCmd.parse(state.input);
+                input.set("");
             }
         });
     }
 
     @Override
-    Component compose(State state) {
-        return Flex.column(List.of(
+    protected ComponentBuilder compose() {
+        return Flex.column(
                 // top part of screen
                 new FlexChild.Flexible(1, Centered.both(
-                        new Column(List.of(
-                                Flex.row(List.of(
+                        Column.of(
+                                Flex.row(
                                         new FlexChild.Flexible(1, Centered.horizontally(
-                                                new CardComponent()
+                                                CardComponent.builder()
                                         )),
                                         new FlexChild.Flexible(1, Centered.horizontally(
-                                                new CardComponent()
+                                                CardComponent.builder()
                                         ))
-                                )),
-                                Centered.horizontally(Padding.around(1, new Text("last key: " + state.lastKey))),
-                                Centered.horizontally(Padding.around(1, new Text("last command output: " + state.output))),
-                                Centered.horizontally(Padding.around(2, new Row(List.of(
-                                        new Text("Some"),
-                                        new Text(" "),
-                                        new Text(GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED),
-                                                "red"),
-                                        new Text(" "),
-                                        new Text(GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
-                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD),
-                                                "bold"),
-                                        new Text(" "),
-                                        new Text(GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
-                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD)
-                                                .withItalics(GraphicalRenditionProperty.Italics.ON),
-                                                "text")
-                                ))))
-                        )))
-                ),
+                                ),
+                                Centered.horizontally(Padding.around(1, Text.of(lastKey.map(key -> "last key: " + key)))),
+                                Centered.horizontally(Padding.around(1, Text.of(output.map(s -> "last command output: " + s)))),
+                                Centered.horizontally(Padding.around(2, Row.of(
+                                        Text.of("Some"),
+                                        Text.of(" "),
+                                        Text.of("red").withRendition(
+                                                GraphicalRendition.DEFAULT
+                                                        .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
+                                        ),
+                                        Text.of(" "),
+                                        Text.of("bold").withRendition(
+                                                GraphicalRendition.DEFAULT
+                                                        .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
+                                                        .withWeight(GraphicalRenditionProperty.Weight.BOLD)
+                                        ),
+                                        Text.of(" "),
+                                        Text.of("text").withRendition(
+                                                GraphicalRendition.DEFAULT
+                                                        .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
+                                                        .withWeight(GraphicalRenditionProperty.Weight.BOLD)
+                                                        .withItalics(GraphicalRenditionProperty.Italics.ON)
+                                        )
+                                ))),
+                                Centered.horizontally(Padding.around(2, KeypressCounterComponent.builder()))
+                        )
+                )),
 
                 // bottom input
-                new FlexChild.Fixed(new Border(BorderStyle.DEFAULT,
-                        Flex.row(List.of(
-                                new FlexChild.Fixed(new Text(
-                                        GraphicalRendition.DEFAULT
-                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD),
-                                        "> " + state.input
-                                )),
-                                new FlexChild.Fixed(new Cursor()),
-                                new FlexChild.Flexible(1, new Text(
-                                        GraphicalRendition.DEFAULT
-                                                .withWeight(GraphicalRenditionProperty.Weight.DIM),
-                                        Optional.ofNullable(state.parseResult)
-                                                .flatMap(result -> result.getCompletions().stream().findFirst())
-                                                .orElse("")
-                                ))
-                        ))
+                new FlexChild.Fixed(Border.around(
+                        Flex.row(
+                                new FlexChild.Fixed(
+                                        Text.of(input.map(s -> "> " + s))
+                                                .withRendition(
+                                                        GraphicalRendition.DEFAULT
+                                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD)
+                                                )
+                                ),
+                                new FlexChild.Fixed(Cursor.here()),
+                                new FlexChild.Flexible(1,
+                                        Text.of(parseResult.map(result -> result.getCompletions().stream().findFirst().orElse("")))
+                                                .withRendition(
+                                                        GraphicalRendition.DEFAULT
+                                                                .withWeight(GraphicalRenditionProperty.Weight.DIM)
+                                                )
+                                )
+                        )
                 ))
-        ));
-    }
-
-    public static class State extends TuiApplication.State {
-        public String input = "";
-        public CommandNode.Result parseResult = null;
-        public String output = "";
-        public Key lastKey;
+        );
     }
 }
