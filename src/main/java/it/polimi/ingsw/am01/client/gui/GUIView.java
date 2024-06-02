@@ -28,18 +28,18 @@ import java.util.*;
 
 public class GUIView implements EventEmitter<ViewEvent> {
     private static GUIView instance = null;
+    public final AuthController AUTH_CONTROLLER;
+    public final GameListController GAME_LIST_CONTROLLER;
+    public final PlayAreaController PLAY_CONTROLLER;
+    public final LobbyController LOBBY_CONTROLLER;
+    public final SelectStartingCardSideController STARTING_CARD_SIDE_CHOICE_CONTROLLER;
+    public final SelectPlayerColorController PLAYER_COLOR_CHOICE_CONTROLLER;
+    public final SelectObjectiveController OBJECTIVE_CHOICE_CONTROLLER;
+    public final RestoringLobbyController RESTORING_LOBBY_CONTROLLER;
+    public final EndingController ENDING_CONTROLLER;
     private final EventEmitterImpl<ViewEvent> emitter;
     private final Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private final Stage stage;
-    private final AuthController AUTH_CONTROLLER;
-    private final GameListController GAME_LIST_CONTROLLER;
-    private final PlayAreaController PLAY_CONTROLLER;
-    private final LobbyController LOBBY_CONTROLLER;
-    private final SelectStartingCardSideController STARTING_CARD_SIDE_CHOICE_CONTROLLER;
-    private final SelectPlayerColorController PLAYER_COLOR_CHOICE_CONTROLLER;
-    private final SelectObjectiveController OBJECTIVE_CHOICE_CONTROLLER;
-    private final RestoringLobbyController RESTORING_LOBBY_CONTROLLER;
-    private final EndingController ENDING_CONTROLLER;
     private final Set<Integer> faceUpCards;
     private final Set<Integer> hand;
     private final Map<DeckLocation, CardColor> decksColor;
@@ -468,7 +468,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
         ));
     }
 
-    private void changeScene(SceneController newSceneController) {
+    public void changeScene(SceneController newSceneController) {
         currentSceneController.getViewRegistrations().forEach(this::unregister);
         currentSceneController.getViewRegistrations().clear();
 
@@ -504,6 +504,10 @@ public class GUIView implements EventEmitter<ViewEvent> {
     public int getScore(String player) {
         //player part of the game as a pre-condition
         return scores.get(player);
+    }
+
+    public Map<Integer, UpdateGameListS2C.GameStat> getGames() {
+        return games;
     }
 
     public PlayerColor getPlayerColor(String player) {

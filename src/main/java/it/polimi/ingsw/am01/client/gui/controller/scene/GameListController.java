@@ -21,6 +21,16 @@ public class GameListController extends SceneController {
     @FXML
     private void initialize() {
         playerNameLabel.setText("Logged as " + GUIView.getInstance().getPlayerName());
+        box.getChildren().clear();
+        for (Integer gameID : GUIView.getInstance().getGames().keySet()) {
+            if (GUIView.getInstance().getGames().get(gameID).currentPlayersConnected() != GUIView.getInstance().getGames().get(gameID).maxPlayers()) {
+                box.getChildren().add(
+                        new GameController(gameID, GUIView.getInstance().getGames().get(gameID).maxPlayers(),
+                                GUIView.getInstance().getGames().get(gameID).currentPlayersConnected()
+                        )
+                );
+            }
+        }
     }
 
     @Override
