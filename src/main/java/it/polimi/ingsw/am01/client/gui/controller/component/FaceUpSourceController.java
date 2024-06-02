@@ -4,9 +4,9 @@ import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.model.card.Side;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 
 import java.util.Objects;
 
@@ -14,6 +14,8 @@ public class FaceUpSourceController extends CardController implements ComponentC
 
     @FXML
     private ImageView imageView;
+    @FXML
+    private AnchorPane card;
 
     public FaceUpSourceController(int id) {
         super(id, Side.FRONT);
@@ -23,7 +25,11 @@ public class FaceUpSourceController extends CardController implements ComponentC
     @FXML
     private void initialize() {
         String path = setFrontImage();
-        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString()));
+        card.setPrefWidth(Constants.BOARD_CARD_WIDTH);
+        card.setPrefHeight(Constants.BOARD_CARD_HEIGHT);
+        imageView.setFitWidth(Constants.BOARD_CARD_WIDTH);
+        imageView.setFitHeight(Constants.BOARD_CARD_HEIGHT);
+        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString(), Constants.BOARD_CARD_WIDTH, Constants.BOARD_CARD_HEIGHT, true, false));
 
         //Event handling
         imageView.setOnMouseClicked(event -> {

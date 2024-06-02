@@ -128,8 +128,8 @@ public class PlayAreaController extends SceneController {
      */
     private Optional<Position> isAValidPosition(double x, double y) {
         for (Position position : playablePositions) {
-            int xCoord = Utils.computeXPosition(position.i(), position.j());
-            int yCoord = Utils.computeYPosition(position.i(), position.j());
+            double xCoord = Utils.computeXPosition(position.i(), position.j());
+            double yCoord = Utils.computeYPosition(position.i(), position.j());
             if (x >= xCoord && x <= xCoord + 300 && y >= yCoord && y <= yCoord + 200) {
                 return Optional.of(position);
             }

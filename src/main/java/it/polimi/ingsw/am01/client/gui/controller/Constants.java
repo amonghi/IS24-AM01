@@ -17,12 +17,16 @@ public class Constants {
     public static final int OFFSET_Y = 111;
     public static final int BASE_X = 5000;
     public static final int BASE_Y = 5000;
+    public static final double X_RATIO = 0.253;
+    public static final double Y_RATIO = 0.445;
 
     //Card size
     public static final int HAND_CARD_WIDTH = 200;
     public static final int HAND_CARD_HEIGHT = 133;
     public static final int BOARD_CARD_WIDTH = 200;
     public static final int BOARD_CARD_HEIGHT = 133;
+    public static final int CARD_PLACEMENT_WIDTH = 300;
+    public static final int CARD_PLACEMENT_HEIGHT = 200;
 
 
     public static final double SCENE_WIDTH = 812;

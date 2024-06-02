@@ -15,8 +15,9 @@ public class Utils {
         };
     }
 
-    public static int computeXPosition(int i, int j) {
-        int xPos;
+    public static double computeXPosition(int i, int j) {
+        final double OFFSET_X = CARD_PLACEMENT_WIDTH * (1 - X_RATIO);
+        double xPos;
         if (i == 0 && j == 0) {
             xPos = BASE_X;
         } else if (i == 0) {
@@ -30,8 +31,9 @@ public class Utils {
         return xPos;
     }
 
-    public static int computeYPosition(int i, int j) {
-        int yPos;
+    public static double computeYPosition(int i, int j) {
+        final double OFFSET_X = CARD_PLACEMENT_HEIGHT * (1 - Y_RATIO);
+        double yPos;
         if (i == 0 && j == 0) {
             yPos = BASE_Y;
         } else if (i == 0) {

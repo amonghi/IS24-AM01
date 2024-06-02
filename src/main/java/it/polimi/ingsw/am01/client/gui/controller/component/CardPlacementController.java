@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import it.polimi.ingsw.am01.client.gui.model.Position;
 import it.polimi.ingsw.am01.model.card.Side;
@@ -27,7 +28,11 @@ public class CardPlacementController extends CardController implements Comparabl
     @FXML
     private void initialize() {
         String path = side.equals(Side.FRONT) ? setFrontImage() : setBackImage();
-        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString()));
+        card.setPrefWidth(Constants.CARD_PLACEMENT_WIDTH);
+        card.setPrefHeight(Constants.CARD_PLACEMENT_HEIGHT);
+        imageView.setFitWidth(Constants.CARD_PLACEMENT_WIDTH);
+        imageView.setFitHeight(Constants.CARD_PLACEMENT_HEIGHT);
+        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString(), Constants.CARD_PLACEMENT_WIDTH, Constants.CARD_PLACEMENT_HEIGHT, true, false));
     }
 
     public Position getPosition() {
@@ -47,7 +52,7 @@ public class CardPlacementController extends CardController implements Comparabl
 
     @Override
     public String getFXMLFileName() {
-        return "card_placement";
+        return "card";
     }
 
     @Override

@@ -16,11 +16,13 @@ import static it.polimi.ingsw.am01.client.gui.controller.Constants.*;
 public class DeckSourceController extends AnchorPane implements ComponentController {
 
     private static final int SUFFIX_CARD_ID_LENGTH = 6;
-    private CardColor color;
-    private DeckLocation deckLocation;
-    private int id;
+    private final CardColor color;
+    private final DeckLocation deckLocation;
+    private final int id;
     @FXML
     private ImageView imageView;
+    @FXML
+    private AnchorPane card;
 
     public DeckSourceController(CardColor color, DeckLocation deckLocation) {
         this.color = color;
@@ -32,7 +34,11 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
     @FXML
     private void initialize() {
         String path = setImage();
-        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString()));
+        card.setPrefWidth(BOARD_CARD_WIDTH);
+        card.setPrefHeight(BOARD_CARD_HEIGHT);
+        imageView.setFitWidth(BOARD_CARD_WIDTH);
+        imageView.setFitHeight(BOARD_CARD_HEIGHT);
+        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString(), BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT, true, false));
 
         //Event handling
         imageView.setOnMouseClicked(event -> {

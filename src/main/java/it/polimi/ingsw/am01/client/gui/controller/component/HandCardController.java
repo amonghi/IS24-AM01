@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
 import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.model.card.Side;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -9,12 +10,15 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
 
 import java.util.Objects;
 
 public class HandCardController extends CardController implements ComponentController {
     @FXML
     private ImageView imageView;
+    @FXML
+    private AnchorPane card;
 
     public HandCardController(int id, Side side) {
         super(id, side);
@@ -24,7 +28,11 @@ public class HandCardController extends CardController implements ComponentContr
     @FXML
     private void initialize() {
         String path = setFrontImage();
-        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString()));
+        card.setPrefWidth(Constants.HAND_CARD_WIDTH);
+        card.setPrefHeight(Constants.HAND_CARD_HEIGHT);
+        imageView.setFitWidth(Constants.HAND_CARD_WIDTH);
+        imageView.setFitHeight(Constants.HAND_CARD_HEIGHT);
+        imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString(), Constants.HAND_CARD_WIDTH, Constants.HAND_CARD_HEIGHT, true, false));
 
         //Event handling
         imageView.setOnMouseClicked(this::swapSide);
@@ -32,7 +40,7 @@ public class HandCardController extends CardController implements ComponentContr
             selectCardToPlace();
             Dragboard dragboard = imageView.startDragAndDrop(TransferMode.ANY);
             ClipboardContent clipboardContent = new ClipboardContent();
-            clipboardContent.putImage(imageView.getImage());
+            clipboardContent.putImage(new Image(imageView.getImage().getUrl(), Constants.CARD_PLACEMENT_WIDTH, Constants.CARD_PLACEMENT_HEIGHT, true, false));
             dragboard.setContent(clipboardContent);
         });
         imageView.setOnDragExited(event -> {
