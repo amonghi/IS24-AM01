@@ -43,11 +43,9 @@ public class GameListController extends SceneController {
     public void updateGameList(GameListChangedEvent event) {
         box.getChildren().clear();
         for (Integer gameID : event.gameStatMap().keySet()) {
-            if (event.gameStatMap().get(gameID).currentPlayersConnected() != event.gameStatMap().get(gameID).maxPlayers()) {
-                box.getChildren().add(
-                        new GameController(gameID, event.gameStatMap().get(gameID).maxPlayers(), event.gameStatMap().get(gameID).currentPlayersConnected())
-                );
-            }
+            box.getChildren().add(
+                    new GameController(gameID, event.gameStatMap().get(gameID).maxPlayers(), event.gameStatMap().get(gameID).currentPlayersConnected())
+            );
         }
     }
 
