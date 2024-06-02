@@ -94,7 +94,8 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
                         game.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e.player(), game)),
                         game.on(PlayerLeftEvent.class, e -> this.playerLeftFromGame(e.player(), game)),
                         game.on(GameEvent.class, e -> this.saveGame(game)),
-                        game.on(GameClosedEvent.class, e -> this.deleteGame(game))
+                        game.on(GameClosedEvent.class, e -> this.deleteGame(game)),
+                        game.on(AllPlayersJoinedEvent.class, this::updateGamesList)
                 ));
             } else {
                 // Delete game if server crashed before it was started
@@ -150,7 +151,8 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
                 newGame.on(PlayerJoinedEvent.class, e -> this.playerJoinedInGame(e.player(), newGame)),
                 newGame.on(PlayerLeftEvent.class, e -> this.playerLeftFromGame(e.player(), newGame)),
                 newGame.on(GameEvent.class, e -> this.saveGame(newGame)),
-                newGame.on(GameClosedEvent.class, e -> this.deleteGame(newGame))
+                newGame.on(GameClosedEvent.class, e -> this.deleteGame(newGame)),
+                newGame.on(AllPlayersJoinedEvent.class, this::updateGamesList)
         ));
         return newGame;
     }
@@ -160,6 +162,12 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
                 new PlayerJoinedInGameEvent(
                         player, game
                 )
+        );
+    }
+
+    private void updateGamesList(AllPlayersJoinedEvent event) {
+        emitter.emit(
+                new GameStartedEvent()
         );
     }
 

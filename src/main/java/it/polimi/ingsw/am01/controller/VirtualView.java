@@ -46,7 +46,8 @@ public class VirtualView implements Runnable {
                 this.gameManager.on(GameCreatedEvent.class, exceptionFilter(this::gameListChanged)),
                 this.gameManager.on(GameDeletedEvent.class, exceptionFilter(this::gameListChanged)),
                 this.gameManager.on(PlayerJoinedInGameEvent.class, exceptionFilter(this::playerJoined)),
-                this.gameManager.on(PlayerLeftFromGameEvent.class, exceptionFilter(this::playerLeft))
+                this.gameManager.on(PlayerLeftFromGameEvent.class, exceptionFilter(this::playerLeft)),
+                this.gameManager.on(GameStartedEvent.class, exceptionFilter(this::gameListChanged))
         );
 
         startCheckingClientConnection();
@@ -372,13 +373,15 @@ public class VirtualView implements Runnable {
         }
 
         connection.send(new UpdateGameListS2C(
-                gameManager.getGames().stream().collect(Collectors.toMap(
-                        Game::getId,
-                        game -> new UpdateGameListS2C.GameStat(
-                                game.getPlayerProfiles().size(),
-                                game.getMaxPlayers()
-                        )
-                ))
+                gameManager.getGames().stream()
+                        .filter(game -> game.getStatus().equals(GameStatus.AWAITING_PLAYERS))
+                        .collect(Collectors.toMap(
+                                Game::getId,
+                                game -> new UpdateGameListS2C.GameStat(
+                                        game.getPlayerProfiles().size(),
+                                        game.getMaxPlayers()
+                                )
+                        ))
         ));
     }
 
@@ -450,7 +453,7 @@ public class VirtualView implements Runnable {
             }
         } else {
             connection.send(new UpdateGameListS2C(
-                    gameManager.getGames().stream().collect(Collectors.toMap(
+                    gameManager.getGames().stream().filter(game -> game.getStatus().equals(GameStatus.AWAITING_PLAYERS)).collect(Collectors.toMap(
                             Game::getId,
                             game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
                     ))
@@ -465,7 +468,7 @@ public class VirtualView implements Runnable {
 
         if (game == null) {
             connection.send(new UpdateGameListS2C(
-                    gameManager.getGames().stream().collect(Collectors.toMap(
+                    gameManager.getGames().stream().filter(game -> game.getStatus().equals(GameStatus.AWAITING_PLAYERS)).collect(Collectors.toMap(
                             Game::getId,
                             game -> new UpdateGameListS2C.GameStat(game.getPlayerProfiles().size(), game.getMaxPlayers())
                     ))
@@ -549,10 +552,11 @@ public class VirtualView implements Runnable {
                     new SetPlayerNameS2C(profile.getName())
             );
             connection.send(
-                    new UpdateGameListS2C(this.getGameManager().getGames().stream().collect(Collectors.toMap(
-                            Game::getId,
-                            g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
-                    ))));
+                    new UpdateGameListS2C(this.getGameManager().getGames().stream().filter(game -> game.getStatus().equals(GameStatus.AWAITING_PLAYERS))
+                            .collect(Collectors.toMap(
+                                    Game::getId,
+                                    g -> new UpdateGameListS2C.GameStat(g.getPlayerProfiles().size(), g.getMaxPlayers())
+                            ))));
             handleReconnection();
         } catch (NameAlreadyTakenException e) {
             connection.send(new NameAlreadyTakenS2C(message.playerName()));
