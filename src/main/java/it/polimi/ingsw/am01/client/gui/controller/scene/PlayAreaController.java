@@ -308,13 +308,13 @@ public class PlayAreaController extends SceneController {
     }
 
     public void setCurrentView(String player) {
-        //FIXME: once called, placement is no longer permitted!
         if (!GUIView.getInstance().getPlayersInGame().contains(player))
             return;
         hand.setVisible(GUIView.getInstance().getPlayerName().equals(player));
         board.setVisible(GUIView.getInstance().getPlayerName().equals(player));
         utility_buttons.setVisible(GUIView.getInstance().getPlayerName().equals(player));
         playarea.getChildren().clear();
+        playarea.getChildren().add(positionLayer);
         for (GUIPlacement placement : GUIView.getInstance().getPlacements(player)) {
             CardPlacementController cp = new CardPlacementController(placement.id(), placement.side());
             cp.setPosition(placement.pos().i(), placement.pos().j());
