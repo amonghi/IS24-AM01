@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.model.chat.MessageType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -36,11 +36,11 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
         String senderString = sender;
         typeLabel.setText("[" + type.split("")[0] + "]");
 
-        if (sender.equals(GUIView.getInstance().getPlayerName())) {
+        if (sender.equals(View.getInstance().getPlayerName())) {
             senderString = "You";
         }
 
-        if (type.equals(MessageType.DIRECT.toString()) && sender.equals(GUIView.getInstance().getPlayerName())) {
+        if (type.equals(MessageType.DIRECT.toString()) && sender.equals(View.getInstance().getPlayerName())) {
             recString = " --> " + recipient;
         }
 

@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import javafx.fxml.FXML;
@@ -36,7 +36,7 @@ public class EndingPlayerController extends AnchorPane implements ComponentContr
         playerLabel.setText(player);
         placementLabel.setText(placement + ".");
         pointsLabel.setText(points + " points");
-        pawn.setFill(Utils.convertColor(GUIView.getInstance().getPlayerColor(player)));
+        pawn.setFill(Utils.convertColor(View.getInstance().getPlayerColor(player)));
         if (placement == 1) {
             crown.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "crown.png")).toString()));
         }

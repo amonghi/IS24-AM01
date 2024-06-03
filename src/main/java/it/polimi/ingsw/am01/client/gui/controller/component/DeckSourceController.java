@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
+import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
 import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.CardColor;
 import javafx.fxml.FXML;
@@ -18,15 +18,17 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
     private static final int SUFFIX_CARD_ID_LENGTH = 6;
     private final CardColor color;
     private final DeckLocation deckLocation;
+    private final PlayAreaController playAreaController;
     private final int id;
     @FXML
     private ImageView imageView;
     @FXML
     private AnchorPane card;
 
-    public DeckSourceController(CardColor color, DeckLocation deckLocation) {
+    public DeckSourceController(CardColor color, DeckLocation deckLocation, PlayAreaController playAreaController) {
         this.color = color;
         this.deckLocation = deckLocation;
+        this.playAreaController = playAreaController;
         this.id = getIdFromColorAndDeckLocation();
         loadComponent();
     }
@@ -42,7 +44,7 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
 
         //Event handling
         imageView.setOnMouseClicked(event -> {
-            GUIView.getInstance().getPlayAreaController().drawFromDeck(this.deckLocation);
+            playAreaController.drawFromDeck(this.deckLocation);
         });
     }
 

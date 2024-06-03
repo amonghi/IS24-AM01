@@ -1,12 +1,9 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.model.chat.MessageType;
-import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
-import it.polimi.ingsw.am01.network.message.c2s.SendBroadcastMessageC2S;
-import it.polimi.ingsw.am01.network.message.c2s.SendDirectMessageC2S;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
@@ -40,15 +37,15 @@ public class ChatBoxController extends AnchorPane implements ComponentController
         //auto scroll down the ScrollPane
         scrollPane.vvalueProperty().bind(messagesBox.heightProperty());
 
-        for (String player : GUIView.getInstance().getPlayersInGame()) {
-            if (!player.equals(GUIView.getInstance().getPlayerName())) {
+        for (String player : View.getInstance().getPlayersInGame()) {
+            if (!player.equals(View.getInstance().getPlayerName())) {
                 recipientOptionsChoiceBox.getItems().add(player);
             }
         }
         recipientOptionsChoiceBox.getItems().add(MessageType.BROADCAST.toString());
         recipientOptionsChoiceBox.getSelectionModel().selectLast();
 
-        for (GUIView.Message message : GUIView.getInstance().getMessages()) {
+        for (View.Message message : View.getInstance().getMessages()) {
             messagesBox.getChildren().add(
                     new ChatMessageController(
                             message.type().toString(),
@@ -67,18 +64,11 @@ public class ChatBoxController extends AnchorPane implements ComponentController
             return;
         }
 
-        C2SNetworkMessage netMessage;
-
         if (recipientOptionsChoiceBox.getValue().equals(MessageType.BROADCAST.toString())) {
-            netMessage = new SendBroadcastMessageC2S(messageInput.getText());
+            View.getInstance().sendBroadcastMessage(messageInput.getText());
         } else {
-            netMessage = new SendDirectMessageC2S(
-                    recipientOptionsChoiceBox.getValue(),
-                    messageInput.getText()
-            );
+            View.getInstance().sendDirectMessage(recipientOptionsChoiceBox.getValue(), messageInput.getText());
         }
-
-        GUIView.getInstance().sendMessage(netMessage);
         messageInput.setText("");
     }
 
@@ -99,7 +89,7 @@ public class ChatBoxController extends AnchorPane implements ComponentController
 
         recipientOptionsChoiceBox.getItems().clear();
         for (String player : event.playerList()) {
-            if (!player.equals(GUIView.getInstance().getPlayerName())) {
+            if (!player.equals(View.getInstance().getPlayerName())) {
                 recipientOptionsChoiceBox.getItems().add(player);
             }
         }

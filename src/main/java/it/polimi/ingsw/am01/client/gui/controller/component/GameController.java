@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
-import it.polimi.ingsw.am01.network.message.c2s.JoinGameC2S;
+import it.polimi.ingsw.am01.client.View;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -36,11 +35,7 @@ public class GameController extends AnchorPane implements ComponentController {
 
     @FXML
     private void join() {
-        GUIView.getInstance().sendMessage(
-                new JoinGameC2S(
-                        gameID
-                )
-        );
+        View.getInstance().joinGame(gameID);
     }
 
     @Override

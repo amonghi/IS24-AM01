@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
+import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
 import it.polimi.ingsw.am01.model.card.Side;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -12,13 +12,15 @@ import java.util.Objects;
 
 public class FaceUpSourceController extends CardController implements ComponentController {
 
+    private final PlayAreaController playAreaController;
     @FXML
     private ImageView imageView;
     @FXML
     private AnchorPane card;
 
-    public FaceUpSourceController(int id) {
+    public FaceUpSourceController(int id, PlayAreaController playAreaController) {
         super(id, Side.FRONT);
+        this.playAreaController = playAreaController;
         loadComponent();
     }
 
@@ -33,7 +35,7 @@ public class FaceUpSourceController extends CardController implements ComponentC
 
         //Event handling
         imageView.setOnMouseClicked(event -> {
-            GUIView.getInstance().getPlayAreaController().drawFromFaceUp(super.cardId);
+            playAreaController.drawFromFaceUp(super.cardId);
         });
     }
 

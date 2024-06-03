@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -44,14 +44,14 @@ public class ConnectionController extends SceneController {
 
     @FXML
     private void confirm() {
-        GUIView.ConnectionType connectionType;
+        View.ConnectionType connectionType;
         if (toggleGroup.getSelectedToggle() == tcpRadioButton) {
-            connectionType = GUIView.ConnectionType.TCP;
+            connectionType = View.ConnectionType.TCP;
         } else {
-            connectionType = GUIView.ConnectionType.RMI;
+            connectionType = View.ConnectionType.RMI;
         }
         try {
-            GUIView.getInstance().connect(connectionType, ipText.getText(), Integer.parseInt(portText.getText()));
+            View.getInstance().connect(connectionType, ipText.getText(), Integer.parseInt(portText.getText()));
         } catch (NumberFormatException e) {
             messageLabel.setText("Please specify a valid port");
             messageLabel.setVisible(true);

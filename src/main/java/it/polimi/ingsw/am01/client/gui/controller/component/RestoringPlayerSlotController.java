@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.fxml.FXML;
@@ -26,7 +26,7 @@ public class RestoringPlayerSlotController extends VBox implements ComponentCont
     @FXML
     private void initialize() {
         playerLabel.setText(player);
-        pawn.setFill(Utils.convertColor(GUIView.getInstance().getPlayerColor(player)));
+        pawn.setFill(Utils.convertColor(View.getInstance().getPlayerColor(player)));
         if(isConnected){
             connectionLabel.setText("connected");
             connectionLabel.setTextFill(Color.GREEN);

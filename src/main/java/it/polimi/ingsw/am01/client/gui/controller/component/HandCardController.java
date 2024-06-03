@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
+import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
 import it.polimi.ingsw.am01.model.card.Side;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -15,13 +15,15 @@ import javafx.scene.layout.AnchorPane;
 import java.util.Objects;
 
 public class HandCardController extends CardController implements ComponentController {
+    private final PlayAreaController playAreaController;
     @FXML
     private ImageView imageView;
     @FXML
     private AnchorPane card;
 
-    public HandCardController(int id, Side side) {
+    public HandCardController(int id, Side side, PlayAreaController playAreaController) {
         super(id, side);
+        this.playAreaController = playAreaController;
         loadComponent();
     }
 
@@ -44,12 +46,12 @@ public class HandCardController extends CardController implements ComponentContr
             dragboard.setContent(clipboardContent);
         });
         imageView.setOnDragExited(event -> {
-            GUIView.getInstance().getPlayAreaController().clearPositionLayer();
+            playAreaController.clearPositionLayer();
         });
     }
 
     private void selectCardToPlace() {
-        GUIView.getInstance().getPlayAreaController().setCardPlacement(super.cardId, super.side);
+        playAreaController.setCardPlacement(super.cardId, super.side);
     }
 
     private void swapSide(MouseEvent event) {

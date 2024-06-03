@@ -19,7 +19,6 @@ public class ObjectiveChoiceController extends AnchorPane implements ComponentCo
     @FXML
     private void initialize() {
         playerNameLabel.setText(playerName + ": . . .");
-
     }
 
     public void setChoice() {

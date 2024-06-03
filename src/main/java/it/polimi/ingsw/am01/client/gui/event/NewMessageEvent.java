@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.event;
 
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 
-public record NewMessageEvent(GUIView.Message message) implements ViewEvent {
+public record NewMessageEvent(View.Message message) implements ViewEvent {
 }

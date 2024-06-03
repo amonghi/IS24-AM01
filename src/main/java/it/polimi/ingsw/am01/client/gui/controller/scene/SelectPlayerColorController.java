@@ -1,13 +1,12 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.ColorChoiceController;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayerColorEvent;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
-import it.polimi.ingsw.am01.network.message.c2s.SelectColorC2S;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -67,8 +66,8 @@ public class SelectPlayerColorController extends SceneController {
 
         colorChoiceControllers.clear();
         colorChoice = null;
-        gameId.setText("In game #" + GUIView.getInstance().getGameId());
-        GUIView.getInstance().getPlayersInGame().forEach(player -> {
+        gameId.setText("In game #" + View.getInstance().getGameId());
+        View.getInstance().getPlayersInGame().forEach(player -> {
             ColorChoiceController controller = new ColorChoiceController(player);
             playersBox.getChildren().add(
                     controller
@@ -80,9 +79,9 @@ public class SelectPlayerColorController extends SceneController {
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                GUIView.getInstance().on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
-                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
-                GUIView.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                View.getInstance().on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
+                View.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
+                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
@@ -148,11 +147,7 @@ public class SelectPlayerColorController extends SceneController {
             colorChoice = PlayerColor.GREEN;
         }
 
-        GUIView.getInstance().sendMessage(
-                new SelectColorC2S(
-                        colorChoice
-                )
-        );
+        View.getInstance().selectColor(colorChoice);
     }
 
     private void setCirclesStrokes(Circle selectedCircle) {

@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.popup;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
-import it.polimi.ingsw.am01.network.message.c2s.CreateGameAndJoinC2S;
+import it.polimi.ingsw.am01.client.View;
 import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
@@ -21,7 +20,7 @@ public class GameCreationPopupController extends PopupController {
 
     @FXML
     private void confirm() {
-        GUIView.getInstance().sendMessage(new CreateGameAndJoinC2S(spinner.getValue()));
+        View.getInstance().createGameAndJoin(spinner.getValue());
         closePopup();
     }
 

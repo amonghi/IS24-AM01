@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -13,6 +13,7 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
     private PlayerColor color;
     private int score;
     private boolean connected;
+    private final PlayAreaController playAreaController;
     @FXML
     private Button playerColor;
     @FXML
@@ -22,11 +23,12 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
     @FXML
     private Label connectionState;
 
-    public PlayerInfoController(String name, PlayerColor color, int score, boolean connected) {
+    public PlayerInfoController(String name, PlayerColor color, int score, boolean connected, PlayAreaController playAreaController) {
         this.name = name;
         this.color = color;
         this.score = score;
         this.connected = connected;
+        this.playAreaController = playAreaController;
         loadComponent();
     }
 
@@ -58,7 +60,7 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
 
     private void initializeButtons() {
         playerColor.setOnAction(event -> {
-            GUIView.getInstance().getPlayAreaController().setCurrentView(playerName.getText());
+            playAreaController.setCurrentView(playerName.getText());
         });
     }
 

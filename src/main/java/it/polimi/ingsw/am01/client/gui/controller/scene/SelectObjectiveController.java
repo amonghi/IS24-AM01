@@ -1,13 +1,12 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.ObjectiveChoiceController;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdateSecretObjectiveChoiceEvent;
-import it.polimi.ingsw.am01.network.message.c2s.SelectSecretObjectiveC2S;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -62,18 +61,18 @@ public class SelectObjectiveController extends SceneController {
         closeChatButton.setVisible(false);
 
         choiceControllers.clear();
-        gameId.setText("In game #" + GUIView.getInstance().getGameId());
+        gameId.setText("In game #" + View.getInstance().getGameId());
 
         firstObjectiveImage.setImage(new Image(Objects.requireNonNull(SelectObjectiveController.class.getResource(
-                Constants.OBJECTIVE_PATH + GUIView.getInstance().getSecretObjectivesId().getFirst() + Constants.IMAGE_EXTENSION
+                Constants.OBJECTIVE_PATH + View.getInstance().getSecretObjectivesId().getFirst() + Constants.IMAGE_EXTENSION
         )).toString()));
 
 
         secondObjectiveImage.setImage(new Image(Objects.requireNonNull(SelectObjectiveController.class.getResource(
-                Constants.OBJECTIVE_PATH + GUIView.getInstance().getSecretObjectivesId().get(1) + Constants.IMAGE_EXTENSION
+                Constants.OBJECTIVE_PATH + View.getInstance().getSecretObjectivesId().get(1) + Constants.IMAGE_EXTENSION
         )).toString()));
 
-        GUIView.getInstance().getPlayersInGame().forEach(player -> {
+        View.getInstance().getPlayersInGame().forEach(player -> {
             ObjectiveChoiceController controller = new ObjectiveChoiceController(player);
             playersBox.getChildren().add(
                     controller
@@ -81,15 +80,15 @@ public class SelectObjectiveController extends SceneController {
             choiceControllers.add(controller);
         });
 
-        choice = GUIView.getInstance().getSecretObjectivesId().getFirst();
+        choice = View.getInstance().getSecretObjectivesId().getFirst();
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                GUIView.getInstance().on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices),
-                GUIView.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
-                GUIView.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                View.getInstance().on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices),
+                View.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
+                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
@@ -131,12 +130,12 @@ public class SelectObjectiveController extends SceneController {
     @FXML
     private void selectChoice(Event event) {
         if (event.getSource() == firstObjectiveButton) {
-            choice = GUIView.getInstance().getSecretObjectivesId().getFirst();
+            choice = View.getInstance().getSecretObjectivesId().getFirst();
             firstObjectiveButton.setStyle(BUTTONS_STYLE);
             secondObjectiveButton.setStyle("");
 
         } else if (event.getSource() == secondObjectiveButton) {
-            choice = GUIView.getInstance().getSecretObjectivesId().get(1);
+            choice = View.getInstance().getSecretObjectivesId().get(1);
 
             secondObjectiveButton.setStyle(BUTTONS_STYLE);
             firstObjectiveButton.setStyle("");
@@ -145,17 +144,15 @@ public class SelectObjectiveController extends SceneController {
 
     @FXML
     private void confirm() {
-        GUIView.getInstance().setSecretObjectiveChoiceId(choice);
-        GUIView.getInstance().sendMessage(new SelectSecretObjectiveC2S(
-                choice
-        ));
+        View.getInstance().setSecretObjectiveChoiceId(choice);
+        View.getInstance().selectSecretObjective(choice);
 
         confirmButton.setVisible(false);
         titleLabel.setText("Waiting for other players choices");
         firstObjectiveButton.setDisable(true);
         secondObjectiveButton.setDisable(true);
         for (ObjectiveChoiceController controller : choiceControllers) {
-            if (controller.getPlayerName().equals(GUIView.getInstance().getPlayerName())) {
+            if (controller.getPlayerName().equals(View.getInstance().getPlayerName())) {
                 controller.setChoice();
             }
         }

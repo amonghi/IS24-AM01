@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
-import it.polimi.ingsw.am01.client.gui.GUIView;
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.component.EndingPlayerController;
 import it.polimi.ingsw.am01.client.gui.event.SetFinalScoresEvent;
 import javafx.fxml.FXML;
@@ -25,7 +25,7 @@ public class EndingController extends SceneController {
     @Override
     protected void registerListeners() {
         getViewRegistrations().add(
-                GUIView.getInstance().on(SetFinalScoresEvent.class, this::setFinalScores)
+                View.getInstance().on(SetFinalScoresEvent.class, this::setFinalScores)
         );
     }
 
@@ -56,7 +56,7 @@ public class EndingController extends SceneController {
 
     @FXML
     private void goToGamesListScene() {
-        GUIView.getInstance().changeScene(GUIView.getInstance().GAME_LIST_CONTROLLER);
+        View.getInstance().exitFinishedGame();
     }
 
     @Override
