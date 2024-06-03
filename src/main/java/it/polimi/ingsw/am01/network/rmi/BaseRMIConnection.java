@@ -6,6 +6,8 @@ import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
 
+import java.rmi.ConnectException;
+import java.rmi.ConnectIOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.BlockingQueue;
@@ -73,8 +75,11 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
                 this.receiveClosed = true;
                 return;
             } catch (RemoteException e) {
-                // TODO: better logging
-                e.printStackTrace();
+                //connection errors are ok
+                if (!(e instanceof ConnectException) && !(e instanceof ConnectIOException)) {
+                    // TODO: better logging
+                    e.printStackTrace();
+                }
 
                 // something went wrong while sending, close everything and stop
                 this.sendClosed = true;
