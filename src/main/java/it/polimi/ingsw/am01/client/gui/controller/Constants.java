@@ -44,4 +44,9 @@ public class Constants {
     public static final int GOLD_GREEN = 51;
     public static final int GOLD_BLUE = 66;
     public static final int GOLD_PURPLE = 73;
+
+    //Connection
+    public static final String DEFAULT_HOSTNAME = "0.0.0.0";
+    public static final int DEFAULT_TCP_PORT = 8888;
+    public static final int DEFAULT_RMI_PORT = 7777;
 }

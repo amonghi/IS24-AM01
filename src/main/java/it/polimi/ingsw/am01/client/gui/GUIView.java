@@ -14,20 +14,25 @@ import it.polimi.ingsw.am01.model.chat.MessageType;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
-import it.polimi.ingsw.am01.network.Connection;
-import it.polimi.ingsw.am01.network.ReceiveNetworkException;
-import it.polimi.ingsw.am01.network.SendNetworkException;
+import it.polimi.ingsw.am01.network.*;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
+import it.polimi.ingsw.am01.network.rmi.client.ClientRMIConnection;
+import it.polimi.ingsw.am01.network.tcp.client.ClientTCPConnection;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class GUIView implements EventEmitter<ViewEvent> {
     private static GUIView instance = null;
+    public final ConnectionController CONNECTION_CONTROLLER;
     public final AuthController AUTH_CONTROLLER;
     public final GameListController GAME_LIST_CONTROLLER;
     public final PlayAreaController PLAY_CONTROLLER;
@@ -37,8 +42,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
     public final SelectObjectiveController OBJECTIVE_CHOICE_CONTROLLER;
     public final RestoringLobbyController RESTORING_LOBBY_CONTROLLER;
     public final EndingController ENDING_CONTROLLER;
+    private final ExecutorService executorService;
     private final EventEmitterImpl<ViewEvent> emitter;
-    private final Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private final Stage stage;
     private final Set<Integer> faceUpCards;
     private final Set<Integer> hand;
@@ -50,6 +55,7 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private final List<Integer> secretObjectivesId;
     private final Map<String, Boolean> connections;
     private final List<Message> messages;
+    private Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private SceneController currentSceneController;
     private Map<Integer, UpdateGameListS2C.GameStat> games;
     private String playerName;
@@ -61,20 +67,23 @@ public class GUIView implements EventEmitter<ViewEvent> {
     private int secretObjectiveChoiceId;
     private List<Integer> commonObjectivesId;
 
-    public GUIView(Connection<C2SNetworkMessage, S2CNetworkMessage> connection, Stage stage) {
+    public GUIView(Stage stage) {
         this.emitter = new EventEmitterImpl<>();
         this.stage = stage;
-        this.connection = connection;
         instance = this;
+        this.executorService = Executors.newCachedThreadPool();
 
 
         stage.setOnCloseRequest((e) -> {
             Platform.exit();
-            GUIClient.closeClient();
+            if (connection != null) {
+                closeConnection();
+            }
             System.exit(0); //FIXME: fix
         });
 
 
+        this.CONNECTION_CONTROLLER = new ConnectionController();
         this.AUTH_CONTROLLER = new AuthController();
         this.GAME_LIST_CONTROLLER = new GameListController();
         this.PLAY_CONTROLLER = new PlayAreaController();
@@ -85,8 +94,8 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.ENDING_CONTROLLER = new EndingController();
         this.RESTORING_LOBBY_CONTROLLER = new RestoringLobbyController();
 
-        AUTH_CONTROLLER.loadScene(stage, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
-        currentSceneController = AUTH_CONTROLLER;
+        CONNECTION_CONTROLLER.loadScene(stage, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
+        currentSceneController = CONNECTION_CONTROLLER;
 
         this.games = new HashMap<>();
         this.playAreas = new HashMap<>();
@@ -104,52 +113,6 @@ public class GUIView implements EventEmitter<ViewEvent> {
         this.connections = new HashMap<>();
         this.messages = new ArrayList<>();
         //TODO: initialize others...
-
-        new Thread(() -> {
-            while (true) {
-                try {
-                    S2CNetworkMessage message = connection.receive();
-                    Platform.runLater(() -> {
-                        switch (message) {
-                            case SetPlayerNameS2C m -> handleMessage(m);
-                            case NameAlreadyTakenS2C m -> handleMessage(m);
-                            case UpdateGameListS2C m -> handleMessage(m);
-                            case SetPlayablePositionsS2C m -> handleMessage(m);
-                            case UpdatePlayAreaS2C m -> handleMessage(m);
-                            case InvalidPlacementS2C m -> handleMessage(m);
-                            case GameJoinedS2C m -> handleMessage(m);
-                            case UpdatePlayerListS2C m -> handleMessage(m);
-                            case SetStartingCardS2C m -> handleMessage(m);
-                            case UpdateGameStatusS2C m -> handleMessage(m);
-                            case UpdatePlayerColorS2C m -> handleMessage(m);
-                            case UpdateGameStatusAndSetupObjectiveS2C m -> handleMessage(m);
-                            case UpdateObjectiveSelectedS2C m -> handleMessage(m);
-                            case UpdatePlayAreaAfterUndoS2C m -> handleMessage(m);
-                            case SetBoardAndHandS2C m -> handleMessage(m);
-                            case UpdatePlayerHandS2C m -> handleMessage(m);
-                            case UpdateDeckStatusS2C m -> handleMessage(m);
-                            case UpdateGameStatusAndTurnS2C m -> handleMessage(m);
-                            case UpdateFaceUpCardsS2C m -> handleMessage(m);
-                            case PlayerDisconnectedS2C m -> handleMessage(m);
-                            case PlayerReconnectedS2C m -> handleMessage(m);
-                            case SetupAfterReconnectionS2C m -> handleMessage(m);
-                            case SetGamePauseS2C m -> handleMessage(m);
-                            case GameResumedS2C m -> handleMessage(m);
-                            case GameFinishedS2C m -> handleMessage(m);
-                            case KickedFromGameS2C m -> handleMessage(m);
-                            case NewMessageS2C m -> handleMessage(m);
-                            case BroadcastMessageSentS2C m -> handleMessage(m);
-                            case DirectMessageSentS2C m -> handleMessage(m);
-                            case PingS2C m -> {
-                            }
-                            default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
-                        }
-                    });
-                } catch (ReceiveNetworkException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }).start();
     }
 
     public static GUIView getInstance() {
@@ -157,6 +120,77 @@ public class GUIView implements EventEmitter<ViewEvent> {
             return instance;
         } else {
             throw new RuntimeException(); //TODO: handle
+        }
+    }
+
+    public void connect(ConnectionType connectionType, String hostname, int port) {
+        try {
+            this.connection = switch (connectionType) {
+                case ConnectionType.TCP -> ClientTCPConnection.connect(InetAddress.getByName(hostname), port);
+                case ConnectionType.RMI -> ClientRMIConnection.connect(executorService, hostname, port);
+            };
+
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        S2CNetworkMessage message = connection.receive();
+                        Platform.runLater(() -> {
+                            switch (message) {
+                                case SetPlayerNameS2C m -> handleMessage(m);
+                                case NameAlreadyTakenS2C m -> handleMessage(m);
+                                case UpdateGameListS2C m -> handleMessage(m);
+                                case SetPlayablePositionsS2C m -> handleMessage(m);
+                                case UpdatePlayAreaS2C m -> handleMessage(m);
+                                case InvalidPlacementS2C m -> handleMessage(m);
+                                case GameJoinedS2C m -> handleMessage(m);
+                                case UpdatePlayerListS2C m -> handleMessage(m);
+                                case SetStartingCardS2C m -> handleMessage(m);
+                                case UpdateGameStatusS2C m -> handleMessage(m);
+                                case UpdatePlayerColorS2C m -> handleMessage(m);
+                                case UpdateGameStatusAndSetupObjectiveS2C m -> handleMessage(m);
+                                case UpdateObjectiveSelectedS2C m -> handleMessage(m);
+                                case UpdatePlayAreaAfterUndoS2C m -> handleMessage(m);
+                                case SetBoardAndHandS2C m -> handleMessage(m);
+                                case UpdatePlayerHandS2C m -> handleMessage(m);
+                                case UpdateDeckStatusS2C m -> handleMessage(m);
+                                case UpdateGameStatusAndTurnS2C m -> handleMessage(m);
+                                case UpdateFaceUpCardsS2C m -> handleMessage(m);
+                                case PlayerDisconnectedS2C m -> handleMessage(m);
+                                case PlayerReconnectedS2C m -> handleMessage(m);
+                                case SetupAfterReconnectionS2C m -> handleMessage(m);
+                                case SetGamePauseS2C m -> handleMessage(m);
+                                case GameResumedS2C m -> handleMessage(m);
+                                case GameFinishedS2C m -> handleMessage(m);
+                                case KickedFromGameS2C m -> handleMessage(m);
+                                case NewMessageS2C m -> handleMessage(m);
+                                case BroadcastMessageSentS2C m -> handleMessage(m);
+                                case DirectMessageSentS2C m -> handleMessage(m);
+                                case PingS2C m -> {
+                                }
+                                default ->
+                                        throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
+                            }
+                        });
+                    } catch (ReceiveNetworkException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }).start();
+
+            changeScene(AUTH_CONTROLLER);
+        } catch (OpenConnectionNetworkException | IOException | IllegalArgumentException e) {
+            //TODO: better handling
+            Platform.runLater(() -> CONNECTION_CONTROLLER.setErrorMessage(e.getMessage()));
+        }
+
+    }
+
+    public void closeConnection() {
+        executorService.shutdown();
+        try {
+            connection.close();
+        } catch (CloseNetworkException e) {
+            throw new RuntimeException(e); //TODO: handle
         }
     }
 
@@ -576,6 +610,11 @@ public class GUIView implements EventEmitter<ViewEvent> {
     @Override
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
+    }
+
+    public enum ConnectionType {
+        TCP,
+        RMI
     }
 
     public record Message(MessageType type, String sender, String recipient, String content, String timestamp) {
