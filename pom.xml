@@ -105,7 +105,7 @@
             <!-- Default configuration for running with: mvn clean javafx:run -->
             <id>default-cli</id>
             <configuration>
-              <mainClass>it.polimi.ingsw.am01/it.polimi.ingsw.am01.client.gui.GUIClient</mainClass>
+              <mainClass>it.polimi.ingsw.am01/it.polimi.ingsw.am01.client.gui.Main</mainClass>
               <launcher>app</launcher>
               <jlinkZipName>app</jlinkZipName>
               <jlinkImageName>app</jlinkImageName>
