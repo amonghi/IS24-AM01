@@ -41,7 +41,6 @@ public class GUIView {
         stage.setOnCloseRequest((e) -> {
             Platform.exit();
             View.getInstance().closeConnection();
-            System.exit(0); //FIXME: fix
         });
 
         CONNECTION_CONTROLLER.loadScene(stage, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
