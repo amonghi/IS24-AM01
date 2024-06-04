@@ -136,7 +136,8 @@ public class View implements EventEmitter<ViewEvent> {
                             }
                         });
                     } catch (ReceiveNetworkException e) {
-                        Thread.currentThread().interrupt();
+                        // TODO: try to reconnect
+                        return;
                     }
                 }
             }).start();
