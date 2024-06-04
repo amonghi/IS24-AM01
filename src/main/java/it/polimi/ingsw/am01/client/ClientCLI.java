@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01;
+package it.polimi.ingsw.am01.client;
 
 import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.Side;
