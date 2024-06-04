@@ -9,8 +9,6 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 
 public class GUIView {
-    private final View model;
-
     public final ConnectionController CONNECTION_CONTROLLER;
     public final AuthController AUTH_CONTROLLER;
     public final GameListController GAME_LIST_CONTROLLER;
@@ -37,9 +35,8 @@ public class GUIView {
         this.RESTORING_LOBBY_CONTROLLER = new RestoringLobbyController();
         this.stage = stage;
 
-        this.model = new View();
-        this.model.on(StateChangedEvent.class, this::changeStage);
-        this.model.on(ConnectionLostEvent.class, this::showErrorMessage);
+        View.getInstance().on(StateChangedEvent.class, this::changeStage);
+        View.getInstance().on(ConnectionLostEvent.class, this::showErrorMessage);
 
         stage.setOnCloseRequest((e) -> {
             Platform.exit();
@@ -57,7 +54,7 @@ public class GUIView {
     }
 
     private void changeStage(StateChangedEvent event) {
-        currentSceneController.getViewRegistrations().forEach(model::unregister);
+        currentSceneController.getViewRegistrations().forEach(View.getInstance()::unregister);
         currentSceneController.getViewRegistrations().clear();
 
         SceneController newSceneController = switch (event.state()) {

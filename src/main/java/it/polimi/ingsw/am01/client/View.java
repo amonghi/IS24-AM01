@@ -57,9 +57,8 @@ public class View implements EventEmitter<ViewEvent> {
     private int secretObjectiveChoiceId;
     private List<Integer> commonObjectivesId;
 
-    public View() {
+    private View() {
         this.emitter = new EventEmitterImpl<>();
-        instance = this;
         this.executorService = Executors.newCachedThreadPool();
 
         this.games = new HashMap<>();
@@ -78,15 +77,14 @@ public class View implements EventEmitter<ViewEvent> {
         this.connections = new HashMap<>();
         this.messages = new ArrayList<>();
         this.state = ClientState.NOT_CONNECTED;
-        //TODO: initialize others...
     }
 
     public static View getInstance() {
-        if (instance != null) {
-            return instance;
-        } else {
-            throw new RuntimeException(); //TODO: handle
+        if (instance == null) {
+            instance = new View();
         }
+
+        return instance;
     }
 
     public void connect(ConnectionType connectionType, String hostname, int port) {
