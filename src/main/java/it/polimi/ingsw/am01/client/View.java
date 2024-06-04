@@ -224,17 +224,7 @@ public class View implements EventEmitter<ViewEvent> {
         decksColor.put(DeckLocation.RESOURCE_CARD_DECK, message.resourceDeckColor());
         decksColor.put(DeckLocation.GOLDEN_CARD_DECK, message.goldenDeckColor());
 
-        // FIXME: stage.setFullScreen(true);
-        changeGameStatus(GameStatus.PLAY);
-
-
-        emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
-        emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
-        emitter.emit(new SetDeckEvent(
-                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
-                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
-        ));
-        emitter.emit(new SetHandEvent(hand));
+        setupBoard();
 
         Placement starterCard = playAreas.get(playerName).getFirst();
 
@@ -386,19 +376,22 @@ public class View implements EventEmitter<ViewEvent> {
         if (gameStatus == GameStatus.RESTORING) {
             changeGameStatus(GameStatus.RESTORING);
         } else {
-            changeGameStatus(GameStatus.PLAY);
-            emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
-            emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
-            emitter.emit(new SetDeckEvent(
-                    Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
-                    Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
-            ));
-            emitter.emit(new SetHandEvent(hand));
-
+            setupBoard();
             emitter.emit(new SetPlayAreaEvent(playAreas.get(playerName)));
         }
 
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
+    }
+
+    private void setupBoard() {
+        changeGameStatus(GameStatus.PLAY);
+        emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
+        emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
+        emitter.emit(new SetDeckEvent(
+                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
+        ));
+        emitter.emit(new SetHandEvent(hand));
     }
 
     private void handleMessage(SetGamePauseS2C m) {
@@ -408,18 +401,8 @@ public class View implements EventEmitter<ViewEvent> {
 
     private void handleMessage(GameResumedS2C m) {
         if (gameStatus == GameStatus.RESTORING) {
-            changeGameStatus(GameStatus.PLAY);
-
-            emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
-            emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
-            emitter.emit(new SetDeckEvent(
-                    Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
-                    Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
-            ));
-            emitter.emit(new SetHandEvent(hand));
-
+            setupBoard();
             emitter.emit(new SetPlayAreaEvent(playAreas.get(playerName)));
-
             emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
         } else {
             emitter.emit(new GameResumedEvent());
