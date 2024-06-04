@@ -1,17 +1,17 @@
 package it.polimi.ingsw.am01.client.tui;
 
-import it.polimi.ingsw.am01.client.tui.command.CommandBuilder;
-import it.polimi.ingsw.am01.client.tui.command.CommandNode;
-import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
-import it.polimi.ingsw.am01.client.tui.command.WordArgumentParser;
+import it.polimi.ingsw.am01.client.ClientState;
+import it.polimi.ingsw.am01.client.View;
+import it.polimi.ingsw.am01.client.gui.event.StateChangedEvent;
+import it.polimi.ingsw.am01.client.tui.command.*;
 import it.polimi.ingsw.am01.client.tui.component.BuildContext;
 import it.polimi.ingsw.am01.client.tui.component.ComponentBuilder;
 import it.polimi.ingsw.am01.client.tui.component.Composition;
-import it.polimi.ingsw.am01.client.tui.component.elements.*;
-import it.polimi.ingsw.am01.client.tui.component.layout.Centered;
+import it.polimi.ingsw.am01.client.tui.component.elements.Border;
+import it.polimi.ingsw.am01.client.tui.component.elements.Cursor;
+import it.polimi.ingsw.am01.client.tui.component.elements.Text;
 import it.polimi.ingsw.am01.client.tui.component.layout.Column;
-import it.polimi.ingsw.am01.client.tui.component.layout.Padding;
-import it.polimi.ingsw.am01.client.tui.component.layout.Row;
+import it.polimi.ingsw.am01.client.tui.component.layout.Show;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.component.prop.DynProp;
@@ -21,6 +21,8 @@ import it.polimi.ingsw.am01.client.tui.keyboard.Keyboard;
 import it.polimi.ingsw.am01.client.tui.rendering.Renderer;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty;
+import it.polimi.ingsw.am01.client.tui.screens.AuthScreen;
+import it.polimi.ingsw.am01.client.tui.screens.ConnectScreen;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 
 import java.util.ArrayList;
@@ -32,9 +34,8 @@ public class CodexNaturalisTuiApplication extends Composition {
     private final List<EventEmitter.Registration> registrations;
 
     private final DynProp<String> input;
-    private final DynProp<String> output;
-    private final DynProp<Key> lastKey;
     private final Prop<CommandNode.Result> parseResult;
+    private final DynProp<View> view;
 
     public static ComponentBuilder builder() {
         return CodexNaturalisTuiApplication::new;
@@ -46,32 +47,43 @@ public class CodexNaturalisTuiApplication extends Composition {
         this.registrations = new ArrayList<>();
 
         this.input = new DynProp<>("");
-        this.output = new DynProp<>("");
-        this.lastKey = new DynProp<>(null);
+        this.view = new DynProp<>(View.getInstance());
 
         CommandNode rootCmd = CommandBuilder.root()
                 .branch(
                         SequenceBuilder
-                                .literal("ping")
+                                .literal("connect")
                                 .thenWhitespace()
-                                .thenLiteral("pong")
-                                .executes(commandContext -> output.set("selected: ping pong"))
+                                .then(new EnumParser<>("connectionType", View.ConnectionType.class))
+                                .thenWhitespace()
+                                .then(new WordArgumentParser("hostname"))
+                                .thenWhitespace()
+                                .then(new IntParser("port"))
+                                .executes(commandContext -> {
+                                    View.ConnectionType connectionType = commandContext.getEnum("connectionType", View.ConnectionType.class);
+                                    String hostname = commandContext.getString("hostname");
+                                    int port = commandContext.getInt("port");
+
+                                    view.mutate(v -> v.connect(connectionType, hostname, port));
+                                })
                                 .end()
                 )
                 .branch(
                         SequenceBuilder
-                                .literal("bing")
+                                .literal("authenticate")
                                 .thenWhitespace()
-                                .thenLiteral("bong")
-                                .executes(commandContext -> output.set("selected: ping pong"))
+                                .then(new WordArgumentParser("playerName"))
+                                .executes(commandContext -> {
+                                    String playerName = commandContext.getString("playerName");
+
+                                    view.mutate(v -> v.authenticate(playerName));
+                                })
                                 .end()
                 )
                 .branch(
                         SequenceBuilder
-                                .literal("hello")
-                                .thenWhitespace()
-                                .then(new WordArgumentParser("name"))
-                                .executes(commandContext -> output.set("selected: hello, with name=" + commandContext.getString("name")))
+                                .literal("quit")
+                                .executes(commandContext -> this.quitApplication())
                                 .end()
                 )
                 .build();
@@ -83,7 +95,6 @@ public class CodexNaturalisTuiApplication extends Composition {
         Keyboard keyboard = Keyboard.getInstance();
 
         this.registrations.addAll(List.of(
-                keyboard.onAny(key -> this.renderer.runOnRenderThread(() -> lastKey.set(key))),
                 keyboard.on(Key.Alt.class, key -> {
                     // ALT+D toggles debug
                     if (key.character() == 'd') {
@@ -100,7 +111,11 @@ public class CodexNaturalisTuiApplication extends Composition {
                 keyboard.on(Key.Backspace.class, event -> this.eraseChar()),
                 keyboard.on(Key.Del.class, event -> this.eraseChar()),
                 keyboard.on(Key.Tab.class, key -> this.writeCompletion()),
-                keyboard.on(Key.Enter.class, key -> this.runCommand())
+                keyboard.on(Key.Enter.class, key -> this.runCommand()),
+
+                view.peek().on(StateChangedEvent.class, event -> {
+                    this.renderer.runOnRenderThread(this::update);
+                })
         ));
     }
 
@@ -154,41 +169,9 @@ public class CodexNaturalisTuiApplication extends Composition {
     protected ComponentBuilder compose() {
         return Flex.column(
                 // top part of screen
-                new FlexChild.Flexible(1, Centered.both(
-                        Column.of(
-                                Flex.row(
-                                        new FlexChild.Flexible(1, Centered.horizontally(
-                                                CardComponent.builder()
-                                        )),
-                                        new FlexChild.Flexible(1, Centered.horizontally(
-                                                CardComponent.builder()
-                                        ))
-                                ),
-                                Centered.horizontally(Padding.around(1, Text.of(lastKey.map(key -> "last key: " + key)))),
-                                Centered.horizontally(Padding.around(1, Text.of(output.map(s -> "last command output: " + s)))),
-                                Centered.horizontally(Padding.around(2, Row.of(
-                                        Text.of("Some"),
-                                        Text.of(" "),
-                                        Text.of("red").withRendition(
-                                                GraphicalRendition.DEFAULT
-                                                        .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
-                                        ),
-                                        Text.of(" "),
-                                        Text.of("bold").withRendition(
-                                                GraphicalRendition.DEFAULT
-                                                        .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
-                                                        .withWeight(GraphicalRenditionProperty.Weight.BOLD)
-                                        ),
-                                        Text.of(" "),
-                                        Text.of("text").withRendition(
-                                                GraphicalRendition.DEFAULT
-                                                        .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
-                                                        .withWeight(GraphicalRenditionProperty.Weight.BOLD)
-                                                        .withItalics(GraphicalRenditionProperty.Italics.ON)
-                                        )
-                                ))),
-                                Centered.horizontally(Padding.around(2, KeypressCounterComponent.builder()))
-                        )
+                new FlexChild.Flexible(1, Column.of(
+                        Show.when(view.map(v -> v.getState().equals(ClientState.NOT_CONNECTED)), ConnectScreen.builder()),
+                        Show.when(view.map(v -> v.getState().equals(ClientState.NOT_AUTHENTICATED)), AuthScreen.builder())
                 )),
 
                 // bottom input

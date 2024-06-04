@@ -20,7 +20,6 @@ import it.polimi.ingsw.am01.network.message.c2s.*;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 import it.polimi.ingsw.am01.network.rmi.client.ClientRMIConnection;
 import it.polimi.ingsw.am01.network.tcp.client.ClientTCPConnection;
-import javafx.application.Platform;
 import javafx.scene.control.Alert;
 
 import java.io.IOException;
@@ -98,43 +97,40 @@ public class View implements EventEmitter<ViewEvent> {
                 while (true) {
                     try {
                         S2CNetworkMessage message = connection.receive();
-                        Platform.runLater(() -> {
-                            switch (message) {
-                                case SetPlayerNameS2C m -> handleMessage(m);
-                                case NameAlreadyTakenS2C m -> handleMessage(m);
-                                case UpdateGameListS2C m -> handleMessage(m);
-                                case SetPlayablePositionsS2C m -> handleMessage(m);
-                                case UpdatePlayAreaS2C m -> handleMessage(m);
-                                case InvalidPlacementS2C m -> handleMessage(m);
-                                case GameJoinedS2C m -> handleMessage(m);
-                                case UpdatePlayerListS2C m -> handleMessage(m);
-                                case SetStartingCardS2C m -> handleMessage(m);
-                                case UpdateGameStatusS2C m -> handleMessage(m);
-                                case UpdatePlayerColorS2C m -> handleMessage(m);
-                                case UpdateGameStatusAndSetupObjectiveS2C m -> handleMessage(m);
-                                case UpdateObjectiveSelectedS2C m -> handleMessage(m);
-                                case UpdatePlayAreaAfterUndoS2C m -> handleMessage(m);
-                                case SetBoardAndHandS2C m -> handleMessage(m);
-                                case UpdatePlayerHandS2C m -> handleMessage(m);
-                                case UpdateDeckStatusS2C m -> handleMessage(m);
-                                case UpdateGameStatusAndTurnS2C m -> handleMessage(m);
-                                case UpdateFaceUpCardsS2C m -> handleMessage(m);
-                                case PlayerDisconnectedS2C m -> handleMessage(m);
-                                case PlayerReconnectedS2C m -> handleMessage(m);
-                                case SetupAfterReconnectionS2C m -> handleMessage(m);
-                                case SetGamePauseS2C m -> handleMessage(m);
-                                case GameResumedS2C m -> handleMessage(m);
-                                case GameFinishedS2C m -> handleMessage(m);
-                                case KickedFromGameS2C m -> handleMessage(m);
-                                case NewMessageS2C m -> handleMessage(m);
-                                case BroadcastMessageSentS2C m -> handleMessage(m);
-                                case DirectMessageSentS2C m -> handleMessage(m);
-                                case PingS2C m -> {
-                                }
-                                default ->
-                                        throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
+                        switch (message) {
+                            case SetPlayerNameS2C m -> handleMessage(m);
+                            case NameAlreadyTakenS2C m -> handleMessage(m);
+                            case UpdateGameListS2C m -> handleMessage(m);
+                            case SetPlayablePositionsS2C m -> handleMessage(m);
+                            case UpdatePlayAreaS2C m -> handleMessage(m);
+                            case InvalidPlacementS2C m -> handleMessage(m);
+                            case GameJoinedS2C m -> handleMessage(m);
+                            case UpdatePlayerListS2C m -> handleMessage(m);
+                            case SetStartingCardS2C m -> handleMessage(m);
+                            case UpdateGameStatusS2C m -> handleMessage(m);
+                            case UpdatePlayerColorS2C m -> handleMessage(m);
+                            case UpdateGameStatusAndSetupObjectiveS2C m -> handleMessage(m);
+                            case UpdateObjectiveSelectedS2C m -> handleMessage(m);
+                            case UpdatePlayAreaAfterUndoS2C m -> handleMessage(m);
+                            case SetBoardAndHandS2C m -> handleMessage(m);
+                            case UpdatePlayerHandS2C m -> handleMessage(m);
+                            case UpdateDeckStatusS2C m -> handleMessage(m);
+                            case UpdateGameStatusAndTurnS2C m -> handleMessage(m);
+                            case UpdateFaceUpCardsS2C m -> handleMessage(m);
+                            case PlayerDisconnectedS2C m -> handleMessage(m);
+                            case PlayerReconnectedS2C m -> handleMessage(m);
+                            case SetupAfterReconnectionS2C m -> handleMessage(m);
+                            case SetGamePauseS2C m -> handleMessage(m);
+                            case GameResumedS2C m -> handleMessage(m);
+                            case GameFinishedS2C m -> handleMessage(m);
+                            case KickedFromGameS2C m -> handleMessage(m);
+                            case NewMessageS2C m -> handleMessage(m);
+                            case BroadcastMessageSentS2C m -> handleMessage(m);
+                            case DirectMessageSentS2C m -> handleMessage(m);
+                            case PingS2C m -> {
                             }
-                        });
+                            default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
+                        }
                     } catch (ReceiveNetworkException e) {
                         // TODO: try to reconnect
                         return;
@@ -522,6 +518,14 @@ public class View implements EventEmitter<ViewEvent> {
 
     public List<Message> getMessages() {
         return messages;
+    }
+
+    public ClientState getState() {
+        return state;
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
     }
 
     private void clearData() {
