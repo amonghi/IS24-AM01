@@ -31,7 +31,7 @@ public class Controller {
      * Authenticates a new player. The player must have a unique name.
      *
      * @param name the player to authenticate
-     * @return the player profile
+     * @return the player player
      * @throws NameAlreadyTakenException if a player with the same specified nickname is already authenticated
      * @see PlayerManager#createProfile(String)
      */

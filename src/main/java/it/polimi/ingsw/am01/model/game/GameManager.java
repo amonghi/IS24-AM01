@@ -126,7 +126,7 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
     /**
      * Returns the game where a given player is currently playing, if such a game exists
      *
-     * @param pp the profile of the player whose current game we want to find
+     * @param pp the player of the player whose current game we want to find
      * @return The game where the player is currently playing, if such a game exists
      */
     public synchronized Optional<Game> getGameWhereIsPlaying(PlayerProfile pp) {
