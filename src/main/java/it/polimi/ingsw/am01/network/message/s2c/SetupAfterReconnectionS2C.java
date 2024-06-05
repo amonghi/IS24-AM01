@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.network.message.s2c;
 
+import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.chat.MessageType;
 import it.polimi.ingsw.am01.model.game.GameStatus;
@@ -21,8 +22,8 @@ public record SetupAfterReconnectionS2C(
         Map<String, PlayerColor> playerColors,
         int secretObjective,
         List<Integer> commonObjectives,
-        boolean resourceCardDeckIsEmpty,
-        boolean goldenCardDeckIsEmpty,
+        CardColor resourceDeckColor,
+        CardColor goldenDeckColor,
         List<Integer> faceUpCards,
         Map<String, Boolean> connections,
         List<Message> chat

@@ -1,0 +1,54 @@
+@startuml
+
+!startsub PARTS
+!include events.puml
+
+!procedure $selectColor_req($client, $server=Server)
+    $client ->> $server: selectColor(color)
+!endprocedure
+
+!procedure $selectColor_res_OK_contended($inGame, $server=Server, $player="player")
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateColor($player, chosenColor, <font:monospace><b>CONTENDED</b></font>)
+    !endfor
+!endprocedure
+
+!procedure $selectColor_res_OK_notContended($inGame="", $server=Server, $player="player")
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateColor($player, chosenColor, <font:monospace><b>NOT_CONTENDED</b></font>)
+    !endfor
+!endprocedure
+
+!procedure $selectColor_res_seq_OK_notContended($client, $inGame="", $server=Server, $player)
+    $selectColor_req($client)
+    $selectColor_res_OK_notContended($inGame, $player=$player)
+!endprocedure
+
+!endsub
+
+title Select player color
+participant Alice
+participant Server
+participant Bob
+
+hnote over Alice : IN_GAME
+/ hnote over Bob : IN_GAME
+
+$event_updateGameStatus(SETUP_COLOR, Alice)
+$event_updateGameStatus(SETUP_COLOR, Bob)
+
+|||
+
+$selectColor_req(Alice)
+alt
+    $selectColor_res_OK_notContended($player="<font:monospace><b>Alice</b></font>","Alice~Bob")
+    opt all players have selected a color
+        event_seq_newStatus_SETUP_OBJECTIVE("Alice~Bob")
+    end
+else color has been already chosen by someone else
+    $selectColor_res_OK_contended("Alice~Bob", $player="<font:monospace><b>Alice</b></font>")
+
+else invalid color
+    Alice <<- Server: KO, invalidColor()
+end
+@enduml

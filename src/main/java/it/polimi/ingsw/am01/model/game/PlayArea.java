@@ -118,9 +118,6 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         // register placement
         this.cards.put(position, placement);
 
-        // update caches
-        this.score += placement.getPoints();
-
         // if we find relative we can be sure that we are placing on top
         // so their resource will be covered and must be removed from the global count
         Arrays.stream(CornerPosition.values())
@@ -138,6 +135,9 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         // we also add all the center resources, if present
         card.getFace(side).getCenterResources()
                 .forEach((resource, amount) -> collectibleCount.merge(resource, amount, Integer::sum));
+
+        // update caches
+        this.score += placement.getPoints();
 
         updatePlayablePositionsAfterPlacing(placement);
 
@@ -399,7 +399,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
             this.card = card;
             this.side = side;
             this.seq = seq;
-            this.points = calculatePoints();
+            this.points = 0;
         }
 
         /**
@@ -473,7 +473,7 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
          * @return Points earned from the placement
          */
         public int getPoints() {
-            return points;
+            return calculatePoints();
         }
 
         /**

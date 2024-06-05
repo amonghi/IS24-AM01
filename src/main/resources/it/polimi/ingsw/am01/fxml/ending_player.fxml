@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+
+<fx:root type="AnchorPane" minHeight="50.0" prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Label fx:id="placementLabel" text="1." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Label>
+        <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="35.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Circle fx:id="pawn" fill="DODGERBLUE" radius="20.0" stroke="BLACK" strokeType="INSIDE" />
+                <ImageView fx:id="crown" fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true"/>
+            </children>
+        </StackPane>
+        <Label fx:id="playerLabel" text="playerName" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="90.0" AnchorPane.topAnchor="0.0">
+            <font>
+                <Font size="16.0" />
+            </font>
+        </Label>
+        <Label fx:id="pointsLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="25.0" text="22 points" textAlignment="RIGHT" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <font>
+                <Font size="16.0" />
+            </font>
+        </Label>
+    </children>
+</fx:root>

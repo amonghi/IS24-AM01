@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class PlayAreaTest {
@@ -283,10 +282,10 @@ class PlayAreaTest {
         assertEquals(starterCard, playArea.getAt(0, 0).get().getCard());
         assertEquals(
                 Set.of(
-                    new PlayArea.Position(0, 1),
-                    new PlayArea.Position(1, 0),
-                    new PlayArea.Position(0, -1),
-                    new PlayArea.Position(-1, 0)
+                        new PlayArea.Position(0, 1),
+                        new PlayArea.Position(1, 0),
+                        new PlayArea.Position(0, -1),
+                        new PlayArea.Position(-1, 0)
                 ),
                 playArea.getPlayablePositions()
         );
@@ -296,7 +295,7 @@ class PlayAreaTest {
     @Test
     void canRemovePlacement() throws IllegalPlacementException, NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
-        playArea.placeAt(0,1,aCard,Side.BACK);
+        playArea.placeAt(0, 1, aCard, Side.BACK);
         assertEquals(2, playArea.getSeq());
         assertTrue(playArea.getAt(0, 1).isPresent());
         assertEquals(aCard, playArea.getAt(0, 1).get().getCard());
@@ -308,19 +307,19 @@ class PlayAreaTest {
     @Test
     void canUpdatePlayablePositions() throws IllegalPlacementException, NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
-        playArea.placeAt(0,1,aCard,Side.FRONT);
-        playArea.placeAt(-1,0,bCard,Side.FRONT);
-        playArea.placeAt(-1,1,cCard,Side.FRONT);
+        playArea.placeAt(0, 1, aCard, Side.FRONT);
+        playArea.placeAt(-1, 0, bCard, Side.FRONT);
+        playArea.placeAt(-1, 1, cCard, Side.FRONT);
         assertEquals(4, playArea.getSeq());
         assertEquals(
                 Set.of(
-                    new PlayArea.Position(1, 0),
-                    new PlayArea.Position(0, -1),
-                    new PlayArea.Position(1,1),
-                    new PlayArea.Position(0,2),
-                    new PlayArea.Position(-1,-1),
-                    new PlayArea.Position(-1,2),
-                    new PlayArea.Position(-2,1)
+                        new PlayArea.Position(1, 0),
+                        new PlayArea.Position(0, -1),
+                        new PlayArea.Position(1, 1),
+                        new PlayArea.Position(0, 2),
+                        new PlayArea.Position(-1, -1),
+                        new PlayArea.Position(-1, 2),
+                        new PlayArea.Position(-2, 1)
                 ),
                 playArea.getPlayablePositions()
         );
@@ -329,12 +328,12 @@ class PlayAreaTest {
         assertTrue(playArea.getAt(-1, 1).isEmpty());
         assertEquals(
                 Set.of(
-                    new PlayArea.Position(1, 0),
-                    new PlayArea.Position(0, -1),
-                    new PlayArea.Position(1,1),
-                    new PlayArea.Position(0,2),
-                    new PlayArea.Position(-1,-1),
-                    new PlayArea.Position(-1,1)
+                        new PlayArea.Position(1, 0),
+                        new PlayArea.Position(0, -1),
+                        new PlayArea.Position(1, 1),
+                        new PlayArea.Position(0, 2),
+                        new PlayArea.Position(-1, -1),
+                        new PlayArea.Position(-1, 1)
                 ),
                 playArea.getPlayablePositions()
         );
@@ -343,9 +342,9 @@ class PlayAreaTest {
     @Test
     void canUpdateScore() throws IllegalPlacementException, NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
-        playArea.placeAt(0,1,dCard,Side.FRONT);
-        playArea.placeAt(-1,0,eCard,Side.FRONT);
-        playArea.placeAt(-1,1,fCard,Side.FRONT);
+        playArea.placeAt(0, 1, dCard, Side.FRONT);
+        playArea.placeAt(-1, 0, eCard, Side.FRONT);
+        playArea.placeAt(-1, 1, fCard, Side.FRONT);
         assertEquals(4, playArea.getSeq());
         assertEquals(3, playArea.getScore());
         playArea.undoPlacement();
@@ -357,18 +356,18 @@ class PlayAreaTest {
     @Test
     void canUpdateCollectibleCount() throws IllegalPlacementException, NotUndoableOperationException {
         PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
-        playArea.placeAt(0,1,gCard,Side.FRONT);
-        playArea.placeAt(-1,0,hCard,Side.FRONT);
-        playArea.placeAt(-1,1,fCard,Side.BACK);
+        playArea.placeAt(0, 1, gCard, Side.FRONT);
+        playArea.placeAt(-1, 0, hCard, Side.FRONT);
+        playArea.placeAt(-1, 1, fCard, Side.BACK);
         assertEquals(4, playArea.getSeq());
         assertEquals(
                 Map.of(
-                    Resource.FUNGI, 1,
-                    Resource.PLANT, 3,
-                    Resource.INSECT, 1,
-                    Resource.ANIMAL, 2,
-                    Item.QUILL, 0,
-                    Item.MANUSCRIPT, 0
+                        Resource.FUNGI, 1,
+                        Resource.PLANT, 3,
+                        Resource.INSECT, 1,
+                        Resource.ANIMAL, 2,
+                        Item.QUILL, 0,
+                        Item.MANUSCRIPT, 0
                 ),
                 playArea.getCollectibleCount()
         );
@@ -388,4 +387,27 @@ class PlayAreaTest {
         );
     }
 
+    @Test
+    void canGetPointsFromPlacement() throws IllegalPlacementException {
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        Card card6 = assets.getCardById(6).get();
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        Card card42 = assets.getCardById(42).get();
+        PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        playArea.placeAt(-1, 0, card6, Side.FRONT);
+        playArea.placeAt(1, 0, card42, Side.FRONT);
+        assertEquals(2, playArea.getScore());
+    }
+
+    @Test
+    void canGetPointsFromPlacementCoveringItem() throws IllegalPlacementException {
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        Card card6 = assets.getCardById(6).get();
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
+        Card card42 = assets.getCardById(42).get();
+        PlayArea playArea = new PlayArea(starterCard, Side.FRONT);
+        playArea.placeAt(-1, 0, card6, Side.FRONT);
+        playArea.placeAt(-1, 1, card42, Side.FRONT);
+        assertEquals(1, playArea.getScore());
+    }
 }

@@ -34,16 +34,16 @@ public class Game implements EventEmitter<GameEvent> {
     private final int id;
     private final List<PlayerProfile> playerProfiles;
     private final ChatManager chatManager;
-    transient private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
     private final Map<PlayerProfile, Card> startingCards;
-    transient private SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
-    transient private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
     private final Map<PlayerProfile, PlayerData> playersData;
     private final Map<PlayerProfile, PlayArea> playAreas;
     private final Map<PlayerProfile, Boolean> connections;
     private final Set<Objective> commonObjectives;
     private final int maxPlayers;
     private final Board board;
+    transient private SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
+    transient private SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
+    transient private SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
     transient private EventEmitterImpl<GameEvent> emitter;
     private GameStatus status;
     private TurnPhase turnPhase;
@@ -355,6 +355,9 @@ public class Game implements EventEmitter<GameEvent> {
         }
         status = recoverStatus;
         getEmitter().emit(new GameResumedEvent(status, turnPhase, getCurrentPlayer()));
+        if (!isConnected(getCurrentPlayer())) {
+            changeCurrentPlayer();
+        }
     }
 
     /**
@@ -557,7 +560,14 @@ public class Game implements EventEmitter<GameEvent> {
             //all players had chosen their objective -> go to the next state (start "turn phase")
             setupAndStartTurnPhase();
 
-            getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+            getEmitter().emit(new SetUpPhaseFinishedEvent(
+                    board.getResourceCardDeck(),
+                    board.getGoldenCardDeck(),
+                    commonObjectives,
+                    board.getFaceUpCards(),
+                    playersData
+            ));
+
             getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
         }
     }
@@ -776,13 +786,13 @@ public class Game implements EventEmitter<GameEvent> {
         startingCards.remove(pp);
         playersData.remove(pp);
         playAreas.remove(pp);
-        if (startingCardSideSelectionPhase != null) {
+        if (startingCardSideSelectionPhase != null && !startingCardSideSelectionPhase.isConcluded()) {
             startingCardSideSelectionPhase.getSelectorFor(pp).dropOut();
         }
-        if (colorSelectionPhase != null) {
+        if (colorSelectionPhase != null && !colorSelectionPhase.isConcluded()) {
             colorSelectionPhase.getSelectorFor(pp).dropOut();
         }
-        if (objectiveSelectionPhase != null) {
+        if (objectiveSelectionPhase != null && !objectiveSelectionPhase.isConcluded()) {
             objectiveSelectionPhase.getSelectorFor(pp).dropOut();
         }
         getEmitter().emit(new PlayerLeftEvent(pp));
@@ -806,7 +816,14 @@ public class Game implements EventEmitter<GameEvent> {
             getEmitter().emit(new AllColorChoicesSettledEvent());
         } else if (status == GameStatus.SETUP_OBJECTIVE && objectiveSelectionPhase.isConcluded()) {
             setupAndStartTurnPhase();
-            getEmitter().emit(new SetUpPhaseFinishedEvent(commonObjectives, board.getFaceUpCards(), playersData));
+            getEmitter().emit(new SetUpPhaseFinishedEvent(
+                    board.getResourceCardDeck(),
+                    board.getGoldenCardDeck(),
+                    commonObjectives,
+                    board.getFaceUpCards(),
+                    playersData
+            ));
+
             try {
                 getEmitter().emit(new UpdateGameStatusAndTurnEvent(status, turnPhase, getCurrentPlayer()));
             } catch (IllegalGameStateException e) {
@@ -850,6 +867,7 @@ public class Game implements EventEmitter<GameEvent> {
             if (connectedPlayers == 0) {
                 transition(GameStatus.FINISHED);
                 getEmitter().emit(new GameClosedEvent());
+                notifyAll();
             } else if (status != GameStatus.RESTORING) {
                 // If current player has disconnected, skip to the next connected player
                 if (getCurrentPlayer().equals(pp)) {
@@ -860,9 +878,21 @@ public class Game implements EventEmitter<GameEvent> {
                     changeCurrentPlayer();
                 }
                 // If there's only one player left, pause the game
-                if (connectedPlayers == 1 && status != GameStatus.SUSPENDED) {
+                if (connectedPlayers == 1) {
                     pauseGame();
                     this.wait(TimeUnit.MINUTES.toMillis(TIMEOUT));
+
+                    // After a minute of waiting, if no one joined yet, conclude the game
+                    if (status == GameStatus.SUSPENDED) {
+                        transition(GameStatus.FINISHED);
+                        getEmitter().emit(
+                                new GameFinishedEvent(
+                                        playerProfiles.stream()
+                                                .filter(this::isConnected)
+                                                .collect(Collectors.toMap(p -> p, p -> getPlayArea(p).getScore())))
+                        );
+                        getEmitter().emit(new GameClosedEvent());
+                    }
                 }
             }
 
@@ -890,7 +920,6 @@ public class Game implements EventEmitter<GameEvent> {
         } else if (status == GameStatus.RESTORING && playerProfiles.stream().filter(connections::get).count() == playerProfiles.size()) {
             // Resume game if it was awaiting players after a server crash and all players has reconnected
             resumeGame();
-            getEmitter().emit(new UpdateGameStatusAndTurnEvent(getStatus(), getTurnPhase(), getCurrentPlayer()));
         }
     }
 

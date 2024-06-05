@@ -180,7 +180,18 @@ public class SelectionPhase<O, I> {
          * it is no longer part of the selection phase.
          */
         public void dropOut() {
+            if (this.droppedOut) {
+                throw new IllegalStateException("This selector is not longer valid as the chooser associated with it has dropped out");
+            }
+
+            if (isConcluded()) {
+                throw new IllegalStateException("The selection phase is concluded");
+            }
+
             this.droppedOut = true;
+            if (this.preference != null) {
+                this.pool.removePreference(this.preference, this.identity);
+            }
             SelectionPhase.this.selectors.remove(this.identity);
             SelectionPhase.this.updateState();
         }

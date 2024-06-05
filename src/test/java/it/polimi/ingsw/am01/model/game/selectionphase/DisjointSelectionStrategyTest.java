@@ -41,6 +41,7 @@ class DisjointSelectionStrategyTest {
 
     @Test
     void dropoutsAreRemovedFromSelectionPhase() {
+        this.phase.getSelectorFor("alice").expressPreference("a");
         this.phase.getSelectorFor("alice").dropOut();
         this.phase.getSelectorFor("bob").expressPreference("c");
 

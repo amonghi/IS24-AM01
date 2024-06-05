@@ -1,0 +1,68 @@
+package it.polimi.ingsw.am01.client.tui.component.elements;
+
+import it.polimi.ingsw.am01.client.tui.component.BuildContext;
+import it.polimi.ingsw.am01.client.tui.component.Component;
+import it.polimi.ingsw.am01.client.tui.component.ComponentBuilder;
+import it.polimi.ingsw.am01.client.tui.rendering.*;
+import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
+
+import java.util.List;
+
+public class Border extends Component {
+    private final BorderStyle style;
+    private final Component child;
+
+    public static ComponentBuilder around(ComponentBuilder child) {
+        return ctx -> new Border(ctx, BorderStyle.DEFAULT, child.build(ctx));
+    }
+
+    public static ComponentBuilder withStyle(BorderStyle style, ComponentBuilder child) {
+        return ctx -> new Border(ctx, style, child.build(ctx));
+    }
+
+    public Border(BuildContext ctx, BorderStyle style, Component child) {
+        super(ctx);
+        this.style = style;
+        this.child = child;
+    }
+
+    @Override
+    public Sized layout(Constraint constraint) {
+        SizedPositioned child = this.child
+                .layout(constraint.shrinkMax(2, 2))
+                .placeAt(Position.of(1, 1));
+
+        return new Sized(
+                this,
+                child.dimensions().grow(2, 2),
+                List.of(child)
+        );
+    }
+
+    @Override
+    public void drawSelf(RenderingContext ctx, DrawArea a) {
+        int w = a.dimensions().width() - 1;
+        int h = a.dimensions().height() - 1;
+
+        for (int x = 0; x < a.dimensions().width(); x++) {
+            a.draw(x, 0, this.style.t());
+        }
+
+        for (int x = 0; x < a.dimensions().width(); x++) {
+            a.draw(x, h, this.style.b());
+        }
+
+        for (int y = 0; y < a.dimensions().height(); y++) {
+            a.draw(0, y, this.style.l());
+        }
+
+        for (int y = 0; y < a.dimensions().height(); y++) {
+            a.draw(w, y, this.style.r());
+        }
+
+        a.draw(0, 0, this.style.tl());
+        a.draw(w, 0, this.style.tr());
+        a.draw(0, h, this.style.bl());
+        a.draw(w, h, this.style.br());
+    }
+}

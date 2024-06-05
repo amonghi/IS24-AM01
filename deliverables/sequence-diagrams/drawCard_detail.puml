@@ -1,0 +1,48 @@
+@startuml
+!startsub PARTS
+!include events.puml
+
+!procedure $drawCard_req($client, $server=Server)
+    $client ->> $server: drawCard(drawSource)
+!endprocedure
+
+!procedure $drawCard_res_OK($inGame, $server=Server)
+    !foreach $client in %splitstr($inGame, "~")
+        $client <<- $server: updateDecksStatus(resourceDeckColor, goldenDeckColor)
+    !endfor
+!endprocedure
+
+!endsub
+
+title Draw a card
+participant Alice
+participant Server
+participant Bob
+
+hnote over Alice : IN_GAME
+/ hnote over Bob : IN_GAME
+
+note over Alice : It is Alice's turn
+
+event_seq_newStatusAndTurn($status=PLAY, $turnPhase="DRAWING", $inGame="Alice~Bob")
+
+|||
+
+$drawCard_req(Alice)
+alt
+    $drawCard_res_OK("Alice~Bob")
+    opt player has drawn a face up card
+        $event_seq_updateFaceUpCards("Alice~Bob")
+    end
+
+    alt currentPlayer is the last player and someone reached an ending condition
+        event_seq_newStatusAndTurn($status=LAST_TURN, $turnPhase="PLACING", $inGame="Alice~Bob")
+    else
+        event_seq_newStatusAndTurn($status=PLAY, $turnPhase="PLACING", $inGame="Alice~Bob")
+    end
+    note over Bob : It's Bob's turn
+else source is empty
+    Server ->> Alice: KO, emptySource()
+end
+
+@enduml

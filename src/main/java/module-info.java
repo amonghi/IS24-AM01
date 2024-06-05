@@ -6,6 +6,8 @@ module it.polimi.ingsw.am01 {
     requires java.rmi;
     requires com.sun.jna;
     requires jdk.unsupported;
+    requires java.desktop;
+    requires jdk.jfr;
 
     opens it.polimi.ingsw.am01 to javafx.fxml;
     opens it.polimi.ingsw.am01.model.card to com.google.gson;
@@ -19,14 +21,24 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.model.game.selectionphase to com.google.gson;
     opens it.polimi.ingsw.am01.model.chat to com.google.gson;
     opens it.polimi.ingsw.am01.model.player to com.google.gson;
+    opens it.polimi.ingsw.am01.model.exception to com.google.gson;
+    opens it.polimi.ingsw.am01.model.event to com.google.gson;
     opens it.polimi.ingsw.am01.network.message to com.google.gson;
     opens it.polimi.ingsw.am01.network.message.json to com.google.gson;
     opens it.polimi.ingsw.am01.network.message.s2c to com.google.gson;
     opens it.polimi.ingsw.am01.network.message.c2s to com.google.gson;
-    opens it.polimi.ingsw.am01.model.exception to com.google.gson;
     opens it.polimi.ingsw.am01.eventemitter to com.google.gson;
-    opens it.polimi.ingsw.am01.model.event to com.google.gson;
     opens it.polimi.ingsw.am01.controller to com.google.gson;
+    opens it.polimi.ingsw.am01.client to javafx.fxml;
+    opens it.polimi.ingsw.am01.client.gui to javafx.fxml;
+    opens it.polimi.ingsw.am01.client.gui.event to javafx.fxml;
+    opens it.polimi.ingsw.am01.client.gui.controller.component to javafx.fxml;
+    opens it.polimi.ingsw.am01.client.gui.controller.scene to javafx.fxml;
+    opens it.polimi.ingsw.am01.client.gui.controller to javafx.fxml;
+    opens it.polimi.ingsw.am01.client.gui.controller.popup to javafx.fxml;
+    opens it.polimi.ingsw.am01.client.gui.model to javafx.fxml;
+
+    opens it.polimi.ingsw.am01.client.tui.terminal to com.sun.jna;
 
     opens it.polimi.ingsw.am01.tui.terminal to com.sun.jna;
 
@@ -38,4 +50,13 @@ module it.polimi.ingsw.am01 {
     exports it.polimi.ingsw.am01.network.message to java.rmi;
     exports it.polimi.ingsw.am01.network.message.c2s to java.rmi;
     exports it.polimi.ingsw.am01.network.message.s2c to java.rmi;
+    exports it.polimi.ingsw.am01.client.gui to javafx.graphics;
+    exports it.polimi.ingsw.am01.client.gui.controller.scene to javafx.graphics;
+    exports it.polimi.ingsw.am01.client.gui.controller.component to javafx.graphics;
+    exports it.polimi.ingsw.am01.client.gui.event to javafx.graphics;
+    exports it.polimi.ingsw.am01.eventemitter to javafx.graphics;
+    exports it.polimi.ingsw.am01.client.gui.controller to javafx.graphics;
+    exports it.polimi.ingsw.am01.client.gui.controller.popup to javafx.graphics;
+    exports it.polimi.ingsw.am01.client.gui.model to javafx.graphics;
+    exports it.polimi.ingsw.am01.client;
 }

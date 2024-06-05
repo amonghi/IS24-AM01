@@ -134,4 +134,19 @@ class DeckTest {
         assertEquals(aCard, drawnCard.get());
         assertTrue(deck.draw().isEmpty());
     }
+
+    @Test
+    void testVisibleColor() {
+        Deck deck = new Deck(cardList);
+        assertEquals(CardColor.GREEN, deck.getVisibleColor().orElse(null));
+        deck.draw();
+        assertEquals(CardColor.PURPLE, deck.getVisibleColor().orElse(null));
+        deck.draw();
+        assertEquals(CardColor.BLUE, deck.getVisibleColor().orElse(null));
+        deck.draw();
+        assertEquals(CardColor.RED, deck.getVisibleColor().orElse(null));
+        deck.draw();
+        assertTrue(deck.draw().isEmpty());
+        assertTrue(deck.getVisibleColor().isEmpty());
+    }
 }
