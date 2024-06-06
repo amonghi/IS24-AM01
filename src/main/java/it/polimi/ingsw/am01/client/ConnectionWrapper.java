@@ -23,7 +23,8 @@ public class ConnectionWrapper {
             try {
                 message = connection.receive();
             } catch (ReceiveNetworkException e) {
-                // TODO: try to reconnect
+                view.connectionLost();
+                //TODO: try to reconnect
                 return;
             }
 

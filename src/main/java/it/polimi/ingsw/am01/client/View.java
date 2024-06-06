@@ -13,7 +13,10 @@ import it.polimi.ingsw.am01.model.chat.MessageType;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
-import it.polimi.ingsw.am01.network.*;
+import it.polimi.ingsw.am01.network.CloseNetworkException;
+import it.polimi.ingsw.am01.network.Connection;
+import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
+import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.*;
@@ -89,13 +92,11 @@ public abstract class View implements EventEmitter<ViewEvent> {
                 case ConnectionType.RMI -> ClientRMIConnection.connect(executorService, hostname, port);
             };
 
-           new ConnectionWrapper(connection, this);
+            new ConnectionWrapper(connection, this);
 
-            state = ClientState.NOT_AUTHENTICATED;
-            changeStage(state, gameStatus);
+            changeState(ClientState.NOT_AUTHENTICATED);
         } catch (OpenConnectionNetworkException | IOException | IllegalArgumentException e) {
-            state = ClientState.NOT_CONNECTED;
-            changeStage(state, gameStatus);
+            changeState(ClientState.NOT_CONNECTED);
             showConnectionErrorMessage(e.getMessage());
         }
     }
@@ -390,6 +391,11 @@ public abstract class View implements EventEmitter<ViewEvent> {
         changeStage(state, gameStatus);
     }
 
+    public void connectionLost(){
+        runLater(() -> changeState(ClientState.NOT_CONNECTED));
+        clearData();
+    }
+
     private void changeGameStatus(GameStatus newStatus) {
         this.state = ClientState.IN_GAME;
         this.gameStatus = newStatus;
@@ -479,7 +485,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
         try {
             connection.send(message);
         } catch (SendNetworkException e) {
-            throw new RuntimeException(e); //TODO: manage
+            connectionLost();
         }
     }
 
