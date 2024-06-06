@@ -21,8 +21,8 @@ public class GUIView {
     public final SelectObjectiveController OBJECTIVE_CHOICE_CONTROLLER;
     public final RestoringLobbyController RESTORING_LOBBY_CONTROLLER;
     public final EndingController ENDING_CONTROLLER;
-    private SceneController currentSceneController;
     private final Stage stage;
+    private SceneController currentSceneController;
 
     public GUIView(Stage stage) {
         this.CONNECTION_CONTROLLER = new ConnectionController();
@@ -82,11 +82,11 @@ public class GUIView {
             };
         };
 
+        newSceneController.loadScene(this.stage, stage.getScene().getWidth(), stage.getScene().getHeight());
+        currentSceneController = newSceneController;
+
         if (newSceneController.equals(PLAY_CONTROLLER)) {
             Platform.runLater(() -> stage.setFullScreen(true));
         }
-
-        newSceneController.loadScene(this.stage, stage.getScene().getWidth(), stage.getScene().getHeight());
-        currentSceneController = newSceneController;
     }
 }
