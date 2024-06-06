@@ -11,6 +11,6 @@ public class Main {
                 ? new WindowsTerminal()
                 : new UnixTerminal();
 
-        new CodexNaturalisTuiApplication(terminal);
+        new TuiView(terminal);
     }
 }
