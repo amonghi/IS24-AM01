@@ -82,6 +82,12 @@ public class GUIView extends View {
             };
         };
 
+        if(newSceneController.equals(CONNECTION_CONTROLLER) && !currentSceneController.equals(CONNECTION_CONTROLLER)){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Lost connection!");
+            alert.show();
+        }
+
         newSceneController.loadScene(this.stage, stage.getScene().getWidth(), stage.getScene().getHeight());
         currentSceneController = newSceneController;
 
