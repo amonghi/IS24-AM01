@@ -1,5 +1,9 @@
 package it.polimi.ingsw.am01.client.tui.command;
 
+import it.polimi.ingsw.am01.client.tui.command.parser.LiteralParser;
+import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
+import it.polimi.ingsw.am01.client.tui.command.parser.WhiteSpaceParser;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;

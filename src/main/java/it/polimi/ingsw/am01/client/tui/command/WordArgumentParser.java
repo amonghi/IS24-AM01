@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am01.client.tui.command;
 
+import it.polimi.ingsw.am01.client.tui.command.parser.ParseException;
+import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
+
 import java.util.Optional;
 
 public class WordArgumentParser implements Parser {

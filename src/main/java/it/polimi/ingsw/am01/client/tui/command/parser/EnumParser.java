@@ -1,4 +1,6 @@
-package it.polimi.ingsw.am01.client.tui.command;
+package it.polimi.ingsw.am01.client.tui.command.parser;
+
+import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
 import java.util.Optional;
 

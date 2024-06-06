@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am01.client.tui.command;
 
+import it.polimi.ingsw.am01.client.tui.command.parser.ParseException;
+import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;

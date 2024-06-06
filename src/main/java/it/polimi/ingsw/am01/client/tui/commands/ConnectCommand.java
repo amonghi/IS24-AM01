@@ -2,7 +2,12 @@ package it.polimi.ingsw.am01.client.tui.commands;
 
 import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.tui.TuiView;
-import it.polimi.ingsw.am01.client.tui.command.*;
+import it.polimi.ingsw.am01.client.tui.command.CommandContext;
+import it.polimi.ingsw.am01.client.tui.command.CommandNode;
+import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
+import it.polimi.ingsw.am01.client.tui.command.WordArgumentParser;
+import it.polimi.ingsw.am01.client.tui.command.parser.EnumParser;
+import it.polimi.ingsw.am01.client.tui.command.parser.IntParser;
 
 public class ConnectCommand extends TuiCommand {
     public ConnectCommand(TuiView view) {
