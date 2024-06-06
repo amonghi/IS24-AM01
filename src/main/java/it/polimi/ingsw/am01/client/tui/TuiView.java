@@ -2,73 +2,57 @@ package it.polimi.ingsw.am01.client.tui;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandBuilder;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
-import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
-import it.polimi.ingsw.am01.client.tui.command.WordArgumentParser;
+import it.polimi.ingsw.am01.client.tui.commands.AuthenticateCommand;
+import it.polimi.ingsw.am01.client.tui.commands.ConnectCommand;
+import it.polimi.ingsw.am01.client.tui.commands.QuitCommand;
+import it.polimi.ingsw.am01.client.tui.commands.TuiCommand;
 import it.polimi.ingsw.am01.client.tui.component.Component;
-import it.polimi.ingsw.am01.client.tui.component.elements.*;
+import it.polimi.ingsw.am01.client.tui.component.elements.Border;
+import it.polimi.ingsw.am01.client.tui.component.elements.BorderStyle;
+import it.polimi.ingsw.am01.client.tui.component.elements.Cursor;
+import it.polimi.ingsw.am01.client.tui.component.elements.Text;
 import it.polimi.ingsw.am01.client.tui.component.layout.Centered;
-import it.polimi.ingsw.am01.client.tui.component.layout.Column;
-import it.polimi.ingsw.am01.client.tui.component.layout.Padding;
-import it.polimi.ingsw.am01.client.tui.component.layout.Row;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.keyboard.Key;
 import it.polimi.ingsw.am01.client.tui.keyboard.Keyboard;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty;
+import it.polimi.ingsw.am01.client.tui.scenes.AuthScene;
+import it.polimi.ingsw.am01.client.tui.scenes.WelcomeScene;
 import it.polimi.ingsw.am01.client.tui.terminal.Terminal;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class TuiView extends BaseTuiView {
+    private static final List<Function<TuiView, TuiCommand>> CMD_CONSTRUCTORS = List.of(
+            ConnectCommand::new,
+            AuthenticateCommand::new,
+            QuitCommand::new
+    );
+
     private final Keyboard keyboard;
     private final CommandNode rootCmd;
     private final List<Registration> keyboardRegistrations;
 
     private String input = "";
-    private CommandNode.Result parseResult = null;
-    private String output = "";
-    private Key lastKey;
 
     public TuiView(Terminal terminal) {
         super(terminal);
         this.keyboard = Keyboard.getInstance();
 
-        this.rootCmd = CommandBuilder.root()
-                .branch(
-                        SequenceBuilder
-                                .literal("ping")
-                                .thenWhitespace()
-                                .thenLiteral("pong")
-                                .executes(commandContext -> this.output = "selected: ping pong")
-                                .end()
-                )
-                .branch(
-                        SequenceBuilder
-                                .literal("bing")
-                                .thenWhitespace()
-                                .thenLiteral("bong")
-                                .executes(commandContext -> this.output = "selected: ping pong")
-                                .end()
-                )
-                .branch(
-                        SequenceBuilder
-                                .literal("hello")
-                                .thenWhitespace()
-                                .then(new WordArgumentParser("name"))
-                                .executes(commandContext -> this.output = "selected: hello, with name=" + commandContext.getString("name"))
-                                .end()
-                )
-                .build();
+        // build the command tree
+        CommandBuilder builder = CommandBuilder.root();
+        for (Function<TuiView, TuiCommand> constructor : CMD_CONSTRUCTORS) {
+            CommandNode commandNode = constructor.apply(this).getRootNode();
+            builder.branch(commandNode);
+        }
+        this.rootCmd = builder.build();
 
+        // listen to keyboard
         this.keyboardRegistrations = List.of(
-                keyboard.onAny(onRenderThread(key -> {
-                    // TODO: delete
-                    this.lastKey = key;
-                    this.render();
-                })),
-
                 keyboard.on(Key.Alt.class, onRenderThread(key -> {
                     // ALT+D toggles debug
                     if (key.character() == 'd') {
@@ -95,7 +79,7 @@ public class TuiView extends BaseTuiView {
         super.onShutdown();
     }
 
-    private void quitApplication() {
+    public void quitApplication() {
         System.exit(0);
     }
 
@@ -106,7 +90,6 @@ public class TuiView extends BaseTuiView {
 
     private void writeChar(char c) {
         this.input += c;
-        this.parseResult = rootCmd.parse(this.input);
         this.render();
     }
 
@@ -114,62 +97,39 @@ public class TuiView extends BaseTuiView {
         if (!this.input.isEmpty()) {
             this.input = this.input.substring(0, this.input.length() - 1);
         }
-        this.parseResult = rootCmd.parse(this.input);
         this.render();
     }
 
     private void writeCompletion() {
-        String completion = this.parseResult.getCompletions().stream().findFirst().orElse("");
+        String completion = this.parseInput().getCompletions().stream().findFirst().orElse("");
         this.input = this.input + completion;
-        this.parseResult = rootCmd.parse(this.input);
         this.render();
     }
 
     private void runCommand() {
-        Optional<Runnable> runnable = this.parseResult.getCommandRunnable();
+        Optional<Runnable> runnable = this.parseInput().getCommandRunnable();
         if (runnable.isPresent()) {
             runnable.get().run();
             this.input = "";
-            this.parseResult = rootCmd.parse(this.input);
         }
         this.render();
+    }
+
+    private CommandNode.Result parseInput() {
+        return this.rootCmd.parse(this.input);
     }
 
     public Component compose() {
         return Flex.column(List.of(
                 // top part of screen
                 new FlexChild.Flexible(1, Centered.both(
-                        new Column(List.of(
-                                Flex.row(List.of(
-                                        new FlexChild.Flexible(1, Centered.horizontally(
-                                                new CardComponent()
-                                        )),
-                                        new FlexChild.Flexible(1, Centered.horizontally(
-                                                new CardComponent()
-                                        ))
-                                )),
-                                Centered.horizontally(Padding.around(1, new Text("last key: " + this.lastKey))),
-                                Centered.horizontally(Padding.around(1, new Text("last command output: " + this.output))),
-                                Centered.horizontally(Padding.around(2, new Row(List.of(
-                                        new Text("Some"),
-                                        new Text(" "),
-                                        new Text(GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED),
-                                                "red"),
-                                        new Text(" "),
-                                        new Text(GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
-                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD),
-                                                "bold"),
-                                        new Text(" "),
-                                        new Text(GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED)
-                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD)
-                                                .withItalics(GraphicalRenditionProperty.Italics.ON),
-                                                "text")
-                                ))))
-                        )))
-                ),
+                        switch (this.getState()) {
+                            case NOT_CONNECTED -> new WelcomeScene();
+                            case NOT_AUTHENTICATED -> new AuthScene();
+                            case AUTHENTICATED -> new Text("AUTHENTICATED");
+                            case IN_GAME -> new Text("IN_GAME");
+                        }
+                )),
 
                 // bottom input
                 new FlexChild.Fixed(new Border(BorderStyle.DEFAULT,
@@ -183,9 +143,7 @@ public class TuiView extends BaseTuiView {
                                 new FlexChild.Flexible(1, new Text(
                                         GraphicalRendition.DEFAULT
                                                 .withWeight(GraphicalRenditionProperty.Weight.DIM),
-                                        Optional.ofNullable(this.parseResult)
-                                                .flatMap(result -> result.getCompletions().stream().findFirst())
-                                                .orElse("")
+                                        this.parseInput().getCompletions().stream().findFirst().orElse("")
                                 ))
                         ))
                 ))

@@ -21,4 +21,8 @@ public class CommandContext {
     public int getInt(String key) {
         return (int) arguments.get(key);
     }
+
+    public <E extends Enum<E>> E getEnum(String key, Class<E> enumClass) {
+        return enumClass.cast(arguments.get(key));
+    }
 }

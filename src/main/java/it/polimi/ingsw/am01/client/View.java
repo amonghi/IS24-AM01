@@ -13,7 +13,10 @@ import it.polimi.ingsw.am01.model.chat.MessageType;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
-import it.polimi.ingsw.am01.network.*;
+import it.polimi.ingsw.am01.network.CloseNetworkException;
+import it.polimi.ingsw.am01.network.Connection;
+import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
+import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.*;
@@ -458,6 +461,14 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return messages;
     }
 
+    public ClientState getState() {
+        return state;
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
+    }
+
     private void clearData() {
         faceUpCards.clear();
         hand.clear();
@@ -575,7 +586,6 @@ public abstract class View implements EventEmitter<ViewEvent> {
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
     }
-
 
     public enum ConnectionType {
         TCP,

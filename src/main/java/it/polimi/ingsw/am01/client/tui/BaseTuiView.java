@@ -20,6 +20,7 @@ public abstract class BaseTuiView extends View {
     private final ExecutorService executorService;
     private final Terminal terminal;
     private final EventEmitter.Registration terminalRegistration;
+    private final EventEmitter.Registration selfRegistration;
     private boolean debugViewEnabled;
 
     public BaseTuiView(Terminal terminal) {
@@ -30,9 +31,13 @@ public abstract class BaseTuiView extends View {
         this.debugViewEnabled = false;
         this.executorService = Executors.newSingleThreadExecutor();
 
-        // start rendering
         this.terminal.enableRawMode();
         this.terminalRegistration = this.terminal.on(ResizeEvent.class, onRenderThread(event -> this.render()));
+
+        // we don't really care what the update is because we re-render everything anyway
+        this.selfRegistration = this.onAny(event -> this.render());
+
+        // start rendering
         this.runLater(this::render);
     }
 
@@ -45,6 +50,7 @@ public abstract class BaseTuiView extends View {
     }
 
     protected void onShutdown() {
+        this.unregister(this.selfRegistration);
         this.terminal.unregister(terminalRegistration);
         this.terminal.disableRawMode();
         this.executorService.shutdownNow();
