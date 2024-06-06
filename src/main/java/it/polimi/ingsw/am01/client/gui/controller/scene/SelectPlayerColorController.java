@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayerColorEvent;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -74,6 +75,8 @@ public class SelectPlayerColorController extends SceneController {
             );
             colorChoiceControllers.add(controller);
         });
+
+        registerListeners();
     }
 
     @Override
@@ -86,16 +89,18 @@ public class SelectPlayerColorController extends SceneController {
     }
 
     private void updatePlayerList(PlayerListChangedEvent event) {
-        playersBox.getChildren().clear();
+        Platform.runLater(() -> {
+            playersBox.getChildren().clear();
 
-        colorChoiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
-        chatBoxController.updatePlayersList(event);
+            colorChoiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+            chatBoxController.updatePlayersList(event);
 
-        for (ColorChoiceController controller : colorChoiceControllers) {
-            playersBox.getChildren().add(
-                    controller
-            );
-        }
+            for (ColorChoiceController controller : colorChoiceControllers) {
+                playersBox.getChildren().add(
+                        controller
+                );
+            }
+        });
     }
 
     @FXML
@@ -160,11 +165,13 @@ public class SelectPlayerColorController extends SceneController {
     }
 
     private void updatePlayersColor(UpdatePlayerColorEvent event) {
-        for (ColorChoiceController controller : colorChoiceControllers) {
-            if (controller.getPlayerName().equals(event.playerName())) {
-                controller.setChoice(event.playerColor());
+        Platform.runLater(() -> {
+            for (ColorChoiceController controller : colorChoiceControllers) {
+                if (controller.getPlayerName().equals(event.playerName())) {
+                    controller.setChoice(event.playerColor());
+                }
             }
-        }
+        });
     }
 
     @Override

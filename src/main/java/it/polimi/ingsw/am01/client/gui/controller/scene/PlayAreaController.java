@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.View;
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import it.polimi.ingsw.am01.client.gui.controller.component.*;
 import it.polimi.ingsw.am01.client.gui.controller.popup.ShowObjectivePopupController;
@@ -12,11 +13,13 @@ import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -36,6 +39,8 @@ public class PlayAreaController extends SceneController {
     private AnchorPane playarea;
     @FXML
     private AnchorPane positionLayer;
+    @FXML
+    private ScrollPane scrollLayer;
     @FXML
     private HBox board;
     @FXML
@@ -79,6 +84,7 @@ public class PlayAreaController extends SceneController {
 
         Button showBoard = new Button("Show/Hide Board");
         Button showObj = new Button("Show Objectives");
+
         utility_buttons.getChildren().add(showBoard);
         utility_buttons.getChildren().add(showObj);
 
@@ -112,6 +118,8 @@ public class PlayAreaController extends SceneController {
                 alert.show();
             }
         });
+
+        registerListeners();
     }
 
     public void clearPositionLayer() {
@@ -154,31 +162,38 @@ public class PlayAreaController extends SceneController {
     }
 
     private void setFaceUpCards(SetFaceUpCardsEvent event) {
-        //TODO: redesign board to unify slot1 and slot2
-        fu_slot1.getChildren().clear();
-        fu_slot2.getChildren().clear();
-        fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(0), this));
-        fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(1), this));
-        fu_slot2.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(2), this));
-        fu_slot2.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(3), this));
+        Platform.runLater(() -> {
+            //TODO: redesign board to unify slot1 and slot2
+            //FIXME: faceUpCards may not have 4 cards
+            fu_slot1.getChildren().clear();
+            fu_slot2.getChildren().clear();
+            fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(0), this));
+            fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(1), this));
+            fu_slot2.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(2), this));
+            fu_slot2.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(3), this));
+        });
     }
 
     private void setDeck(SetDeckEvent event) {
-        deck.getChildren().clear();
+        Platform.runLater(() -> {
+            deck.getChildren().clear();
 
-        // TODO: placeholder for empty deck
-        deck.getChildren().add(new DeckSourceController(event.goldenDeck().orElse(CardColor.RED), DeckLocation.GOLDEN_CARD_DECK, this));
-        deck.getChildren().add(new DeckSourceController(event.resourceDeck().orElse(CardColor.RED), DeckLocation.RESOURCE_CARD_DECK, this));
+            // TODO: placeholder for empty deck
+            deck.getChildren().add(new DeckSourceController(event.goldenDeck().orElse(CardColor.RED), DeckLocation.GOLDEN_CARD_DECK, this));
+            deck.getChildren().add(new DeckSourceController(event.resourceDeck().orElse(CardColor.RED), DeckLocation.RESOURCE_CARD_DECK, this));
 
-        deck.getChildren().get(0).setDisable(event.goldenDeck().isEmpty());
-        deck.getChildren().get(1).setDisable(event.resourceDeck().isEmpty());
+            deck.getChildren().get(0).setDisable(event.goldenDeck().isEmpty());
+            deck.getChildren().get(1).setDisable(event.resourceDeck().isEmpty());
+        });
     }
 
     private void setHand(SetHandEvent event) {
-        hand.getChildren().clear();
-        for (Integer cardId : event.hand()) {
-            hand.getChildren().add(new HandCardController(cardId, Side.FRONT, this));
-        }
+        Platform.runLater(() -> {
+            hand.getChildren().clear();
+            for (Integer cardId : event.hand()) {
+                hand.getChildren().add(new HandCardController(cardId, Side.FRONT, this));
+            }
+        });
     }
 
     private void setObjectives(SetObjectives event) {
@@ -192,52 +207,56 @@ public class PlayAreaController extends SceneController {
     }
 
     private void updatePlayArea(UpdatePlayAreaEvent event) {
-
-        for (Node playerInfo : play_status.getChildren()) {
-            if (((PlayerInfoController) playerInfo).getName().equals(event.playerName())) {
-                ((PlayerInfoController) playerInfo).setScore(View.getInstance().getScore(event.playerName()));
+        Platform.runLater(() -> {
+            for (Node playerInfo : play_status.getChildren()) {
+                if (((PlayerInfoController) playerInfo).getName().equals(event.playerName())) {
+                    ((PlayerInfoController) playerInfo).setScore(View.getInstance().getScore(event.playerName()));
+                }
             }
-        }
 
-        CardPlacementController cardPlacement = new CardPlacementController(event.cardId(), event.side());
-        cardPlacement.setPosition(event.i(), event.j());
-        cardPlacement.setSeq(event.seq());
-        if (event.playerName().equals(View.getInstance().getPlayerName())) {
-            placements.add(cardPlacement);
-            playarea.getChildren().add(cardPlacement);
-            cardSelected = false;
-        } else if (event.playerName().equals(focussedPlayer)) {
-            playarea.getChildren().add(cardPlacement);
-        }
+            CardPlacementController cardPlacement = new CardPlacementController(event.cardId(), event.side());
+            cardPlacement.setPosition(event.i(), event.j());
+            cardPlacement.setSeq(event.seq());
+            if (event.playerName().equals(View.getInstance().getPlayerName())) {
+                placements.add(cardPlacement);
+                playarea.getChildren().add(cardPlacement);
+                cardSelected = false;
+            } else if (event.playerName().equals(focussedPlayer)) {
+                playarea.getChildren().add(cardPlacement);
+            }
+        });
     }
 
     private void removePlacement(RemoveLastPlacementEvent event) {
-        View.getInstance().removeLastPlacement(event.player());
-        if (event.player().equals(focussedPlayer)) {
-            playarea.getChildren().removeLast();
-        }
+        Platform.runLater(() -> {
+            View.getInstance().removeLastPlacement(event.player());
+            if (event.player().equals(focussedPlayer)) {
+                playarea.getChildren().removeLast();
+            }
 
-        play_status.getChildren().clear();
-        for (String player : View.getInstance().getPlayersInGame()) {
-            play_status.getChildren().add(new PlayerInfoController(
-                    player,
-                    View.getInstance().getPlayerColor(player),
-                    View.getInstance().getScore(player),
-                    View.getInstance().isConnected(player),
-                    this
-            ));
-        }
+            play_status.getChildren().clear();
+            for (String player : View.getInstance().getPlayersInGame()) {
+                play_status.getChildren().add(new PlayerInfoController(
+                        player,
+                        View.getInstance().getPlayerColor(player),
+                        View.getInstance().getScore(player),
+                        View.getInstance().isConnected(player),
+                        this
+                ));
+            }
+        });
     }
 
-
     private void invalidPlacement(InvalidPlacementEvent event) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText("Invalid placement!");
-        alert.show();
-        cardSelected = false;
-        //TODO: make out why it disables everything
-        hand.setDisable(false);
-        setCurrentView(View.getInstance().getPlayerName());
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Invalid placement!");
+            alert.show();
+            cardSelected = false;
+            //TODO: make out why it disables everything
+            hand.setDisable(false);
+            setCurrentView(View.getInstance().getPlayerName());
+        });
     }
 
     private void showHideObj() {
@@ -259,43 +278,47 @@ public class PlayAreaController extends SceneController {
     }
 
     private void handleTurn(UpdateGameTurnEvent event) {
-        String statusText = event.currentPlayer() + " is " + event.turnPhase().toLowerCase();
+        Platform.runLater(() -> {
+            String statusText = event.currentPlayer() + " is " + event.turnPhase().toLowerCase();
 
-        if (event.gameStatus().equals(GameStatus.LAST_TURN.toString())) {
-            statusText = "Last turn!" + statusText;
-        }
-        gameStatusLabel.setText(statusText);
-        gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(View.getInstance().getPlayerColor(event.currentPlayer())) + "; -fx-background-radius: 20;");
+            if (event.gameStatus().equals(GameStatus.LAST_TURN.toString())) {
+                statusText = "Last turn!" + statusText;
+            }
+            gameStatusLabel.setText(statusText);
+            gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(View.getInstance().getPlayerColor(event.currentPlayer())) + "; -fx-background-radius: 20;");
 
-        if (!event.currentPlayer().equals(event.player())) {
-            //It's not my turn
-            hand.setDisable(true);
-            board.setDisable(true);
-            playarea.setDisable(true);
-            return;
-        }
-        if (event.turnPhase().equals("PLACING")) {
-            board.setDisable(true);
-            hand.setDisable(false);
-            playarea.setDisable(false);
-        } else {
-            board.setDisable(false);
-            hand.setDisable(true);
-            playarea.setDisable(true);
-        }
+            if (!event.currentPlayer().equals(event.player())) {
+                //It's not my turn
+                hand.setDisable(true);
+                board.setDisable(true);
+                playarea.setDisable(true);
+                return;
+            }
+            if (event.turnPhase().equals("PLACING")) {
+                board.setDisable(true);
+                hand.setDisable(false);
+                playarea.setDisable(false);
+            } else {
+                board.setDisable(false);
+                hand.setDisable(true);
+                playarea.setDisable(true);
+            }
+        });
     }
 
     private void updatePlayStatus(SetPlayStatusEvent event) {
-        play_status.getChildren().clear();
-        for (String player : event.players()) {
-            play_status.getChildren().add(new PlayerInfoController(
-                    player,
-                    event.colors().get(player),
-                    event.scores().get(player),
-                    event.connections().get(player),
-                    this
-            ));
-        }
+        Platform.runLater(() -> {
+            play_status.getChildren().clear();
+            for (String player : event.players()) {
+                play_status.getChildren().add(new PlayerInfoController(
+                        player,
+                        event.colors().get(player),
+                        event.scores().get(player),
+                        event.connections().get(player),
+                        this
+                ));
+            }
+        });
     }
 
     public void drawFromFaceUp(int cardId) {
@@ -345,25 +368,31 @@ public class PlayAreaController extends SceneController {
     }
 
     private void setPlayArea(SetPlayAreaEvent event) {
-        event.placements().forEach(placement -> {
-            CardPlacementController cardPlacement = new CardPlacementController(placement.id(), placement.side());
-            cardPlacement.setPosition(placement.pos().i(), placement.pos().j());
-            cardPlacement.setSeq(placement.seq());
-            placements.add(cardPlacement);
+        Platform.runLater(() -> {
+            event.placements().forEach(placement -> {
+                CardPlacementController cardPlacement = new CardPlacementController(placement.id(), placement.side());
+                cardPlacement.setPosition(placement.pos().i(), placement.pos().j());
+                cardPlacement.setSeq(placement.seq());
+                placements.add(cardPlacement);
 
-            playarea.getChildren().add(cardPlacement);
+                playarea.getChildren().add(cardPlacement);
+            });
         });
     }
 
     private void pauseGame(GamePausedEvent event) {
-        gameStatusLabel.setText("Game suspended. Waiting for players...");
-        gameStatusLabel.setStyle("-fx-background-color: lightgray; -fx-background-radius: 20;");
+        Platform.runLater(() -> {
+            gameStatusLabel.setText("Game suspended. Waiting for players...");
+            gameStatusLabel.setStyle("-fx-background-color: lightgray; -fx-background-radius: 20;");
 
-        playarea.setDisable(true);
+            playarea.setDisable(true);
+        });
     }
 
     private void resumeGame(GameResumedEvent event) {
-        playarea.setDisable(false);
+        Platform.runLater(() -> {
+            playarea.setDisable(false);
+        });
     }
 
     @FXML

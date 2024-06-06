@@ -4,6 +4,7 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.model.chat.MessageType;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
@@ -73,15 +74,17 @@ public class ChatBoxController extends AnchorPane implements ComponentController
     }
 
     public void updateMessages(NewMessageEvent event) {
-        messagesBox.getChildren().add(
-                new ChatMessageController(
-                        event.message().type().toString(),
-                        event.message().sender(),
-                        event.message().recipient(),
-                        event.message().content(),
-                        event.message().timestamp()
-                )
-        );
+        Platform.runLater(() -> {
+            messagesBox.getChildren().add(
+                    new ChatMessageController(
+                            event.message().type().toString(),
+                            event.message().sender(),
+                            event.message().recipient(),
+                            event.message().content(),
+                            event.message().timestamp()
+                    )
+            );
+        });
     }
 
     public void updatePlayersList(PlayerListChangedEvent event) {

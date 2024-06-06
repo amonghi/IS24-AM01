@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.component.RestoringPlayerSlotController;
 import it.polimi.ingsw.am01.client.gui.event.SetPlayStatusEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,6 +23,7 @@ public class RestoringLobbyController extends SceneController {
     @FXML
     private void initialize() {
         gameLabel.setText("Restoring game #" + View.getInstance().getGameId());
+        registerListeners();
     }
 
     @Override
@@ -32,13 +34,14 @@ public class RestoringLobbyController extends SceneController {
     }
 
     private void updatePlayerList(SetPlayStatusEvent event) {
-        playerList.getChildren().clear();
-        resumeButton.setDisable(event.players().stream().filter(View.getInstance()::isConnected).count() <= 1);
+        Platform.runLater(() -> {
+            playerList.getChildren().clear();
+            resumeButton.setDisable(event.players().stream().filter(View.getInstance()::isConnected).count() <= 1);
 
-        for (String player : event.players()) {
-            playerList.getChildren().add(new RestoringPlayerSlotController(player, event.colors().get(player), event.connections().get(player)));
-        }
-
+            for (String player : event.players()) {
+                playerList.getChildren().add(new RestoringPlayerSlotController(player, event.colors().get(player), event.connections().get(player)));
+            }
+        });
     }
 
     @FXML

@@ -4,8 +4,10 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.scene.*;
 import it.polimi.ingsw.am01.client.gui.event.ConnectionLostEvent;
+import it.polimi.ingsw.am01.client.gui.event.KickedFromGameEvent;
 import it.polimi.ingsw.am01.client.gui.event.StateChangedEvent;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 public class GUIView {
@@ -37,6 +39,7 @@ public class GUIView {
 
         View.getInstance().on(StateChangedEvent.class, this::changeStage);
         View.getInstance().on(ConnectionLostEvent.class, this::showErrorMessage);
+        View.getInstance().on(KickedFromGameEvent.class, this::playerKicked);
 
         stage.setOnCloseRequest((e) -> {
             Platform.exit();
@@ -50,6 +53,14 @@ public class GUIView {
 
     private void showErrorMessage(ConnectionLostEvent event) {
         Platform.runLater(() -> CONNECTION_CONTROLLER.setErrorMessage(event.message()));
+    }
+
+    private void playerKicked(KickedFromGameEvent event) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Game was cancelled as there were not enough players connected!");
+            alert.show();
+        });
     }
 
     private void changeStage(StateChangedEvent event) {
@@ -78,5 +89,4 @@ public class GUIView {
         newSceneController.loadScene(this.stage, stage.getScene().getWidth(), stage.getScene().getHeight());
         currentSceneController = newSceneController;
     }
-
 }

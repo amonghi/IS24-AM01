@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayAreaEvent;
 import it.polimi.ingsw.am01.model.card.Side;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -76,7 +77,10 @@ public class SelectStartingCardSideController extends SceneController {
         });
 
         choosenSide = Side.FRONT;
+
+        registerListeners();
     }
+
 
     @FXML
     private void selectChoice(Event event) {
@@ -121,11 +125,13 @@ public class SelectStartingCardSideController extends SceneController {
     }
 
     private void updateChoices(UpdatePlayAreaEvent event) {
-        for (SideChoiceController controller : choiceControllers) {
-            if (controller.getPlayerName().equals(event.playerName())) {
-                controller.setChoice(event.cardId(), event.side());
+        Platform.runLater(() -> {
+            for (SideChoiceController controller : choiceControllers) {
+                if (controller.getPlayerName().equals(event.playerName())) {
+                    controller.setChoice(event.cardId(), event.side());
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -138,16 +144,18 @@ public class SelectStartingCardSideController extends SceneController {
     }
 
     private void updatePlayersList(PlayerListChangedEvent event) {
-        playersBox.getChildren().clear();
+        Platform.runLater(() -> {
+            playersBox.getChildren().clear();
 
-        choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
-        chatBoxController.updatePlayersList(event);
+            choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+            chatBoxController.updatePlayersList(event);
 
-        for (SideChoiceController controller : choiceControllers) {
-            playersBox.getChildren().add(
-                    controller
-            );
-        }
+            for (SideChoiceController controller : choiceControllers) {
+                playersBox.getChildren().add(
+                        controller
+                );
+            }
+        });
     }
 
     @Override

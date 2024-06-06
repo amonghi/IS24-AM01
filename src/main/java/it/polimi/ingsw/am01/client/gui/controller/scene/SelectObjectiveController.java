@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.client.gui.controller.component.ObjectiveChoiceContr
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdateSecretObjectiveChoiceEvent;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -81,6 +82,8 @@ public class SelectObjectiveController extends SceneController {
         });
 
         choice = View.getInstance().getSecretObjectivesId().getFirst();
+
+        registerListeners();
     }
 
     @Override
@@ -93,24 +96,28 @@ public class SelectObjectiveController extends SceneController {
     }
 
     private void updatePlayerList(PlayerListChangedEvent event) {
-        playersBox.getChildren().clear();
+        Platform.runLater(() -> {
+            playersBox.getChildren().clear();
 
-        choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
-        chatBoxController.updatePlayersList(event);
+            choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+            chatBoxController.updatePlayersList(event);
 
-        for (ObjectiveChoiceController controller : choiceControllers) {
-            playersBox.getChildren().add(
-                    controller
-            );
-        }
+            for (ObjectiveChoiceController controller : choiceControllers) {
+                playersBox.getChildren().add(
+                        controller
+                );
+            }
+        });
     }
 
     private void updateChoices(UpdateSecretObjectiveChoiceEvent event) {
-        for (ObjectiveChoiceController controller : choiceControllers) {
-            if (event.playersChosen().contains(controller.getPlayerName())) {
-                controller.setChoice();
+        Platform.runLater(() -> {
+            for (ObjectiveChoiceController controller : choiceControllers) {
+                if (event.playersChosen().contains(controller.getPlayerName())) {
+                    controller.setChoice();
+                }
             }
-        }
+        });
     }
 
     @FXML

@@ -5,6 +5,7 @@ import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.PlayerSlotController;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -38,6 +39,7 @@ public class LobbyController extends SceneController {
         closeChatButton.setVisible(false);
 
         gameId.setText("In game #" + View.getInstance().getGameId());
+        registerListeners();
     }
 
     @Override
@@ -49,19 +51,21 @@ public class LobbyController extends SceneController {
     }
 
     private void updatePlayerList(PlayerListChangedEvent event) {
-        playerList.getChildren().clear();
+        Platform.runLater(() -> {
+            playerList.getChildren().clear();
 
-        chatBoxController.updatePlayersList(event);
+            chatBoxController.updatePlayersList(event);
 
-        startButton.setDisable(event.playerList().size() <= 1);
+            startButton.setDisable(event.playerList().size() <= 1);
 
-        for (String player : event.playerList()) {
-            playerList.getChildren().add(PlayerSlotController.of(player));
-        }
-        int maxPlayers = View.getInstance().getMaxPlayers();
-        for (int i = 0; i < maxPlayers - event.playerList().size(); i++) {
-            playerList.getChildren().add(PlayerSlotController.empty());
-        }
+            for (String player : event.playerList()) {
+                playerList.getChildren().add(PlayerSlotController.of(player));
+            }
+            int maxPlayers = View.getInstance().getMaxPlayers();
+            for (int i = 0; i < maxPlayers - event.playerList().size(); i++) {
+                playerList.getChildren().add(PlayerSlotController.empty());
+            }
+        });
     }
 
     @Override

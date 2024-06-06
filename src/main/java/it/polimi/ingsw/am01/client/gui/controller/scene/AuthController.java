@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.event.NameAlreadyTakenEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,11 +22,14 @@ public class AuthController extends SceneController {
     @FXML
     private void initialize() {
         messageLabel.setVisible(false);
+        registerListeners();
     }
 
     public void nameAlreadyTaken(NameAlreadyTakenEvent event) {
-        messageLabel.setVisible(true);
-        messageLabel.setText("Name '" + event.refusedName() + "' is already taken!");
+        Platform.runLater(() -> {
+            messageLabel.setVisible(true);
+            messageLabel.setText("Name '" + event.refusedName() + "' is already taken!");
+        });
     }
 
     @FXML

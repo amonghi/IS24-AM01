@@ -32,7 +32,7 @@ public class Utils {
     }
 
     public static double computeYPosition(int i, int j) {
-        final double OFFSET_X = CARD_PLACEMENT_HEIGHT * (1 - Y_RATIO);
+        final double OFFSET_Y = CARD_PLACEMENT_HEIGHT * (1 - Y_RATIO);
         double yPos;
         if (i == 0 && j == 0) {
             yPos = BASE_Y;

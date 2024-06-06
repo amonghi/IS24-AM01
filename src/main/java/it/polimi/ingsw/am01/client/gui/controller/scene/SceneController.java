@@ -4,6 +4,7 @@ import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.GUIElement;
 import it.polimi.ingsw.am01.client.gui.controller.popup.PopupController;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -36,11 +37,10 @@ public abstract class SceneController implements GUIElement {
             throw new RuntimeException(e); //TODO: manage
         }
         stage.setTitle(Constants.WINDOW_TITLE);
-        stage.setScene(scene);
-
-        registerListeners();
-
-        stage.show();
+        Platform.runLater(() -> {
+            stage.setScene(scene);
+            stage.show();
+        });
     }
 
     protected void openPopup(PopupController popupController) {

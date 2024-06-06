@@ -4,6 +4,7 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.component.GameController;
 import it.polimi.ingsw.am01.client.gui.controller.popup.GameCreationPopupController;
 import it.polimi.ingsw.am01.client.gui.event.GameListChangedEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -29,6 +30,7 @@ public class GameListController extends SceneController {
                 );
             }
         }
+        registerListeners();
     }
 
     @Override
@@ -39,12 +41,14 @@ public class GameListController extends SceneController {
     }
 
     public void updateGameList(GameListChangedEvent event) {
-        box.getChildren().clear();
-        for (Integer gameID : event.gameStatMap().keySet()) {
-            box.getChildren().add(
-                    new GameController(gameID, event.gameStatMap().get(gameID).maxPlayers(), event.gameStatMap().get(gameID).currentPlayersConnected())
-            );
-        }
+        Platform.runLater(() -> {
+            box.getChildren().clear();
+            for (Integer gameID : event.gameStatMap().keySet()) {
+                box.getChildren().add(
+                        new GameController(gameID, event.gameStatMap().get(gameID).maxPlayers(), event.gameStatMap().get(gameID).currentPlayersConnected())
+                );
+            }
+        });
     }
 
     public void newGame() {
