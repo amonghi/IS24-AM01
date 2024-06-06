@@ -51,7 +51,7 @@ public class CommandNode {
             // if the command is runnable, we only provide a completion if the user has already started typing a space after
             boolean noCompletion = commandRunnable != null && remaining.isEmpty();
 
-            List<String> completions = List.of();
+            List<Parser.Completion> completions = List.of();
             if (!noCompletion) {
                 completions = this.children.stream()
                         .flatMap(bCommandNode -> bCommandNode.getCompletionsForPartial(remaining).stream())
@@ -87,37 +87,39 @@ public class CommandNode {
                 : new Result(consumed, getCompletionsForPartial(remaining));
     }
 
-    private List<String> getDefaultCompletions() {
+    private List<Parser.Completion> getDefaultCompletions() {
         return getCompletionsForPartial("");
     }
 
-    private List<String> getCompletionsForPartial(String partial) {
-        Optional<String> completion = this.parser.complete(partial);
-        if (completion.isEmpty()) {
+    private List<Parser.Completion> getCompletionsForPartial(String partial) {
+        Parser.Completion completion;
+        try {
+            completion = this.parser.complete(partial);
+        } catch (ParseException e) {
             return List.of();
         }
 
         // if this is a valid exit point, we don't need to suggest further
         if (this.executor != null) {
-            return List.of(completion.get());
+            return List.of(completion);
         }
 
         return this.children.stream()
-                .flatMap(child -> child.getDefaultCompletions().stream()
-                        .map(childCompletion -> completion.get() + childCompletion))
+                .flatMap(child -> child.getDefaultCompletions().stream())
+                .map(completion::concat)
                 .toList();
     }
 
     public static class Result {
         private final int consumed;
-        private final List<String> completions;
+        private final List<Parser.Completion> completions;
         private final Runnable commandRunnable;
 
-        public Result(int consumed, List<String> completions) {
+        public Result(int consumed, List<Parser.Completion> completions) {
             this(consumed, completions, null);
         }
 
-        public Result(int consumed, List<String> completions, Runnable commandRunnable) {
+        public Result(int consumed, List<Parser.Completion> completions, Runnable commandRunnable) {
             this.consumed = consumed;
             this.completions = completions;
             this.commandRunnable = commandRunnable;
@@ -127,7 +129,7 @@ public class CommandNode {
             return consumed;
         }
 
-        public List<String> getCompletions() {
+        public List<Parser.Completion> getCompletions() {
             return completions;
         }
 

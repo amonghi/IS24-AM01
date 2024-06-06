@@ -2,8 +2,6 @@ package it.polimi.ingsw.am01.client.tui.command.parser;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
-import java.util.Optional;
-
 public class WhiteSpaceParser implements Parser {
     private final boolean required;
 
@@ -22,15 +20,15 @@ public class WhiteSpaceParser implements Parser {
     }
 
     @Override
-    public Optional<String> complete(String partial) {
+    public Parser.Completion complete(String partial) throws ParseException {
         if (partial.isEmpty()) {
-            return Optional.of(" ");
+            return Completion.completable(" ");
         }
 
         if (partial.isBlank()) {
-            return Optional.of("");
+            return Completion.completable("");
         }
 
-        return Optional.empty();
+        throw new ParseException();
     }
 }

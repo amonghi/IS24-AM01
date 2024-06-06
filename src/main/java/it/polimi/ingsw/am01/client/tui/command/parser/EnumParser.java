@@ -2,8 +2,6 @@ package it.polimi.ingsw.am01.client.tui.command.parser;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
-import java.util.Optional;
-
 public class EnumParser<E extends Enum<E>> implements Parser {
     private final String name;
     private final Class<E> enumClass;
@@ -32,19 +30,18 @@ public class EnumParser<E extends Enum<E>> implements Parser {
     }
 
     @Override
-    public Optional<String> complete(String partial) {
+    public Completion complete(String partial) throws ParseException {
         if (partial.isBlank()) {
-            return Optional.of("<" + this.name + ">");
+            return Completion.nonCompletable("<" + this.name + ">");
         }
 
         for (E e : enumClass.getEnumConstants()) {
-            Optional<String> completion = new LiteralParser(e.name().toLowerCase()).complete(partial);
-
-            if (completion.isPresent()) {
-                return completion;
+            try {
+                return new LiteralParser(e.name().toLowerCase()).complete(partial);
+            } catch (ParseException ignored) {
             }
         }
 
-        return Optional.empty();
+        throw new ParseException();
     }
 }

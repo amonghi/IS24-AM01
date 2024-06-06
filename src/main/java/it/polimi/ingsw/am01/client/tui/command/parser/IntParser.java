@@ -2,7 +2,6 @@ package it.polimi.ingsw.am01.client.tui.command.parser;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +28,15 @@ public class IntParser implements Parser {
     }
 
     @Override
-    public Optional<String> complete(String partial) {
-        return Optional.of("<" + this.name + ">");
+    public Completion complete(String partial) throws ParseException {
+        if (partial.isEmpty()) {
+            return Completion.nonCompletable("<" + this.name + ">");
+        }
+
+        if (pattern.matcher(partial).matches()) {
+            return Completion.completable("");
+        }
+
+        throw new ParseException();
     }
 }

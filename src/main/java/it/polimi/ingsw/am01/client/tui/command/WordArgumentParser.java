@@ -3,8 +3,6 @@ package it.polimi.ingsw.am01.client.tui.command;
 import it.polimi.ingsw.am01.client.tui.command.parser.ParseException;
 import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
 
-import java.util.Optional;
-
 public class WordArgumentParser implements Parser {
     private final String name;
 
@@ -36,7 +34,11 @@ public class WordArgumentParser implements Parser {
     }
 
     @Override
-    public Optional<String> complete(String partial) {
-        return Optional.of("<" + this.name + ">");
+    public Completion complete(String partial) {
+        if (partial.isEmpty()) {
+            return Completion.nonCompletable("<" + this.name + ">");
+        }
+
+        return Completion.completable("");
     }
 }

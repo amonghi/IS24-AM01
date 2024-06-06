@@ -2,8 +2,6 @@ package it.polimi.ingsw.am01.client.tui.command.parser;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
-import java.util.Optional;
-
 public class LiteralParser implements Parser {
     private final String literal;
 
@@ -31,11 +29,11 @@ public class LiteralParser implements Parser {
     }
 
     @Override
-    public Optional<String> complete(String partial) {
+    public Completion complete(String partial) throws ParseException {
         if (literal.startsWith(partial)) {
-            return Optional.of(literal.substring(partial.length()));
+            return Completion.completable(literal.substring(partial.length()));
         }
 
-        return Optional.empty();
+        throw new ParseException();
     }
 }

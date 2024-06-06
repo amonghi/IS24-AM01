@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.client.tui;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandBuilder;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
+import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
 import it.polimi.ingsw.am01.client.tui.commands.AuthenticateCommand;
 import it.polimi.ingsw.am01.client.tui.commands.ConnectCommand;
 import it.polimi.ingsw.am01.client.tui.commands.QuitCommand;
@@ -101,8 +102,11 @@ public class TuiView extends BaseTuiView {
     }
 
     private void writeCompletion() {
-        String completion = this.parseInput().getCompletions().stream().findFirst().orElse("");
-        this.input = this.input + completion;
+        String autocompletableString = this.parseInput().getCompletions().stream()
+                .findFirst()
+                .map(completion -> completion.text().substring(0, completion.autoWritableChars()))
+                .orElse("");
+        this.input = this.input + autocompletableString;
         this.render();
     }
 
@@ -143,7 +147,10 @@ public class TuiView extends BaseTuiView {
                                 new FlexChild.Flexible(1, new Text(
                                         GraphicalRendition.DEFAULT
                                                 .withWeight(GraphicalRenditionProperty.Weight.DIM),
-                                        this.parseInput().getCompletions().stream().findFirst().orElse("")
+                                        this.parseInput().getCompletions().stream()
+                                                .findFirst()
+                                                .map(Parser.Completion::text)
+                                                .orElse("")
                                 ))
                         ))
                 ))
