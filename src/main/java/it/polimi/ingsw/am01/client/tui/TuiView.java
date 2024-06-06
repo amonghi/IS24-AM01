@@ -3,10 +3,7 @@ package it.polimi.ingsw.am01.client.tui;
 import it.polimi.ingsw.am01.client.tui.command.CommandBuilder;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
-import it.polimi.ingsw.am01.client.tui.commands.AuthenticateCommand;
-import it.polimi.ingsw.am01.client.tui.commands.ConnectCommand;
-import it.polimi.ingsw.am01.client.tui.commands.QuitCommand;
-import it.polimi.ingsw.am01.client.tui.commands.TuiCommand;
+import it.polimi.ingsw.am01.client.tui.commands.*;
 import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.component.elements.Border;
 import it.polimi.ingsw.am01.client.tui.component.elements.BorderStyle;
@@ -20,6 +17,8 @@ import it.polimi.ingsw.am01.client.tui.keyboard.Keyboard;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty;
 import it.polimi.ingsw.am01.client.tui.scenes.AuthScene;
+import it.polimi.ingsw.am01.client.tui.scenes.GamesListScene;
+import it.polimi.ingsw.am01.client.tui.scenes.LobbyScene;
 import it.polimi.ingsw.am01.client.tui.scenes.WelcomeScene;
 import it.polimi.ingsw.am01.client.tui.terminal.Terminal;
 
@@ -31,6 +30,9 @@ public class TuiView extends BaseTuiView {
     private static final List<Function<TuiView, TuiCommand>> CMD_CONSTRUCTORS = List.of(
             ConnectCommand::new,
             AuthenticateCommand::new,
+            JoinCommand::new,
+            CreateGameCommand::new,
+            StartGameCommand::new,
             QuitCommand::new
     );
 
@@ -141,8 +143,17 @@ public class TuiView extends BaseTuiView {
                         switch (this.getState()) {
                             case NOT_CONNECTED -> new WelcomeScene();
                             case NOT_AUTHENTICATED -> new AuthScene();
-                            case AUTHENTICATED -> new Text("AUTHENTICATED");
-                            case IN_GAME -> new Text("IN_GAME");
+                            case AUTHENTICATED -> new GamesListScene(this);
+                            case IN_GAME -> switch (getGameStatus()) {
+                                case AWAITING_PLAYERS -> new LobbyScene(this);
+                                case SETUP_STARTING_CARD_SIDE -> new Text("SETUP_STARTING_CARD_SIDE");
+                                case SETUP_COLOR -> new Text("SETUP_COLOR");
+                                case SETUP_OBJECTIVE -> new Text("SETUP_OBJECTIVE");
+                                case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED ->
+                                        new Text("PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED");
+                                case FINISHED -> new Text("FINISHED");
+                                case RESTORING -> new Text("RESTORING");
+                            };
                         }
                 )),
 

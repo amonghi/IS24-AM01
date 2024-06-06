@@ -92,7 +92,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
                 case ConnectionType.RMI -> ClientRMIConnection.connect(executorService, hostname, port);
             };
 
-           new ConnectionWrapper(connection, this);
+            new ConnectionWrapper(connection, this);
 
             state = ClientState.NOT_AUTHENTICATED;
             changeStage(state, gameStatus);
@@ -228,11 +228,11 @@ public abstract class View implements EventEmitter<ViewEvent> {
     }
 
     public void handleMessage(UpdatePlayerListS2C m) {
-        emitter.emit(new PlayerListChangedEvent(m.playerList()));
         playersInGame.clear();
         playersInGame.addAll(m.playerList());
         connections.clear();
         playersInGame.forEach(p -> connections.put(p, true));
+        emitter.emit(new PlayerListChangedEvent(m.playerList()));
     }
 
     public void handleMessage(SetStartingCardS2C m) {
