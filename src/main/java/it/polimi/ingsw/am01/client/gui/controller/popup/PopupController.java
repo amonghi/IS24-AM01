@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.popup;
 
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.GUIElement;
 import it.polimi.ingsw.am01.client.gui.controller.component.ComponentController;
@@ -13,11 +14,13 @@ import java.io.IOException;
 
 public abstract class PopupController implements GUIElement {
 
+    protected View view;
     private Stage popupStage;
     private double width = Constants.POPUP_WIDTH;
     private double height = Constants.POPUP_HEIGHT;
 
-    public void loadPopup(Stage primaryStage) {
+    public void loadPopup(Stage primaryStage, View view) {
+        this.view = view;
         FXMLLoader fxmlLoader = new FXMLLoader(ComponentController.class.getResource(
                 Constants.FXML_PATH + getFXMLFileName() + Constants.FXML_EXTENSION
         ));

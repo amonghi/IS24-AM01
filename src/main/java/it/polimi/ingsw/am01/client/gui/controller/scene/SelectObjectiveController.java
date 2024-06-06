@@ -54,26 +54,30 @@ public class SelectObjectiveController extends SceneController {
 
     private int choice;
 
+    public SelectObjectiveController(View view){
+        super(view);
+    }
+
     @FXML
     private void initialize() {
         chatPane.setVisible(false);
-        chatBoxController = new ChatBoxController();
+        chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         closeChatButton.setVisible(false);
 
         choiceControllers.clear();
-        gameId.setText("In game #" + View.getInstance().getGameId());
+        gameId.setText("In game #" + view.getGameId());
 
         firstObjectiveImage.setImage(new Image(Objects.requireNonNull(SelectObjectiveController.class.getResource(
-                Constants.OBJECTIVE_PATH + View.getInstance().getSecretObjectivesId().getFirst() + Constants.IMAGE_EXTENSION
+                Constants.OBJECTIVE_PATH + view.getSecretObjectivesId().getFirst() + Constants.IMAGE_EXTENSION
         )).toString()));
 
 
         secondObjectiveImage.setImage(new Image(Objects.requireNonNull(SelectObjectiveController.class.getResource(
-                Constants.OBJECTIVE_PATH + View.getInstance().getSecretObjectivesId().get(1) + Constants.IMAGE_EXTENSION
+                Constants.OBJECTIVE_PATH + view.getSecretObjectivesId().get(1) + Constants.IMAGE_EXTENSION
         )).toString()));
 
-        View.getInstance().getPlayersInGame().forEach(player -> {
+        view.getPlayersInGame().forEach(player -> {
             ObjectiveChoiceController controller = new ObjectiveChoiceController(player);
             playersBox.getChildren().add(
                     controller
@@ -81,43 +85,37 @@ public class SelectObjectiveController extends SceneController {
             choiceControllers.add(controller);
         });
 
-        choice = View.getInstance().getSecretObjectivesId().getFirst();
-
-        registerListeners();
+        choice = view.getSecretObjectivesId().getFirst();
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                View.getInstance().on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices),
-                View.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
-                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                view.on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices),
+                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
     private void updatePlayerList(PlayerListChangedEvent event) {
-        Platform.runLater(() -> {
-            playersBox.getChildren().clear();
+        playersBox.getChildren().clear();
 
-            choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
-            chatBoxController.updatePlayersList(event);
+        choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+        chatBoxController.updatePlayersList(event);
 
-            for (ObjectiveChoiceController controller : choiceControllers) {
-                playersBox.getChildren().add(
-                        controller
-                );
-            }
-        });
+        for (ObjectiveChoiceController controller : choiceControllers) {
+            playersBox.getChildren().add(
+                    controller
+            );
+        }
     }
 
     private void updateChoices(UpdateSecretObjectiveChoiceEvent event) {
-        Platform.runLater(() -> {
-            for (ObjectiveChoiceController controller : choiceControllers) {
-                if (event.playersChosen().contains(controller.getPlayerName())) {
-                    controller.setChoice();
-                }
+        for (ObjectiveChoiceController controller : choiceControllers) {
+            if (event.playersChosen().contains(controller.getPlayerName())) {
+                controller.setChoice();
             }
-        });
+        }
     }
 
     @FXML
@@ -137,12 +135,12 @@ public class SelectObjectiveController extends SceneController {
     @FXML
     private void selectChoice(Event event) {
         if (event.getSource() == firstObjectiveButton) {
-            choice = View.getInstance().getSecretObjectivesId().getFirst();
+            choice = view.getSecretObjectivesId().getFirst();
             firstObjectiveButton.setStyle(BUTTONS_STYLE);
             secondObjectiveButton.setStyle("");
 
         } else if (event.getSource() == secondObjectiveButton) {
-            choice = View.getInstance().getSecretObjectivesId().get(1);
+            choice = view.getSecretObjectivesId().get(1);
 
             secondObjectiveButton.setStyle(BUTTONS_STYLE);
             firstObjectiveButton.setStyle("");
@@ -151,15 +149,15 @@ public class SelectObjectiveController extends SceneController {
 
     @FXML
     private void confirm() {
-        View.getInstance().setSecretObjectiveChoiceId(choice);
-        View.getInstance().selectSecretObjective(choice);
+        view.setSecretObjectiveChoiceId(choice);
+        view.selectSecretObjective(choice);
 
         confirmButton.setVisible(false);
         titleLabel.setText("Waiting for other players choices");
         firstObjectiveButton.setDisable(true);
         secondObjectiveButton.setDisable(true);
         for (ObjectiveChoiceController controller : choiceControllers) {
-            if (controller.getPlayerName().equals(View.getInstance().getPlayerName())) {
+            if (controller.getPlayerName().equals(view.getPlayerName())) {
                 controller.setChoice();
             }
         }

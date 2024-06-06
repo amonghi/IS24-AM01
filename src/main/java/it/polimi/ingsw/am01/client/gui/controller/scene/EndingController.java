@@ -4,26 +4,20 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.component.EndingPlayerController;
 import it.polimi.ingsw.am01.client.gui.event.SetFinalScoresEvent;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
 import java.util.*;
 
 public class EndingController extends SceneController {
-
     private final List<ScorePlacement> scorePlacements;
     private final Map<String, PlayerColor> playerColors;
 
     @FXML
     VBox scoreboard;
 
-    @FXML
-    private void initialize() {
-        registerListeners();
-    }
-
-    public EndingController() {
+    public EndingController(View view) {
+        super(view);
         scorePlacements = new ArrayList<>();
         playerColors = new HashMap<>();
     }
@@ -31,7 +25,7 @@ public class EndingController extends SceneController {
     @Override
     protected void registerListeners() {
         getViewRegistrations().add(
-                View.getInstance().on(SetFinalScoresEvent.class, this::setFinalScores)
+                view.on(SetFinalScoresEvent.class, this::setFinalScores)
         );
     }
 
@@ -39,37 +33,35 @@ public class EndingController extends SceneController {
         playerColors.clear();
         playerColors.putAll(event.playerColors());
 
-        Platform.runLater(() -> {
-            scorePlacements.clear();
-            scoreboard.getChildren().clear();
 
-            List<Map.Entry<String, Integer>> orderedScores = event.finalScores().entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).toList();
-            for (int i = 0; i < orderedScores.size(); i++) {
-                String player = orderedScores.get(i).getKey();
-                int points = orderedScores.get(i).getValue();
-                int placement = i > 0 && scorePlacements.get(i - 1).points() == points
-                        ? scorePlacements.get(i - 1).points()
-                        : i + 1;
-                scorePlacements.add(new ScorePlacement(player, points, placement));
-            }
+        scorePlacements.clear();
+        scoreboard.getChildren().clear();
 
-            for (ScorePlacement scorePlacement : scorePlacements) {
-                scoreboard.getChildren().add(
-                        new EndingPlayerController(
-                                scorePlacement.player(),
-                                scorePlacement.points(),
-                                scorePlacement.placement(),
-                                this.playerColors
-                        )
-                );
-            }
-        });
+        List<Map.Entry<String, Integer>> orderedScores = event.finalScores().entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).toList();
+        for (int i = 0; i < orderedScores.size(); i++) {
+            String player = orderedScores.get(i).getKey();
+            int points = orderedScores.get(i).getValue();
+            int placement = i > 0 && scorePlacements.get(i - 1).points() == points
+                    ? scorePlacements.get(i - 1).points()
+                    : i + 1;
+            scorePlacements.add(new ScorePlacement(player, points, placement));
+        }
 
+        for (ScorePlacement scorePlacement : scorePlacements) {
+            scoreboard.getChildren().add(
+                    new EndingPlayerController(
+                            scorePlacement.player(),
+                            scorePlacement.points(),
+                            scorePlacement.placement(),
+                            this.playerColors
+                    )
+            );
+        }
     }
 
     @FXML
     private void goToGamesListScene() {
-        View.getInstance().exitFinishedGame();
+        view.exitFinishedGame();
     }
 
     @Override

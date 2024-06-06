@@ -7,7 +7,6 @@ import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayerColorEvent;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
-import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -58,49 +57,49 @@ public class SelectPlayerColorController extends SceneController {
 
     private PlayerColor colorChoice;
 
+    public SelectPlayerColorController(View view) {
+        super(view);
+    }
+
     @FXML
     private void initialize() {
         chatPane.setVisible(false);
-        chatBoxController = new ChatBoxController();
+        chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         closeChatButton.setVisible(false);
 
         colorChoiceControllers.clear();
         colorChoice = null;
-        gameId.setText("In game #" + View.getInstance().getGameId());
-        View.getInstance().getPlayersInGame().forEach(player -> {
+        gameId.setText("In game #" + view.getGameId());
+        view.getPlayersInGame().forEach(player -> {
             ColorChoiceController controller = new ColorChoiceController(player);
             playersBox.getChildren().add(
                     controller
             );
             colorChoiceControllers.add(controller);
         });
-
-        registerListeners();
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                View.getInstance().on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
-                View.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
-                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                view.on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
+                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
     private void updatePlayerList(PlayerListChangedEvent event) {
-        Platform.runLater(() -> {
-            playersBox.getChildren().clear();
+        playersBox.getChildren().clear();
 
-            colorChoiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
-            chatBoxController.updatePlayersList(event);
+        colorChoiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+        chatBoxController.updatePlayersList(event);
 
-            for (ColorChoiceController controller : colorChoiceControllers) {
-                playersBox.getChildren().add(
-                        controller
-                );
-            }
-        });
+        for (ColorChoiceController controller : colorChoiceControllers) {
+            playersBox.getChildren().add(
+                    controller
+            );
+        }
     }
 
     @FXML
@@ -152,7 +151,7 @@ public class SelectPlayerColorController extends SceneController {
             colorChoice = PlayerColor.GREEN;
         }
 
-        View.getInstance().selectColor(colorChoice);
+        view.selectColor(colorChoice);
     }
 
     private void setCirclesStrokes(Circle selectedCircle) {
@@ -165,13 +164,11 @@ public class SelectPlayerColorController extends SceneController {
     }
 
     private void updatePlayersColor(UpdatePlayerColorEvent event) {
-        Platform.runLater(() -> {
-            for (ColorChoiceController controller : colorChoiceControllers) {
-                if (controller.getPlayerName().equals(event.playerName())) {
-                    controller.setChoice(event.playerColor());
-                }
+        for (ColorChoiceController controller : colorChoiceControllers) {
+            if (controller.getPlayerName().equals(event.playerName())) {
+                controller.setChoice(event.playerColor());
             }
-        });
+        }
     }
 
     @Override

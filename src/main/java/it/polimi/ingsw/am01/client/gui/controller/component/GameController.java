@@ -11,6 +11,7 @@ public class GameController extends AnchorPane implements ComponentController {
     private final int gameID;
     private final int maxPlayers;
     private final int currPlayers;
+    private final View view;
 
     @FXML
     private Label gameIDLabel;
@@ -19,7 +20,8 @@ public class GameController extends AnchorPane implements ComponentController {
     @FXML
     private Button joinButton;
 
-    public GameController(int gameID, int maxPlayers, int currPlayers) {
+    public GameController(int gameID, int maxPlayers, int currPlayers, View view) {
+        this.view = view;
         this.gameID = gameID;
         this.maxPlayers = maxPlayers;
         this.currPlayers = currPlayers;
@@ -35,7 +37,7 @@ public class GameController extends AnchorPane implements ComponentController {
 
     @FXML
     private void join() {
-        View.getInstance().joinGame(gameID);
+        view.joinGame(gameID);
     }
 
     @Override

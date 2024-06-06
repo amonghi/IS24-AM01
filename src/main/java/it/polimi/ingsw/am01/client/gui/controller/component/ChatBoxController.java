@@ -4,7 +4,6 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.model.chat.MessageType;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
@@ -14,6 +13,7 @@ import javafx.scene.layout.VBox;
 
 public class ChatBoxController extends AnchorPane implements ComponentController {
 
+    private final View view;
     @FXML
     private VBox messagesBox;
     @FXML
@@ -25,7 +25,8 @@ public class ChatBoxController extends AnchorPane implements ComponentController
     @FXML
     private AnchorPane chatPane;
 
-    public ChatBoxController() {
+    public ChatBoxController(View view) {
+        this.view = view;
         loadComponent();
     }
 
@@ -38,22 +39,23 @@ public class ChatBoxController extends AnchorPane implements ComponentController
         //auto scroll down the ScrollPane
         scrollPane.vvalueProperty().bind(messagesBox.heightProperty());
 
-        for (String player : View.getInstance().getPlayersInGame()) {
-            if (!player.equals(View.getInstance().getPlayerName())) {
+        for (String player : view.getPlayersInGame()) {
+            if (!player.equals(view.getPlayerName())) {
                 recipientOptionsChoiceBox.getItems().add(player);
             }
         }
         recipientOptionsChoiceBox.getItems().add(MessageType.BROADCAST.toString());
         recipientOptionsChoiceBox.getSelectionModel().selectLast();
 
-        for (View.Message message : View.getInstance().getMessages()) {
+        for (View.Message message : view.getMessages()) {
             messagesBox.getChildren().add(
                     new ChatMessageController(
                             message.type().toString(),
                             message.sender(),
                             message.recipient(),
                             message.content(),
-                            message.timestamp()
+                            message.timestamp(),
+                            view
                     )
             );
         }
@@ -66,25 +68,24 @@ public class ChatBoxController extends AnchorPane implements ComponentController
         }
 
         if (recipientOptionsChoiceBox.getValue().equals(MessageType.BROADCAST.toString())) {
-            View.getInstance().sendBroadcastMessage(messageInput.getText());
+            view.sendBroadcastMessage(messageInput.getText());
         } else {
-            View.getInstance().sendDirectMessage(recipientOptionsChoiceBox.getValue(), messageInput.getText());
+            view.sendDirectMessage(recipientOptionsChoiceBox.getValue(), messageInput.getText());
         }
         messageInput.setText("");
     }
 
     public void updateMessages(NewMessageEvent event) {
-        Platform.runLater(() -> {
-            messagesBox.getChildren().add(
-                    new ChatMessageController(
-                            event.message().type().toString(),
-                            event.message().sender(),
-                            event.message().recipient(),
-                            event.message().content(),
-                            event.message().timestamp()
-                    )
-            );
-        });
+        messagesBox.getChildren().add(
+                new ChatMessageController(
+                        event.message().type().toString(),
+                        event.message().sender(),
+                        event.message().recipient(),
+                        event.message().content(),
+                        event.message().timestamp(),
+                        view
+                )
+        );
     }
 
     public void updatePlayersList(PlayerListChangedEvent event) {
@@ -92,7 +93,7 @@ public class ChatBoxController extends AnchorPane implements ComponentController
 
         recipientOptionsChoiceBox.getItems().clear();
         for (String player : event.playerList()) {
-            if (!player.equals(View.getInstance().getPlayerName())) {
+            if (!player.equals(view.getPlayerName())) {
                 recipientOptionsChoiceBox.getItems().add(player);
             }
         }

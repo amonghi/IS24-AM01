@@ -51,24 +51,28 @@ public class SelectStartingCardSideController extends SceneController {
     private Side choosenSide;
     private ChatBoxController chatBoxController;
 
+    public SelectStartingCardSideController(View view){
+        super(view);
+    }
+
     @FXML
     private void initialize() {
         chatPane.setVisible(false);
-        chatBoxController = new ChatBoxController();
+        chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         closeChatButton.setVisible(false);
 
         choiceControllers.clear();
-        gameId.setText("In game #" + View.getInstance().getGameId());
+        gameId.setText("In game #" + view.getGameId());
         frontImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
-                Constants.FRONT_CARD_PATH + View.getInstance().getStartingCardId() + Constants.IMAGE_EXTENSION
+                Constants.FRONT_CARD_PATH + view.getStartingCardId() + Constants.IMAGE_EXTENSION
         )).toString()));
 
         backImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
-                Constants.BACK_CARD_PATH + View.getInstance().getStartingCardId() + Constants.IMAGE_EXTENSION
+                Constants.BACK_CARD_PATH + view.getStartingCardId() + Constants.IMAGE_EXTENSION
         )).toString()));
 
-        View.getInstance().getPlayersInGame().forEach(player -> {
+        view.getPlayersInGame().forEach(player -> {
             SideChoiceController controller = new SideChoiceController(player);
             playersBox.getChildren().add(
                     controller
@@ -77,8 +81,6 @@ public class SelectStartingCardSideController extends SceneController {
         });
 
         choosenSide = Side.FRONT;
-
-        registerListeners();
     }
 
 
@@ -98,14 +100,14 @@ public class SelectStartingCardSideController extends SceneController {
 
     @FXML
     private void confirm() {
-        View.getInstance().selectStartingCardSide(choosenSide);
+        view.selectStartingCardSide(choosenSide);
         confirmButton.setVisible(false);
         titleLabel.setText("Waiting for other players choices");
         frontButton.setDisable(true);
         backButton.setDisable(true);
         for (SideChoiceController controller : choiceControllers) {
-            if (controller.getPlayerName().equals(View.getInstance().getPlayerName())) {
-                controller.setChoice(View.getInstance().getStartingCardId(), choosenSide);
+            if (controller.getPlayerName().equals(view.getPlayerName())) {
+                controller.setChoice(view.getStartingCardId(), choosenSide);
             }
         }
     }
@@ -125,37 +127,33 @@ public class SelectStartingCardSideController extends SceneController {
     }
 
     private void updateChoices(UpdatePlayAreaEvent event) {
-        Platform.runLater(() -> {
-            for (SideChoiceController controller : choiceControllers) {
-                if (controller.getPlayerName().equals(event.playerName())) {
-                    controller.setChoice(event.cardId(), event.side());
-                }
+        for (SideChoiceController controller : choiceControllers) {
+            if (controller.getPlayerName().equals(event.playerName())) {
+                controller.setChoice(event.cardId(), event.side());
             }
-        });
+        }
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                View.getInstance().on(UpdatePlayAreaEvent.class, this::updateChoices),
-                View.getInstance().on(PlayerListChangedEvent.class, this::updatePlayersList),
-                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                view.on(UpdatePlayAreaEvent.class, this::updateChoices),
+                view.on(PlayerListChangedEvent.class, this::updatePlayersList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
     private void updatePlayersList(PlayerListChangedEvent event) {
-        Platform.runLater(() -> {
-            playersBox.getChildren().clear();
+        playersBox.getChildren().clear();
 
-            choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
-            chatBoxController.updatePlayersList(event);
+        choiceControllers.removeIf(controller -> !event.playerList().contains(controller.getPlayerName()));
+        chatBoxController.updatePlayersList(event);
 
-            for (SideChoiceController controller : choiceControllers) {
-                playersBox.getChildren().add(
-                        controller
-                );
-            }
-        });
+        for (SideChoiceController controller : choiceControllers) {
+            playersBox.getChildren().add(
+                    controller
+            );
+        }
     }
 
     @Override

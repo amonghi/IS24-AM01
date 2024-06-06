@@ -5,7 +5,6 @@ import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.PlayerSlotController;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,41 +30,42 @@ public class LobbyController extends SceneController {
     private Button closeChatButton;
     private ChatBoxController chatBoxController;
 
+    public LobbyController(View view) {
+        super(view);
+    }
+
     @FXML
     private void initialize() {
         chatPane.setVisible(false);
-        chatBoxController = new ChatBoxController();
+        chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         closeChatButton.setVisible(false);
 
-        gameId.setText("In game #" + View.getInstance().getGameId());
-        registerListeners();
+        gameId.setText("In game #" + view.getGameId());
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                View.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
-                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
     private void updatePlayerList(PlayerListChangedEvent event) {
-        Platform.runLater(() -> {
-            playerList.getChildren().clear();
+        playerList.getChildren().clear();
 
-            chatBoxController.updatePlayersList(event);
+        chatBoxController.updatePlayersList(event);
 
-            startButton.setDisable(event.playerList().size() <= 1);
+        startButton.setDisable(event.playerList().size() <= 1);
 
-            for (String player : event.playerList()) {
-                playerList.getChildren().add(PlayerSlotController.of(player));
-            }
-            int maxPlayers = View.getInstance().getMaxPlayers();
-            for (int i = 0; i < maxPlayers - event.playerList().size(); i++) {
-                playerList.getChildren().add(PlayerSlotController.empty());
-            }
-        });
+        for (String player : event.playerList()) {
+            playerList.getChildren().add(PlayerSlotController.of(player));
+        }
+        int maxPlayers = view.getMaxPlayers();
+        for (int i = 0; i < maxPlayers - event.playerList().size(); i++) {
+            playerList.getChildren().add(PlayerSlotController.empty());
+        }
     }
 
     @Override
@@ -75,7 +75,7 @@ public class LobbyController extends SceneController {
 
     @FXML
     private void start() {
-        View.getInstance().startGame();
+        view.startGame();
     }
 
     @FXML

@@ -27,8 +27,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class View implements EventEmitter<ViewEvent> {
-    private static View instance = null;
+public abstract class View implements EventEmitter<ViewEvent> {
 
     private final ExecutorService executorService;
     private final EventEmitterImpl<ViewEvent> emitter;
@@ -55,7 +54,7 @@ public class View implements EventEmitter<ViewEvent> {
     private int secretObjectiveChoiceId;
     private List<Integer> commonObjectivesId;
 
-    private View() {
+    public View() {
         this.emitter = new EventEmitterImpl<>();
         this.executorService = Executors.newCachedThreadPool();
 
@@ -77,13 +76,11 @@ public class View implements EventEmitter<ViewEvent> {
         this.state = ClientState.NOT_CONNECTED;
     }
 
-    public static View getInstance() {
-        if (instance == null) {
-            instance = new View();
-        }
+    protected abstract void changeStage(ClientState state, GameStatus gameStatus);
 
-        return instance;
-    }
+    protected abstract void kickPlayer();
+
+    protected abstract void showConnectionErrorMessage(String errorMessage);
 
     public void connect(ConnectionType connectionType, String hostname, int port) {
         try {
@@ -92,57 +89,14 @@ public class View implements EventEmitter<ViewEvent> {
                 case ConnectionType.RMI -> ClientRMIConnection.connect(executorService, hostname, port);
             };
 
-            new Thread(() -> {
-                while (true) {
-                    try {
-                        S2CNetworkMessage message = connection.receive();
-                        switch (message) {
-                            case SetPlayerNameS2C m -> handleMessage(m);
-                            case NameAlreadyTakenS2C m -> handleMessage(m);
-                            case UpdateGameListS2C m -> handleMessage(m);
-                            case SetPlayablePositionsS2C m -> handleMessage(m);
-                            case UpdatePlayAreaS2C m -> handleMessage(m);
-                            case InvalidPlacementS2C m -> handleMessage(m);
-                            case GameJoinedS2C m -> handleMessage(m);
-                            case UpdatePlayerListS2C m -> handleMessage(m);
-                            case SetStartingCardS2C m -> handleMessage(m);
-                            case UpdateGameStatusS2C m -> handleMessage(m);
-                            case UpdatePlayerColorS2C m -> handleMessage(m);
-                            case UpdateGameStatusAndSetupObjectiveS2C m -> handleMessage(m);
-                            case UpdateObjectiveSelectedS2C m -> handleMessage(m);
-                            case UpdatePlayAreaAfterUndoS2C m -> handleMessage(m);
-                            case SetBoardAndHandS2C m -> handleMessage(m);
-                            case UpdatePlayerHandS2C m -> handleMessage(m);
-                            case UpdateDeckStatusS2C m -> handleMessage(m);
-                            case UpdateGameStatusAndTurnS2C m -> handleMessage(m);
-                            case UpdateFaceUpCardsS2C m -> handleMessage(m);
-                            case PlayerDisconnectedS2C m -> handleMessage(m);
-                            case PlayerReconnectedS2C m -> handleMessage(m);
-                            case SetupAfterReconnectionS2C m -> handleMessage(m);
-                            case SetGamePauseS2C m -> handleMessage(m);
-                            case GameResumedS2C m -> handleMessage(m);
-                            case GameFinishedS2C m -> handleMessage(m);
-                            case KickedFromGameS2C m -> handleMessage(m);
-                            case NewMessageS2C m -> handleMessage(m);
-                            case BroadcastMessageSentS2C m -> handleMessage(m);
-                            case DirectMessageSentS2C m -> handleMessage(m);
-                            case PingS2C m -> {
-                            }
-                            default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
-                        }
-                    } catch (ReceiveNetworkException e) {
-                        // TODO: try to reconnect
-                        return;
-                    }
-                }
-            }).start();
+           new ConnectionWrapper(connection, this);
 
             state = ClientState.NOT_AUTHENTICATED;
-            emitter.emit(new StateChangedEvent(state, gameStatus));
+            changeStage(state, gameStatus);
         } catch (OpenConnectionNetworkException | IOException | IllegalArgumentException e) {
             state = ClientState.NOT_CONNECTED;
-            emitter.emit(new StateChangedEvent(state, gameStatus));
-            emitter.emit(new ConnectionLostEvent(e.getMessage()));
+            changeStage(state, gameStatus);
+            showConnectionErrorMessage(e.getMessage());
         }
     }
 
@@ -157,21 +111,23 @@ public class View implements EventEmitter<ViewEvent> {
         }
     }
 
-    private void handleMessage(SetPlayerNameS2C message) {
+    public abstract void runLater(Runnable runnable);
+
+    public void handleMessage(SetPlayerNameS2C message) {
         this.playerName = message.playerName();
         changeState(ClientState.AUTHENTICATED);
     }
 
-    private void handleMessage(NameAlreadyTakenS2C message) {
+    public void handleMessage(NameAlreadyTakenS2C message) {
         emitter.emit(new NameAlreadyTakenEvent(message.refusedName()));
     }
 
-    private void handleMessage(UpdateGameListS2C message) {
+    public void handleMessage(UpdateGameListS2C message) {
         this.games = message.gamesStatMap();
         emitter.emit(new GameListChangedEvent(games));
     }
 
-    private void handleMessage(SetPlayablePositionsS2C message) {
+    public void handleMessage(SetPlayablePositionsS2C message) {
         List<Position> playablePositions = message
                 .playablePositions()
                 .stream()
@@ -180,7 +136,7 @@ public class View implements EventEmitter<ViewEvent> {
         emitter.emit(new UpdatePlayablePositionsEvent(playablePositions));
     }
 
-    private void handleMessage(UpdatePlayAreaS2C message) {
+    public void handleMessage(UpdatePlayAreaS2C message) {
         if (!playAreas.containsKey(message.playerName()))
             playAreas.put(message.playerName(), new TreeSet<>());
 
@@ -198,16 +154,16 @@ public class View implements EventEmitter<ViewEvent> {
         ));
     }
 
-    private void handleMessage(InvalidPlacementS2C message) {
+    public void handleMessage(InvalidPlacementS2C message) {
         emitter.emit(new InvalidPlacementEvent());
     }
 
-    private void handleMessage(UpdatePlayAreaAfterUndoS2C message) {
+    public void handleMessage(UpdatePlayAreaAfterUndoS2C message) {
         scores.replace(message.profile(), message.score());
         emitter.emit(new RemoveLastPlacementEvent(message.profile()));
     }
 
-    private void handleMessage(SetBoardAndHandS2C message) {
+    public void handleMessage(SetBoardAndHandS2C message) {
         //Set Objectives:
         commonObjectivesId = new ArrayList<>(message.commonObjectives());
 
@@ -235,13 +191,13 @@ public class View implements EventEmitter<ViewEvent> {
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
-    private void handleMessage(UpdatePlayerHandS2C message) {
+    public void handleMessage(UpdatePlayerHandS2C message) {
         hand.clear();
         hand.addAll(message.currentHand());
         emitter.emit(new SetHandEvent(hand));
     }
 
-    private void handleMessage(UpdateDeckStatusS2C message) {
+    public void handleMessage(UpdateDeckStatusS2C message) {
         decksColor.replace(DeckLocation.RESOURCE_CARD_DECK, message.resourceDeckColor());
         decksColor.replace(DeckLocation.GOLDEN_CARD_DECK, message.goldenDeckColor());
         emitter.emit(new SetDeckEvent(
@@ -250,25 +206,25 @@ public class View implements EventEmitter<ViewEvent> {
         ));
     }
 
-    private void handleMessage(UpdateGameStatusAndTurnS2C message) {
+    public void handleMessage(UpdateGameStatusAndTurnS2C message) {
         this.currentPlayer = message.currentPlayerName();
         this.gameStatus = message.gameStatus();
         this.turnPhase = message.turnPhase();
         emitter.emit(new UpdateGameTurnEvent(playerName, currentPlayer, turnPhase.toString(), gameStatus.toString()));
     }
 
-    private void handleMessage(UpdateFaceUpCardsS2C message) {
+    public void handleMessage(UpdateFaceUpCardsS2C message) {
         faceUpCards.clear();
         faceUpCards.addAll(message.faceUpCards());
         emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
     }
 
-    private void handleMessage(GameJoinedS2C message) {
+    public void handleMessage(GameJoinedS2C message) {
         gameId = message.gameId();
         changeGameStatus(GameStatus.AWAITING_PLAYERS);
     }
 
-    private void handleMessage(UpdatePlayerListS2C m) {
+    public void handleMessage(UpdatePlayerListS2C m) {
         emitter.emit(new PlayerListChangedEvent(m.playerList()));
         playersInGame.clear();
         playersInGame.addAll(m.playerList());
@@ -276,18 +232,18 @@ public class View implements EventEmitter<ViewEvent> {
         playersInGame.forEach(p -> connections.put(p, true));
     }
 
-    private void handleMessage(SetStartingCardS2C m) {
+    public void handleMessage(SetStartingCardS2C m) {
         startingCardId = m.startingCardId();
         changeGameStatus(GameStatus.SETUP_STARTING_CARD_SIDE);
     }
 
-    private void handleMessage(UpdateGameStatusS2C m) {
+    public void handleMessage(UpdateGameStatusS2C m) {
         if (m.gameStatus().equals(GameStatus.SETUP_COLOR)) {
             changeGameStatus(GameStatus.SETUP_COLOR);
         }
     }
 
-    private void handleMessage(UpdatePlayerColorS2C m) {
+    public void handleMessage(UpdatePlayerColorS2C m) {
         playerColors.put(m.player(), m.color());
         emitter.emit(new UpdatePlayerColorEvent(
                 m.player(),
@@ -295,7 +251,7 @@ public class View implements EventEmitter<ViewEvent> {
         ));
     }
 
-    private void handleMessage(UpdateGameStatusAndSetupObjectiveS2C m) {
+    public void handleMessage(UpdateGameStatusAndSetupObjectiveS2C m) {
         secretObjectivesId.addAll(
                 List.of(
                         m.objectiveId1(), m.objectiveId2()
@@ -304,31 +260,31 @@ public class View implements EventEmitter<ViewEvent> {
         changeGameStatus(GameStatus.SETUP_OBJECTIVE);
     }
 
-    private void handleMessage(UpdateObjectiveSelectedS2C m) {
+    public void handleMessage(UpdateObjectiveSelectedS2C m) {
         emitter.emit(new UpdateSecretObjectiveChoiceEvent(
                 m.playersHaveChosen().stream().toList()
         ));
     }
 
-    private void handleMessage(PlayerDisconnectedS2C m) {
+    public void handleMessage(PlayerDisconnectedS2C m) {
         if (connections.get(m.playerName()) != null) {
             connections.replace(m.playerName(), false);
         }
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
-    private void handleMessage(PlayerReconnectedS2C m) {
+    public void handleMessage(PlayerReconnectedS2C m) {
         connections.replace(m.playerName(), true);
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
-    private void handleMessage(GameFinishedS2C m) {
+    public void handleMessage(GameFinishedS2C m) {
         changeGameStatus(GameStatus.FINISHED);
         emitter.emit(new SetFinalScoresEvent(m.finalScores(), playerColors));
         clearData();
     }
 
-    private void handleMessage(SetupAfterReconnectionS2C m) {
+    public void handleMessage(SetupAfterReconnectionS2C m) {
         currentPlayer = m.currentPlayer();
         playersInGame.addAll(m.playAreas().keySet());
         turnPhase = m.turnPhase();
@@ -389,12 +345,12 @@ public class View implements EventEmitter<ViewEvent> {
         emitter.emit(new SetHandEvent(hand));
     }
 
-    private void handleMessage(SetGamePauseS2C m) {
+    public void handleMessage(SetGamePauseS2C m) {
         gameStatus = m.getGameStatus();
         emitter.emit(new GamePausedEvent());
     }
 
-    private void handleMessage(GameResumedS2C m) {
+    public void handleMessage(GameResumedS2C m) {
         if (gameStatus == GameStatus.RESTORING) {
             setupBoard();
             emitter.emit(new SetPlayAreaEvent(playAreas.get(playerName)));
@@ -404,26 +360,26 @@ public class View implements EventEmitter<ViewEvent> {
         }
     }
 
-    private void handleMessage(KickedFromGameS2C m) {
+    public void handleMessage(KickedFromGameS2C m) {
         changeState(ClientState.AUTHENTICATED);
         //clear all data related to game just deleted
         clearData();
-        emitter.emit(new KickedFromGameEvent());
+        kickPlayer();
     }
 
-    private void handleMessage(NewMessageS2C m) {
+    public void handleMessage(NewMessageS2C m) {
         Message newMessage = new Message(m.messageType(), m.sender(), playerName, m.content(), m.timestamp());
         messages.add(newMessage);
         emitter.emit(new NewMessageEvent(newMessage));
     }
 
-    private void handleMessage(BroadcastMessageSentS2C m) {
+    public void handleMessage(BroadcastMessageSentS2C m) {
         Message newMessage = new Message(MessageType.BROADCAST, m.sender(), playerName, m.content(), m.timestamp());
         messages.add(newMessage);
         emitter.emit(new NewMessageEvent(newMessage));
     }
 
-    private void handleMessage(DirectMessageSentS2C m) {
+    public void handleMessage(DirectMessageSentS2C m) {
         Message newMessage = new Message(MessageType.DIRECT, m.sender(), m.recipient(), m.content(), m.timestamp());
         messages.add(newMessage);
         emitter.emit(new NewMessageEvent(newMessage));
@@ -431,13 +387,13 @@ public class View implements EventEmitter<ViewEvent> {
 
     private void changeState(ClientState newState) {
         this.state = newState;
-        emitter.emit(new StateChangedEvent(state, gameStatus));
+        changeStage(state, gameStatus);
     }
 
     private void changeGameStatus(GameStatus newStatus) {
         this.state = ClientState.IN_GAME;
         this.gameStatus = newStatus;
-        emitter.emit(new StateChangedEvent(state, gameStatus));
+        changeStage(state, gameStatus);
     }
 
     public void exitFinishedGame() {
