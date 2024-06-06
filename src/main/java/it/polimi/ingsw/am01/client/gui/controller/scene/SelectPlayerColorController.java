@@ -57,17 +57,21 @@ public class SelectPlayerColorController extends SceneController {
 
     private PlayerColor colorChoice;
 
+    public SelectPlayerColorController(View view) {
+        super(view);
+    }
+
     @FXML
     private void initialize() {
         chatPane.setVisible(false);
-        chatBoxController = new ChatBoxController();
+        chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         closeChatButton.setVisible(false);
 
         colorChoiceControllers.clear();
         colorChoice = null;
-        gameId.setText("In game #" + View.getInstance().getGameId());
-        View.getInstance().getPlayersInGame().forEach(player -> {
+        gameId.setText("In game #" + view.getGameId());
+        view.getPlayersInGame().forEach(player -> {
             ColorChoiceController controller = new ColorChoiceController(player);
             playersBox.getChildren().add(
                     controller
@@ -79,9 +83,9 @@ public class SelectPlayerColorController extends SceneController {
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                View.getInstance().on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
-                View.getInstance().on(PlayerListChangedEvent.class, this::updatePlayerList),
-                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                view.on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
+                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 
@@ -147,7 +151,7 @@ public class SelectPlayerColorController extends SceneController {
             colorChoice = PlayerColor.GREEN;
         }
 
-        View.getInstance().selectColor(colorChoice);
+        view.selectColor(colorChoice);
     }
 
     private void setCirclesStrokes(Circle selectedCircle) {

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
+import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.GUIElement;
 import it.polimi.ingsw.am01.client.gui.controller.popup.PopupController;
@@ -14,11 +15,13 @@ import java.util.List;
 
 public abstract class SceneController implements GUIElement {
 
+    protected final View view;
     private final List<EventEmitter.Registration> viewRegistrations;
     private Stage primaryStage;
 
-    public SceneController() {
+    public SceneController(View view) {
         this.viewRegistrations = new ArrayList<>();
+        this.view = view;
     }
 
     public void loadScene(Stage stage, double width, double height) {
@@ -35,16 +38,16 @@ public abstract class SceneController implements GUIElement {
         } catch (IOException e) {
             throw new RuntimeException(e); //TODO: manage
         }
-        stage.setTitle(Constants.WINDOW_TITLE);
-        stage.setScene(scene);
 
         registerListeners();
 
+        stage.setTitle(Constants.WINDOW_TITLE);
+        stage.setScene(scene);
         stage.show();
     }
 
     protected void openPopup(PopupController popupController) {
-        popupController.loadPopup(primaryStage);
+        popupController.loadPopup(primaryStage, view);
     }
 
     protected abstract void registerListeners();

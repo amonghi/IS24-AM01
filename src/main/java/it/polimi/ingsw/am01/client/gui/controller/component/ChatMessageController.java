@@ -13,6 +13,7 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
     private final String content;
     private final String recipient;
     private final String timestamp;
+    private final View view;
     @FXML
     private Label typeLabel;
     @FXML
@@ -20,7 +21,8 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
     @FXML
     private Label contentLabel;
 
-    public ChatMessageController(String type, String sender, String recipient, String content, String timestamp) {
+    public ChatMessageController(String type, String sender, String recipient, String content, String timestamp, View view) {
+        this.view = view;
         this.sender = sender;
         this.recipient = recipient;
         this.type = type;
@@ -36,11 +38,11 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
         String senderString = sender;
         typeLabel.setText("[" + type.split("")[0] + "]");
 
-        if (sender.equals(View.getInstance().getPlayerName())) {
+        if (sender.equals(view.getPlayerName())) {
             senderString = "You";
         }
 
-        if (type.equals(MessageType.DIRECT.toString()) && sender.equals(View.getInstance().getPlayerName())) {
+        if (type.equals(MessageType.DIRECT.toString()) && sender.equals(view.getPlayerName())) {
             recString = " --> " + recipient;
         }
 

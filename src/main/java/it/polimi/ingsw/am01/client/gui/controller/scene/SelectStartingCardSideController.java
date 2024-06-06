@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayAreaEvent;
 import it.polimi.ingsw.am01.model.card.Side;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -50,24 +51,28 @@ public class SelectStartingCardSideController extends SceneController {
     private Side choosenSide;
     private ChatBoxController chatBoxController;
 
+    public SelectStartingCardSideController(View view){
+        super(view);
+    }
+
     @FXML
     private void initialize() {
         chatPane.setVisible(false);
-        chatBoxController = new ChatBoxController();
+        chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         closeChatButton.setVisible(false);
 
         choiceControllers.clear();
-        gameId.setText("In game #" + View.getInstance().getGameId());
+        gameId.setText("In game #" + view.getGameId());
         frontImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
-                Constants.FRONT_CARD_PATH + View.getInstance().getStartingCardId() + Constants.IMAGE_EXTENSION
+                Constants.FRONT_CARD_PATH + view.getStartingCardId() + Constants.IMAGE_EXTENSION
         )).toString()));
 
         backImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
-                Constants.BACK_CARD_PATH + View.getInstance().getStartingCardId() + Constants.IMAGE_EXTENSION
+                Constants.BACK_CARD_PATH + view.getStartingCardId() + Constants.IMAGE_EXTENSION
         )).toString()));
 
-        View.getInstance().getPlayersInGame().forEach(player -> {
+        view.getPlayersInGame().forEach(player -> {
             SideChoiceController controller = new SideChoiceController(player);
             playersBox.getChildren().add(
                     controller
@@ -77,6 +82,7 @@ public class SelectStartingCardSideController extends SceneController {
 
         choosenSide = Side.FRONT;
     }
+
 
     @FXML
     private void selectChoice(Event event) {
@@ -94,14 +100,14 @@ public class SelectStartingCardSideController extends SceneController {
 
     @FXML
     private void confirm() {
-        View.getInstance().selectStartingCardSide(choosenSide);
+        view.selectStartingCardSide(choosenSide);
         confirmButton.setVisible(false);
         titleLabel.setText("Waiting for other players choices");
         frontButton.setDisable(true);
         backButton.setDisable(true);
         for (SideChoiceController controller : choiceControllers) {
-            if (controller.getPlayerName().equals(View.getInstance().getPlayerName())) {
-                controller.setChoice(View.getInstance().getStartingCardId(), choosenSide);
+            if (controller.getPlayerName().equals(view.getPlayerName())) {
+                controller.setChoice(view.getStartingCardId(), choosenSide);
             }
         }
     }
@@ -131,9 +137,9 @@ public class SelectStartingCardSideController extends SceneController {
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                View.getInstance().on(UpdatePlayAreaEvent.class, this::updateChoices),
-                View.getInstance().on(PlayerListChangedEvent.class, this::updatePlayersList),
-                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                view.on(UpdatePlayAreaEvent.class, this::updateChoices),
+                view.on(PlayerListChangedEvent.class, this::updatePlayersList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 

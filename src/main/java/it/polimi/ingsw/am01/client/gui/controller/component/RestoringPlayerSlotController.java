@@ -13,37 +13,35 @@ public class RestoringPlayerSlotController extends VBox implements ComponentCont
     private final String player;
     private final PlayerColor playerColor;
     private final Boolean isConnected;
+    private final View view;
     @FXML
     Circle pawn;
-
     @FXML
     Label playerLabel;
-
     @FXML
     Label connectionLabel;
 
 
+    public RestoringPlayerSlotController(String player, PlayerColor playerColor, Boolean isConnected, View view) {
+        this.view = view;
+        this.player = player;
+        this.playerColor = playerColor;
+        this.isConnected = isConnected;
+
+        loadComponent();
+    }
+
     @FXML
     private void initialize() {
         playerLabel.setText(player);
-        pawn.setFill(Utils.convertColor(View.getInstance().getPlayerColor(player)));
-        if(isConnected){
+        pawn.setFill(Utils.convertColor(view.getPlayerColor(player)));
+        if (isConnected) {
             connectionLabel.setText("connected");
             connectionLabel.setTextFill(Color.GREEN);
         } else {
             connectionLabel.setText("disconnected");
             connectionLabel.setTextFill(Color.RED);
         }
-    }
-
-
-
-    public RestoringPlayerSlotController(String player, PlayerColor playerColor, Boolean isConnected) {
-        this.player = player;
-        this.playerColor = playerColor;
-        this.isConnected = isConnected;
-
-        loadComponent();
     }
 
     @Override

@@ -3,33 +3,37 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.component.EndingPlayerController;
 import it.polimi.ingsw.am01.client.gui.event.SetFinalScoresEvent;
+import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EndingController extends SceneController {
-
     private final List<ScorePlacement> scorePlacements;
+    private final Map<String, PlayerColor> playerColors;
 
     @FXML
     VBox scoreboard;
 
-    public EndingController() {
+    public EndingController(View view) {
+        super(view);
         scorePlacements = new ArrayList<>();
+        playerColors = new HashMap<>();
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().add(
-                View.getInstance().on(SetFinalScoresEvent.class, this::setFinalScores)
+                view.on(SetFinalScoresEvent.class, this::setFinalScores)
         );
     }
 
     private void setFinalScores(SetFinalScoresEvent event) {
+        playerColors.clear();
+        playerColors.putAll(event.playerColors());
+
+
         scorePlacements.clear();
         scoreboard.getChildren().clear();
 
@@ -48,7 +52,8 @@ public class EndingController extends SceneController {
                     new EndingPlayerController(
                             scorePlacement.player(),
                             scorePlacement.points(),
-                            scorePlacement.placement()
+                            scorePlacement.placement(),
+                            this.playerColors
                     )
             );
         }
@@ -56,7 +61,7 @@ public class EndingController extends SceneController {
 
     @FXML
     private void goToGamesListScene() {
-        View.getInstance().exitFinishedGame();
+        view.exitFinishedGame();
     }
 
     @Override

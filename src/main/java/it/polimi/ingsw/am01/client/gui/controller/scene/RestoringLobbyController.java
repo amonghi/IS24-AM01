@@ -19,31 +19,39 @@ public class RestoringLobbyController extends SceneController {
     @FXML
     Button resumeButton;
 
+    public RestoringLobbyController(View view) {
+        super(view);
+    }
+
     @FXML
     private void initialize() {
-        gameLabel.setText("Restoring game #" + View.getInstance().getGameId());
+        gameLabel.setText("Restoring game #" + view.getGameId());
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().add(
-                View.getInstance().on(SetPlayStatusEvent.class, this::updatePlayerList)
+                view.on(SetPlayStatusEvent.class, this::updatePlayerList)
         );
     }
 
     private void updatePlayerList(SetPlayStatusEvent event) {
         playerList.getChildren().clear();
-        resumeButton.setDisable(event.players().stream().filter(View.getInstance()::isConnected).count() <= 1);
+        resumeButton.setDisable(event.players().stream().filter(view::isConnected).count() <= 1);
 
         for (String player : event.players()) {
-            playerList.getChildren().add(new RestoringPlayerSlotController(player, event.colors().get(player), event.connections().get(player)));
+            playerList.getChildren().add(new RestoringPlayerSlotController(
+                    player,
+                    event.colors().get(player),
+                    event.connections().get(player),
+                    view
+            ));
         }
-
     }
 
     @FXML
     private void resume() {
-        View.getInstance().resumeGame();
+        view.resumeGame();
     }
 
     @Override

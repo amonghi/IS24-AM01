@@ -9,22 +9,27 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 public class GameListController extends SceneController {
-
     @FXML
     private VBox box;
 
     @FXML
     private Label playerNameLabel;
 
+    public GameListController(View view) {
+        super(view);
+    }
+
     @FXML
     private void initialize() {
-        playerNameLabel.setText("Logged as " + View.getInstance().getPlayerName());
+        playerNameLabel.setText("Logged as " + view.getPlayerName());
         box.getChildren().clear();
-        for (Integer gameID : View.getInstance().getGames().keySet()) {
-            if (View.getInstance().getGames().get(gameID).currentPlayersConnected() != View.getInstance().getGames().get(gameID).maxPlayers()) {
+        for (Integer gameID : view.getGames().keySet()) {
+            if (view.getGames().get(gameID).currentPlayersConnected() != view.getGames().get(gameID).maxPlayers()) {
                 box.getChildren().add(
-                        new GameController(gameID, View.getInstance().getGames().get(gameID).maxPlayers(),
-                                View.getInstance().getGames().get(gameID).currentPlayersConnected()
+                        new GameController(gameID,
+                                view.getGames().get(gameID).maxPlayers(),
+                                view.getGames().get(gameID).currentPlayersConnected(),
+                                view
                         )
                 );
             }
@@ -34,7 +39,7 @@ public class GameListController extends SceneController {
     @Override
     protected void registerListeners() {
         getViewRegistrations().add(
-                View.getInstance().on(GameListChangedEvent.class, this::updateGameList)
+                view.on(GameListChangedEvent.class, this::updateGameList)
         );
     }
 
@@ -42,7 +47,11 @@ public class GameListController extends SceneController {
         box.getChildren().clear();
         for (Integer gameID : event.gameStatMap().keySet()) {
             box.getChildren().add(
-                    new GameController(gameID, event.gameStatMap().get(gameID).maxPlayers(), event.gameStatMap().get(gameID).currentPlayersConnected())
+                    new GameController(gameID,
+                            event.gameStatMap().get(gameID).maxPlayers(),
+                            event.gameStatMap().get(gameID).currentPlayersConnected(),
+                            view
+                    )
             );
         }
     }

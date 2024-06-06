@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.View;
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import it.polimi.ingsw.am01.client.gui.controller.component.*;
 import it.polimi.ingsw.am01.client.gui.controller.popup.ShowObjectivePopupController;
@@ -12,11 +13,13 @@ import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -36,6 +39,8 @@ public class PlayAreaController extends SceneController {
     private AnchorPane playarea;
     @FXML
     private AnchorPane positionLayer;
+    @FXML
+    private ScrollPane scrollLayer;
     @FXML
     private HBox board;
     @FXML
@@ -60,25 +65,27 @@ public class PlayAreaController extends SceneController {
     private Button closeChatButton;
     private ChatBoxController chatBoxController;
 
-    public PlayAreaController() {
+    public PlayAreaController(View view) {
+        super(view);
         cardSelected = false;
         selectedId = 0;
         selectedSide = null;
         placements = new TreeSet<>();
         playerObjectives = new ArrayList<>();
         playablePositions = new ArrayList<>();
-        focussedPlayer = View.getInstance().getPlayerName();
+        focussedPlayer = view.getPlayerName();
     }
 
     @FXML
     private void initialize() {
         chatPane.setVisible(false);
-        chatBoxController = new ChatBoxController();
+        chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         closeChatButton.setVisible(false);
 
         Button showBoard = new Button("Show/Hide Board");
         Button showObj = new Button("Show Objectives");
+
         utility_buttons.getChildren().add(showBoard);
         utility_buttons.getChildren().add(showObj);
 
@@ -150,11 +157,12 @@ public class PlayAreaController extends SceneController {
 
         hand.setDisable(true);
 
-        View.getInstance().placeCard(selectedId, selectedSide, i, j);
+        view.placeCard(selectedId, selectedSide, i, j);
     }
 
     private void setFaceUpCards(SetFaceUpCardsEvent event) {
         //TODO: redesign board to unify slot1 and slot2
+        //FIXME: faceUpCards may not have 4 cards
         fu_slot1.getChildren().clear();
         fu_slot2.getChildren().clear();
         fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(0), this));
@@ -192,17 +200,16 @@ public class PlayAreaController extends SceneController {
     }
 
     private void updatePlayArea(UpdatePlayAreaEvent event) {
-
         for (Node playerInfo : play_status.getChildren()) {
             if (((PlayerInfoController) playerInfo).getName().equals(event.playerName())) {
-                ((PlayerInfoController) playerInfo).setScore(View.getInstance().getScore(event.playerName()));
+                ((PlayerInfoController) playerInfo).setScore(view.getScore(event.playerName()));
             }
         }
 
         CardPlacementController cardPlacement = new CardPlacementController(event.cardId(), event.side());
         cardPlacement.setPosition(event.i(), event.j());
         cardPlacement.setSeq(event.seq());
-        if (event.playerName().equals(View.getInstance().getPlayerName())) {
+        if (event.playerName().equals(view.getPlayerName())) {
             placements.add(cardPlacement);
             playarea.getChildren().add(cardPlacement);
             cardSelected = false;
@@ -212,23 +219,22 @@ public class PlayAreaController extends SceneController {
     }
 
     private void removePlacement(RemoveLastPlacementEvent event) {
-        View.getInstance().removeLastPlacement(event.player());
+        view.removeLastPlacement(event.player());
         if (event.player().equals(focussedPlayer)) {
             playarea.getChildren().removeLast();
         }
 
         play_status.getChildren().clear();
-        for (String player : View.getInstance().getPlayersInGame()) {
+        for (String player : view.getPlayersInGame()) {
             play_status.getChildren().add(new PlayerInfoController(
                     player,
-                    View.getInstance().getPlayerColor(player),
-                    View.getInstance().getScore(player),
-                    View.getInstance().isConnected(player),
+                    view.getPlayerColor(player),
+                    view.getScore(player),
+                    view.isConnected(player),
                     this
             ));
         }
     }
-
 
     private void invalidPlacement(InvalidPlacementEvent event) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -237,7 +243,7 @@ public class PlayAreaController extends SceneController {
         cardSelected = false;
         //TODO: make out why it disables everything
         hand.setDisable(false);
-        setCurrentView(View.getInstance().getPlayerName());
+        setCurrentView(view.getPlayerName());
     }
 
     private void showHideObj() {
@@ -265,7 +271,7 @@ public class PlayAreaController extends SceneController {
             statusText = "Last turn!" + statusText;
         }
         gameStatusLabel.setText(statusText);
-        gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(View.getInstance().getPlayerColor(event.currentPlayer())) + "; -fx-background-radius: 20;");
+        gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(view.getPlayerColor(event.currentPlayer())) + "; -fx-background-radius: 20;");
 
         if (!event.currentPlayer().equals(event.player())) {
             //It's not my turn
@@ -299,26 +305,26 @@ public class PlayAreaController extends SceneController {
     }
 
     public void drawFromFaceUp(int cardId) {
-        View.getInstance().drawCardFromFaceUpCards(cardId);
+        view.drawCardFromFaceUpCards(cardId);
     }
 
     public void drawFromDeck(DeckLocation deckLocation) {
-        View.getInstance().drawCardFromDeck(deckLocation);
+        view.drawCardFromDeck(deckLocation);
     }
 
     public void setCurrentView(String player) {
-        if (!View.getInstance().getPlayersInGame().contains(player))
+        if (!view.getPlayersInGame().contains(player))
             return;
-        hand.setVisible(View.getInstance().getPlayerName().equals(player));
-        board.setVisible(View.getInstance().getPlayerName().equals(player));
-        utility_buttons.setVisible(View.getInstance().getPlayerName().equals(player));
+        hand.setVisible(view.getPlayerName().equals(player));
+        board.setVisible(view.getPlayerName().equals(player));
+        utility_buttons.setVisible(view.getPlayerName().equals(player));
         playarea.getChildren().clear();
         playarea.getChildren().add(positionLayer);
-        for (Placement placement : View.getInstance().getPlacements(player)) {
+        for (Placement placement : view.getPlacements(player)) {
             CardPlacementController cp = new CardPlacementController(placement.id(), placement.side());
             cp.setPosition(placement.pos().i(), placement.pos().j());
             cp.setSeq(placement.seq());
-            cp.setDisable(!View.getInstance().getPlayerName().equals(player));
+            cp.setDisable(!view.getPlayerName().equals(player));
             playarea.getChildren().add(cp);
         }
         focussedPlayer = player;
@@ -327,20 +333,20 @@ public class PlayAreaController extends SceneController {
     @Override
     protected void registerListeners() {
         getViewRegistrations().addAll(List.of(
-                View.getInstance().on(UpdatePlayablePositionsEvent.class, this::updatePlayablePositions),
-                View.getInstance().on(UpdatePlayAreaEvent.class, this::updatePlayArea),
-                View.getInstance().on(InvalidPlacementEvent.class, this::invalidPlacement),
-                View.getInstance().on(RemoveLastPlacementEvent.class, this::removePlacement),
-                View.getInstance().on(SetFaceUpCardsEvent.class, this::setFaceUpCards),
-                View.getInstance().on(SetDeckEvent.class, this::setDeck),
-                View.getInstance().on(SetHandEvent.class, this::setHand),
-                View.getInstance().on(SetObjectives.class, this::setObjectives),
-                View.getInstance().on(UpdateGameTurnEvent.class, this::handleTurn),
-                View.getInstance().on(SetPlayStatusEvent.class, this::updatePlayStatus),
-                View.getInstance().on(SetPlayAreaEvent.class, this::setPlayArea),
-                View.getInstance().on(GamePausedEvent.class, this::pauseGame),
-                View.getInstance().on(GameResumedEvent.class, this::resumeGame),
-                View.getInstance().on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                view.on(UpdatePlayablePositionsEvent.class, this::updatePlayablePositions),
+                view.on(UpdatePlayAreaEvent.class, this::updatePlayArea),
+                view.on(InvalidPlacementEvent.class, this::invalidPlacement),
+                view.on(RemoveLastPlacementEvent.class, this::removePlacement),
+                view.on(SetFaceUpCardsEvent.class, this::setFaceUpCards),
+                view.on(SetDeckEvent.class, this::setDeck),
+                view.on(SetHandEvent.class, this::setHand),
+                view.on(SetObjectives.class, this::setObjectives),
+                view.on(UpdateGameTurnEvent.class, this::handleTurn),
+                view.on(SetPlayStatusEvent.class, this::updatePlayStatus),
+                view.on(SetPlayAreaEvent.class, this::setPlayArea),
+                view.on(GamePausedEvent.class, this::pauseGame),
+                view.on(GameResumedEvent.class, this::resumeGame),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
         ));
     }
 

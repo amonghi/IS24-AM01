@@ -18,6 +18,10 @@ public class AuthController extends SceneController {
     @FXML
     private Label messageLabel;
 
+    public AuthController(View view) {
+        super(view);
+    }
+
     @FXML
     private void initialize() {
         messageLabel.setVisible(false);
@@ -36,13 +40,13 @@ public class AuthController extends SceneController {
             return;
         }
 
-        View.getInstance().authenticate(nameField.getText());
+        view.authenticate(nameField.getText());
     }
 
     @Override
     protected void registerListeners() {
         getViewRegistrations().add(
-                View.getInstance().on(NameAlreadyTakenEvent.class, this::nameAlreadyTaken)
+                view.on(NameAlreadyTakenEvent.class, this::nameAlreadyTaken)
         );
     }
 

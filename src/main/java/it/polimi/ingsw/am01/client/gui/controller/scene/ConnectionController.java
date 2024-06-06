@@ -9,7 +9,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 
 public class ConnectionController extends SceneController {
-
     @FXML
     private RadioButton tcpRadioButton;
     @FXML
@@ -21,6 +20,10 @@ public class ConnectionController extends SceneController {
     @FXML
     private Label messageLabel;
     private ToggleGroup toggleGroup;
+
+    public ConnectionController(View view) {
+        super(view);
+    }
 
     @FXML
     private void initialize() {
@@ -51,7 +54,7 @@ public class ConnectionController extends SceneController {
             connectionType = View.ConnectionType.RMI;
         }
         try {
-            View.getInstance().connect(connectionType, ipText.getText(), Integer.parseInt(portText.getText()));
+            view.connect(connectionType, ipText.getText(), Integer.parseInt(portText.getText()));
         } catch (NumberFormatException e) {
             messageLabel.setText("Please specify a valid port");
             messageLabel.setVisible(true);

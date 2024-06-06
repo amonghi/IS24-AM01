@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am01.client.gui.controller.popup;
 
-import it.polimi.ingsw.am01.client.View;
 import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
@@ -20,7 +19,7 @@ public class GameCreationPopupController extends PopupController {
 
     @FXML
     private void confirm() {
-        View.getInstance().createGameAndJoin(spinner.getValue());
+        view.createGameAndJoin(spinner.getValue());
         closePopup();
     }
 

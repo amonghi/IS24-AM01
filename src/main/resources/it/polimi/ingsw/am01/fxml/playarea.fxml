@@ -9,7 +9,7 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
             prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <ScrollPane hbarPolicy="NEVER" hmax="10000.0" hvalue="5150.0" maxHeight="10000.0" maxWidth="10000.0"
+        <ScrollPane fx:id="scrollLayer" hbarPolicy="NEVER" hmax="10000.0" hvalue="5150.0" maxHeight="10000.0" maxWidth="10000.0"
                     minHeight="10000.0" minWidth="10000.0" pannable="true" prefHeight="400.0" prefWidth="600.0"
                     vbarPolicy="NEVER" vmax="10000.0" vvalue="5100.0" AnchorPane.bottomAnchor="0.0"
                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
