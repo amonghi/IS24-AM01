@@ -72,6 +72,9 @@ public class TuiView extends BaseTuiView {
                 keyboard.on(Key.Tab.class, onRenderThread(key -> this.writeCompletion())),
                 keyboard.on(Key.Enter.class, onRenderThread(key -> this.runCommand()))
         );
+
+        // start rendering
+        this.runLater(this::render);
     }
 
     @Override

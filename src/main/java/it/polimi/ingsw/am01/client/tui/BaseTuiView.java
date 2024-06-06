@@ -36,9 +36,6 @@ public abstract class BaseTuiView extends View {
 
         // we don't really care what the update is because we re-render everything anyway
         this.selfRegistration = this.onAny(event -> this.render());
-
-        // start rendering
-        this.runLater(this::render);
     }
 
     public boolean isDebugViewEnabled() {
