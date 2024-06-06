@@ -124,6 +124,14 @@ public class TuiView extends BaseTuiView {
     }
 
     public Component compose() {
+        CommandNode.Result parseResult = this.parseInput();
+        String whitePart = this.input.substring(0, parseResult.getConsumed());
+        String redPart = this.input.substring(parseResult.getConsumed());
+        String completion = parseResult.getCompletions().stream()
+                .findFirst()
+                .map(Parser.Completion::text)
+                .orElse("");
+
         return Flex.column(List.of(
                 // top part of screen
                 new FlexChild.Flexible(1, Centered.both(
@@ -140,17 +148,20 @@ public class TuiView extends BaseTuiView {
                         Flex.row(List.of(
                                 new FlexChild.Fixed(new Text(
                                         GraphicalRendition.DEFAULT
-                                                .withWeight(GraphicalRenditionProperty.Weight.BOLD),
-                                        "> " + this.input
+                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE),
+                                        "> " + whitePart
+                                )),
+                                new FlexChild.Fixed(new Text(
+                                        GraphicalRendition.DEFAULT
+                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED),
+                                        redPart
                                 )),
                                 new FlexChild.Fixed(new Cursor()),
                                 new FlexChild.Flexible(1, new Text(
                                         GraphicalRendition.DEFAULT
+                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE)
                                                 .withWeight(GraphicalRenditionProperty.Weight.DIM),
-                                        this.parseInput().getCompletions().stream()
-                                                .findFirst()
-                                                .map(Parser.Completion::text)
-                                                .orElse("")
+                                        completion
                                 ))
                         ))
                 ))
