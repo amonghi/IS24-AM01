@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * SimplePoints is type of Points that gives a constant score for a card placement
  */
-public class SimplePoints implements Points {
+public final class SimplePoints implements Points {
     private final int points;
 
     /**
