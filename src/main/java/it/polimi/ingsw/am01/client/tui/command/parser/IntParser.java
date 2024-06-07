@@ -16,7 +16,7 @@ public class IntParser implements Parser {
     @Override
     public Result parse(CommandContext context, String cmd) throws ParseException {
         Matcher matcher = pattern.matcher(cmd);
-        if (matcher.matches()) {
+        if (matcher.find() && matcher.start() == 0) {
             String iString = matcher.group(1);
             int i = Integer.parseInt(iString);
 
@@ -33,7 +33,8 @@ public class IntParser implements Parser {
             return Completion.nonCompletable("<" + this.name + ">");
         }
 
-        if (pattern.matcher(partial).matches()) {
+        Matcher matcher = pattern.matcher(partial);
+        if (matcher.find() && matcher.start() == 0) {
             return Completion.completable("");
         }
 
