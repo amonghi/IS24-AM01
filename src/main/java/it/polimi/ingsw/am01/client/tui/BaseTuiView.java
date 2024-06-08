@@ -3,7 +3,10 @@ package it.polimi.ingsw.am01.client.tui;
 import it.polimi.ingsw.am01.client.ClientState;
 import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.tui.component.Component;
-import it.polimi.ingsw.am01.client.tui.rendering.*;
+import it.polimi.ingsw.am01.client.tui.rendering.Constraint;
+import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
+import it.polimi.ingsw.am01.client.tui.rendering.Position;
+import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.Ansi;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawBuffer;
 import it.polimi.ingsw.am01.client.tui.terminal.ResizeEvent;
@@ -65,9 +68,9 @@ public abstract class BaseTuiView extends View {
 
         long t0 = System.nanoTime(); // begin layout
 
-        SizedPositioned rootLayout = this.compose()
-                .layout(Constraint.max(drawDimensions))
-                .placeAt(Position.ZERO);
+        Component root = this.compose();
+        root.layout(Constraint.max(drawDimensions));
+        root.setPosition(Position.ZERO);
 
         long t1 = System.nanoTime(); // done layout, begin drawing
 
@@ -76,7 +79,7 @@ public abstract class BaseTuiView extends View {
                 new RenderingContext.Local(Position.ZERO)
         );
         DrawBuffer drawBuffer = new DrawBuffer(drawDimensions, ' ');
-        rootLayout.draw(rootRenderingContext, drawBuffer.getDrawArea());
+        root.draw(rootRenderingContext, drawBuffer.getDrawArea());
 
         long t2 = System.nanoTime(); // done drawing
 

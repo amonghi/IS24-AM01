@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am01.client.tui.component.elements;
 
-import it.polimi.ingsw.am01.client.tui.component.Component;
-import it.polimi.ingsw.am01.client.tui.rendering.*;
+import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
+import it.polimi.ingsw.am01.client.tui.rendering.Position;
+import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
@@ -16,42 +17,27 @@ import it.polimi.ingsw.am01.model.collectible.Collectible;
 import it.polimi.ingsw.am01.model.collectible.Item;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CardFaceComponent implements Component {
+public class CardFaceComponent extends Element {
     private static final int CARD_W = 25;
     private static final int CARD_H = 9;
     private static final String CORNER_COVER_POINTS_SYMBOL = "▅██";
 
-    private static char[][] toCharMatrix(String s) {
-        String[] lines = s.split("\n");
-        char[][] matrix = new char[lines.length][];
-        for (int i = 0; i < lines.length; i++) {
-            matrix[i] = lines[i].toCharArray();
-        }
-        return matrix;
-    }
-
     private final CardFace face;
 
     public CardFaceComponent(CardFace face) {
+        super(Dimensions.of(CARD_W, CARD_H));
         this.face = face;
-    }
-
-    @Override
-    public Sized layout(Constraint constraint) {
-        Dimensions d = Dimensions.constrained(constraint, CARD_W, CARD_H);
-        return new Sized(this, d, List.of());
     }
 
     private static final int CORNER_W = 6;
     private static final int CORNER_H = 3;
 
     @Override
-    public void drawSelf(RenderingContext ctx, DrawArea a) {
+    public void draw(RenderingContext ctx, DrawArea a) {
         Line.rectangle(a, Position.ZERO, a.dimensions(), Line.Style.ROUNDED);
 
         drawPoints(a);

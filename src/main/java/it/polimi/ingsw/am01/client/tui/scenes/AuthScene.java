@@ -8,7 +8,7 @@ import it.polimi.ingsw.am01.client.tui.component.layout.Column;
 
 import java.util.List;
 
-public class AuthScene implements Composition {
+public class AuthScene extends Composition {
     @Override
     public Component compose() {
         return Centered.both(
