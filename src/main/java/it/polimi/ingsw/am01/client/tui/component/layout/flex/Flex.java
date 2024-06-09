@@ -12,17 +12,17 @@ public class Flex extends LayoutComponent {
     private final Direction direction;
     private final List<FlexChild> children;
 
+    public Flex(Direction direction, List<FlexChild> children) {
+        this.direction = direction;
+        this.children = children;
+    }
+
     public static Flex row(List<FlexChild> children) {
         return new Flex(Direction.ROW, children);
     }
 
     public static Flex column(List<FlexChild> children) {
         return new Flex(Direction.COLUMN, children);
-    }
-
-    public Flex(Direction direction, List<FlexChild> children) {
-        this.direction = direction;
-        this.children = children;
     }
 
     @Override
@@ -71,7 +71,10 @@ public class Flex extends LayoutComponent {
                 case FlexChild.Fixed ignored -> {
                     Sized s = sized[i];
                     sizedPositioned[i] = s.placeAt(position);
-                    offs += s.dimensions().width();
+                    offs += switch (this.direction) {
+                        case ROW -> s.dimensions().width();
+                        case COLUMN -> s.dimensions().height();
+                    };
                 }
 
                 case FlexChild.Flexible(int growFactor, Component child) -> {
