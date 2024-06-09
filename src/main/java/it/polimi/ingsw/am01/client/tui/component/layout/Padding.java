@@ -15,20 +15,20 @@ public class Padding extends LayoutComponent {
     private final int left;
     private final Component child;
 
-    public static Padding around(int padding, Component child) {
-        return new Padding(padding,padding, padding, padding, child);
-    }
-
-    public static Padding hv(int horizontal, int vertical, Component child) {
-        return new Padding(horizontal, vertical, horizontal, vertical, child);
-    }
-
     public Padding(int top, int right, int bottom, int left, Component child) {
         this.top = top;
         this.right = right;
         this.bottom = bottom;
         this.left = left;
         this.child = child;
+    }
+
+    public static Padding around(int padding, Component child) {
+        return new Padding(padding, padding, padding, padding, child);
+    }
+
+    public static Padding hv(int horizontal, int vertical, Component child) {
+        return new Padding(vertical, horizontal, vertical, horizontal, child);
     }
 
     @Override
