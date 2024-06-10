@@ -13,6 +13,7 @@ import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,12 @@ public class LobbyScene implements Composition {
     }
 
     public Component compose() {
+        List<String> playerSlots = new ArrayList<>(view.getPlayersInGame());
+        for (int i = 0; i < view.getMaxPlayers() - view.getPlayersInGame().size(); i++) {
+            playerSlots.add("  ");
+        }
+
+
         return Flex.column(List.of(
                 new FlexChild.Fixed(
                         Padding.hv(1, 1,
@@ -52,9 +59,9 @@ public class LobbyScene implements Composition {
                 new FlexChild.Flexible(1,
                         Centered.both(
                                 new Row(
-                                        view.getPlayersInGame().stream()
+                                        playerSlots.stream()
                                                 .map(
-                                                        player -> new Border(Line.Style.DEFAULT, Padding.hv(4, 2, new Text(player)))
+                                                        player -> Padding.hv(4, 0, new Border(Line.Style.DEFAULT, Padding.hv(4, 2, new Text(player))))
                                                 )
                                                 .collect(Collectors.toList())
                                 )
