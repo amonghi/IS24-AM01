@@ -4,7 +4,6 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import it.polimi.ingsw.am01.client.gui.controller.component.*;
-import it.polimi.ingsw.am01.client.gui.controller.popup.ShowObjectivePopupController;
 import it.polimi.ingsw.am01.client.gui.event.*;
 import it.polimi.ingsw.am01.client.gui.model.Placement;
 import it.polimi.ingsw.am01.client.gui.model.Position;
@@ -13,17 +12,21 @@ import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
-import javafx.application.Platform;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.util.*;
 
@@ -35,6 +38,7 @@ public class PlayAreaController extends SceneController {
     private int selectedId;
     private Side selectedSide;
     private String focussedPlayer;
+    private String statusText;
     @FXML
     private AnchorPane playarea;
     @FXML
@@ -42,19 +46,19 @@ public class PlayAreaController extends SceneController {
     @FXML
     private ScrollPane scrollLayer;
     @FXML
-    private HBox board;
+    private VBox board;
     @FXML
-    private VBox fu_slot1;
+    private GridPane face_up;
     @FXML
-    private VBox fu_slot2;
-    @FXML
-    private VBox deck;
+    private GridPane deck;
     @FXML
     private HBox hand;
     @FXML
-    private HBox play_status;
+    private HBox common_obj;
     @FXML
-    private HBox utility_buttons;
+    private HBox secret_obj;
+    @FXML
+    private HBox play_status;
     @FXML
     private Label gameStatusLabel;
     @FXML
@@ -63,6 +67,8 @@ public class PlayAreaController extends SceneController {
     private Button openChatButton;
     @FXML
     private Button closeChatButton;
+    @FXML
+    private Button showBoardButton;
     private ChatBoxController chatBoxController;
 
     public PlayAreaController(View view) {
@@ -74,6 +80,7 @@ public class PlayAreaController extends SceneController {
         playerObjectives = new ArrayList<>();
         playablePositions = new ArrayList<>();
         focussedPlayer = view.getPlayerName();
+        statusText = "";
     }
 
     @FXML
@@ -81,22 +88,8 @@ public class PlayAreaController extends SceneController {
         chatPane.setVisible(false);
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
+        showBoardButton.setOnAction(event -> showHideBoard());
         closeChatButton.setVisible(false);
-
-        Button showBoard = new Button("Show/Hide Board");
-        Button showObj = new Button("Show Objectives");
-
-        utility_buttons.getChildren().add(showBoard);
-        utility_buttons.getChildren().add(showObj);
-
-        //Event handling
-        showBoard.setOnAction(event -> {
-            showHideBoard();
-        });
-
-        showObj.setOnAction(event -> {
-            showHideObj();
-        });
 
         positionLayer.setOnDragOver(event -> {
             for (Position playablePosition : playablePositions) {
@@ -114,9 +107,15 @@ public class PlayAreaController extends SceneController {
                 Position pos = isAValidPosition(event.getX(), event.getY()).get();
                 placeCard(pos.i(), pos.j());
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Invalid position!");
-                alert.show();
+                String newLabel = "Invalid position! Please, replace the card!";
+                gameStatusLabel.setText(newLabel);
+                gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
+                PauseTransition delay = new PauseTransition(Duration.seconds(3));
+                delay.setOnFinished(e -> {
+                    gameStatusLabel.setText(statusText);
+                    gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
+                });
+                delay.play();
             }
         });
     }
@@ -149,9 +148,12 @@ public class PlayAreaController extends SceneController {
 
     public void placeCard(int i, int j) {
         if (!cardSelected) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setContentText("You have to select which card you want to place!");
-            alert.show();
+            String newLabel = "You have to select the card to place!";
+            gameStatusLabel.setText(newLabel);
+            gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
+            PauseTransition delay = new PauseTransition(Duration.seconds(3));
+            delay.setOnFinished(e -> gameStatusLabel.setText(statusText));
+            delay.play();
             return;
         }
 
@@ -161,22 +163,21 @@ public class PlayAreaController extends SceneController {
     }
 
     private void setFaceUpCards(SetFaceUpCardsEvent event) {
-        //TODO: redesign board to unify slot1 and slot2
-        //FIXME: faceUpCards may not have 4 cards
-        fu_slot1.getChildren().clear();
-        fu_slot2.getChildren().clear();
-        fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(0), this));
-        fu_slot1.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(1), this));
-        fu_slot2.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(2), this));
-        fu_slot2.getChildren().add(new FaceUpSourceController(event.faceUpCards().get(3), this));
+        face_up.getChildren().clear();
+        int placed = 0;
+        for (int col = 0; col < 2; col ++) {
+            for (int row = 0; row < 2; row ++)
+                if (placed < event.faceUpCards().size())
+                    face_up.add(new FaceUpSourceController(event.faceUpCards().get(placed++), this), col, row);
+        }
     }
 
     private void setDeck(SetDeckEvent event) {
         deck.getChildren().clear();
 
         // TODO: placeholder for empty deck
-        deck.getChildren().add(new DeckSourceController(event.goldenDeck().orElse(CardColor.RED), DeckLocation.GOLDEN_CARD_DECK, this));
-        deck.getChildren().add(new DeckSourceController(event.resourceDeck().orElse(CardColor.RED), DeckLocation.RESOURCE_CARD_DECK, this));
+        deck.add(new DeckSourceController(event.goldenDeck().orElse(CardColor.RED), DeckLocation.GOLDEN_CARD_DECK, this), 0, 0);
+        deck.add(new DeckSourceController(event.resourceDeck().orElse(CardColor.RED), DeckLocation.RESOURCE_CARD_DECK, this), 1, 0);
 
         deck.getChildren().get(0).setDisable(event.goldenDeck().isEmpty());
         deck.getChildren().get(1).setDisable(event.resourceDeck().isEmpty());
@@ -192,6 +193,34 @@ public class PlayAreaController extends SceneController {
     private void setObjectives(SetObjectives event) {
         this.playerObjectives.addAll(event.objectives());
         this.playerObjectives.add(event.secretObjective());
+
+        common_obj.getChildren().add(new ImageView(
+                new Image(Objects.requireNonNull(getClass().getResource(
+                        Constants.OBJECTIVE_PATH + event.objectives().get(0) + Constants.IMAGE_EXTENSION)).toString(),
+                        Constants.BOARD_CARD_WIDTH,
+                        Constants.CARD_PLACEMENT_HEIGHT,
+                        true,
+                        false
+                )
+        ));
+        common_obj.getChildren().add(new ImageView(
+                new Image(Objects.requireNonNull(getClass().getResource(
+                        Constants.OBJECTIVE_PATH + event.objectives().get(1) + Constants.IMAGE_EXTENSION)).toString(),
+                        Constants.BOARD_CARD_WIDTH,
+                        Constants.CARD_PLACEMENT_HEIGHT,
+                        true,
+                        false
+                )
+        ));
+        secret_obj.getChildren().add(new ImageView(
+                new Image(Objects.requireNonNull(getClass().getResource(
+                        Constants.OBJECTIVE_PATH + event.secretObjective() + Constants.IMAGE_EXTENSION)).toString(),
+                        Constants.BOARD_CARD_WIDTH,
+                        Constants.CARD_PLACEMENT_HEIGHT,
+                        true,
+                        false
+                )
+        ));
     }
 
     private void updatePlayablePositions(UpdatePlayablePositionsEvent event) {
@@ -237,22 +266,20 @@ public class PlayAreaController extends SceneController {
     }
 
     private void invalidPlacement(InvalidPlacementEvent event) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText("Invalid placement!");
-        alert.show();
+        String newLabel = "You don't have enough resources to place this card!";
+        gameStatusLabel.setText(newLabel);
+        gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
+        PauseTransition delay = new PauseTransition(Duration.seconds(3));
+        delay.setOnFinished(e -> gameStatusLabel.setText(statusText));
+        delay.play();
+
         cardSelected = false;
-        //TODO: make out why it disables everything
         hand.setDisable(false);
         setCurrentView(view.getPlayerName());
     }
 
-    private void showHideObj() {
-        openPopup(new ShowObjectivePopupController(playerObjectives));
-    }
-
     private void showHideBoard() {
         board.setVisible(!board.isVisible());
-        hand.setVisible(!hand.isVisible());
     }
 
     private String backgroundColorHex(PlayerColor playerColor) {
@@ -265,11 +292,19 @@ public class PlayAreaController extends SceneController {
     }
 
     private void handleTurn(UpdateGameTurnEvent event) {
-        String statusText = event.currentPlayer() + " is " + event.turnPhase().toLowerCase();
+        statusText = "";
 
         if (event.gameStatus().equals(GameStatus.LAST_TURN.toString())) {
-            statusText = "Last turn!" + statusText;
+            statusText = "Last turn! ";
         }
+
+        if (event.currentPlayer().equals(event.player())) {
+             statusText += "You are " + event.turnPhase().toLowerCase();
+        }
+        else {
+             statusText += event.currentPlayer() + " is " + event.turnPhase().toLowerCase();
+        }
+
         gameStatusLabel.setText(statusText);
         gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(view.getPlayerColor(event.currentPlayer())) + "; -fx-background-radius: 20;");
 
@@ -277,14 +312,17 @@ public class PlayAreaController extends SceneController {
             //It's not my turn
             hand.setDisable(true);
             board.setDisable(true);
+            board.setVisible(false);
             playarea.setDisable(true);
             return;
         }
         if (event.turnPhase().equals("PLACING")) {
+            board.setVisible(false);
             board.setDisable(true);
             hand.setDisable(false);
             playarea.setDisable(false);
         } else {
+            board.setVisible(true);
             board.setDisable(false);
             hand.setDisable(true);
             playarea.setDisable(true);
@@ -317,7 +355,6 @@ public class PlayAreaController extends SceneController {
             return;
         hand.setVisible(view.getPlayerName().equals(player));
         board.setVisible(view.getPlayerName().equals(player));
-        utility_buttons.setVisible(view.getPlayerName().equals(player));
         playarea.getChildren().clear();
         playarea.getChildren().add(positionLayer);
         for (Placement placement : view.getPlacements(player)) {
