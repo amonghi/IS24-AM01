@@ -22,19 +22,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CardFaceComponent extends Element {
-    private static final int CARD_W = 25;
-    private static final int CARD_H = 9;
+    public static final int CARD_W = 25;
+    public static final int CARD_H = 9;
+    public static final int CORNER_W = 6;
+    public static final int CORNER_H = 3;
     private static final String CORNER_COVER_POINTS_SYMBOL = "▅██";
 
     private final CardFace face;
+
 
     public CardFaceComponent(CardFace face) {
         super(Dimensions.of(CARD_W, CARD_H));
         this.face = face;
     }
-
-    private static final int CORNER_W = 6;
-    private static final int CORNER_H = 3;
 
     @Override
     public void draw(RenderingContext ctx, DrawArea a) {

@@ -8,23 +8,27 @@ import it.polimi.ingsw.am01.client.tui.rendering.Position;
 import java.util.List;
 
 public abstract class Composition extends BaseLayout {
-    private final Component root;
-
-    public Composition() {
-        this.root = this.compose();
-    }
+    private Component root;
 
     protected abstract Component compose();
 
+    private Component getRoot() {
+        if (root == null) {
+            root = compose();
+        }
+
+        return root;
+    }
+
     @Override
     protected List<Component> children() {
-        return List.of(this.root);
+        return List.of(this.getRoot());
     }
 
     @Override
     public void layout(Constraint constraint) {
-        this.root.layout(constraint);
-        this.root.setPosition(Position.ZERO);
-        this.setDimensions(this.root.dimensions());
+        this.getRoot().layout(constraint);
+        this.getRoot().setPosition(Position.ZERO);
+        this.setDimensions(this.getRoot().dimensions());
     }
 }
