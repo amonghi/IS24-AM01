@@ -13,6 +13,7 @@ import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.animation.PauseTransition;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -85,7 +86,6 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void initialize() {
-        chatPane.setVisible(false);
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         showBoardIcon.setOnMouseClicked(event -> showHideBoard());
@@ -151,8 +151,8 @@ public class PlayAreaController extends SceneController {
     private void setFaceUpCards(SetFaceUpCardsEvent event) {
         face_up.getChildren().clear();
         int placed = 0;
-        for (int col = 0; col < 2; col ++) {
-            for (int row = 0; row < 2; row ++)
+        for (int col = 0; col < 2; col++) {
+            for (int row = 0; row < 2; row++)
                 if (placed < event.faceUpCards().size())
                     face_up.add(new FaceUpSourceController(event.faceUpCards().get(placed++), this), col, row);
         }
@@ -258,7 +258,19 @@ public class PlayAreaController extends SceneController {
     }
 
     private void showHideBoard() {
-        board.setVisible(!board.isVisible());
+        if (board.getTranslateX() != 0) {
+            movePane(0, board);
+        } else {
+            movePane(-450, board);
+            board.setDisable(true);
+        }
+    }
+
+    private void movePane(float position, Node node) {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(1));
+        tt.setNode(node);
+        tt.setToX(position);
+        tt.play();
     }
 
     private void showErrorMessage(String error) {
@@ -267,7 +279,7 @@ public class PlayAreaController extends SceneController {
         PauseTransition delay = new PauseTransition(Duration.seconds(3));
         delay.setOnFinished(e -> {
             gameStatusLabel.setText(statusText);
-            gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(view.getPlayerColor(view.getCurrentPlayer()))  + ";  -fx-background-radius: 20;");
+            gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(view.getPlayerColor(view.getCurrentPlayer())) + ";  -fx-background-radius: 20;");
         });
         delay.play();
     }
@@ -289,10 +301,9 @@ public class PlayAreaController extends SceneController {
         }
 
         if (event.currentPlayer().equals(event.player())) {
-             statusText += "You are " + event.turnPhase().toLowerCase();
-        }
-        else {
-             statusText += event.currentPlayer() + " is " + event.turnPhase().toLowerCase();
+            statusText += "You are " + event.turnPhase().toLowerCase();
+        } else {
+            statusText += event.currentPlayer() + " is " + event.turnPhase().toLowerCase();
         }
 
         gameStatusLabel.setText(statusText);
@@ -300,19 +311,19 @@ public class PlayAreaController extends SceneController {
 
         if (!event.currentPlayer().equals(event.player())) {
             //It's not my turn
+            movePane(-450, board);
             hand.setDisable(true);
             board.setDisable(true);
-            board.setVisible(false);
             playarea.setDisable(true);
             return;
         }
         if (event.turnPhase().equals("PLACING")) {
-            board.setVisible(false);
+            movePane(-450, board);
             board.setDisable(true);
             hand.setDisable(false);
             playarea.setDisable(false);
         } else {
-            board.setVisible(true);
+            movePane(0, board);
             board.setDisable(false);
             hand.setDisable(true);
             playarea.setDisable(true);
@@ -344,7 +355,7 @@ public class PlayAreaController extends SceneController {
         if (!view.getPlayersInGame().contains(player))
             return;
         hand.setVisible(view.getPlayerName().equals(player));
-        board.setVisible(view.getPlayerName().equals(player));
+        board.setDisable(!view.getPlayerName().equals(player));
         playarea.getChildren().clear();
         playarea.getChildren().add(positionLayer);
         for (Placement placement : view.getPlacements(player)) {
@@ -380,7 +391,7 @@ public class PlayAreaController extends SceneController {
     private void updateMessages(NewMessageEvent event) {
         if (event.message().recipient().equals(view.getPlayerName())) {
             openChatIcon.getImage().cancel();
-            openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH  + "chat-msg" + Constants.IMAGE_EXTENSION)).toString()));
+            openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat-msg" + Constants.IMAGE_EXTENSION)).toString()));
         }
         chatBoxController.updateMessages(event);
     }
@@ -409,16 +420,16 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void openChat() {
-        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH  + "chat" + Constants.IMAGE_EXTENSION)).toString()));
-        chatPane.setVisible(true);
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
+        movePane(0, chatPane);
         openChatIcon.setVisible(false);
         closeChatIcon.setVisible(true);
     }
 
     @FXML
     private void closeChat() {
-        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH  + "chat" + Constants.IMAGE_EXTENSION)).toString()));
-        chatPane.setVisible(false);
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
+        movePane(400, chatPane);
         openChatIcon.setVisible(true);
         closeChatIcon.setVisible(false);
     }
