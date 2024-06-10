@@ -6,20 +6,16 @@ import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
 import it.polimi.ingsw.am01.client.tui.commands.*;
 import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.component.elements.Border;
-import it.polimi.ingsw.am01.client.tui.component.elements.BorderStyle;
 import it.polimi.ingsw.am01.client.tui.component.elements.Cursor;
 import it.polimi.ingsw.am01.client.tui.component.elements.Text;
-import it.polimi.ingsw.am01.client.tui.component.layout.Centered;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.keyboard.Key;
 import it.polimi.ingsw.am01.client.tui.keyboard.Keyboard;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty;
-import it.polimi.ingsw.am01.client.tui.scenes.AuthScene;
-import it.polimi.ingsw.am01.client.tui.scenes.GamesListScene;
-import it.polimi.ingsw.am01.client.tui.scenes.LobbyScene;
-import it.polimi.ingsw.am01.client.tui.scenes.WelcomeScene;
+import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
+import it.polimi.ingsw.am01.client.tui.scenes.*;
 import it.polimi.ingsw.am01.client.tui.terminal.Terminal;
 
 import java.util.List;
@@ -33,6 +29,9 @@ public class TuiView extends BaseTuiView {
             JoinCommand::new,
             CreateGameCommand::new,
             StartGameCommand::new,
+            SelectStartingCardSideCommand::new,
+            SelectColorCommand::new,
+            SelectObjectiveCommand::new,
             QuitCommand::new
     );
 
@@ -139,26 +138,26 @@ public class TuiView extends BaseTuiView {
 
         return Flex.column(List.of(
                 // top part of screen
-                new FlexChild.Flexible(1, Centered.both(
+                new FlexChild.Flexible(1,
                         switch (this.getState()) {
                             case NOT_CONNECTED -> new WelcomeScene();
                             case NOT_AUTHENTICATED -> new AuthScene();
                             case AUTHENTICATED -> new GamesListScene(this);
                             case IN_GAME -> switch (getGameStatus()) {
                                 case AWAITING_PLAYERS -> new LobbyScene(this);
-                                case SETUP_STARTING_CARD_SIDE -> new Text("SETUP_STARTING_CARD_SIDE");
-                                case SETUP_COLOR -> new Text("SETUP_COLOR");
-                                case SETUP_OBJECTIVE -> new Text("SETUP_OBJECTIVE");
+                                case SETUP_STARTING_CARD_SIDE -> new SelectStartingCardSideScene(this);
+                                case SETUP_COLOR -> new SelectColorScene(this);
+                                case SETUP_OBJECTIVE -> new SelectObjectiveScene(this);
                                 case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED ->
                                         new Text("PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED");
                                 case FINISHED -> new Text("FINISHED");
                                 case RESTORING -> new Text("RESTORING");
                             };
                         }
-                )),
+                ),
 
                 // bottom input
-                new FlexChild.Fixed(new Border(BorderStyle.DEFAULT,
+                new FlexChild.Fixed(new Border(Line.Style.DEFAULT,
                         Flex.row(List.of(
                                 new FlexChild.Fixed(new Text(
                                         GraphicalRendition.DEFAULT

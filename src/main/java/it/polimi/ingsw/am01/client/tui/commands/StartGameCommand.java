@@ -11,6 +11,7 @@ public class StartGameCommand extends TuiCommand {
         super(view);
     }
 
+    @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
                 .literal("start_game")

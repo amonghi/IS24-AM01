@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public abstract class View implements EventEmitter<ViewEvent> {
 
@@ -45,6 +46,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
     private final List<Integer> secretObjectivesId;
     private final Map<String, Boolean> connections;
     private final List<Message> messages;
+    private final List<String> playersHaveChosenSecretObjective;
     private Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private Map<Integer, UpdateGameListS2C.GameStat> games;
     private String playerName;
@@ -76,6 +78,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
         this.playerColors = new HashMap<>();
         this.connections = new HashMap<>();
         this.messages = new ArrayList<>();
+        this.playersHaveChosenSecretObjective = new ArrayList<>();
         this.state = ClientState.NOT_CONNECTED;
     }
 
@@ -264,6 +267,8 @@ public abstract class View implements EventEmitter<ViewEvent> {
     }
 
     public void handleMessage(UpdateObjectiveSelectedS2C m) {
+        playersHaveChosenSecretObjective.clear();
+        playersHaveChosenSecretObjective.addAll(m.playersHaveChosen());
         emitter.emit(new UpdateSecretObjectiveChoiceEvent(
                 m.playersHaveChosen().stream().toList()
         ));
@@ -424,6 +429,12 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return playAreas.get(player);
     }
 
+    public Map<String, Placement> getStartingCardPlacements() {
+        return playAreas.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+                entry -> entry.getValue().getFirst()
+        ));
+    }
+
     public void removeLastPlacement(String player) {
         playAreas.get(player).removeLast();
     }
@@ -433,12 +444,20 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return scores.get(player);
     }
 
+    public List<String> getPlayersHaveChosenSecretObjective() {
+        return playersHaveChosenSecretObjective;
+    }
+
     public Map<Integer, UpdateGameListS2C.GameStat> getGames() {
         return games;
     }
 
     public PlayerColor getPlayerColor(String player) {
         return playerColors.get(player);
+    }
+
+    public Map<String, PlayerColor> getPlayerColors() {
+        return playerColors;
     }
 
     public int getMaxPlayers() {
@@ -483,6 +502,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
         turnPhase = null;
         currentPlayer = null;
         commonObjectivesId.clear();
+        playersHaveChosenSecretObjective.clear();
         messages.clear();
     }
 

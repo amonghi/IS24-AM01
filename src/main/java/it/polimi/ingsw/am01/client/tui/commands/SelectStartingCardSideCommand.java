@@ -4,30 +4,31 @@ import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
-import it.polimi.ingsw.am01.client.tui.command.parser.IntParser;
+import it.polimi.ingsw.am01.client.tui.command.parser.EnumParser;
+import it.polimi.ingsw.am01.model.card.Side;
 
-public class JoinCommand extends TuiCommand {
+public class SelectStartingCardSideCommand extends TuiCommand {
 
-    public JoinCommand(TuiView view) {
+    public SelectStartingCardSideCommand(TuiView view) {
         super(view);
     }
 
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .literal("join")
+                .literal("select")
                 .thenWhitespace()
-                .then(new IntParser("gameId"))
+                .thenLiteral("side")
+                .thenWhitespace()
+                .then(new EnumParser<>("side", Side.class))
                 .executes(this::execute)
                 .end();
     }
 
     private void execute(CommandContext ctx) {
-        int gameId = ctx.getInt("gameId");
-        if (!getView().getGames().containsKey(gameId)) {
-            //TODO: show error message
-            return;
-        }
-        getView().joinGame(gameId);
+        Side side = ctx.getEnum("side", Side.class);
+        getView().selectStartingCardSide(side);
     }
+
+
 }
