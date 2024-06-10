@@ -15,8 +15,6 @@ import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -64,11 +62,13 @@ public class PlayAreaController extends SceneController {
     @FXML
     private AnchorPane chatPane;
     @FXML
-    private Button openChatButton;
+    private ImageView openChatIcon;
     @FXML
-    private Button closeChatButton;
+    private ImageView closeChatIcon;
     @FXML
-    private Button showBoardButton;
+    private ImageView showBoardIcon;
+    @FXML
+    private ImageView maxIcon;
     private ChatBoxController chatBoxController;
 
     public PlayAreaController(View view) {
@@ -88,8 +88,9 @@ public class PlayAreaController extends SceneController {
         chatPane.setVisible(false);
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
-        showBoardButton.setOnAction(event -> showHideBoard());
-        closeChatButton.setVisible(false);
+        showBoardIcon.setOnMouseClicked(event -> showHideBoard());
+        maxIcon.setOnMouseClicked(event -> super.setFullScreen());
+        closeChatIcon.setVisible(false);
 
         positionLayer.setOnDragOver(event -> {
             for (Position playablePosition : playablePositions) {
@@ -107,15 +108,7 @@ public class PlayAreaController extends SceneController {
                 Position pos = isAValidPosition(event.getX(), event.getY()).get();
                 placeCard(pos.i(), pos.j());
             } else {
-                String newLabel = "Invalid position! Please, replace the card!";
-                gameStatusLabel.setText(newLabel);
-                gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
-                PauseTransition delay = new PauseTransition(Duration.seconds(3));
-                delay.setOnFinished(e -> {
-                    gameStatusLabel.setText(statusText);
-                    gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
-                });
-                delay.play();
+                showErrorMessage("Invalid position! Please, replace the card!");
             }
         });
     }
@@ -148,17 +141,10 @@ public class PlayAreaController extends SceneController {
 
     public void placeCard(int i, int j) {
         if (!cardSelected) {
-            String newLabel = "You have to select the card to place!";
-            gameStatusLabel.setText(newLabel);
-            gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
-            PauseTransition delay = new PauseTransition(Duration.seconds(3));
-            delay.setOnFinished(e -> gameStatusLabel.setText(statusText));
-            delay.play();
+            showErrorMessage("You have to select the card to place!");
             return;
         }
-
         hand.setDisable(true);
-
         view.placeCard(selectedId, selectedSide, i, j);
     }
 
@@ -266,20 +252,24 @@ public class PlayAreaController extends SceneController {
     }
 
     private void invalidPlacement(InvalidPlacementEvent event) {
-        String newLabel = "You don't have enough resources to place this card!";
-        gameStatusLabel.setText(newLabel);
-        gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
-        PauseTransition delay = new PauseTransition(Duration.seconds(3));
-        delay.setOnFinished(e -> gameStatusLabel.setText(statusText));
-        delay.play();
-
+        showErrorMessage("You don't have enough resources to place this card!");
         cardSelected = false;
         hand.setDisable(false);
-        setCurrentView(view.getPlayerName());
     }
 
     private void showHideBoard() {
         board.setVisible(!board.isVisible());
+    }
+
+    private void showErrorMessage(String error) {
+        gameStatusLabel.setText(error);
+        gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
+        PauseTransition delay = new PauseTransition(Duration.seconds(3));
+        delay.setOnFinished(e -> {
+            gameStatusLabel.setText(statusText);
+            gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(view.getPlayerColor(view.getCurrentPlayer()))  + ";  -fx-background-radius: 20;");
+        });
+        delay.play();
     }
 
     private String backgroundColorHex(PlayerColor playerColor) {
@@ -412,15 +402,15 @@ public class PlayAreaController extends SceneController {
     @FXML
     private void openChat() {
         chatPane.setVisible(true);
-        openChatButton.setVisible(false);
-        closeChatButton.setVisible(true);
+        openChatIcon.setVisible(false);
+        closeChatIcon.setVisible(true);
     }
 
     @FXML
     private void closeChat() {
         chatPane.setVisible(false);
-        openChatButton.setVisible(true);
-        closeChatButton.setVisible(false);
+        openChatIcon.setVisible(true);
+        closeChatIcon.setVisible(false);
     }
 
     @Override

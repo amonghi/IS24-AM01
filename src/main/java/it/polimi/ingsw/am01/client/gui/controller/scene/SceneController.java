@@ -46,6 +46,10 @@ public abstract class SceneController implements GUIElement {
         stage.show();
     }
 
+    protected void setFullScreen() {
+        primaryStage.setFullScreen(!primaryStage.isFullScreen());
+    }
+
     protected void openPopup(PopupController popupController) {
         popupController.loadPopup(primaryStage, view);
     }

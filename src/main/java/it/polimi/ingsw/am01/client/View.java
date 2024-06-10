@@ -410,6 +410,10 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return playerName;
     }
 
+    public String getCurrentPlayer() {
+        return currentPlayer;
+    }
+
     public int getStartingCardId() {
         return startingCardId;
     }
