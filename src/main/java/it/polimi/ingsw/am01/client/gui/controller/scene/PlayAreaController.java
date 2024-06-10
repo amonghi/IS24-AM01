@@ -373,8 +373,16 @@ public class PlayAreaController extends SceneController {
                 view.on(SetPlayAreaEvent.class, this::setPlayArea),
                 view.on(GamePausedEvent.class, this::pauseGame),
                 view.on(GameResumedEvent.class, this::resumeGame),
-                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+                view.on(NewMessageEvent.class, this::updateMessages)
         ));
+    }
+
+    private void updateMessages(NewMessageEvent event) {
+        if (event.message().recipient().equals(view.getPlayerName())) {
+            openChatIcon.getImage().cancel();
+            openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH  + "chat-msg" + Constants.IMAGE_EXTENSION)).toString()));
+        }
+        chatBoxController.updateMessages(event);
     }
 
     private void setPlayArea(SetPlayAreaEvent event) {
@@ -401,6 +409,7 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void openChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH  + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         chatPane.setVisible(true);
         openChatIcon.setVisible(false);
         closeChatIcon.setVisible(true);
@@ -408,6 +417,7 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void closeChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH  + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         chatPane.setVisible(false);
         openChatIcon.setVisible(true);
         closeChatIcon.setVisible(false);
