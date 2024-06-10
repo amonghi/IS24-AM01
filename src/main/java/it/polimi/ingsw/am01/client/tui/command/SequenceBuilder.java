@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.client.tui.command;
 import it.polimi.ingsw.am01.client.tui.command.parser.LiteralParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
 import it.polimi.ingsw.am01.client.tui.command.parser.WhiteSpaceParser;
+import it.polimi.ingsw.am01.client.tui.command.validator.Validator;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -11,6 +12,7 @@ public class SequenceBuilder {
     private final SequenceBuilder prev;
     private final Parser parser;
     private Consumer<CommandContext> executor;
+    private Validator validator;
 
     private SequenceBuilder(SequenceBuilder prev, Parser parser) {
         this.prev = prev;
@@ -38,6 +40,11 @@ public class SequenceBuilder {
         return this;
     }
 
+    public SequenceBuilder validate(Validator validator) {
+        this.validator = validator;
+        return this;
+    }
+
     public SequenceBuilder then(Parser parser) {
         return new SequenceBuilder(this, parser);
     }
@@ -51,7 +58,7 @@ public class SequenceBuilder {
     }
 
     private CommandNode buildWithChild(CommandNode child) {
-        CommandNode node = new CommandNode(this.parser, this.executor, List.of(child));
+        CommandNode node = new CommandNode(this.parser, this.executor, this.validator, List.of(child));
         if (this.prev == null) {
             return node;
         }
@@ -60,7 +67,7 @@ public class SequenceBuilder {
     }
 
     public CommandNode end() {
-        CommandNode node = new CommandNode(this.parser, this.executor);
+        CommandNode node = new CommandNode(this.parser, this.executor, this.validator);
         if (prev == null) {
             return node;
         }

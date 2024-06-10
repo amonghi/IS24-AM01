@@ -21,7 +21,7 @@ public class WhiteSpaceParser implements Parser {
 
     @Override
     public Parser.Completion complete(String partial) throws ParseException {
-        if (partial.isEmpty()) {
+        if (partial.isEmpty() && this.required) {
             return Completion.completable(" ");
         }
 

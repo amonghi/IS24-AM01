@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.client.tui.commands;
 
+import it.polimi.ingsw.am01.client.ClientState;
 import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
@@ -8,6 +9,7 @@ import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.EnumParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.IntParser;
+import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
 
 public class ConnectCommand extends TuiCommand {
     public ConnectCommand(TuiView view) {
@@ -17,7 +19,9 @@ public class ConnectCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .literal("connect")
+                .root()
+                .validate(this::validateState)
+                .thenLiteral("connect")
                 .thenWhitespace()
                 .then(new EnumParser<>("connectionType", View.ConnectionType.class))
                 .thenWhitespace()
@@ -34,5 +38,11 @@ public class ConnectCommand extends TuiCommand {
         int port = ctx.getInt("port");
 
         this.getView().connect(connectionType, hostname, port);
+    }
+
+    private void validateState(CommandContext ctx) throws ValidationException {
+        if (!getView().getState().equals(ClientState.NOT_CONNECTED)) {
+            throw new ValidationException();
+        }
     }
 }

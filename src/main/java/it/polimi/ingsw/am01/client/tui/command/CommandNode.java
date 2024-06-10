@@ -2,6 +2,8 @@ package it.polimi.ingsw.am01.client.tui.command;
 
 import it.polimi.ingsw.am01.client.tui.command.parser.ParseException;
 import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
+import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.command.validator.Validator;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,14 +13,16 @@ public class CommandNode {
     private final Parser parser;
     private final List<CommandNode> children;
     private final Consumer<CommandContext> executor;
+    private final Validator validator;
 
-    public CommandNode(Parser parser, Consumer<CommandContext> executor) {
-        this(parser, executor, List.of());
+    public CommandNode(Parser parser, Consumer<CommandContext> executor, Validator validator) {
+        this(parser, executor, validator, List.of());
     }
 
-    public CommandNode(Parser parser, Consumer<CommandContext> executor, List<CommandNode> children) {
+    public CommandNode(Parser parser, Consumer<CommandContext> executor, Validator validator, List<CommandNode> children) {
         this.parser = parser;
         this.executor = executor;
+        this.validator = validator;
         this.children = children;
     }
 
@@ -37,6 +41,15 @@ public class CommandNode {
         // we match partially, suggest how to complete the command
         if (!tokenResult.isFullMatch()) {
             return new Result(tokenResult.consumed(), getCompletionsForPartial(command));
+        }
+
+        try {
+            if (this.validator != null) {
+                this.validator.validate(context);
+            }
+        } catch (ValidationException e) {
+            // TODO: show error message
+            return new Result(0, getCompletionsForPartial(command));
         }
 
         int consumed = tokenResult.consumed();
