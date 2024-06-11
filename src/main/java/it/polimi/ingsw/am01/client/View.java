@@ -522,9 +522,6 @@ public abstract class View implements EventEmitter<ViewEvent> {
         scores.clear();
         secretObjectivesId.clear();
         connections.clear();
-        gameStatus = null;
-        turnPhase = null;
-        currentPlayer = null;
         commonObjectivesId.clear();
         playersHaveChosenSecretObjective.clear();
         messages.clear();

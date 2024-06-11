@@ -32,7 +32,8 @@ public class TuiView extends BaseTuiView {
             SelectStartingCardSideCommand::new,
             SelectColorCommand::new,
             SelectObjectiveCommand::new,
-            QuitCommand::new
+            QuitCommand::new,
+            ExitFinishedGameCommand::new
     );
 
     private final Keyboard keyboard;
@@ -149,8 +150,8 @@ public class TuiView extends BaseTuiView {
                                 case SETUP_COLOR -> new SelectColorScene(this);
                                 case SETUP_OBJECTIVE -> new SelectObjectiveScene(this);
                                 case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED ->
-                                        new Text("PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED");
-                                case FINISHED -> new Text("FINISHED");
+                                        new Text(getGameStatus().toString());
+                                case FINISHED -> new EndingScene(this);
                                 case RESTORING -> new Text("RESTORING");
                             };
                         }
