@@ -47,6 +47,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
     private final Map<String, Boolean> connections;
     private final List<Message> messages;
     private final List<String> playersHaveChosenSecretObjective;
+    private final Map<String, Integer> finalScores;
     private Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private Map<Integer, UpdateGameListS2C.GameStat> games;
     private String playerName;
@@ -78,6 +79,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
         this.playerColors = new HashMap<>();
         this.connections = new HashMap<>();
         this.messages = new ArrayList<>();
+        this.finalScores = new HashMap<>();
         this.playersHaveChosenSecretObjective = new ArrayList<>();
         this.state = ClientState.NOT_CONNECTED;
     }
@@ -288,6 +290,8 @@ public abstract class View implements EventEmitter<ViewEvent> {
 
     public void handleMessage(GameFinishedS2C m) {
         changeGameStatus(GameStatus.FINISHED);
+        finalScores.clear();
+        finalScores.putAll(m.finalScores());
         emitter.emit(new SetFinalScoresEvent(m.finalScores(), playerColors));
         clearData();
     }
@@ -406,6 +410,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
 
     public void exitFinishedGame() {
         changeState(ClientState.AUTHENTICATED);
+        finalScores.clear();
     }
 
     public String getPlayerName() {
@@ -435,6 +440,21 @@ public abstract class View implements EventEmitter<ViewEvent> {
         ));
     }
 
+    public SortedMap<String, Integer> getFinalPlacements() {
+        SortedMap<String, Integer> finalPlacements = new TreeMap<>();
+
+        List<Map.Entry<String, Integer>> orderedScores = finalScores.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).toList();
+        for (int i = 0; i < orderedScores.size(); i++) {
+            String player = orderedScores.get(i).getKey();
+            int points = orderedScores.get(i).getValue();
+            int placement = i > 0 && finalPlacements.values().stream().toList().get(i - 1) == points
+                    ? finalPlacements.values().stream().toList().get(i - 1)
+                    : i + 1;
+            finalPlacements.put(player, placement);
+        }
+        return finalPlacements;
+    }
+
     public void removeLastPlacement(String player) {
         playAreas.get(player).removeLast();
     }
@@ -446,6 +466,10 @@ public abstract class View implements EventEmitter<ViewEvent> {
 
     public List<String> getPlayersHaveChosenSecretObjective() {
         return playersHaveChosenSecretObjective;
+    }
+
+    public Map<String, Integer> getFinalScores() {
+        return finalScores;
     }
 
     public Map<Integer, UpdateGameListS2C.GameStat> getGames() {
