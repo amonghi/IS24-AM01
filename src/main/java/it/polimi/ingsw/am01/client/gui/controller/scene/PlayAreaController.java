@@ -11,7 +11,6 @@ import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
-import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
@@ -57,7 +56,7 @@ public class PlayAreaController extends SceneController {
     @FXML
     private HBox secret_obj;
     @FXML
-    private HBox play_status;
+    private HBox player_list;
     @FXML
     private Label gameStatusLabel;
     @FXML
@@ -215,7 +214,7 @@ public class PlayAreaController extends SceneController {
     }
 
     private void updatePlayArea(UpdatePlayAreaEvent event) {
-        for (Node playerInfo : play_status.getChildren()) {
+        for (Node playerInfo : player_list.getChildren()) {
             if (((PlayerInfoController) playerInfo).getName().equals(event.playerName())) {
                 ((PlayerInfoController) playerInfo).setScore(view.getScore(event.playerName()));
             }
@@ -239,9 +238,9 @@ public class PlayAreaController extends SceneController {
             playarea.getChildren().removeLast();
         }
 
-        play_status.getChildren().clear();
+        player_list.getChildren().clear();
         for (String player : view.getPlayersInGame()) {
-            play_status.getChildren().add(new PlayerInfoController(
+            player_list.getChildren().add(new PlayerInfoController(
                     player,
                     view.getPlayerColor(player),
                     view.getScore(player),
@@ -261,7 +260,7 @@ public class PlayAreaController extends SceneController {
         if (board.getTranslateX() != 0) {
             movePane(0, board);
         } else {
-            movePane(-450, board);
+            movePane(-460, board);
             board.setDisable(true);
         }
     }
@@ -279,18 +278,9 @@ public class PlayAreaController extends SceneController {
         PauseTransition delay = new PauseTransition(Duration.seconds(3));
         delay.setOnFinished(e -> {
             gameStatusLabel.setText(statusText);
-            gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(view.getPlayerColor(view.getCurrentPlayer())) + ";  -fx-background-radius: 20;");
+            gameStatusLabel.setStyle("-fx-background-color: " + Utils.backgroundColorHex(view.getPlayerColor(view.getCurrentPlayer())) + ";  -fx-background-radius: 20;");
         });
         delay.play();
-    }
-
-    private String backgroundColorHex(PlayerColor playerColor) {
-        return switch (playerColor) {
-            case RED -> "#ff8080";
-            case YELLOW -> "#ffe680";
-            case BLUE -> "#8080ff";
-            case GREEN -> "#99e699";
-        };
     }
 
     private void handleTurn(UpdateGameTurnEvent event) {
@@ -307,18 +297,18 @@ public class PlayAreaController extends SceneController {
         }
 
         gameStatusLabel.setText(statusText);
-        gameStatusLabel.setStyle("-fx-background-color: " + backgroundColorHex(view.getPlayerColor(event.currentPlayer())) + "; -fx-background-radius: 20;");
+        gameStatusLabel.setStyle("-fx-background-color: " + Utils.backgroundColorHex(view.getPlayerColor(event.currentPlayer())) + "; -fx-background-radius: 20;");
 
         if (!event.currentPlayer().equals(event.player())) {
             //It's not my turn
-            movePane(-450, board);
+            movePane(-460, board);
             hand.setDisable(true);
             board.setDisable(true);
             playarea.setDisable(true);
             return;
         }
         if (event.turnPhase().equals("PLACING")) {
-            movePane(-450, board);
+            movePane(-460, board);
             board.setDisable(true);
             hand.setDisable(false);
             playarea.setDisable(false);
@@ -331,9 +321,9 @@ public class PlayAreaController extends SceneController {
     }
 
     private void updatePlayStatus(SetPlayStatusEvent event) {
-        play_status.getChildren().clear();
+        player_list.getChildren().clear();
         for (String player : event.players()) {
-            play_status.getChildren().add(new PlayerInfoController(
+            player_list.getChildren().add(new PlayerInfoController(
                     player,
                     event.colors().get(player),
                     event.scores().get(player),
@@ -366,6 +356,12 @@ public class PlayAreaController extends SceneController {
             playarea.getChildren().add(cp);
         }
         focussedPlayer = player;
+
+        if (!focussedPlayer.equals(view.getPlayerName())) {
+            gameStatusLabel.setText(statusText + " - You are viewing " + focussedPlayer);
+        } else {
+            gameStatusLabel.setText(statusText);
+        }
     }
 
     @Override

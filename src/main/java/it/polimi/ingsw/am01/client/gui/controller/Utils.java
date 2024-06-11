@@ -15,6 +15,15 @@ public class Utils {
         };
     }
 
+    public static String backgroundColorHex(PlayerColor playerColor) {
+        return switch (playerColor) {
+            case RED -> "#ff8080";
+            case YELLOW -> "#ffe680";
+            case BLUE -> "#8080ff";
+            case GREEN -> "#99e699";
+        };
+    }
+
     public static double computeXPosition(int i, int j) {
         final double OFFSET_X = CARD_PLACEMENT_WIDTH * (1 - X_RATIO);
         double xPos;

@@ -24,6 +24,18 @@
                 </AnchorPane>
             </content>
         </ScrollPane>
+        <VBox alignment="CENTER" layoutX="400.0" layoutY="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+              AnchorPane.topAnchor="50.0">
+            <children>
+                <HBox fx:id="player_list" alignment="CENTER" maxHeight="50.0" maxWidth="400.0" minHeight="50.0"
+                      minWidth="50.0" prefHeight="50.0" prefWidth="200.0" spacing="20.0"
+                      style="-fx-background-color: rgba(0,0,0,0);" VBox.vgrow="ALWAYS">
+                    <VBox.margin>
+                        <Insets top="10.0"/>
+                    </VBox.margin>
+                </HBox>
+            </children>
+        </VBox>
         <AnchorPane maxHeight="50.0" minHeight="50.0" prefHeight="50.0" prefWidth="200.0"
                     style="-fx-background-color: BLACK;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                     AnchorPane.topAnchor="0.0">
@@ -75,7 +87,7 @@
             </children>
         </AnchorPane>
         <VBox fx:id="board" alignment="CENTER_LEFT" layoutX="50.0" layoutY="8.0"
-              style="-fx-background-color: rgba(0, 0, 0, 0.2); -fx-background-radius: 0 50 50 0;" translateX="-450.0"
+              style="-fx-background-color: rgba(0, 0, 0, 0.2); -fx-background-radius: 0 50 50 0;" translateX="-460.0"
               AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="50.0">
             <children>
                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="DECKS">
