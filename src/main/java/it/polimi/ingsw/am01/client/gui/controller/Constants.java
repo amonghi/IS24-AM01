@@ -13,12 +13,13 @@ public class Constants {
     public static final String IMAGE_EXTENSION = ".png";
 
     //Size for positioning card in the playarea
-    public static final int OFFSET_X = 224;
-    public static final int OFFSET_Y = 111;
     public static final int BASE_X = 5000;
     public static final int BASE_Y = 5000;
     public static final double X_RATIO = 0.253;
     public static final double Y_RATIO = 0.445;
+    public static final double ZOOM = 0.1;
+    public static final double MAX_ZOOM = 1.0;
+    public static final double MIN_ZOOM = 0.5;
 
     //Card size
     public static final int HAND_CARD_WIDTH = 200;

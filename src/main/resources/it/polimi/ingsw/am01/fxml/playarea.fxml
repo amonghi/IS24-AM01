@@ -84,6 +84,20 @@
                         <Image url="@../icons/close.png"/>
                     </image>
                 </ImageView>
+                <ImageView fx:id="zoomInIcon" fitHeight="30.0" fitWidth="30.0" layoutX="30.0" layoutY="30.0"
+                           onMouseClicked="#closeChat" pickOnBounds="true" preserveRatio="true"
+                           AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="120.0" AnchorPane.topAnchor="10.0">
+                    <image>
+                        <Image url="@../icons/zoom_in_dis.png"/>
+                    </image>
+                </ImageView>
+                <ImageView fx:id="zoomOutIcon" fitHeight="30.0" fitWidth="30.0" layoutX="40.0" layoutY="40.0"
+                           onMouseClicked="#closeChat" pickOnBounds="true" preserveRatio="true"
+                           AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="160.0" AnchorPane.topAnchor="10.0">
+                    <image>
+                        <Image url="@../icons/zoom_out.png"/>
+                    </image>
+                </ImageView>
             </children>
         </AnchorPane>
         <VBox fx:id="board" alignment="CENTER_LEFT" layoutX="50.0" layoutY="8.0"

@@ -69,6 +69,10 @@ public class PlayAreaController extends SceneController {
     private ImageView showBoardIcon;
     @FXML
     private ImageView maxIcon;
+    @FXML
+    private ImageView zoomInIcon;
+    @FXML
+    private ImageView zoomOutIcon;
     private ChatBoxController chatBoxController;
 
     public PlayAreaController(View view) {
@@ -85,6 +89,29 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void initialize() {
+        zoomInIcon.setOnMouseClicked(event -> {
+            playarea.setScaleX(Math.min(playarea.getScaleX() + Constants.ZOOM, Constants.MAX_ZOOM));
+            playarea.setScaleY(Math.min(playarea.getScaleY() + Constants.ZOOM, Constants.MAX_ZOOM));
+            String zoomIn = "zoom_in", zoomOut = "zoom_out";
+            if (playarea.getScaleX() == Constants.MAX_ZOOM) {
+                zoomIn = "zoom_in_dis";
+                zoomOut = "zoom_out";
+            }
+            zoomInIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomIn + Constants.IMAGE_EXTENSION)).toString()));
+            zoomOutIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomOut + Constants.IMAGE_EXTENSION)).toString()));
+        });
+        zoomOutIcon.setOnMouseClicked(event -> {
+            playarea.setScaleX(Math.max(playarea.getScaleX() - Constants.ZOOM, Constants.MIN_ZOOM));
+            playarea.setScaleY(Math.max(playarea.getScaleY() - Constants.ZOOM, Constants.MIN_ZOOM));
+            String zoomIn = "zoom_in", zoomOut = "zoom_out";
+            if (playarea.getScaleX() == Constants.MIN_ZOOM) {
+                zoomIn = "zoom_in";
+                zoomOut = "zoom_out_dis";
+            }
+            zoomInIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomIn + Constants.IMAGE_EXTENSION)).toString()));
+            zoomOutIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomOut + Constants.IMAGE_EXTENSION)).toString()));
+        });
+
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
         showBoardIcon.setOnMouseClicked(event -> showHideBoard());
