@@ -1,22 +1,34 @@
 package it.polimi.ingsw.am01.client.tui.component.elements;
 
 import it.polimi.ingsw.am01.client.tui.component.Component;
+import it.polimi.ingsw.am01.client.tui.component.layout.BaseLayout;
 import it.polimi.ingsw.am01.client.tui.rendering.Constraint;
-import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
-import it.polimi.ingsw.am01.client.tui.rendering.Sized;
-import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
+import it.polimi.ingsw.am01.client.tui.rendering.Position;
 
-public interface Composition extends Component {
+import java.util.List;
 
-    Component compose();
+public abstract class Composition extends BaseLayout {
+    private Component root;
 
-    @Override
-    default Sized layout(Constraint constraint) {
-        return compose().layout(constraint);
+    protected abstract Component compose();
+
+    private Component getRoot() {
+        if (root == null) {
+            root = compose();
+        }
+
+        return root;
     }
 
     @Override
-    default void drawSelf(RenderingContext ctx, DrawArea a) {
-        compose().drawSelf(ctx, a);
+    protected List<Component> children() {
+        return List.of(this.getRoot());
+    }
+
+    @Override
+    public void layout(Constraint constraint) {
+        this.getRoot().layout(constraint);
+        this.getRoot().setPosition(Position.ZERO);
+        this.setDimensions(this.getRoot().dimensions());
     }
 }

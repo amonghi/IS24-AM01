@@ -2,13 +2,9 @@ package it.polimi.ingsw.am01.client.tui.scenes;
 
 import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.component.Component;
-import it.polimi.ingsw.am01.client.tui.component.elements.Border;
 import it.polimi.ingsw.am01.client.tui.component.elements.Composition;
 import it.polimi.ingsw.am01.client.tui.component.elements.Text;
-import it.polimi.ingsw.am01.client.tui.component.layout.Centered;
-import it.polimi.ingsw.am01.client.tui.component.layout.Column;
-import it.polimi.ingsw.am01.client.tui.component.layout.Padding;
-import it.polimi.ingsw.am01.client.tui.component.layout.Row;
+import it.polimi.ingsw.am01.client.tui.component.layout.*;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
@@ -17,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LobbyScene implements Composition {
+public class LobbyScene extends Composition {
 
     private final TuiView view;
 

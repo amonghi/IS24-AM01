@@ -2,13 +2,9 @@ package it.polimi.ingsw.am01.client.tui.scenes;
 
 import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.component.Component;
-import it.polimi.ingsw.am01.client.tui.component.elements.Border;
 import it.polimi.ingsw.am01.client.tui.component.elements.Composition;
 import it.polimi.ingsw.am01.client.tui.component.elements.Text;
-import it.polimi.ingsw.am01.client.tui.component.layout.Centered;
-import it.polimi.ingsw.am01.client.tui.component.layout.Column;
-import it.polimi.ingsw.am01.client.tui.component.layout.Padding;
-import it.polimi.ingsw.am01.client.tui.component.layout.Row;
+import it.polimi.ingsw.am01.client.tui.component.layout.*;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
@@ -19,7 +15,7 @@ import it.polimi.ingsw.am01.model.player.PlayerColor;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SelectColorScene implements Composition {
+public class SelectColorScene extends Composition {
 
     private final TuiView view;
 

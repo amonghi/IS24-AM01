@@ -37,7 +37,7 @@ public class DrawBuffer {
     }
 
     public DrawArea getDrawArea() {
-        return new DrawArea(this, Position.ZERO, this.dimensions);
+        return new DrawArea(this);
     }
 
     public String toString() {
