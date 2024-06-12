@@ -8,7 +8,6 @@ import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.component.elements.Cursor;
 import it.polimi.ingsw.am01.client.tui.component.elements.Text;
 import it.polimi.ingsw.am01.client.tui.component.layout.Border;
-import it.polimi.ingsw.am01.client.tui.component.layout.Centered;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.keyboard.Key;
@@ -16,14 +15,10 @@ import it.polimi.ingsw.am01.client.tui.keyboard.Keyboard;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
-import it.polimi.ingsw.am01.client.tui.scenes.AuthScene;
-import it.polimi.ingsw.am01.client.tui.scenes.GamesListScene;
-import it.polimi.ingsw.am01.client.tui.scenes.LobbyScene;
-import it.polimi.ingsw.am01.client.tui.scenes.WelcomeScene;
-import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import it.polimi.ingsw.am01.client.tui.scenes.*;
 import it.polimi.ingsw.am01.client.tui.terminal.Terminal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -37,20 +32,26 @@ public class TuiView extends BaseTuiView {
             StartGameCommand::new,
             SelectStartingCardSideCommand::new,
             SelectColorCommand::new,
+            SetChatVisibilityCommand::new,
             SelectObjectiveCommand::new,
             QuitCommand::new,
-            ExitFinishedGameCommand::new
+            ExitFinishedGameCommand::new,
+            SendMessageCommand::new,
+            QuitCommand::new
     );
 
     private final Keyboard keyboard;
     private final CommandNode rootCmd;
     private final List<Registration> keyboardRegistrations;
+    private boolean chatVisible;
 
     private String input = "";
 
     public TuiView(Terminal terminal) {
         super(terminal);
         this.keyboard = Keyboard.getInstance();
+
+        this.chatVisible = false;
 
         // build the command tree
         CommandBuilder builder = CommandBuilder.root();
@@ -134,6 +135,20 @@ public class TuiView extends BaseTuiView {
         return this.rootCmd.parse(this.input);
     }
 
+    public void openChat() {
+        chatVisible = true;
+        render();
+    }
+
+    public void closeChat() {
+        chatVisible = false;
+        render();
+    }
+
+    public boolean isChatVisible() {
+        return chatVisible;
+    }
+
     public Component compose() {
         CommandNode.Result parseResult = this.parseInput();
         String whitePart = this.input.substring(0, parseResult.getConsumed());
@@ -143,8 +158,10 @@ public class TuiView extends BaseTuiView {
                 .map(Parser.Completion::text)
                 .orElse("");
 
-        return Flex.column(List.of(
-                // top part of screen
+        List<FlexChild> children = new ArrayList<>();
+
+        // top part of screen
+        children.add(
                 new FlexChild.Flexible(1,
                         switch (this.getState()) {
                             case NOT_CONNECTED -> new WelcomeScene();
@@ -161,9 +178,10 @@ public class TuiView extends BaseTuiView {
                                 case RESTORING -> new Text("RESTORING");
                             };
                         }
-                ),
-
-                // bottom input
+                )
+        );
+        // bottom input
+        children.add(
                 new FlexChild.Fixed(new Border(Line.Style.DEFAULT,
                         Flex.row(List.of(
                                 new FlexChild.Fixed(new Text(
@@ -185,6 +203,8 @@ public class TuiView extends BaseTuiView {
                                 ))
                         ))
                 ))
-        ));
+        );
+
+        return Flex.column(children);
     }
 }

@@ -8,11 +8,7 @@ import javafx.scene.layout.AnchorPane;
 
 public class ChatMessageController extends AnchorPane implements ComponentController {
 
-    private final String type;
-    private final String sender;
-    private final String content;
-    private final String recipient;
-    private final String timestamp;
+    private final View.Message message;
     private final View view;
     @FXML
     private Label typeLabel;
@@ -21,13 +17,9 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
     @FXML
     private Label contentLabel;
 
-    public ChatMessageController(String type, String sender, String recipient, String content, String timestamp, View view) {
+    public ChatMessageController(View.Message message, View view) {
         this.view = view;
-        this.sender = sender;
-        this.recipient = recipient;
-        this.type = type;
-        this.content = content;
-        this.timestamp = timestamp;
+        this.message = message;
 
         loadComponent();
     }
@@ -35,19 +27,19 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
     @FXML
     private void initialize() {
         String recString = "";
-        String senderString = sender;
-        typeLabel.setText("[" + type.split("")[0] + "]");
+        String senderString = message.sender();
+        typeLabel.setText("[" + message.type().toString().split("")[0] + "]");
 
-        if (sender.equals(view.getPlayerName())) {
+        if (message.sender().equals(view.getPlayerName())) {
             senderString = "You";
         }
 
-        if (type.equals(MessageType.DIRECT.toString()) && sender.equals(view.getPlayerName())) {
-            recString = " --> " + recipient;
+        if (message.type().equals(MessageType.DIRECT) && message.sender().equals(view.getPlayerName())) {
+            recString = " --> " + message.recipient();
         }
 
-        infoLabel.setText("(" + timestamp.split("T")[1].split("\\.")[0] + ") " + senderString + recString + ": ");
-        contentLabel.setText(content);
+        infoLabel.setText("(" + message.timestamp().split("T")[1].split("\\.")[0] + ") " + senderString + recString + ": ");
+        contentLabel.setText(message.content());
     }
 
     @Override

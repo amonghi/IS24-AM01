@@ -29,6 +29,7 @@ public class SelectStartingCardSideScene extends Composition {
 
     @Override
     public Component compose() {
+        //TODO: add chat component
         return Flex.column(List.of(
                 new FlexChild.Fixed(
                         Padding.hv(1, 1,
