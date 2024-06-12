@@ -37,21 +37,23 @@ public class TuiView extends BaseTuiView {
             QuitCommand::new,
             ExitFinishedGameCommand::new,
             SendMessageCommand::new,
+            ChangeFocusedPlayerCommand::new,
             QuitCommand::new
     );
 
     private final Keyboard keyboard;
     private final CommandNode rootCmd;
     private final List<Registration> keyboardRegistrations;
-    private boolean chatVisible;
 
     private String input = "";
+    private boolean chatVisible = true;
+    private String focusedPlayer = null;
+    private int playAreaScrollX = 0;
+    private int playAreaScrollY = 0;
 
     public TuiView(Terminal terminal) {
         super(terminal);
         this.keyboard = Keyboard.getInstance();
-
-        this.chatVisible = false;
 
         // build the command tree
         CommandBuilder builder = CommandBuilder.root();
@@ -79,7 +81,9 @@ public class TuiView extends BaseTuiView {
                 keyboard.on(Key.Backspace.class, onRenderThread(event -> this.eraseChar())),
                 keyboard.on(Key.Del.class, onRenderThread(event -> this.eraseChar())),
                 keyboard.on(Key.Tab.class, onRenderThread(key -> this.writeCompletion())),
-                keyboard.on(Key.Enter.class, onRenderThread(key -> this.runCommand()))
+                keyboard.on(Key.Enter.class, onRenderThread(key -> this.runCommand())),
+
+                keyboard.on(Key.Arrow.class, onRenderThread(event -> this.movePlayArea(event.direction())))
         );
 
         // start rendering
@@ -149,6 +153,38 @@ public class TuiView extends BaseTuiView {
         return chatVisible;
     }
 
+    public Optional<String> getFocusedPlayer() {
+        return Optional.ofNullable(focusedPlayer);
+    }
+
+    public void setFocusedPlayer(String playerName) {
+        this.focusedPlayer = playerName;
+        render();
+    }
+
+    public int getPlayAreaScrollX() {
+        return playAreaScrollX;
+    }
+
+    public int getPlayAreaScrollY() {
+        return playAreaScrollY;
+    }
+
+    private void movePlayArea(Key.Arrow.Direction direction) {
+        if (!ChangeFocusedPlayerCommand.isCorrectState(this)) {
+            return;
+        }
+
+        switch (direction) {
+            case UP -> this.playAreaScrollY -= 2;
+            case DOWN -> this.playAreaScrollY += 2;
+            case LEFT -> this.playAreaScrollX -= 2;
+            case RIGHT -> this.playAreaScrollX += 2;
+        }
+
+        this.render();
+    }
+
     public Component compose() {
         CommandNode.Result parseResult = this.parseInput();
         String whitePart = this.input.substring(0, parseResult.getConsumed());
@@ -172,8 +208,7 @@ public class TuiView extends BaseTuiView {
                                 case SETUP_STARTING_CARD_SIDE -> new SelectStartingCardSideScene(this);
                                 case SETUP_COLOR -> new SelectColorScene(this);
                                 case SETUP_OBJECTIVE -> new SelectObjectiveScene(this);
-                                case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED ->
-                                        new Text(getGameStatus().toString());
+                                case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED -> new PlayAreaScene(this);
                                 case FINISHED -> new EndingScene(this);
                                 case RESTORING -> new Text("RESTORING");
                             };
