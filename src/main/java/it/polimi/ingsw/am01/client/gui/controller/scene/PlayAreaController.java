@@ -19,6 +19,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -89,54 +91,96 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void initialize() {
-        zoomInIcon.setOnMouseClicked(event -> {
-            playarea.setScaleX(Math.min(playarea.getScaleX() + Constants.ZOOM, Constants.MAX_ZOOM));
-            playarea.setScaleY(Math.min(playarea.getScaleY() + Constants.ZOOM, Constants.MAX_ZOOM));
-            String zoomIn = "zoom_in", zoomOut = "zoom_out";
-            if (playarea.getScaleX() == Constants.MAX_ZOOM) {
-                zoomIn = "zoom_in_dis";
-                zoomOut = "zoom_out";
-            }
-            zoomInIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomIn + Constants.IMAGE_EXTENSION)).toString()));
-            zoomOutIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomOut + Constants.IMAGE_EXTENSION)).toString()));
-        });
-        zoomOutIcon.setOnMouseClicked(event -> {
-            playarea.setScaleX(Math.max(playarea.getScaleX() - Constants.ZOOM, Constants.MIN_ZOOM));
-            playarea.setScaleY(Math.max(playarea.getScaleY() - Constants.ZOOM, Constants.MIN_ZOOM));
-            String zoomIn = "zoom_in", zoomOut = "zoom_out";
-            if (playarea.getScaleX() == Constants.MIN_ZOOM) {
-                zoomIn = "zoom_in";
-                zoomOut = "zoom_out_dis";
-            }
-            zoomInIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomIn + Constants.IMAGE_EXTENSION)).toString()));
-            zoomOutIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomOut + Constants.IMAGE_EXTENSION)).toString()));
-        });
-
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
-        showBoardIcon.setOnMouseClicked(event -> showHideBoard());
-        maxIcon.setOnMouseClicked(event -> super.setFullScreen());
+
+        //Event handling
+        zoomInIcon.setOnMouseClicked(this::zoomIn);
+        zoomOutIcon.setOnMouseClicked(this::zoomOut);
+
+        showBoardIcon.setOnMouseClicked(this::showHideBoard);
+        maxIcon.setOnMouseClicked(this::setFullScreen);
         closeChatIcon.setVisible(false);
 
-        positionLayer.setOnDragOver(event -> {
-            for (Position playablePosition : playablePositions) {
-                positionLayer.getChildren().add(new PlayablePositionController(
-                        Utils.computeXPosition(playablePosition.i(), playablePosition.j()),
-                        Utils.computeYPosition(playablePosition.i(), playablePosition.j())
-                ));
-            }
-            event.acceptTransferModes(TransferMode.ANY);
-        });
+        positionLayer.setOnDragOver(this::dragCard);
+        positionLayer.setOnDragDropped(this::dropCard);
+    }
 
-        positionLayer.setOnDragDropped(event -> {
-            clearPositionLayer();
-            if (isAValidPosition(event.getX(), event.getY()).isPresent()) {
-                Position pos = isAValidPosition(event.getX(), event.getY()).get();
-                placeCard(pos.i(), pos.j());
-            } else {
-                showErrorMessage("Invalid position! Please, replace the card!");
-            }
-        });
+    @FXML
+    private void openChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
+        movePane(0, chatPane);
+        openChatIcon.setVisible(false);
+        closeChatIcon.setVisible(true);
+    }
+
+    @FXML
+    private void closeChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
+        movePane(400, chatPane);
+        openChatIcon.setVisible(true);
+        closeChatIcon.setVisible(false);
+    }
+
+    private void zoomIn(MouseEvent event) {
+        playarea.setScaleX(Math.min(playarea.getScaleX() + Constants.ZOOM, Constants.MAX_ZOOM));
+        playarea.setScaleY(Math.min(playarea.getScaleY() + Constants.ZOOM, Constants.MAX_ZOOM));
+        String zoomIn = "zoom_in", zoomOut = "zoom_out";
+        if (playarea.getScaleX() == Constants.MAX_ZOOM) {
+            zoomIn = "zoom_in_dis";
+            zoomOut = "zoom_out";
+        }
+        zoomInIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomIn + Constants.IMAGE_EXTENSION)).toString()));
+        zoomOutIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomOut + Constants.IMAGE_EXTENSION)).toString()));
+
+    }
+
+    private void zoomOut(MouseEvent event) {
+        playarea.setScaleX(Math.max(playarea.getScaleX() - Constants.ZOOM, Constants.MIN_ZOOM));
+        playarea.setScaleY(Math.max(playarea.getScaleY() - Constants.ZOOM, Constants.MIN_ZOOM));
+        String zoomIn = "zoom_in", zoomOut = "zoom_out";
+        if (playarea.getScaleX() == Constants.MIN_ZOOM) {
+            zoomIn = "zoom_in";
+            zoomOut = "zoom_out_dis";
+        }
+        zoomInIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomIn + Constants.IMAGE_EXTENSION)).toString()));
+        zoomOutIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + zoomOut + Constants.IMAGE_EXTENSION)).toString()));
+    }
+
+    private void showHideBoard(MouseEvent event) {
+        if (board.getTranslateX() != 0) {
+            movePane(0, board);
+        } else {
+            movePane(-460, board);
+            board.setDisable(true);
+        }
+    }
+
+    private void movePane(float position, Node node) {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(1));
+        tt.setNode(node);
+        tt.setToX(position);
+        tt.play();
+    }
+
+    private void dragCard(DragEvent event) {
+        for (Position playablePosition : playablePositions) {
+            positionLayer.getChildren().add(new PlayablePositionController(
+                    Utils.computeXPosition(playablePosition.i(), playablePosition.j()),
+                    Utils.computeYPosition(playablePosition.i(), playablePosition.j())
+            ));
+        }
+        event.acceptTransferModes(TransferMode.ANY);
+    }
+
+    private void dropCard(DragEvent event) {
+        clearPositionLayer();
+        if (isAValidPosition(event.getX(), event.getY()).isPresent()) {
+            Position pos = isAValidPosition(event.getX(), event.getY()).get();
+            placeCard(pos.i(), pos.j());
+        } else {
+            showErrorMessage("Invalid position! Please, replace the card!");
+        }
     }
 
     public void clearPositionLayer() {
@@ -283,22 +327,6 @@ public class PlayAreaController extends SceneController {
         hand.setDisable(false);
     }
 
-    private void showHideBoard() {
-        if (board.getTranslateX() != 0) {
-            movePane(0, board);
-        } else {
-            movePane(-460, board);
-            board.setDisable(true);
-        }
-    }
-
-    private void movePane(float position, Node node) {
-        TranslateTransition tt = new TranslateTransition(Duration.seconds(1));
-        tt.setNode(node);
-        tt.setToX(position);
-        tt.play();
-    }
-
     private void showErrorMessage(String error) {
         gameStatusLabel.setText(error);
         gameStatusLabel.setStyle("-fx-background-color: #ff0000;  -fx-background-radius: 20;");
@@ -439,22 +467,6 @@ public class PlayAreaController extends SceneController {
 
     private void resumeGame(GameResumedEvent event) {
         playarea.setDisable(false);
-    }
-
-    @FXML
-    private void openChat() {
-        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
-        movePane(0, chatPane);
-        openChatIcon.setVisible(false);
-        closeChatIcon.setVisible(true);
-    }
-
-    @FXML
-    private void closeChat() {
-        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
-        movePane(400, chatPane);
-        openChatIcon.setVisible(true);
-        closeChatIcon.setVisible(false);
     }
 
     @Override
