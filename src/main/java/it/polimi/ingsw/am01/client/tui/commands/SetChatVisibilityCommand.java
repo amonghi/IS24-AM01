@@ -45,7 +45,9 @@ public class SetChatVisibilityCommand extends TuiCommand {
     }
 
     private void validateState(CommandContext ctx) throws ValidationException {
-        if (!getView().getState().equals(ClientState.IN_GAME) || (getView().getGameStatus().equals(GameStatus.RESTORING))) {
+        if (!getView().getState().equals(ClientState.IN_GAME)
+                || (getView().getGameStatus().equals(GameStatus.RESTORING))
+                || (getView().getGameStatus().equals(GameStatus.FINISHED))) {
             throw new ValidationException();
         }
     }

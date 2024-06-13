@@ -30,6 +30,7 @@ public class TuiView extends BaseTuiView {
             JoinCommand::new,
             CreateGameCommand::new,
             StartGameCommand::new,
+            ResumeGameCommand::new,
             SelectStartingCardSideCommand::new,
             SelectColorCommand::new,
             SetChatVisibilityCommand::new,
@@ -210,7 +211,7 @@ public class TuiView extends BaseTuiView {
                                 case SETUP_OBJECTIVE -> new SelectObjectiveScene(this);
                                 case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED -> new PlayAreaScene(this);
                                 case FINISHED -> new EndingScene(this);
-                                case RESTORING -> new Text("RESTORING");
+                                case RESTORING -> new RestoringScene(this);
                             };
                         }
                 )
