@@ -1,16 +1,14 @@
 package it.polimi.ingsw.am01.client.tui.scenes;
 
 import it.polimi.ingsw.am01.client.tui.TuiView;
+import it.polimi.ingsw.am01.client.tui.Utils;
 import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.component.elements.Composition;
 import it.polimi.ingsw.am01.client.tui.component.elements.Text;
 import it.polimi.ingsw.am01.client.tui.component.layout.*;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
-import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
-import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
-import it.polimi.ingsw.am01.model.player.PlayerColor;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,7 +54,7 @@ public class SelectColorScene extends Composition {
                                                                         new Row(List.of(
                                                                                 new Text(entry.getKey()
                                                                                         + " has chosen "),
-                                                                                new Text(getGraphicalRendition(entry.getValue()), entry.getValue().toString().toLowerCase())
+                                                                                new Text(Utils.getColorRendition(entry.getValue()), entry.getValue().toString().toLowerCase())
                                                                         )))
                                                                 )
                                                                 .collect(Collectors.toList())
@@ -65,14 +63,5 @@ public class SelectColorScene extends Composition {
                         )
                 )
         ));
-    }
-
-    private GraphicalRendition getGraphicalRendition(PlayerColor color) {
-        return switch (color) {
-            case RED -> GraphicalRendition.DEFAULT.withForeground(GraphicalRenditionProperty.ForegroundColor.RED);
-            case BLUE -> GraphicalRendition.DEFAULT.withForeground(GraphicalRenditionProperty.ForegroundColor.BLUE);
-            case GREEN -> GraphicalRendition.DEFAULT.withForeground(GraphicalRenditionProperty.ForegroundColor.GREEN);
-            case YELLOW -> GraphicalRendition.DEFAULT.withForeground(GraphicalRenditionProperty.ForegroundColor.YELLOW);
-        };
     }
 }
