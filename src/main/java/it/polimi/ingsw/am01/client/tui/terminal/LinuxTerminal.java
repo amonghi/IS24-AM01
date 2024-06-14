@@ -9,11 +9,11 @@ import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
 import sun.misc.Signal;
 
-public class UnixTerminal implements Terminal {
+public class LinuxTerminal implements Terminal {
     private LibC.Termios originalAttributes;
     private final EventEmitterImpl<ResizeEvent> emitter;
 
-    public UnixTerminal() {
+    public LinuxTerminal() {
         this.emitter = new EventEmitterImpl<>();
 
         Signal.handle(
