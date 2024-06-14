@@ -1,11 +1,13 @@
 package it.polimi.ingsw.am01.client.tui.component.elements;
 
+import it.polimi.ingsw.am01.client.tui.Utils;
 import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.client.tui.rendering.Position;
 import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
+import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
@@ -29,15 +31,18 @@ public class CardFaceComponent extends Element {
     private static final String CORNER_COVER_POINTS_SYMBOL = "▅██";
 
     private final CardFace face;
+    private final CardColor cardColor;
 
 
-    public CardFaceComponent(CardFace face) {
+    public CardFaceComponent(CardFace face, CardColor cardColor) {
         super(Dimensions.of(CARD_W, CARD_H));
         this.face = face;
+        this.cardColor = cardColor;
     }
 
     @Override
     public void draw(RenderingContext ctx, DrawArea a) {
+        a.setRendition(Utils.getCardColorRendition(cardColor));
         Line.rectangle(a, Position.ZERO, a.dimensions(), Line.Style.ROUNDED);
 
         drawPoints(a);

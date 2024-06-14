@@ -12,6 +12,7 @@ import it.polimi.ingsw.am01.client.tui.component.layout.Padding;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
+import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 
@@ -29,6 +30,10 @@ public class SelectStartingCardSideScene extends Composition {
 
     @Override
     public Component compose() {
+        Card startingCard = GameAssets.getInstance()
+                .getCardById(view.getStartingCardId())
+                .orElseThrow();
+
         //TODO: add chat component
         return Flex.column(List.of(
                 new FlexChild.Fixed(
@@ -55,9 +60,8 @@ public class SelectStartingCardSideScene extends Composition {
                                                         ),
                                                         Centered.horizontally(
                                                                 new CardFaceComponent(
-                                                                        GameAssets.getInstance().getCardById(
-                                                                                view.getStartingCardId()
-                                                                        ).get().getFace(side)//FIXME: cannot be empty
+                                                                        startingCard.getFace(side),
+                                                                        startingCard.color()
                                                                 )
                                                         )
                                                 )

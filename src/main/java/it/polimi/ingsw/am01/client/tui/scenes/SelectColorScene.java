@@ -54,7 +54,7 @@ public class SelectColorScene extends Composition {
                                                                         new Row(List.of(
                                                                                 new Text(entry.getKey()
                                                                                         + " has chosen "),
-                                                                                new Text(Utils.getColorRendition(entry.getValue()), entry.getValue().toString().toLowerCase())
+                                                                                new Text(Utils.getPlayerColorRendition(entry.getValue()), entry.getValue().toString().toLowerCase())
                                                                         )))
                                                                 )
                                                                 .collect(Collectors.toList())

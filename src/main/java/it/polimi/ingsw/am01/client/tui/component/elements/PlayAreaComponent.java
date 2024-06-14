@@ -7,6 +7,8 @@ import it.polimi.ingsw.am01.client.tui.component.layout.Scroll;
 import it.polimi.ingsw.am01.client.tui.rendering.Constraint;
 import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.client.tui.rendering.Position;
+import it.polimi.ingsw.am01.model.card.Card;
+import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 
@@ -42,12 +44,13 @@ public class PlayAreaComponent extends Composition {
 
             this.children = playArea.stream()
                     .map(placement -> {
-                        CardFace face = GameAssets.getInstance()
+                        Card card = GameAssets.getInstance()
                                 .getCardById(placement.id())
-                                .orElseThrow()
-                                .getFace(placement.side());
+                                .orElseThrow();
+                        CardFace face = card.getFace(placement.side());
+                        CardColor cardColor = card.color();
 
-                        return (Component) new CardFaceComponent(face);
+                        return (Component) new CardFaceComponent(face, cardColor);
                     })
                     .toList();
         }
