@@ -25,13 +25,15 @@ public class ChangeFocusedPlayerCommand extends TuiCommand {
         return state.equals(ClientState.IN_GAME) &&
                 (gameStatus.equals(GameStatus.PLAY) ||
                         gameStatus.equals(GameStatus.SECOND_LAST_TURN) ||
-                        gameStatus.equals(GameStatus.LAST_TURN));
+                        gameStatus.equals(GameStatus.LAST_TURN) ||
+                        gameStatus.equals(GameStatus.SUSPENDED));
     }
 
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
                 .literal("focus")
+                .validatePre(this::validateState)
                 .thenWhitespace()
                 .endWithAlternatives(List.of(
                         SequenceBuilder
@@ -42,6 +44,7 @@ public class ChangeFocusedPlayerCommand extends TuiCommand {
                                 .literal("player")
                                 .thenWhitespace()
                                 .then(new WordArgumentParser("playerName"))
+                                .validatePost(this::validatePlayerName)
                                 .executes(this::changeFocus)
                                 .end()
                 ));
