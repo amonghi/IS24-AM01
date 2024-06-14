@@ -8,11 +8,9 @@ import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
 import sun.misc.Signal;
 
-import java.util.Arrays;
-
 public class UnixTerminal implements Terminal {
     private LibC.Termios originalAttributes;
-    private EventEmitterImpl<ResizeEvent> emitter;
+    private final EventEmitterImpl<ResizeEvent> emitter;
 
     public UnixTerminal() {
         this.emitter = new EventEmitterImpl<>();
@@ -97,11 +95,16 @@ public class UnixTerminal implements Terminal {
             public short ws_row, ws_col, ws_xpixel, ws_ypixel;
         }
 
-        @Structure.FieldOrder(value = {"c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_cc"})
+        @Structure.FieldOrder({"c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_line", "c_cc", "c_ispeed", "c_ospeed"})
         class Termios extends Structure {
-            public int c_iflag, c_oflag, c_cflag, c_lflag;
-
+            public int c_iflag;
+            public int c_oflag;
+            public int c_cflag;
+            public int c_lflag;
+            public byte c_line;
             public byte[] c_cc = new byte[19];
+            public int c_ispeed;
+            public int c_ospeed;
 
             public Termios() {
             }
@@ -116,16 +119,6 @@ public class UnixTerminal implements Terminal {
                 return copy;
             }
 
-            @Override
-            public String toString() {
-                return "Termios{" +
-                        "c_iflag=" + c_iflag +
-                        ", c_oflag=" + c_oflag +
-                        ", c_cflag=" + c_cflag +
-                        ", c_lflag=" + c_lflag +
-                        ", c_cc=" + Arrays.toString(c_cc) +
-                        '}';
-            }
         }
 
     }
