@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am01.client.tui.terminal;
 
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
@@ -47,13 +48,7 @@ public class UnixTerminal implements Terminal {
 
         originalAttributes = LibC.Termios.of(termios);
 
-        termios.c_lflag &= ~(LibC.ECHO | LibC.ICANON | LibC.IEXTEN | LibC.ISIG);
-        termios.c_iflag &= ~(LibC.IXON | LibC.ICRNL);
-        termios.c_oflag &= ~(LibC.OPOST);
-
-       /* termios.c_cc[LibC.VMIN] = 0;
-        termios.c_cc[LibC.VTIME] = 1;*/
-
+        LibC.INSTANCE.cfmakeraw(termios);
         LibC.INSTANCE.tcsetattr(LibC.SYSTEM_OUT_FD, LibC.TCSAFLUSH, termios);
     }
 
@@ -88,7 +83,9 @@ public class UnixTerminal implements Terminal {
         int tcsetattr(int fd, int optional_actions,
                       Termios termios);
 
-        int ioctl(int fd, int opt, Winsize winsize);
+        void cfmakeraw(Termios termios);
+
+        int ioctl(int fd, int opt, Winsize winsize) throws LastErrorException;
 
         @Structure.FieldOrder(value = {"ws_row", "ws_col", "ws_xpixel", "ws_ypixel"})
         class Winsize extends Structure {
