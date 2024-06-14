@@ -16,9 +16,8 @@ public class ExitFinishedGameCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .root()
-                .validate(this::validateState)
-                .thenLiteral("back")
+                .literal("back")
+                .validatePre(this::validateState)
                 .executes(this::execute)
                 .end();
     }
@@ -27,7 +26,7 @@ public class ExitFinishedGameCommand extends TuiCommand {
         getView().exitFinishedGame();
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.FINISHED)) {
             throw new ValidationException();
         }

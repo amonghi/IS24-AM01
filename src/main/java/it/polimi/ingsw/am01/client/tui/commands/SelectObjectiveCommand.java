@@ -18,9 +18,8 @@ public class SelectObjectiveCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .root()
-                .validate(this::validateState)
-                .thenLiteral("select")
+                .literal("select")
+                .validatePre(this::validateState)
                 .thenWhitespace()
                 .thenLiteral("objective")
                 .thenWhitespace()
@@ -40,7 +39,7 @@ public class SelectObjectiveCommand extends TuiCommand {
         getView().selectSecretObjective(objectiveId);
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.SETUP_OBJECTIVE)) {
             throw new ValidationException();
         }

@@ -2,8 +2,9 @@ package it.polimi.ingsw.am01.client.tui.command;
 
 import it.polimi.ingsw.am01.client.tui.command.parser.ParseException;
 import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
+import it.polimi.ingsw.am01.client.tui.command.validator.PostValidator;
+import it.polimi.ingsw.am01.client.tui.command.validator.PreValidator;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
-import it.polimi.ingsw.am01.client.tui.command.validator.Validator;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,16 +14,18 @@ public class CommandNode {
     private final Parser parser;
     private final List<CommandNode> children;
     private final Consumer<CommandContext> executor;
-    private final Validator validator;
+    private final PreValidator preValidator;
+    private final PostValidator postValidator;
 
-    public CommandNode(Parser parser, Consumer<CommandContext> executor, Validator validator) {
-        this(parser, executor, validator, List.of());
+    public CommandNode(Parser parser, Consumer<CommandContext> executor, PreValidator preValidator, PostValidator postValidator) {
+        this(parser, executor, preValidator, postValidator, List.of());
     }
 
-    public CommandNode(Parser parser, Consumer<CommandContext> executor, Validator validator, List<CommandNode> children) {
+    public CommandNode(Parser parser, Consumer<CommandContext> executor, PreValidator preValidator, PostValidator postValidator, List<CommandNode> children) {
         this.parser = parser;
         this.executor = executor;
-        this.validator = validator;
+        this.preValidator = preValidator;
+        this.postValidator = postValidator;
         this.children = children;
     }
 
@@ -31,6 +34,14 @@ public class CommandNode {
     }
 
     public Result parse(CommandContext context, String command) {
+        try {
+            if (this.preValidator != null) {
+                this.preValidator.validate();
+            }
+        } catch (ValidationException e) {
+            return new Result(0, getCompletionsForPartial(command));
+        }
+
         Parser.Result tokenResult;
         try {
             tokenResult = this.parser.parse(context, command);
@@ -44,8 +55,8 @@ public class CommandNode {
         }
 
         try {
-            if (this.validator != null) {
-                this.validator.validate(context);
+            if (this.postValidator != null) {
+                this.postValidator.validate(context);
             }
         } catch (ValidationException e) {
             // TODO: show error message
@@ -105,6 +116,14 @@ public class CommandNode {
     }
 
     private List<Parser.Completion> getCompletionsForPartial(String partial) {
+        try {
+            if (this.preValidator != null) {
+                this.preValidator.validate();
+            }
+        } catch (ValidationException e) {
+            return List.of();
+        }
+
         Parser.Completion completion;
         try {
             completion = this.parser.complete(partial);

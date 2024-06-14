@@ -19,9 +19,8 @@ public class ConnectCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .root()
-                .validate(this::validateState)
-                .thenLiteral("connect")
+                .literal("connect")
+                .validatePre(this::validateState)
                 .thenWhitespace()
                 .then(new EnumParser<>("connectionType", View.ConnectionType.class))
                 .thenWhitespace()
@@ -40,7 +39,7 @@ public class ConnectCommand extends TuiCommand {
         this.getView().connect(connectionType, hostname, port);
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.NOT_CONNECTED)) {
             throw new ValidationException();
         }

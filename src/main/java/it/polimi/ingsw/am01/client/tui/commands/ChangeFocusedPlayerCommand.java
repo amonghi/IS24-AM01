@@ -29,9 +29,8 @@ public class ChangeFocusedPlayerCommand extends TuiCommand {
 
         builder.branch(
                 SequenceBuilder
-                        .root()
-                        .validate(this::validateState)
-                        .thenLiteral("focus")
+                        .literal("focus")
+                        .validatePre(this::validateState)
                         .thenWhitespace()
                         .thenLiteral("reset")
                         .executes(this::resetFocus)
@@ -40,14 +39,13 @@ public class ChangeFocusedPlayerCommand extends TuiCommand {
 
         builder.branch(
                 SequenceBuilder
-                        .root()
-                        .validate(this::validateState)
-                        .thenLiteral("focus")
+                        .literal("focus")
+                        .validatePre(this::validateState)
                         .thenWhitespace()
                         .thenLiteral("player")
                         .thenWhitespace()
                         .then(new WordArgumentParser("playerName"))
-                        .validate(this::validatePlayerName)
+                        .validatePost(this::validatePlayerName)
                         .executes(this::changeFocus)
                         .end()
         );
@@ -64,7 +62,7 @@ public class ChangeFocusedPlayerCommand extends TuiCommand {
         getView().setFocusedPlayer(getView().getPlayerName());
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!isCorrectState(this.getView())) {
             throw new ValidationException();
         }

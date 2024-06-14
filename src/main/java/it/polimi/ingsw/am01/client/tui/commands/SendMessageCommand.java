@@ -19,14 +19,13 @@ public class SendMessageCommand extends TuiCommand {
         //direct messages
         builder.branch(
                 SequenceBuilder
-                        .root()
-                        .validate(this::validateState)
-                        .thenLiteral("send")
+                        .literal("send")
+                        .validatePre(this::validateState)
                         .thenWhitespace()
                         .thenLiteral("direct")
                         .thenWhitespace()
                         .then(new WordArgumentParser("recipient"))
-                        .validate(this::validateRecipient)
+                        .validatePost(this::validateRecipient)
                         .thenWhitespace()
                         .then(new GreedyTextArgumentParser("content"))
                         .executes(this::executeDirectMessage)
@@ -36,9 +35,8 @@ public class SendMessageCommand extends TuiCommand {
         //broadcast messages
         builder.branch(
                 SequenceBuilder
-                        .root()
-                        .validate(this::validateState)
-                        .thenLiteral("send")
+                        .literal("send")
+                        .validatePre(this::validateState)
                         .thenWhitespace()
                         .thenLiteral("broadcast")
                         .thenWhitespace()
@@ -50,7 +48,7 @@ public class SendMessageCommand extends TuiCommand {
         return builder.build();
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME) || (getView().getGameStatus().equals(GameStatus.RESTORING))) {
             throw new ValidationException();
         }

@@ -21,9 +21,8 @@ public class SetChatVisibilityCommand extends TuiCommand {
 
         builder.branch(
                 SequenceBuilder
-                        .root()
-                        .validate(this::validateState)
-                        .thenLiteral("open")
+                        .literal("open")
+                        .validatePre(this::validateState)
                         .thenWhitespace()
                         .thenLiteral("chat")
                         .executes(this::executeOpenChat)
@@ -32,9 +31,8 @@ public class SetChatVisibilityCommand extends TuiCommand {
 
         builder.branch(
                 SequenceBuilder
-                        .root()
-                        .validate(this::validateState)
-                        .thenLiteral("close")
+                        .literal("close")
+                        .validatePre(this::validateState)
                         .thenWhitespace()
                         .thenLiteral("chat")
                         .executes(this::executeCloseChat)
@@ -44,7 +42,7 @@ public class SetChatVisibilityCommand extends TuiCommand {
         return builder.build();
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME)
                 || (getView().getGameStatus().equals(GameStatus.RESTORING))
                 || (getView().getGameStatus().equals(GameStatus.FINISHED))) {

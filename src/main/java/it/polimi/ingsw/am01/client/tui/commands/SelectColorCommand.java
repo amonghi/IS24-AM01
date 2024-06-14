@@ -19,9 +19,8 @@ public class SelectColorCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .root()
-                .validate(this::validateState)
-                .thenLiteral("select")
+                .literal("select")
+                .validatePre(this::validateState)
                 .thenWhitespace()
                 .thenLiteral("color")
                 .thenWhitespace()
@@ -35,7 +34,7 @@ public class SelectColorCommand extends TuiCommand {
         getView().selectColor(color);
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.SETUP_COLOR)) {
             throw new ValidationException();
         }

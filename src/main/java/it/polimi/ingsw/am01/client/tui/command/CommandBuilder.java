@@ -3,7 +3,8 @@ package it.polimi.ingsw.am01.client.tui.command;
 import it.polimi.ingsw.am01.client.tui.command.parser.LiteralParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
 import it.polimi.ingsw.am01.client.tui.command.parser.WhiteSpaceParser;
-import it.polimi.ingsw.am01.client.tui.command.validator.Validator;
+import it.polimi.ingsw.am01.client.tui.command.validator.PostValidator;
+import it.polimi.ingsw.am01.client.tui.command.validator.PreValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,8 @@ public class CommandBuilder {
     private final Parser parser;
     private final List<CommandNode> children;
     private Consumer<CommandContext> executor;
-    private Validator validator;
+    private PreValidator preValidator;
+    private PostValidator postValidator;
 
     private CommandBuilder(Parser parser) {
         this.parser = parser;
@@ -41,8 +43,13 @@ public class CommandBuilder {
         return this;
     }
 
-    public CommandBuilder validate(Validator validator) {
-        this.validator = validator;
+    public CommandBuilder validatePre(PreValidator validator) {
+        this.preValidator = validator;
+        return this;
+    }
+
+    public CommandBuilder validatePost(PostValidator validator) {
+        this.postValidator = validator;
         return this;
     }
 
@@ -56,6 +63,6 @@ public class CommandBuilder {
     }
 
     public CommandNode build() {
-        return new CommandNode(this.parser, this.executor, this.validator, this.children);
+        return new CommandNode(this.parser, this.executor, this.preValidator, this.postValidator, this.children);
     }
 }

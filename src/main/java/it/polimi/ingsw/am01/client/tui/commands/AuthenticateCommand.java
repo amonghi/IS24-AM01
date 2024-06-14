@@ -16,9 +16,8 @@ public class AuthenticateCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .root()
-                .validate(this::validateState)
-                .thenLiteral("authenticate")
+                .literal("authenticate")
+                .validatePre(this::validateState)
                 .thenWhitespace()
                 .then(new WordArgumentParser("playerName"))
                 .executes(this::execute)
@@ -30,7 +29,7 @@ public class AuthenticateCommand extends TuiCommand {
         this.getView().authenticate(playerName);
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.NOT_AUTHENTICATED)) {
             throw new ValidationException();
         }

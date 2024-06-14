@@ -17,17 +17,18 @@ public class ResumeGameCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .root()
-                .validate(this::validateState)
-                .validate(this::validateResume)
-                .thenLiteral("resume")
+                .literal("resume")
+                .validatePre(() -> {
+                    this.validateState();
+                    this.validateResume();
+                })
                 .thenWhitespace()
                 .thenLiteral("game")
                 .executes(this::execute)
                 .end();
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.RESTORING)) {
             throw new ValidationException();
         }
@@ -37,7 +38,7 @@ public class ResumeGameCommand extends TuiCommand {
         getView().resumeGame();
     }
 
-    private void validateResume(CommandContext ctx) throws ValidationException {
+    private void validateResume() throws ValidationException {
         int playersConnected = getView().getPlayersInGame().stream().filter(player -> getView().isConnected(player)).toList().size();
 
         if (playersConnected < 2) {

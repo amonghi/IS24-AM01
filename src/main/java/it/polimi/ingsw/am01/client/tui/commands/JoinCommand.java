@@ -17,12 +17,11 @@ public class JoinCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .root()
-                .validate(this::validateState)
-                .thenLiteral("join")
+                .literal("join")
+                .validatePre(this::validateState)
                 .thenWhitespace()
                 .then(new IntParser("gameId"))
-                .validate(this::validate)
+                .validatePost(this::validate)
                 .executes(this::execute)
                 .end();
     }
@@ -41,7 +40,7 @@ public class JoinCommand extends TuiCommand {
         getView().joinGame(gameId);
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.AUTHENTICATED)) {
             throw new ValidationException();
         }

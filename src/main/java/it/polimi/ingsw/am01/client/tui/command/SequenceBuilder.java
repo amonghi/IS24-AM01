@@ -3,7 +3,8 @@ package it.polimi.ingsw.am01.client.tui.command;
 import it.polimi.ingsw.am01.client.tui.command.parser.LiteralParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
 import it.polimi.ingsw.am01.client.tui.command.parser.WhiteSpaceParser;
-import it.polimi.ingsw.am01.client.tui.command.validator.Validator;
+import it.polimi.ingsw.am01.client.tui.command.validator.PostValidator;
+import it.polimi.ingsw.am01.client.tui.command.validator.PreValidator;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,7 +13,8 @@ public class SequenceBuilder {
     private final SequenceBuilder prev;
     private final Parser parser;
     private Consumer<CommandContext> executor;
-    private Validator validator;
+    private PreValidator preValidator;
+    private PostValidator postValidator;
 
     private SequenceBuilder(SequenceBuilder prev, Parser parser) {
         this.prev = prev;
@@ -40,8 +42,13 @@ public class SequenceBuilder {
         return this;
     }
 
-    public SequenceBuilder validate(Validator validator) {
-        this.validator = validator;
+    public SequenceBuilder validatePre(PreValidator preValidator) {
+        this.preValidator = preValidator;
+        return this;
+    }
+
+    public SequenceBuilder validatePost(PostValidator postValidator) {
+        this.postValidator = postValidator;
         return this;
     }
 
@@ -58,7 +65,7 @@ public class SequenceBuilder {
     }
 
     private CommandNode buildWithChild(CommandNode child) {
-        CommandNode node = new CommandNode(this.parser, this.executor, this.validator, List.of(child));
+        CommandNode node = new CommandNode(this.parser, this.executor, this.preValidator, this.postValidator, List.of(child));
         if (this.prev == null) {
             return node;
         }
@@ -67,7 +74,7 @@ public class SequenceBuilder {
     }
 
     public CommandNode end() {
-        CommandNode node = new CommandNode(this.parser, this.executor, this.validator);
+        CommandNode node = new CommandNode(this.parser, this.executor, this.preValidator, this.postValidator);
         if (prev == null) {
             return node;
         }

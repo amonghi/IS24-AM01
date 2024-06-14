@@ -16,12 +16,11 @@ public class CreateGameCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .root()
-                .validate(this::validateState)
-                .thenLiteral("create_game")
+                .literal("create_game")
+                .validatePre(this::validateState)
                 .thenWhitespace()
                 .then(new IntParser("maxPlayers"))
-                .validate(this::validate)
+                .validatePost(this::validate)
                 .executes(this::execute)
                 .end();
     }
@@ -39,7 +38,7 @@ public class CreateGameCommand extends TuiCommand {
         }
     }
 
-    private void validateState(CommandContext ctx) throws ValidationException {
+    private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.AUTHENTICATED)) {
             throw new ValidationException();
         }
