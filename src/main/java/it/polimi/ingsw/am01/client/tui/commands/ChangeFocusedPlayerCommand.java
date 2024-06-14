@@ -3,9 +3,14 @@ package it.polimi.ingsw.am01.client.tui.commands;
 import it.polimi.ingsw.am01.client.ClientState;
 import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.tui.TuiView;
-import it.polimi.ingsw.am01.client.tui.command.*;
+import it.polimi.ingsw.am01.client.tui.command.CommandContext;
+import it.polimi.ingsw.am01.client.tui.command.CommandNode;
+import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
+import it.polimi.ingsw.am01.client.tui.command.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
 import it.polimi.ingsw.am01.model.game.GameStatus;
+
+import java.util.List;
 
 public class ChangeFocusedPlayerCommand extends TuiCommand {
 
@@ -25,33 +30,21 @@ public class ChangeFocusedPlayerCommand extends TuiCommand {
 
     @Override
     protected CommandNode buildRootNode() {
-        CommandBuilder builder = CommandBuilder.root();
-
-        builder.branch(
-                SequenceBuilder
-                        .literal("focus")
-                        .validatePre(this::validateState)
-                        .thenWhitespace()
-                        .thenLiteral("reset")
-                        .executes(this::resetFocus)
-                        .end()
-        );
-
-        builder.branch(
-                SequenceBuilder
-                        .literal("focus")
-                        .validatePre(this::validateState)
-                        .thenWhitespace()
-                        .thenLiteral("player")
-                        .thenWhitespace()
-                        .then(new WordArgumentParser("playerName"))
-                        .validatePost(this::validatePlayerName)
-                        .executes(this::changeFocus)
-                        .end()
-        );
-
-        return builder.build();
-
+        return SequenceBuilder
+                .literal("focus")
+                .thenWhitespace()
+                .endWithAlternatives(List.of(
+                        SequenceBuilder
+                                .literal("reset")
+                                .executes(this::resetFocus)
+                                .end(),
+                        SequenceBuilder
+                                .literal("player")
+                                .thenWhitespace()
+                                .then(new WordArgumentParser("playerName"))
+                                .executes(this::changeFocus)
+                                .end()
+                ));
     }
 
     private void changeFocus(CommandContext ctx) {

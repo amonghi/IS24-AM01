@@ -81,4 +81,13 @@ public class SequenceBuilder {
 
         return this.prev.buildWithChild(node);
     }
+
+    public CommandNode endWithAlternatives(List<CommandNode> children) {
+        CommandNode node = new CommandNode(this.parser, this.executor, this.preValidator, this.postValidator, children);
+        if (prev == null) {
+            return node;
+        }
+
+        return this.prev.buildWithChild(node);
+    }
 }

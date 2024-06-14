@@ -2,10 +2,15 @@ package it.polimi.ingsw.am01.client.tui.commands;
 
 import it.polimi.ingsw.am01.client.ClientState;
 import it.polimi.ingsw.am01.client.tui.TuiView;
-import it.polimi.ingsw.am01.client.tui.command.*;
+import it.polimi.ingsw.am01.client.tui.command.CommandContext;
+import it.polimi.ingsw.am01.client.tui.command.CommandNode;
+import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
+import it.polimi.ingsw.am01.client.tui.command.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.GreedyTextArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
 import it.polimi.ingsw.am01.model.game.GameStatus;
+
+import java.util.List;
 
 public class SendMessageCommand extends TuiCommand {
 
@@ -15,37 +20,27 @@ public class SendMessageCommand extends TuiCommand {
 
     @Override
     protected CommandNode buildRootNode() {
-        CommandBuilder builder = CommandBuilder.root();
-        //direct messages
-        builder.branch(
-                SequenceBuilder
-                        .literal("send")
-                        .validatePre(this::validateState)
-                        .thenWhitespace()
-                        .thenLiteral("direct")
-                        .thenWhitespace()
-                        .then(new WordArgumentParser("recipient"))
-                        .validatePost(this::validateRecipient)
-                        .thenWhitespace()
-                        .then(new GreedyTextArgumentParser("content"))
-                        .executes(this::executeDirectMessage)
-                        .end()
-        );
-
-        //broadcast messages
-        builder.branch(
-                SequenceBuilder
-                        .literal("send")
-                        .validatePre(this::validateState)
-                        .thenWhitespace()
-                        .thenLiteral("broadcast")
-                        .thenWhitespace()
-                        .then(new GreedyTextArgumentParser("content"))
-                        .executes(this::executeBroadcastMessage)
-                        .end()
-        );
-
-        return builder.build();
+        return SequenceBuilder
+                .literal("send")
+                .validatePre(this::validateState)
+                .thenWhitespace()
+                .endWithAlternatives(List.of(
+                        SequenceBuilder
+                                .literal("direct")
+                                .thenWhitespace()
+                                .then(new WordArgumentParser("recipient"))
+                                .validatePost(this::validateRecipient)
+                                .thenWhitespace()
+                                .then(new GreedyTextArgumentParser("content"))
+                                .executes(this::executeDirectMessage)
+                                .end(),
+                        SequenceBuilder
+                                .literal("broadcast")
+                                .thenWhitespace()
+                                .then(new GreedyTextArgumentParser("content"))
+                                .executes(this::executeBroadcastMessage)
+                                .end()
+                ));
     }
 
     private void validateState() throws ValidationException {
