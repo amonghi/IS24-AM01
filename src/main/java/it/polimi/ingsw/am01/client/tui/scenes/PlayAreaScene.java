@@ -127,7 +127,8 @@ public class PlayAreaScene extends Composition {
                                         new FlexChild.Flexible(1, new PlayAreaComponent(
                                                 view.getPlayAreaScrollX(),
                                                 view.getPlayAreaScrollY(),
-                                                view.getPlacements(view.getFocusedPlayer().orElse(view.getPlayerName()))
+                                                view.getPlacements(view.getFocusedPlayer().orElse(view.getPlayerName())),
+                                                view.getPlayablePositions()
                                         )),
                                         new FlexChild.Fixed(Centered.horizontally(new Row(hand)))
                                 )
