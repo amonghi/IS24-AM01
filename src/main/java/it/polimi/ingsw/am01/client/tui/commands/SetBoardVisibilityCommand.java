@@ -9,9 +9,9 @@ import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 
-public class SetChatVisibilityCommand extends TuiCommand {
+public class SetBoardVisibilityCommand extends TuiCommand {
 
-    public SetChatVisibilityCommand(TuiView view) {
+    public SetBoardVisibilityCommand(TuiView view) {
         super(view);
     }
 
@@ -24,7 +24,7 @@ public class SetChatVisibilityCommand extends TuiCommand {
                         .literal("show")
                         .validatePre(this::validateState)
                         .thenWhitespace()
-                        .thenLiteral("chat")
+                        .thenLiteral("board")
                         .executes(this::show)
                         .end()
         );
@@ -34,7 +34,7 @@ public class SetChatVisibilityCommand extends TuiCommand {
                         .literal("hide")
                         .validatePre(this::validateState)
                         .thenWhitespace()
-                        .thenLiteral("chat")
+                        .thenLiteral("board")
                         .executes(this::hide)
                         .end()
         );
@@ -43,18 +43,20 @@ public class SetChatVisibilityCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.IN_GAME)
-                || (getView().getGameStatus().equals(GameStatus.RESTORING))
-                || (getView().getGameStatus().equals(GameStatus.FINISHED))) {
+        if (!getView().getState().equals(ClientState.IN_GAME) ||
+                ((!getView().getGameStatus().equals(GameStatus.PLAY))
+                        && (!getView().getGameStatus().equals(GameStatus.SECOND_LAST_TURN))
+                        && (!getView().getGameStatus().equals(GameStatus.LAST_TURN))
+                        && (!getView().getGameStatus().equals(GameStatus.SUSPENDED)))) {
             throw new ValidationException();
         }
     }
 
     private void show(CommandContext ctx) {
-        getView().showChat();
+        getView().showBoard();
     }
 
     private void hide(CommandContext ctx) {
-        getView().hideChat();
+        getView().hideBoard();
     }
 }

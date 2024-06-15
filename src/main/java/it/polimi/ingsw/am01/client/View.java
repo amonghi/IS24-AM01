@@ -41,6 +41,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
     private final Map<DeckLocation, CardColor> decksColor;
     private final Map<String, SortedSet<Placement>> playAreas;
     private final List<String> playersInGame;
+    private final List<Position> playablePositions;
     private final Map<String, PlayerColor> playerColors;
     private final Map<String, Integer> scores;
     private final List<Integer> secretObjectivesId;
@@ -72,6 +73,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
         this.gameStatus = null;
         this.secretObjectivesId = new ArrayList<>();
         this.commonObjectivesId = new ArrayList<>();
+        this.playablePositions = new ArrayList<>();
         this.hand = new HashSet<>();
         this.faceUpCards = new HashSet<>();
         this.decksColor = new HashMap<>();
@@ -136,11 +138,12 @@ public abstract class View implements EventEmitter<ViewEvent> {
     }
 
     public void handleMessage(SetPlayablePositionsS2C message) {
-        List<Position> playablePositions = message
+        playablePositions.clear();
+        playablePositions.addAll(message
                 .playablePositions()
                 .stream()
                 .map(playablePosition -> new Position(playablePosition.i(), playablePosition.j()))
-                .toList();
+                .toList());
         emitter.emit(new UpdatePlayablePositionsEvent(playablePositions));
     }
 
@@ -209,8 +212,8 @@ public abstract class View implements EventEmitter<ViewEvent> {
         decksColor.replace(DeckLocation.RESOURCE_CARD_DECK, message.resourceDeckColor());
         decksColor.replace(DeckLocation.GOLDEN_CARD_DECK, message.goldenDeckColor());
         emitter.emit(new SetDeckEvent(
-                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
-                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
+                Optional.ofNullable(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                Optional.ofNullable(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
         ));
     }
 
@@ -512,13 +515,42 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return gameStatus;
     }
 
-    private void clearData() {
+    public TurnPhase getTurnPhase() {
+        return turnPhase;
+    }
+
+    public String getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public List<Position> getPlayablePositions() {
+        return playablePositions;
+    }
+
+    public Map<DeckLocation, CardColor> getDecksColor() {
+        return Collections.unmodifiableMap(decksColor);
+    }
+
+    public boolean isDeckEmpty(DeckLocation deckLocation) {
+        return (decksColor.get(deckLocation) == null);
+    }
+
+    public List<Integer> getHand() {
+        return hand.stream().toList();
+    }
+
+    public List<Integer> getFaceUpCards() {
+        return faceUpCards.stream().toList();
+    }
+
+    protected void clearData() {
         faceUpCards.clear();
         hand.clear();
         decksColor.clear();
         playAreas.clear();
         playersInGame.clear();
         playerColors.clear();
+        playablePositions.clear();
         scores.clear();
         secretObjectivesId.clear();
         connections.clear();

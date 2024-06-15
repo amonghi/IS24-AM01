@@ -17,6 +17,7 @@ import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import it.polimi.ingsw.am01.client.tui.scenes.*;
 import it.polimi.ingsw.am01.client.tui.terminal.Terminal;
+import it.polimi.ingsw.am01.model.card.Side;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +34,14 @@ public class TuiView extends BaseTuiView {
             ResumeGameCommand::new,
             SelectStartingCardSideCommand::new,
             SelectColorCommand::new,
-            SetChatVisibilityCommand::new,
             SelectObjectiveCommand::new,
-            QuitCommand::new,
+            PlaceCardCommand::new,
+            DrawCardCommand::new,
+            SetBoardVisibilityCommand::new,
+            SetObjectivesVisibilityCommand::new,
+            SetVisibleCardSideCommand::new,
             ExitFinishedGameCommand::new,
+            SetChatVisibilityCommand::new,
             SendMessageCommand::new,
             ChangeFocusedPlayerCommand::new,
             QuitCommand::new
@@ -47,14 +52,23 @@ public class TuiView extends BaseTuiView {
     private final List<Registration> keyboardRegistrations;
 
     private String input = "";
-    private boolean chatVisible = true;
+    private boolean chatVisible = false;
+    private boolean isBoardVisible = false;
+    private boolean areObjectivesVisible = false;
     private String focusedPlayer = null;
     private int playAreaScrollX = 0;
     private int playAreaScrollY = 0;
 
+    private final List<Side> visibleSides;
+
     public TuiView(Terminal terminal) {
         super(terminal);
         this.keyboard = Keyboard.getInstance();
+        this.visibleSides = new ArrayList<>(List.of(
+                Side.FRONT,
+                Side.FRONT,
+                Side.FRONT
+        ));
 
         // build the command tree
         CommandBuilder builder = CommandBuilder.root();
@@ -138,20 +152,6 @@ public class TuiView extends BaseTuiView {
 
     private CommandNode.Result parseInput() {
         return this.rootCmd.parse(this.input);
-    }
-
-    public void openChat() {
-        chatVisible = true;
-        render();
-    }
-
-    public void closeChat() {
-        chatVisible = false;
-        render();
-    }
-
-    public boolean isChatVisible() {
-        return chatVisible;
     }
 
     public Optional<String> getFocusedPlayer() {
@@ -242,5 +242,79 @@ public class TuiView extends BaseTuiView {
         );
 
         return Flex.column(children);
+    }
+
+    public boolean areObjectivesVisible() {
+        return areObjectivesVisible;
+    }
+
+    public boolean isBoardVisible() {
+        return isBoardVisible;
+    }
+
+    public boolean isChatVisible() {
+        return chatVisible;
+    }
+
+    public void showObjectives() {
+        this.areObjectivesVisible = true;
+        this.isBoardVisible = false;
+        render();
+    }
+
+    public void hideObjectives() {
+        this.areObjectivesVisible = false;
+        render();
+    }
+
+    public void showBoard() {
+        this.areObjectivesVisible = false;
+        this.isBoardVisible = true;
+        render();
+    }
+
+    public void hideBoard() {
+        this.isBoardVisible = false;
+        render();
+    }
+
+    public void showChat() {
+        chatVisible = true;
+        render();
+    }
+
+    public void hideChat() {
+        chatVisible = false;
+        render();
+    }
+
+    public void swapCard(int cardIndex) {
+        Side newSide = switch (visibleSides.get(cardIndex)) {
+            case FRONT -> Side.BACK;
+            case BACK -> Side.FRONT;
+        };
+
+        visibleSides.set(cardIndex, newSide);
+        render();
+    }
+
+    public Side getVisibleSideOf(int cardIndex) {
+        return visibleSides.get(cardIndex);
+    }
+
+    public void clearData() {
+        super.clearData();
+        chatVisible = false;
+        isBoardVisible = false;
+        areObjectivesVisible = false;
+        focusedPlayer = null;
+        playAreaScrollX = 0;
+        playAreaScrollY = 0;
+        visibleSides.clear();
+        visibleSides.addAll(List.of(
+                Side.FRONT,
+                Side.FRONT,
+                Side.FRONT
+        ));
     }
 }

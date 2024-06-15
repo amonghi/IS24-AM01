@@ -35,7 +35,11 @@ public class Scroll extends SingleChildLayout {
                 new RenderingContext.Local(Position.ZERO)
         );
 
-        DrawArea relativeArea = a.getRelativeArea(this.xOff, this.yOff, child().dimensions());
+        Position localOffset = ctx.local().getOffset();
+        int xOff = localOffset.x() + this.xOff;
+        int yOff = localOffset.y() + this.yOff;
+
+        DrawArea relativeArea = a.getRelativeArea(xOff, yOff, child().dimensions());
         child().draw(newCtx, relativeArea);
     }
 
