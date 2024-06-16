@@ -140,6 +140,21 @@ public class PlayAreaScene extends Composition {
                 new FlexChild.Flexible(1,
                         Flex.column(
                                 List.of(
+                                        new FlexChild.Fixed(
+                                                new Border(Line.Style.DEFAULT, Flex.row(
+                                                        view.getPlayersInGame().stream()
+                                                                .map(player ->
+                                                                        new FlexChild.Flexible(1,
+                                                                                Centered.horizontally(new Row(List.of(
+                                                                                        new Text(Utils.getPlayerColorRendition(view.getPlayerColor(player)), player),
+                                                                                        Padding.hv(2, 0, new Text(Integer.toString(view.getScore(player))))
+                                                                                )))
+                                                                        )
+
+                                                                ).collect(Collectors.toList())
+                                                )
+                                                )
+                                        ),
                                         new FlexChild.Flexible(1, new PlayAreaComponent(
                                                 view.getPlayAreaScrollX(),
                                                 view.getPlayAreaScrollY(),
@@ -161,40 +176,20 @@ public class PlayAreaScene extends Composition {
         }
 
         return Flex.column(List.of(
-                        new FlexChild.Fixed(Flex.row(List.of(
+                new FlexChild.Fixed(new Border(Line.Style.DEFAULT, Flex.row(List.of(
                                 new FlexChild.Fixed(
-                                        Padding.hv(1, 1,
-                                                new Border(Line.Style.DEFAULT,
-                                                        new Text("Logged as %s".formatted(view.getPlayerName()))
-                                                )
-                                        )
+                                        new Text("Logged as %s".formatted(view.getPlayerName()))
                                 ),
                                 new FlexChild.Flexible(1,
                                         Centered.horizontally(
-                                                Padding.hv(1, 1,
                                                         new Text(
                                                                 view.getGameStatus().equals(GameStatus.SUSPENDED)
                                                                         ? GraphicalRendition.DEFAULT.withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE)
                                                                         : Utils.getPlayerColorRendition(view.getPlayerColors().get(view.getCurrentPlayer())), gameStatusText
                                                         )
-                                                )
                                         )
-                                ),
-                                new FlexChild.Fixed(
-                                        new Column(List.of(
-                                                new Text("Scores"),
-                                                new Border(Line.Style.DEFAULT,
-                                                        new Column(
-                                                                view.getPlayersInGame().stream()
-                                                                        .map(player -> new Row(List.of(
-                                                                                new Text(Utils.getPlayerColorRendition(view.getPlayerColor(player)), player),
-                                                                                Padding.around(2, new Text(view.getScore(player) + ""))
-                                                                        ))).collect(Collectors.toList())
-                                                        )
-                                                )
-                                        ))
                                 )
-                        ))),
+                )))),
                         new FlexChild.Flexible(1,
                                 Flex.row(children)
                         )
