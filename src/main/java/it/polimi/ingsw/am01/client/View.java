@@ -148,6 +148,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
     }
 
     public void handleMessage(UpdatePlayAreaS2C message) {
+        playablePositions.clear();
         if (!playAreas.containsKey(message.playerName()))
             playAreas.put(message.playerName(), new TreeSet<>());
 
