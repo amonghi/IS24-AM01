@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IntParser implements Parser {
-    private static final Pattern pattern = Pattern.compile("(\\d+)\\b");
+    private static final Pattern pattern = Pattern.compile("(-?\\d+)\\b");
     private final String name;
     private final IntPredicate validator;
 
