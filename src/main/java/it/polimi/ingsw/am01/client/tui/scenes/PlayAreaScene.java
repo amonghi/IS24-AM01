@@ -56,10 +56,15 @@ public class PlayAreaScene extends Composition {
         for (int i = 0; i < faceUpCards.size() / 2; i++) {
             List<Component> column = new ArrayList<>();
             for (int j = 0; j < 2; j++) {
-                column.add(new CardFaceComponent(
-                        faceUpCards.get(2 * i + j).getFace(Side.FRONT),
-                        faceUpCards.get(2 * i + j).color()
-                ));
+                column.add(
+                        Padding.hv(0, 1, new Column(List.of(
+                                new Text("  #" + (2 * i + j + 1)),
+                                new CardFaceComponent(
+                                        faceUpCards.get(2 * i + j).getFace(Side.FRONT),
+                                        faceUpCards.get(2 * i + j).color()
+                                )
+                        )))
+                );
             }
             faceUpCardComponents.add(new Column(column));
         }
@@ -68,7 +73,12 @@ public class PlayAreaScene extends Composition {
 
         for (int i = 0; i < view.getHand().size(); i++) {
             Card card = GameAssets.getInstance().getCardById(view.getHand().get(i)).orElseThrow();
-            hand.add(new CardFaceComponent(card.getFace(view.getVisibleSideOf(i)), card.color()));
+            hand.add(
+                    new Column(List.of(
+                            new Text("  #" + (i + 1)),
+                            new CardFaceComponent(card.getFace(view.getVisibleSideOf(i)), card.color())
+                    ))
+            );
         }
 
 
@@ -182,11 +192,11 @@ public class PlayAreaScene extends Composition {
                                 ),
                                 new FlexChild.Flexible(1,
                                         Centered.horizontally(
-                                                        new Text(
-                                                                view.getGameStatus().equals(GameStatus.SUSPENDED)
-                                                                        ? GraphicalRendition.DEFAULT.withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE)
-                                                                        : Utils.getPlayerColorRendition(view.getPlayerColors().get(view.getCurrentPlayer())), gameStatusText
-                                                        )
+                                                new Text(
+                                                        view.getGameStatus().equals(GameStatus.SUSPENDED)
+                                                                ? GraphicalRendition.DEFAULT.withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE)
+                                                                : Utils.getPlayerColorRendition(view.getPlayerColors().get(view.getCurrentPlayer())), gameStatusText
+                                                )
                                         )
                                 )
                 )))),
