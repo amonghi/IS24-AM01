@@ -50,7 +50,7 @@ public class TuiView extends BaseTuiView {
     private final Keyboard keyboard;
     private final CommandNode rootCmd;
     private final List<Registration> keyboardRegistrations;
-
+    private final List<Side> visibleSides;
     private String input = "";
     private boolean chatVisible = false;
     private boolean isBoardVisible = false;
@@ -58,8 +58,6 @@ public class TuiView extends BaseTuiView {
     private String focusedPlayer = null;
     private int playAreaScrollX = 0;
     private int playAreaScrollY = 0;
-
-    private final List<Side> visibleSides;
 
     public TuiView(Terminal terminal) {
         super(terminal);
@@ -288,7 +286,7 @@ public class TuiView extends BaseTuiView {
         render();
     }
 
-    public void swapCard(int cardIndex) {
+    public void flipCard(int cardIndex) {
         Side newSide = switch (visibleSides.get(cardIndex)) {
             case FRONT -> Side.BACK;
             case BACK -> Side.FRONT;

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.model.objective;
 
-import it.polimi.ingsw.am01.model.game.PlayArea;
 import it.polimi.ingsw.am01.model.collectible.Collectible;
+import it.polimi.ingsw.am01.model.game.PlayArea;
 
 
 /**
@@ -13,7 +13,7 @@ import it.polimi.ingsw.am01.model.collectible.Collectible;
  * @see it.polimi.ingsw.am01.model.objective.SameCollectibleObjective
  * @see it.polimi.ingsw.am01.model.objective.DifferentCollectibleObjective
  */
-public abstract class Objective {
+public abstract sealed class Objective permits DifferentCollectibleObjective, PatternObjective, SameCollectibleObjective {
     private final int id;
     private final int points;
 

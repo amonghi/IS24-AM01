@@ -18,7 +18,7 @@ public class SetVisibleCardSideCommand extends TuiCommand {
     @Override
     protected CommandNode buildRootNode() {
         return SequenceBuilder
-                .literal("swap")
+                .literal("flip")
                 .validatePre(this::validateState)
                 .thenWhitespace()
                 .then(new IntParser("cardNumber"))
@@ -47,6 +47,6 @@ public class SetVisibleCardSideCommand extends TuiCommand {
     private void execute(CommandContext ctx) {
         int cardNumber = ctx.getInt("cardNumber");
 
-        getView().swapCard(cardNumber - 1);
+        getView().flipCard(cardNumber - 1);
     }
 }

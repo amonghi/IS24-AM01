@@ -11,7 +11,7 @@ import java.util.Set;
  * An objective whose requirements are to have a minimum number
  * of a certain set of {@link Item}s
  */
-public class DifferentCollectibleObjective extends Objective {
+public final class DifferentCollectibleObjective extends Objective {
     private final Set<Item> requiredItems;
 
     /**

@@ -112,9 +112,25 @@ public class PlayAreaScene extends Composition {
         } else if (view.areObjectivesVisible()) {
             children.add(
                     new FlexChild.Fixed(
-                            new Column(List.of(
-                                    //objectives
-                            ))
+                            new Border(Line.Style.DEFAULT,
+                                    Padding.hv(4, 0,
+                                            Centered.vertically(
+                                                    new Column(List.of(
+                                                            new Text("Common objectives"),
+                                                            new Padding(0, 0, 4, 0, new Column(
+                                                                    view.getCommonObjectivesId().stream().map(
+                                                                            id -> new ObjectiveComponent(
+                                                                                    GameAssets.getInstance().getObjectiveById(id).orElseThrow()
+                                                                            )
+                                                                    ).collect(Collectors.toList())
+                                                            )),
+                                                            new Text("Secret objective"),
+                                                            new ObjectiveComponent(
+                                                                    GameAssets.getInstance().getObjectiveById(view.getSecretObjectiveChoiceId()).orElseThrow()
+                                                            )
+                                                    )))
+                                    )
+                            )
                     )
             );
         }
@@ -153,7 +169,7 @@ public class PlayAreaScene extends Composition {
                                                 )
                                         )
                                 ),
-                                new FlexChild.Fixed(
+                                new FlexChild.Flexible(1,
                                         Centered.horizontally(
                                                 Padding.hv(1, 1,
                                                         new Text(
@@ -163,6 +179,20 @@ public class PlayAreaScene extends Composition {
                                                         )
                                                 )
                                         )
+                                ),
+                                new FlexChild.Fixed(
+                                        new Column(List.of(
+                                                new Text("Scores"),
+                                                new Border(Line.Style.DEFAULT,
+                                                        new Column(
+                                                                view.getPlayersInGame().stream()
+                                                                        .map(player -> new Row(List.of(
+                                                                                new Text(Utils.getPlayerColorRendition(view.getPlayerColor(player)), player),
+                                                                                Padding.around(2, new Text(view.getScore(player) + ""))
+                                                                        ))).collect(Collectors.toList())
+                                                        )
+                                                )
+                                        ))
                                 )
                         ))),
                         new FlexChild.Flexible(1,

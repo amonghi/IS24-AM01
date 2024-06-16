@@ -543,6 +543,14 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return faceUpCards.stream().toList();
     }
 
+    public List<Integer> getCommonObjectivesId() {
+        return commonObjectivesId;
+    }
+
+    public int getSecretObjectiveChoiceId() {
+        return secretObjectiveChoiceId;
+    }
+
     protected void clearData() {
         faceUpCards.clear();
         hand.clear();
