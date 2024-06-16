@@ -37,15 +37,16 @@ public class PlayAreaComponent extends Composition {
 
     @Override
     protected Component compose() {
-        return new Scroll(this.xScroll, this.yScroll, new PlayAreaScrollable(new ArrayList<>(playArea), this.playablePositions));
+        return new Scroll<>(this.xScroll, this.yScroll, new PlayAreaScrollable(new ArrayList<>(playArea), this.playablePositions));
     }
 
-    protected static class PlayAreaScrollable extends BaseLayout {
+    protected static class PlayAreaScrollable extends BaseLayout implements Scroll.Scrollable {
         private static final int X_OFFSET = CardFaceComponent.CARD_W - CardFaceComponent.CORNER_W;
         private static final int Y_OFFSET = CardFaceComponent.CARD_H - CardFaceComponent.CORNER_H;
 
         private final List<it.polimi.ingsw.am01.client.gui.model.Position> positions;
         private final List<Component> children;
+        private Position anchor;
 
         protected PlayAreaScrollable(
                 List<Placement> playArea,
@@ -100,6 +101,11 @@ public class PlayAreaComponent extends Composition {
                 );
                 child.setPosition(childPos);
 
+                // the center of the play area is the anchor point
+                if (cardPos.i() == 0 && cardPos.j() == 0) {
+                    this.anchor = childPos.add(child.dimensions().width() / 2, child.dimensions().height() / 2);
+                }
+
                 // update playArea W and H to ensure that it contains the component
                 Position childBottomRight = childPos.add(child.dimensions().width(), child.dimensions().height());
                 if (playAreaW < childBottomRight.x()) {
@@ -113,6 +119,15 @@ public class PlayAreaComponent extends Composition {
             // again, we do not care about the constraints because we assume that this component
             // is always going to be rendered inside a Scroll component
             this.setDimensions(new Dimensions(playAreaW, playAreaH));
+        }
+
+        @Override
+        public Position getAnchor() {
+            if (this.anchor == null) {
+                throw new IllegalStateException("layout() must be called before getAnchor()");
+            }
+
+            return this.anchor;
         }
 
         @Override

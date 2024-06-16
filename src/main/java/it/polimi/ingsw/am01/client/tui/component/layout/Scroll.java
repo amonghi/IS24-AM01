@@ -7,21 +7,22 @@ import it.polimi.ingsw.am01.client.tui.rendering.Position;
 import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 
-public class Scroll extends SingleChildLayout {
+public class Scroll<T extends Component & Scroll.Scrollable> extends Component {
     private static final Constraint MAX_CONSTRAINT = Constraint.max(Dimensions.of(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
+    private final T scrollable;
     private final int xOff;
     private final int yOff;
 
-    public Scroll(int xOff, int yOff, Component child) {
-        super(child);
+    public Scroll(int xOff, int yOff, T scrollable) {
+        this.scrollable = scrollable;
         this.xOff = xOff;
         this.yOff = yOff;
     }
 
     @Override
     public void layout(Constraint constraint) {
-        this.child().layout(MAX_CONSTRAINT);
+        this.scrollable.layout(MAX_CONSTRAINT);
         this.setDimensions(constraint.max());
     }
 
@@ -35,12 +36,29 @@ public class Scroll extends SingleChildLayout {
                 new RenderingContext.Local(Position.ZERO)
         );
 
-        Position localOffset = ctx.local().getOffset();
-        int xOff = localOffset.x() + this.xOff;
-        int yOff = localOffset.y() + this.yOff;
+        int xCenter = a.dimensions().width() / 2;
+        int yCenter = a.dimensions().height() / 2;
 
-        DrawArea relativeArea = a.getRelativeArea(xOff, yOff, child().dimensions());
-        child().draw(newCtx, relativeArea);
+        Position anchor = this.scrollable.getAnchor();
+        int xOffInternal = this.xOff - anchor.x() + xCenter;
+        int yOffInternal = this.yOff - anchor.y() + yCenter;
+
+        Position externalOff = ctx.local().getOffset();
+        int xOff = externalOff.x() + xOffInternal;
+        int yOff = externalOff.y() + yOffInternal;
+
+        DrawArea relativeArea = a.getRelativeArea(xOff, yOff, this.scrollable.dimensions());
+        scrollable.draw(newCtx, relativeArea);
     }
 
+    public interface Scrollable {
+        /**
+         * The anchor point is the point that remains stationary if the component changes its dimensions.
+         * This interface is meant to be implemented by {@link Component}s that can be scrolled.
+         * This method MUST be called after calling layout() on the component.
+         *
+         * @return the anchor point of the scrollable component
+         */
+        Position getAnchor();
+    }
 }

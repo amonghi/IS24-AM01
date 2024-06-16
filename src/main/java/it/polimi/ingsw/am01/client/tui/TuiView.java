@@ -175,10 +175,10 @@ public class TuiView extends BaseTuiView {
         }
 
         switch (direction) {
-            case UP -> this.playAreaScrollY += 2;
-            case DOWN -> this.playAreaScrollY -= 2;
-            case LEFT -> this.playAreaScrollX += 2;
-            case RIGHT -> this.playAreaScrollX -= 2;
+            case UP -> this.playAreaScrollY -= 2;
+            case DOWN -> this.playAreaScrollY += 2;
+            case LEFT -> this.playAreaScrollX -= 2;
+            case RIGHT -> this.playAreaScrollX += 2;
         }
 
         this.render();
