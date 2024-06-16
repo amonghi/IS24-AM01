@@ -60,9 +60,8 @@ public class PlayAreaScene extends Composition {
                         Padding.hv(0, 1, new Column(List.of(
                                 new Text("  #" + (2 * i + j + 1)),
                                 new CardFaceComponent(
-                                        faceUpCards.get(2 * i + j).getFace(Side.FRONT),
-                                        faceUpCards.get(2 * i + j).color(),
-                                        faceUpCards.get(2 * i + j).isGold()
+                                        faceUpCards.get(2 * i + j),
+                                        Side.FRONT
                                 )
                         )))
                 );
@@ -77,7 +76,7 @@ public class PlayAreaScene extends Composition {
             hand.add(
                     new Column(List.of(
                             new Text("  #" + (i + 1)),
-                            new CardFaceComponent(card.getFace(view.getVisibleSideOf(i)), card.color(), card.isGold())
+                            new CardFaceComponent(card, view.getVisibleSideOf(i))
                     ))
             );
         }
@@ -89,17 +88,15 @@ public class PlayAreaScene extends Composition {
                                 new Column(List.of(
                                         new Text("Golden deck"),
                                         new CardFaceComponent(
-                                                decks.get(DeckLocation.GOLDEN_CARD_DECK).getFace(Side.BACK),
-                                                decks.get(DeckLocation.GOLDEN_CARD_DECK).color(),
-                                                decks.get(DeckLocation.GOLDEN_CARD_DECK).isGold()
+                                                decks.get(DeckLocation.GOLDEN_CARD_DECK),
+                                                Side.BACK
                                         )
                                 )),
                                 new Column(List.of(
                                         new Text("Resource deck"),
                                         new CardFaceComponent(
-                                                decks.get(DeckLocation.RESOURCE_CARD_DECK).getFace(Side.BACK),
-                                                decks.get(DeckLocation.RESOURCE_CARD_DECK).color(),
-                                                decks.get(DeckLocation.RESOURCE_CARD_DECK).isGold()
+                                                decks.get(DeckLocation.RESOURCE_CARD_DECK),
+                                                Side.BACK
                                         )
                                 ))
                         )

@@ -9,7 +9,9 @@ import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
+import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.CardColor;
+import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
@@ -37,11 +39,11 @@ public class CardFaceComponent extends Element {
     private final CardColor cardColor;
     private final boolean isGolden;
 
-    public CardFaceComponent(CardFace face, CardColor cardColor, boolean isGolden) {
+    public CardFaceComponent(Card card, Side side) {
         super(Dimensions.of(CARD_W, CARD_H));
-        this.face = face;
-        this.cardColor = cardColor;
-        this.isGolden = isGolden;
+        this.face = card.getFace(side);
+        this.cardColor = card.color();
+        this.isGolden = card.isGold();
     }
 
     @Override

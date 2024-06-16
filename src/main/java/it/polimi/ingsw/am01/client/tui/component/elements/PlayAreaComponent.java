@@ -8,8 +8,6 @@ import it.polimi.ingsw.am01.client.tui.rendering.Constraint;
 import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.client.tui.rendering.Position;
 import it.polimi.ingsw.am01.model.card.Card;
-import it.polimi.ingsw.am01.model.card.CardColor;
-import it.polimi.ingsw.am01.model.card.face.CardFace;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 
 import java.util.ArrayList;
@@ -66,11 +64,7 @@ public class PlayAreaComponent extends Composition {
                         Card card = GameAssets.getInstance()
                                 .getCardById(placement.id())
                                 .orElseThrow();
-                        CardFace face = card.getFace(placement.side());
-                        CardColor cardColor = card.color();
-                        boolean isGolden = card.isGold();
-
-                        return new CardFaceComponent(face, cardColor, isGolden);
+                        return new CardFaceComponent(card, placement.side());
                     });
 
             this.children = Stream.concat(playablePositionsStream, cardsStream).toList();

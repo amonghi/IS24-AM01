@@ -13,7 +13,6 @@ import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import it.polimi.ingsw.am01.model.card.Card;
-import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 
@@ -60,11 +59,7 @@ public class SelectStartingCardSideScene extends Composition {
                                                                 new Text(side.toString())
                                                         ),
                                                         Centered.horizontally(
-                                                                new CardFaceComponent(
-                                                                        startingCard.getFace(side),
-                                                                        startingCard.color(),
-                                                                        startingCard.isGold()
-                                                                )
+                                                                new CardFaceComponent(startingCard, side)
                                                         )
                                                 )
                                                 )))
@@ -84,9 +79,8 @@ public class SelectStartingCardSideScene extends Composition {
                                                                 .stream()
                                                                 .map(v -> Padding.around(1,
                                                                         new CardFaceComponent( // FIXME: dimensions
-                                                                                GameAssets.getInstance().getCardById(v.id()).orElseThrow().getFace(v.side()),
-                                                                                CardColor.NEUTRAL,
-                                                                                false // TODO
+                                                                                GameAssets.getInstance().getCardById(v.id()).orElseThrow(),
+                                                                                v.side()
                                                                         )
                                                                 ))
                                                                 .collect(Collectors.toList())
