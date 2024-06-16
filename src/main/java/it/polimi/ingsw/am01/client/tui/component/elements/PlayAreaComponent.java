@@ -68,8 +68,9 @@ public class PlayAreaComponent extends Composition {
                                 .orElseThrow();
                         CardFace face = card.getFace(placement.side());
                         CardColor cardColor = card.color();
+                        boolean isGolden = card.isGold();
 
-                        return new CardFaceComponent(face, cardColor);
+                        return new CardFaceComponent(face, cardColor, isGolden);
                     });
 
             this.children = Stream.concat(playablePositionsStream, cardsStream).toList();

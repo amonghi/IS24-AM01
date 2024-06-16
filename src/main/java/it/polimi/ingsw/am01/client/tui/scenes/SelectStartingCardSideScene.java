@@ -62,7 +62,8 @@ public class SelectStartingCardSideScene extends Composition {
                                                         Centered.horizontally(
                                                                 new CardFaceComponent(
                                                                         startingCard.getFace(side),
-                                                                        startingCard.color()
+                                                                        startingCard.color(),
+                                                                        startingCard.isGold()
                                                                 )
                                                         )
                                                 )
@@ -84,7 +85,8 @@ public class SelectStartingCardSideScene extends Composition {
                                                                 .map(v -> Padding.around(1,
                                                                         new CardFaceComponent( // FIXME: dimensions
                                                                                 GameAssets.getInstance().getCardById(v.id()).orElseThrow().getFace(v.side()),
-                                                                                CardColor.NEUTRAL
+                                                                                CardColor.NEUTRAL,
+                                                                                false // TODO
                                                                         )
                                                                 ))
                                                                 .collect(Collectors.toList())

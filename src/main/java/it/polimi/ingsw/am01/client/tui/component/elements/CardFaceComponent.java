@@ -4,6 +4,8 @@ import it.polimi.ingsw.am01.client.tui.Utils;
 import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.client.tui.rendering.Position;
 import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
+import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
+import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
@@ -28,14 +30,18 @@ public class CardFaceComponent extends Element {
     public static final int CORNER_H = 3;
     private static final String CORNER_COVER_POINTS_SYMBOL = "▅██";
 
+    private static final GraphicalRendition GOLDEN_RENDITION = GraphicalRendition.DEFAULT
+            .withForeground(GraphicalRenditionProperty.ForegroundColor.YELLOW);
+
     private final CardFace face;
     private final CardColor cardColor;
+    private final boolean isGolden;
 
-
-    public CardFaceComponent(CardFace face, CardColor cardColor) {
+    public CardFaceComponent(CardFace face, CardColor cardColor, boolean isGolden) {
         super(Dimensions.of(CARD_W, CARD_H));
         this.face = face;
         this.cardColor = cardColor;
+        this.isGolden = isGolden;
     }
 
     @Override
@@ -59,11 +65,15 @@ public class CardFaceComponent extends Element {
             case ItemPoints p -> p.getPointsPerItem() + Utils.getItemEmoji(p.getItem());
             case CornerCoverPoints p -> p.getPointsPerCorner() + " " + CORNER_COVER_POINTS_SYMBOL;
         };
+
+        a.setRendition(GOLDEN_RENDITION);
         Text.writeCentered(a, CARD_W / 2, 1, pointsString);
     }
 
     private void drawCenterResources(DrawArea a) {
         String centerResourcesString = resourceMapToString(this.face.getCenterResources());
+
+        a.foreground(GraphicalRenditionProperty.ForegroundColor.DEFAULT);
         Text.writeCentered(a, CARD_W / 2, CARD_H / 2, centerResourcesString);
     }
 
@@ -74,6 +84,8 @@ public class CardFaceComponent extends Element {
 
         PlacementConstraint constraint = this.face.getPlacementConstraint().get();
         String requiredResourcesString = resourceMapToString(constraint.getRequiredResources());
+
+        a.foreground(GraphicalRenditionProperty.ForegroundColor.DEFAULT);
         Text.writeCentered(a, CARD_W / 2, CARD_H - 2, requiredResourcesString);
     }
 
@@ -88,6 +100,11 @@ public class CardFaceComponent extends Element {
     }
 
     private void drawCorners(DrawArea a) {
+        GraphicalRendition possiblyGoldenColor = this.isGolden
+                ? GOLDEN_RENDITION
+                : Utils.getCardColorRendition(this.cardColor);
+        a.setRendition(possiblyGoldenColor);
+
         for (CornerPosition cp : CornerPosition.values()) {
             Corner corner = this.face.corner(cp);
             if (corner.isSocket()) {
