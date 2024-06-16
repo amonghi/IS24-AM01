@@ -15,8 +15,6 @@ import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.CornerCoverPoints;
 import it.polimi.ingsw.am01.model.card.face.points.ItemPoints;
 import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
-import it.polimi.ingsw.am01.model.collectible.Collectible;
-import it.polimi.ingsw.am01.model.collectible.Item;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 
 import java.util.Map;
@@ -58,7 +56,7 @@ public class CardFaceComponent extends Element {
 
         String pointsString = switch (this.face.getPoints().get()) {
             case SimplePoints p -> Integer.toString(p.getPoints());
-            case ItemPoints p -> p.getPointsPerItem() + itemEmoji(p.getItem());
+            case ItemPoints p -> p.getPointsPerItem() + Utils.getItemEmoji(p.getItem());
             case CornerCoverPoints p -> p.getPointsPerCorner() + " " + CORNER_COVER_POINTS_SYMBOL;
         };
         Text.writeCentered(a, CARD_W / 2, 1, pointsString);
@@ -85,7 +83,7 @@ public class CardFaceComponent extends Element {
                         Stream.generate(resourceIntegerEntry::getKey)
                                 .limit(resourceIntegerEntry.getValue())
                 )
-                .map(this::resourceEmoji)
+                .map(Utils::getResourceEmoji)
                 .collect(Collectors.joining());
     }
 
@@ -93,7 +91,7 @@ public class CardFaceComponent extends Element {
         for (CornerPosition cp : CornerPosition.values()) {
             Corner corner = this.face.corner(cp);
             if (corner.isSocket()) {
-                String emoji = corner.getCollectible().map(this::collectibleEmoji).orElse(null);
+                String emoji = corner.getCollectible().map(Utils::getCollectibleEmoji).orElse(null);
                 this.drawCorner(a, cp.isTop(), cp.isLeft(), emoji);
             }
         }
@@ -146,29 +144,5 @@ public class CardFaceComponent extends Element {
         if (emoji != null) {
             Text.write(a, l + 2, t + 1, emoji);
         }
-    }
-
-    private String collectibleEmoji(Collectible cp) {
-        return switch (cp) {
-            case Item item -> itemEmoji(item);
-            case Resource resource -> resourceEmoji(resource);
-        };
-    }
-
-    private String itemEmoji(Item item) {
-        return switch (item) {
-            case QUILL -> "🪶";
-            case INKWELL -> "🫙";
-            case MANUSCRIPT -> "📜";
-        };
-    }
-
-    private String resourceEmoji(Resource resource) {
-        return switch (resource) {
-            case PLANT -> "🌱";
-            case FUNGI -> "🍄";
-            case ANIMAL -> "🐺";
-            case INSECT -> "🦋";
-        };
     }
 }

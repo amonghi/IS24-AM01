@@ -21,9 +21,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static it.polimi.ingsw.am01.model.collectible.Item.*;
-import static it.polimi.ingsw.am01.model.collectible.Resource.*;
-
 public class ObjectiveComponent extends Element {
 
     public static final int OBJECTIVE_W = 25;
@@ -84,7 +81,7 @@ public class ObjectiveComponent extends Element {
                         Stream.generate(collectibleIntegerEntry::getKey)
                                 .limit(collectibleIntegerEntry.getValue())
                 )
-                .map(this::collectibleEmoji)
+                .map(Utils::getCollectibleEmoji)
                 .collect(Collectors.joining());
     }
 
@@ -104,17 +101,5 @@ public class ObjectiveComponent extends Element {
         }
 
         Line.rectangle(a, Position.ZERO, a.dimensions(), Line.Style.ROUNDED);
-    }
-
-    private String collectibleEmoji(Collectible collectible) {
-        return switch (collectible) {
-            case PLANT -> "🌱";
-            case FUNGI -> "🍄";
-            case ANIMAL -> "🐺";
-            case INSECT -> "🦋";
-            case QUILL -> "🪶";
-            case INKWELL -> "🫙";
-            case MANUSCRIPT -> "📜";
-        };
     }
 }
