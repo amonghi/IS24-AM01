@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.tui.command;
 
 import it.polimi.ingsw.am01.client.tui.command.*;
+import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

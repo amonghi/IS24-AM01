@@ -5,7 +5,7 @@ import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
-import it.polimi.ingsw.am01.client.tui.command.WordArgumentParser;
+import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.GreedyTextArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
 import it.polimi.ingsw.am01.model.game.GameStatus;

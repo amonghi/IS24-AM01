@@ -1,7 +1,6 @@
-package it.polimi.ingsw.am01.client.tui.command;
+package it.polimi.ingsw.am01.client.tui.command.parser;
 
-import it.polimi.ingsw.am01.client.tui.command.parser.ParseException;
-import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
+import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
 public class WordArgumentParser implements Parser {
     private final String name;
