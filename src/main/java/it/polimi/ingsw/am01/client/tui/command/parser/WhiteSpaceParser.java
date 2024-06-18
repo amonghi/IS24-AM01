@@ -2,9 +2,17 @@ package it.polimi.ingsw.am01.client.tui.command.parser;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
+/**
+ * A parser that matches white space.
+ */
 public class WhiteSpaceParser implements Parser {
     private final boolean required;
 
+    /**
+     * Creates a new whitespace parser.
+     *
+     * @param required f false, this parser will match zero or more whitespace, otherwise it will match one or more.
+     */
     public WhiteSpaceParser(boolean required) {
         this.required = required;
     }

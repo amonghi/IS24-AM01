@@ -3,6 +3,15 @@ package it.polimi.ingsw.am01.client.tui.command;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A context that is used during command parsing and execution.
+ * <p>
+ * {@link it.polimi.ingsw.am01.client.tui.command.parser.Parser}s put arguments
+ * in the {@link CommandContext} so
+ * that {@link it.polimi.ingsw.am01.client.tui.command.validator.PostValidator}s can validate them
+ * and finally the {@link java.util.function.Consumer} associated with a {@link CommandNode} can use them
+ * to execute the command.
+ */
 public class CommandContext {
     private final Map<String, Object> arguments;
 

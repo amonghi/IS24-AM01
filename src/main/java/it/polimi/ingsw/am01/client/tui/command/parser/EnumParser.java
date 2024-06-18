@@ -2,6 +2,13 @@ package it.polimi.ingsw.am01.client.tui.command.parser;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
+/**
+ * A parser that reads a string representing an enum instance and then puts it in the {@link CommandContext}.
+ * <p>
+ * This parser matches the name returned by {@link Enum#name()} but in lower case.
+ *
+ * @param <E> the enum type
+ */
 public class EnumParser<E extends Enum<E>> implements Parser {
     private final String name;
     private final Class<E> enumClass;

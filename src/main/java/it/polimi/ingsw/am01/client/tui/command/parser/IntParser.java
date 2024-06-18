@@ -6,11 +6,20 @@ import java.util.function.IntPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A parser that reads an integer and then puts it in the {@link CommandContext}.
+ */
 public class IntParser implements Parser {
     private static final Pattern pattern = Pattern.compile("(-?\\d+)\\b");
     private final String name;
     private final IntPredicate validator;
 
+    /**
+     * Creates a new {@link IntParser} that will parse an integer
+     * and put it in the {@link CommandContext} under the given name.
+     *
+     * @param name the name under which the integer will be put in the {@link CommandContext}
+     */
     public IntParser(String name) {
         this(name, value -> true);
     }

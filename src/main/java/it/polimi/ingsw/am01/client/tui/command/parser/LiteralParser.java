@@ -2,9 +2,17 @@ package it.polimi.ingsw.am01.client.tui.command.parser;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
+/**
+ * A parser that matches a literal string.
+ */
 public class LiteralParser implements Parser {
     private final String literal;
 
+    /**
+     * Creates a new literal parser.
+     *
+     * @param literal The literal to match.
+     */
     public LiteralParser(String literal) {
         this.literal = literal;
     }

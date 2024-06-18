@@ -2,9 +2,19 @@ package it.polimi.ingsw.am01.client.tui.command.parser;
 
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 
+/**
+ * A parser that reads a word and then puts it in the {@link CommandContext}.
+ * For this parser, a word is a sequence of characters that does not contain any whitespace.
+ */
 public class WordArgumentParser implements Parser {
     private final String name;
 
+    /**
+     * Creates a new {@link WordArgumentParser} that will parse a word
+     * and put it in the {@link CommandContext} under the given name.
+     *
+     * @param name the name under which the word will be put in the {@link CommandContext}
+     */
     public WordArgumentParser(String name) {
         this.name = name;
     }
