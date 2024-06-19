@@ -1,9 +1,11 @@
-package it.polimi.ingsw.am01.client.tui.rendering.draw;
+package it.polimi.ingsw.am01.client.tui.component.elements;
 
 import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.rendering.Constraint;
 import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
+import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
+import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
 
 import java.util.ArrayList;
 
