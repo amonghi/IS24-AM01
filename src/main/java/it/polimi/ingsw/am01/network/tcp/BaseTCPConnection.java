@@ -14,6 +14,12 @@ import it.polimi.ingsw.am01.network.message.json.NetworkMessageTypeAdapterFactor
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Base class for TCP connections.
+ *
+ * @param <S> The type of the messages that can be sent
+ * @param <R> The type of the message that can be received
+ */
 public abstract class BaseTCPConnection<S extends NetworkMessage, R extends NetworkMessage>
         implements Connection<S, R> {
 
@@ -28,6 +34,14 @@ public abstract class BaseTCPConnection<S extends NetworkMessage, R extends Netw
     private final BufferedReader in;
     private final BufferedWriter out;
 
+    /**
+     * Creates a new {@link BaseTCPConnection}.
+     *
+     * @param sendType    The type of the messages that can be sent
+     * @param receiveType The type of the message that can be received
+     * @param socket      The socket to use for the connection
+     * @throws IOException If an I/O error occurs when creating the connection
+     */
     public BaseTCPConnection(Class<S> sendType, Class<R> receiveType, Socket socket) throws IOException {
         this.sendType = sendType;
         this.receiveType = receiveType;
@@ -36,6 +50,9 @@ public abstract class BaseTCPConnection<S extends NetworkMessage, R extends Netw
         this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void send(S message) throws SendNetworkException {
         try {
@@ -48,6 +65,9 @@ public abstract class BaseTCPConnection<S extends NetworkMessage, R extends Netw
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public R receive() throws ReceiveNetworkException {
         try {
@@ -58,6 +78,9 @@ public abstract class BaseTCPConnection<S extends NetworkMessage, R extends Netw
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws CloseNetworkException {
         try {
