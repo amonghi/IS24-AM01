@@ -1,7 +1,8 @@
-package it.polimi.ingsw.am01.network.rmi;
+package it.polimi.ingsw.am01.network.rmi.server;
 
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
+import it.polimi.ingsw.am01.network.rmi.BaseRMIConnection;
 
 import java.rmi.RemoteException;
 import java.util.concurrent.ExecutorService;

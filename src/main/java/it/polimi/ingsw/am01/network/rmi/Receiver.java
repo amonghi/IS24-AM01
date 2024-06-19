@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am01.network.rmi;
 
-import it.polimi.ingsw.am01.network.AlreadyClosedException;
 import it.polimi.ingsw.am01.network.message.NetworkMessage;
 
 import java.rmi.Remote;

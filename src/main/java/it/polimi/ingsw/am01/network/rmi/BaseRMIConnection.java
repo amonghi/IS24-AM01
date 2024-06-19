@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am01.network.rmi;
 
-import it.polimi.ingsw.am01.network.AlreadyClosedException;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.ReceiveNetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;

@@ -5,7 +5,6 @@ import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.rmi.BaseRMIConnection;
 import it.polimi.ingsw.am01.network.rmi.Receiver;
-import it.polimi.ingsw.am01.network.rmi.ServerRMIConnection;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
