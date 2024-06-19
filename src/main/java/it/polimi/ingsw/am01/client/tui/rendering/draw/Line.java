@@ -5,30 +5,79 @@ import it.polimi.ingsw.am01.client.tui.rendering.Position;
 
 import java.util.NoSuchElementException;
 
+/**
+ * A utility class to draw lines on a DrawArea.
+ */
 public class Line {
     private Line() {
     }
 
+    /**
+     * Draws a horizontal line of length {@code len} starting from position {@code p} and going to the right.
+     * The line is drawn with character {@code c}.
+     *
+     * @param a   the DrawArea to draw on
+     * @param p   the starting position
+     * @param len the length of the line
+     * @param c   the character to draw
+     */
     public static void right(DrawArea a, Position p, int len, char c) {
         right(a, p.x(), p.y(), len, c);
     }
 
+    /**
+     * Draws a horizontal line of length {@code len} starting from position {@code x, y} and going to the right.
+     * The line is drawn with character {@code c}.
+     *
+     * @param a   the DrawArea to draw on
+     * @param x   the x coordinate of the starting position
+     * @param y   the y coordinate of the starting position
+     * @param len the length of the line
+     * @param c   the character to draw
+     */
     public static void right(DrawArea a, int x, int y, int len, char c) {
         for (int i = 0; i < len; i++) {
             a.draw(x + i, y, c);
         }
     }
 
+    /**
+     * Draws a vertical line of length {@code len} starting from position {@code p} and going down.
+     * The line is drawn with character {@code c}.
+     *
+     * @param a   the DrawArea to draw on
+     * @param p   the starting position
+     * @param len the length of the line
+     * @param c   the character to draw
+     */
     public static void down(DrawArea a, Position p, int len, char c) {
         down(a, p.x(), p.y(), len, c);
     }
 
+    /**
+     * Draws a vertical line of length {@code len} starting from position {@code x, y} and going down.
+     * The line is drawn with character {@code c}.
+     *
+     * @param a   the DrawArea to draw on
+     * @param x   the x coordinate of the starting position
+     * @param y   the y coordinate of the starting position
+     * @param len the length of the line
+     * @param c   the character to draw
+     */
     public static void down(DrawArea a, int x, int y, int len, char c) {
         for (int i = 0; i < len; i++) {
             a.draw(x, y + i, c);
         }
     }
 
+    /**
+     * Draws a rectangle with the top-left corner at {@code tl} and the given {@code dim}ensions.
+     *
+     * @param a     the DrawArea to draw on
+     * @param tl    the top-left corner of the rectangle
+     * @param dim   the dimensions of the rectangle
+     * @param style the style to use for the lines
+     */
     public static void rectangle(DrawArea a, Position tl, Dimensions dim, Line.Style style) {
         int t = tl.y();
         int b = tl.y() + dim.height() - 1;
@@ -56,14 +105,15 @@ public class Line {
     }
 
     /**
-     * Character are categorized based on "which sides are connected"
+     * A style to use for drawing lines.
+     * <p>
+     * Character are categorized based on which sides are "connected", following this diagram:
      * <pre>
      *   T
      * L ┼ R
      *   B
      * </pre>
-     * <p>
-     * The names are given following the order t, b, l, r
+     * The letters in the name always follow the order T, B, L, R.
      */
     public record Style(
             char lr,
@@ -78,9 +128,26 @@ public class Line {
             char tlr,
             char tblr
     ) {
+        /**
+         * The default style.
+         */
         public static final Style DEFAULT = new Style('─', '│', '┌', '┐', '└', '┘', '├', '┤', '┬', '┴', '┼');
+
+        /**
+         * The same as {@link #DEFAULT}, but with rounded corners.
+         */
         public static final Style ROUNDED = new Style('─', '│', '╭', '╮', '╰', '╯', '├', '┤', '┬', '┴', '┼');
 
+        /**
+         * Get a character based on which sides are "connected".
+         *
+         * @param t whether the top side is connected
+         * @param b whether the bottom side is connected
+         * @param l whether the left side is connected
+         * @param r whether the right side is connected
+         * @return the character to use
+         * @throws NoSuchElementException if the combination of sides is invalid
+         */
         public char get(boolean t, boolean b, boolean l, boolean r) {
             // thanks, Java, for not supporting pattern-matching with multiple variables
             byte bits = 0;
