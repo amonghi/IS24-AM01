@@ -10,6 +10,9 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.*;
 
+/**
+ * Implementation of {@link RMIServerRemoteInterface}, used by {@link RMIServer} to accept incoming connections.
+ */
 public class RMIServerRemoteInterfaceImpl extends UnicastRemoteObject implements RMIServerRemoteInterface {
     private final BlockingQueue<PendingConnection> pendingConnections;
     private final ExecutorService executorService;

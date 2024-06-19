@@ -14,11 +14,23 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * RMI connection on the client side.
+ */
 public class ClientRMIConnection extends BaseRMIConnection<C2SNetworkMessage, S2CNetworkMessage> {
     private ClientRMIConnection(ExecutorService executorService) throws RemoteException {
         super(executorService);
     }
 
+    /**
+     * Connects to a remote RMI server.
+     *
+     * @param executorService the {@link ExecutorService} to use to run the worker thread
+     * @param host            the host of the server
+     * @param port            the port of the server
+     * @return the connection to the server
+     * @throws OpenConnectionNetworkException if an error occurs while connecting to the server
+     */
     public static ClientRMIConnection connect(ExecutorService executorService, String host, int port) throws OpenConnectionNetworkException {
         try {
             Registry registry = LocateRegistry.getRegistry(host, port);

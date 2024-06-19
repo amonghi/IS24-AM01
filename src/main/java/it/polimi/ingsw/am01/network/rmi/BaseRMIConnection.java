@@ -13,6 +13,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Base class for RMI connections.
+ *
+ * @param <S> the type of the messages that can be sent
+ * @param <R> the type of the messages that can be received
+ */
 public abstract class BaseRMIConnection<S extends NetworkMessage, R extends NetworkMessage>
         extends UnicastRemoteObject
         implements Connection<S, R>, Receiver<R> {
@@ -24,6 +30,16 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
     private boolean sendClosed;
     private boolean receiveClosed;
 
+    /**
+     * Creates a new {@link BaseRMIConnection}.
+     * <p>
+     * The connection is not connected to any remote receiver yet.
+     * <p>
+     * To run the connection a worker thread is needed, so an {@link ExecutorService} is required to create it.
+     *
+     * @param executorService the {@link ExecutorService} to use to run the worker thread
+     * @throws RemoteException if an error occurs while exporting the object
+     */
     public BaseRMIConnection(ExecutorService executorService) throws RemoteException {
         super();
         this.executorService = executorService;
@@ -34,6 +50,11 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
         this.receiveClosed = false;
     }
 
+    /**
+     * Connects this connection to a remote receiver.
+     *
+     * @param remoteReceiver the remote receiver to connect to
+     */
     public synchronized void connect(Receiver<S> remoteReceiver) {
         this.remoteReceiver = remoteReceiver;
         this.executorService.submit(this::messageSenderWorker);
@@ -88,6 +109,9 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void send(S message) throws SendNetworkException {
         // this should never actually happen
@@ -100,6 +124,9 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
         this.notifyAll();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public R receive() throws ReceiveNetworkException {
         R received;
@@ -127,6 +154,9 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
         return received;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void close() {
         this.sendClosed = true;
