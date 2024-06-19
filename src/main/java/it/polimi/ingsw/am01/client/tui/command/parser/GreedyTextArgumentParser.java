@@ -20,7 +20,7 @@ public class GreedyTextArgumentParser implements Parser {
 
     @Override
     public Result parse(CommandContext context, String cmd) throws ParseException {
-        if (cmd.isBlank()) {
+        if (cmd.isEmpty()) {
             throw new ParseException();
         }
 
