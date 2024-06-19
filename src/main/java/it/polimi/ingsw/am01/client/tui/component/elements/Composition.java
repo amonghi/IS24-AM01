@@ -7,9 +7,15 @@ import it.polimi.ingsw.am01.client.tui.rendering.Position;
 
 import java.util.List;
 
+/**
+ * A composition is a tree of components that is treated as a single component.
+ */
 public abstract class Composition extends BaseLayout {
     private Component root;
 
+    /**
+     * Creates the subtree of components that make up this composition.
+     */
     protected abstract Component compose();
 
     private Component getRoot() {
@@ -20,11 +26,17 @@ public abstract class Composition extends BaseLayout {
         return root;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected List<Component> children() {
         return List.of(this.getRoot());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void layout(Constraint constraint) {
         this.getRoot().layout(constraint);
