@@ -9,10 +9,16 @@ import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
 import sun.misc.Signal;
 
+/**
+ * A terminal implementation for Linux systems.
+ */
 public class LinuxTerminal implements Terminal {
     private LibC.Termios originalAttributes;
     private final EventEmitterImpl<ResizeEvent> emitter;
 
+    /**
+     * Creates a new {@code LinuxTerminal}.
+     */
     public LinuxTerminal() {
         this.emitter = new EventEmitterImpl<>();
 
@@ -22,21 +28,33 @@ public class LinuxTerminal implements Terminal {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Registration onAny(EventListener<ResizeEvent> listener) {
         return this.emitter.onAny(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends ResizeEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return this.emitter.on(eventClass, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean unregister(Registration registration) {
         return this.emitter.unregister(registration);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void enableRawMode() {
         LibC.Termios termios = new LibC.Termios();
@@ -52,11 +70,17 @@ public class LinuxTerminal implements Terminal {
         LibC.INSTANCE.tcsetattr(LibC.SYSTEM_OUT_FD, LibC.TCSAFLUSH, termios);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void disableRawMode() {
         LibC.INSTANCE.tcsetattr(LibC.SYSTEM_OUT_FD, LibC.TCSAFLUSH, originalAttributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Dimensions getDimensions() {
         final LibC.Winsize winsize = new LibC.Winsize();

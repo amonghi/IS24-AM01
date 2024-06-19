@@ -10,31 +10,49 @@ import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
 
+/**
+ * A terminal implementation for Windows systems.
+ */
 public class WindowsTerminal implements Terminal {
     private final EventEmitterImpl<ResizeEvent> emitter;
     private IntByReference inMode;
     private IntByReference outMode;
 
+    /**
+     * Creates a new {@code WindowsTerminal}.
+     */
     public WindowsTerminal() {
         // TODO: actually detect terminal resize and emit events
         emitter = new EventEmitterImpl<>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Registration onAny(EventListener<ResizeEvent> listener) {
         return this.emitter.onAny(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends ResizeEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return this.emitter.on(eventClass, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean unregister(Registration registration) {
         return this.emitter.unregister(registration);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void enableRawMode() {
         Pointer inHandle = Kernel32.INSTANCE.GetStdHandle(Kernel32.STD_INPUT_HANDLE);
@@ -66,6 +84,9 @@ public class WindowsTerminal implements Terminal {
         Kernel32.INSTANCE.SetConsoleMode(outHandle, outMode);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void disableRawMode() {
         Pointer inHandle = Kernel32.INSTANCE.GetStdHandle(Kernel32.STD_INPUT_HANDLE);
@@ -75,6 +96,9 @@ public class WindowsTerminal implements Terminal {
         Kernel32.INSTANCE.SetConsoleMode(outHandle, outMode.getValue());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Dimensions getDimensions() {
         final Kernel32.CONSOLE_SCREEN_BUFFER_INFO info = new Kernel32.CONSOLE_SCREEN_BUFFER_INFO();
