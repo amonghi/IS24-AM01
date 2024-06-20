@@ -58,8 +58,8 @@ public class SelectStartingCardSideScene extends Composition {
                                                         Centered.horizontally(
                                                                 new CardFaceComponent(startingCard, side)
                                                         )
-                                                )
-                                                )))
+                                                ))
+                                        ))
                                         .collect(Collectors.toList())
                         )
                 ),

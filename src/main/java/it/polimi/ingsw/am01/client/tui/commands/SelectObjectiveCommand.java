@@ -45,8 +45,15 @@ public class SelectObjectiveCommand extends TuiCommand {
         }
     }
 
-    private enum SecretObjectiveChoice {
+    public enum SecretObjectiveChoice {
         LEFT,
-        RIGHT
+        RIGHT;
+
+        public int getObjectiveIndex() {
+            return switch (this) {
+                case LEFT -> 0;
+                case RIGHT -> 1;
+            };
+        }
     }
 }

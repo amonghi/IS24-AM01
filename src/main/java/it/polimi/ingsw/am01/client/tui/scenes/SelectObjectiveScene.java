@@ -1,8 +1,10 @@
 package it.polimi.ingsw.am01.client.tui.scenes;
 
 import it.polimi.ingsw.am01.client.tui.TuiView;
+import it.polimi.ingsw.am01.client.tui.commands.SelectObjectiveCommand;
 import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.component.elements.Composition;
+import it.polimi.ingsw.am01.client.tui.component.elements.ObjectiveComponent;
 import it.polimi.ingsw.am01.client.tui.component.elements.Text;
 import it.polimi.ingsw.am01.client.tui.component.layout.Border;
 import it.polimi.ingsw.am01.client.tui.component.layout.Centered;
@@ -11,7 +13,9 @@ import it.polimi.ingsw.am01.client.tui.component.layout.Padding;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.Flex;
 import it.polimi.ingsw.am01.client.tui.component.layout.flex.FlexChild;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
+import it.polimi.ingsw.am01.model.game.GameAssets;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +44,26 @@ public class SelectObjectiveScene extends Composition {
                                         new Text("Select your secret objective with command 'select objective'")
                                 )
 
+                        )
+                ),
+                new FlexChild.Flexible(1,
+                        Flex.row(
+                                Arrays.stream(SelectObjectiveCommand.SecretObjectiveChoice.values())
+                                        .map(objectiveChoice -> new FlexChild.Flexible(1,
+                                                new Column(List.of(
+                                                        Centered.horizontally(
+                                                                new Text(objectiveChoice.toString())
+                                                        ),
+                                                        Centered.horizontally(
+                                                                new ObjectiveComponent(
+                                                                        GameAssets.getInstance().getObjectiveById(
+                                                                                view.getSecretObjectivesId().get(objectiveChoice.getObjectiveIndex())
+                                                                        ).orElseThrow()
+                                                                )
+                                                        )
+                                                ))
+                                        ))
+                                        .collect(Collectors.toList())
                         )
                 ),
                 new FlexChild.Fixed(
