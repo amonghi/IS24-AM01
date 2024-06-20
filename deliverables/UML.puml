@@ -320,7 +320,7 @@ package chat {
         + getRecipient() Optional<PlayerProfile>
     }
 
-    class ChatManager {
+    class ChatManager <<EventEmitter>> {
         - List<Message> messages
         
         + ChatManager()
@@ -418,7 +418,7 @@ package game {
         DRAWING
     }
 
-    class GameManager {
+    class GameManager <<EventEmitter>> {
         - List<Game> games
         - int nextId
         - {static} String dataDir
@@ -440,7 +440,7 @@ package game {
         Returns list of saved game IDs by reading filenames in the data directory.
     end note
 
-    class Game {
+    class Game <<EventEmitter>> {
         - int id
         - GameStatus status
         - TurnPhase turnPhase
@@ -563,7 +563,7 @@ package game {
         + Optional<Card> draw()
     }
 
-    class FaceUpCard implements DrawSource {
+    class FaceUpCard <<EventEmitter>> implements DrawSource {
         - Card card
         - Deck mainSource
         - Deck auxiliarySource
@@ -657,5 +657,39 @@ package game {
         the actual name is PlayArea.CardPlacement
     end note
 } /' end package game '/
+
+package eventemitter {
+    interface EventEmitter<E extends Event> {
+        + Registration onAny(EventListener<E> listener)
+        + <T extends E> Registration on(Class<T> eventClass, EventListener<T> listener)
+        + boolean unregister(Registration registration)
+    }
+    Registration <--* EventEmitter : < has many
+    note top of EventEmitter
+        Classes that implement EventEmitter are marked with <<EventEmitter>>
+    end note
+
+    interface Registration {
+    }
+
+    interface Event {
+    }
+    note top of Event
+        This is a marker interface
+    end note
+
+    class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
+        + Registration onAny(EventListener<E> listener)
+        + <T extends E> Registration on(Class<T> eventClass, EventListener<T> listener)
+        + boolean unregister(Registration registration)
+
+        + void emit(E event)
+        + <T extends E> void bubble(EventEmitter<T> source)
+    }
+    note top of EventEmitterImpl
+        All other classes that implement EventEmitter delegate to this class.
+    end note
+
+}
 
 @enduml
