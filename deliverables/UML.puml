@@ -194,7 +194,7 @@ package card {
         <#purple:white_circle:> PURPLE
         <:white_circle:> NEUTRAL
     }
-    note left of CardColor::NEUTRAL
+    note right of CardColor::NEUTRAL
         Starter cards have neutral color.
     end note
 
@@ -206,9 +206,11 @@ package card {
 
 package objective {
     abstract class Objective {
+        - int id
         - int points
 
-        + Objective(int points)
+        + Objective(int id, int points)
+        + getId() int
         + getPointsPerMatch() int
         + getEarnedPoints(PlayArea pa) int
     }
@@ -241,58 +243,12 @@ package objective {
     CardColor ... PatternObjective
 } /' end package objective '/
 
-package choice {
-    class Choice<T> {
-        - Set<T> options
-        - T selection
-
-        + Choice(Set<T> choices)
-        + getOptions() Set<T>
-        + select(T selection) void
-        + getSelected() Optional<T>
-    }
-
-    class MultiChoice<T, I> {
-        - Set<T> options
-        - Map<I, MultiChoiceChoice> choices
-        - boolean settled
-
-        + MultiChoice(Set<T> choices, Set<I> chooserIdentities)
-        - getContendersPerOption() Map<T, Set<I>>
-        - everyoneHasChosen() boolean
-        + getChoices() Map<I, MultiChoiceChoice>
-    }
-    MultiChoiceChoice <-- MultiChoice : < has many
-
-    class MultiChoiceChoice<T, I> {
-        - T selection
-
-        - MultiChoiceChoice(I identity)
-        + getOptions() Set<T>
-        + select(T choice) SelectionResult
-        + getSelected() Optional<T>
-        + getContenders(T choice) Set<I>
-        + isSettled() boolean
-    }
-    SelectionResult .. MultiChoiceChoice
-    note right of MultiChoiceChoice
-        This is an inner class
-        the actual name is MultiChoice<T, I>.Choice
-    end note
-
-    enum SelectionResult {
-        OK
-        CONTENDED
-    }
-} /' end package choice '/
-
 package player {
     class PlayerProfile {
         - String name
 
         + PlayerProfile(String name)
         + getName() String
-        + isConnected() boolean
     }
 
     class PlayerData {
@@ -307,6 +263,16 @@ package player {
     }
     Card <-- PlayerData : < has many \n in hand
     PlayerColor .. PlayerData
+
+    class PlayerManager {
+        - Map<String, PlayerProfile> profiles
+
+        + PlayerManager()
+        + createProfile(String name) PlayerProfile
+        + getProfile(String name) Optional<PlayerProfile>
+        + removeProfile(PlayerProfile profile) void
+    }
+    PlayerProfile <--* PlayerManager
 
     enum PlayerColor {
         <#red:white_circle:> RED
@@ -354,7 +320,7 @@ package chat {
         + getRecipient() Optional<PlayerProfile>
     }
 
-    class ChatManager {
+    class ChatManager <<EventEmitter>> {
         - List<Message> messages
         
         + ChatManager()
@@ -365,6 +331,83 @@ package chat {
 }
 
 package game {
+    package selectionphase {
+        class SelectionPhase<O, I> {
+            - SelectionPhaseStrategy<O, I> strategy
+            - Map<I, Selector> selectors
+            - Map<I, O> results
+
+            + SelectionPhase(SelectionPhaseStrategy<O, I> strategy)
+            + Selector getSelectorFor(I who)
+            + boolean isConcluded()
+            + Map<I, O> getResults()
+
+            - void updateState()
+        }
+        Selector <--* SelectionPhase : < has many
+        SelectionPhaseStrategy <-- SelectionPhase : uses
+        note left of SelectionPhase::updateState
+            Called internally to detected whether the phase is concluded.
+        end note
+
+        class Selector {
+             - I identity
+             - OptionsPool<O, I> pool
+             - boolean allowPreferenceChange
+             - droppedOut
+             - O preference
+
+            ~ Selector(I identity, OptionsPool<O, I> pool, boolean allowPreferenceChange)
+            + I getIdentity()
+            + Set<O> getOptions()
+            + void expressPreference(O option)
+            + Optional<O> getExpressedPreference()
+            + void dropOut()
+            + boolean isDropout()
+        }
+        note top of Selector
+            this is an inner record class
+            the actual name is SelectionPhase.Selector
+        end note
+
+        interface SelectionPhaseStrategy<O, I> {
+            + List<SelectionPhase<O, I>.Selector> createSelectors(SelectionPhase<O, I> selectionPhase)
+            + Optional<Map<I, O>> tryConclude(List<SelectionPhase<O, I>.Selector> selectors)
+        }
+
+        class DisjointSelectionStrategy<O, I> implements SelectionPhaseStrategy<O, I> {
+            - Map<I, OptionsPool<O, I>> assignedPools
+
+            + DisjointSelectionStrategy(Map<I, OptionsPool<O, I>> assignedPools)
+            + List<SelectionPhase<O, I>.Selector> createSelectors(SelectionPhase<O, I> selectionPhase)
+            + Optional<Map<I, O>> tryConclude(List<SelectionPhase<O, I>.Selector> selectors)
+        }
+        OptionsPool <--* DisjointSelectionStrategy : < has many
+
+        class CommonPoolSelectionStrategy<O, I> implements SelectionPhaseStrategy<O, I> {
+             - OptionsPool<O, I> commonPool
+             - boolean allowOverlap
+             - boolean allowPreferenceChange
+             - Set<I> identities
+
+            + CommonPoolSelectionStrategy(Set<I> identities, OptionsPool<O, I> commonPool, boolean allowPreferenceChange, boolean allowOverlap)
+            + List<SelectionPhase<O, I>.Selector> createSelectors(SelectionPhase<O, I> selectionPhase)
+            + Optional<Map<I, O>> tryConclude(List<SelectionPhase<O, I>.Selector> selectors)
+        }
+        OptionsPool <--* CommonPoolSelectionStrategy : < has many
+
+        class OptionsPool<O, I> {
+            - Map<O, Set<I>> choices
+
+            + OptionsPool(Set<O> options)
+            + Set<O> getOptions()
+            + Set<I> whoPrefers(O option)
+            + void addPreference(O option, I identity)
+            + void removePreference(O option, I identity)
+            + Set<I> getWhoPrefers(O option)
+        }
+    }
+
     enum DrawResult {
         OK
         EMPTY
@@ -375,26 +418,29 @@ package game {
         DRAWING
     }
 
-    class GameManager {
+    class GameManager <<EventEmitter>> {
         - List<Game> games
         - int nextId
         - {static} String dataDir
 
         + GameManager(Path dataDir)
+        + getGame(int id) Optional<Game>
         + getGames() List<Game>
+        + getGameWhereIsPlaying(PlayerProfile pp) Optional<Game>
         + createGame(int maxPlayers) Game
         - loadSavedGamesIds() List<Integer>
         - loadGame(int id) Game
         + saveGame(Game game) void
         - serializeGame(Game game) String
         - deserializeGame(String json) Game
+        + deleteGame(Game game)) void
     }
     Game <--* GameManager
     note left of GameManager::loadSavedGamesIds()
         Returns list of saved game IDs by reading filenames in the data directory.
     end note
 
-    class Game {
+    class Game <<EventEmitter>> {
         - int id
         - GameStatus status
         - TurnPhase turnPhase
@@ -402,11 +448,12 @@ package game {
         - List<PlayerProfile> playerProfiles
         - ChatManager chatManager
         - Map<PlayerProfile, Card> startingCards;
+        - Map<PlayerProfile, Boolean> connections;
 
         'initial choices
-        - Map<PlayerProfile, Choice<Side>> startingCardSideChoices
-        - Map<PlayerProfile, MultiChoiceChoice<PlayerColor, PlayerProfile>> colorChoices
-        - Map<PlayerProfile, Choice<Objective>> objectiveChoices
+        - SelectionPhase<Side, PlayerProfile> startingCardSideSelectionPhase;
+        - SelectionPhase<PlayerColor, PlayerProfile> colorSelectionPhase;
+        - SelectionPhase<Objective, PlayerProfile> objectiveSelectionPhase;
 
         'game data
         - Map<PlayerProfile, PlayerData> playersData
@@ -418,7 +465,7 @@ package game {
 
         + Game(int id, int maxPlayers)
         + Game(int id, int maxPlayers, Board board)
-        
+
         + getId() int
         + getObjectiveOptions(PlayerProfile pp) Set<Objective>
         + getPlayerProfiles() List<PlayerProfile>
@@ -464,6 +511,8 @@ package game {
     PlayArea <--* Game
     PlayerData <--* Game
     GameStatus .. Game
+    TurnPhase .. Game
+    SelectionPhase <-- Game
     note right of Game::startingCardSideChoices
         This group of fields are used during the setup phases of the game:
         * SETUP_STARTING_CARD_SIDE
@@ -492,7 +541,8 @@ package game {
         SECOND_LAST_TURN,
         LAST_TURN,
         FINISHED,
-        SUSPENDED
+        SUSPENDED,
+        RESTORING
     }
 
     class Board {
@@ -513,7 +563,7 @@ package game {
         + Optional<Card> draw()
     }
 
-    class FaceUpCard implements DrawSource {
+    class FaceUpCard <<EventEmitter>> implements DrawSource {
         - Card card
         - Deck mainSource
         - Deck auxiliarySource
@@ -553,6 +603,7 @@ package game {
     Iterable <|.. PlayArea : <<bind>> \n PlayArea.CardPlacement
     class PlayArea {
         - Map<Position, CardPlacement> cards
+        - Set<Position> playablePositions;
         - int score
         - int seq
         - Map<Collectible, Integer> collectibleCount
@@ -561,10 +612,11 @@ package game {
         + placeAt(Position pos, Card c, Side side) PlayArea.CardPlacement
         + placeAt(int i, int j, Card c, Side side) PlayArea.CardPlacement
         - placeAt(Position position, Card card, Side side, boolean isFirst) PlayArea.CardPlacement
-        + undoPlacement() void
-        - removePlacement(PlayArea.CardPlacement cardPlacement) void
+        + undoPlacement() PlayArea.CardPlacement
+        - removePlacement(PlayArea.CardPlacement cardPlacement) PlayArea.CardPlacement
         - updatePlayablePositionsAfterPlacing(PlayArea.CardPlacement placement) void
         - updatePlayablePositionsAfterRemoving(PlayArea.CardPlacement placement) void
+        + getCards() Map<Position, PlayArea.CardPlacement>
         + getPlayablePositions() Set<Position>
         + getAt(Position pos) Optional<PlayArea.CardPlacement>
         + getAt(int i, int j) Optional<PlayArea.CardPlacement>
@@ -605,5 +657,39 @@ package game {
         the actual name is PlayArea.CardPlacement
     end note
 } /' end package game '/
+
+package eventemitter {
+    interface EventEmitter<E extends Event> {
+        + Registration onAny(EventListener<E> listener)
+        + <T extends E> Registration on(Class<T> eventClass, EventListener<T> listener)
+        + boolean unregister(Registration registration)
+    }
+    Registration <--* EventEmitter : < has many
+    note top of EventEmitter
+        Classes that implement EventEmitter are marked with <<EventEmitter>>
+    end note
+
+    interface Registration {
+    }
+
+    interface Event {
+    }
+    note top of Event
+        This is a marker interface
+    end note
+
+    class EventEmitterImpl<E extends Event> implements EventEmitter<E> {
+        + Registration onAny(EventListener<E> listener)
+        + <T extends E> Registration on(Class<T> eventClass, EventListener<T> listener)
+        + boolean unregister(Registration registration)
+
+        + void emit(E event)
+        + <T extends E> void bubble(EventEmitter<T> source)
+    }
+    note top of EventEmitterImpl
+        All other classes that implement EventEmitter delegate to this class.
+    end note
+
+}
 
 @enduml
