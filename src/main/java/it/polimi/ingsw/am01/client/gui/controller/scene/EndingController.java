@@ -10,7 +10,6 @@ import javafx.scene.layout.VBox;
 import java.util.*;
 
 public class EndingController extends SceneController {
-    private final List<ScorePlacement> scorePlacements;
     private final Map<String, PlayerColor> playerColors;
 
     @FXML
@@ -18,7 +17,6 @@ public class EndingController extends SceneController {
 
     public EndingController(View view) {
         super(view);
-        scorePlacements = new ArrayList<>();
         playerColors = new HashMap<>();
     }
 
@@ -33,26 +31,16 @@ public class EndingController extends SceneController {
         playerColors.clear();
         playerColors.putAll(event.playerColors());
 
-
-        scorePlacements.clear();
         scoreboard.getChildren().clear();
 
-        List<Map.Entry<String, Integer>> orderedScores = event.finalScores().entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).toList();
-        for (int i = 0; i < orderedScores.size(); i++) {
-            String player = orderedScores.get(i).getKey();
-            int points = orderedScores.get(i).getValue();
-            int placement = i > 0 && scorePlacements.get(i - 1).points() == points
-                    ? scorePlacements.get(i - 1).points()
-                    : i + 1;
-            scorePlacements.add(new ScorePlacement(player, points, placement));
-        }
+        SortedMap<String, Integer> finalPlacements = view.getFinalPlacements();
 
-        for (ScorePlacement scorePlacement : scorePlacements) {
+        for (String player : event.finalScores().keySet()) {
             scoreboard.getChildren().add(
                     new EndingPlayerController(
-                            scorePlacement.player(),
-                            scorePlacement.points(),
-                            scorePlacement.placement(),
+                            player,
+                            event.finalScores().get(player),
+                            finalPlacements.get(player),
                             this.playerColors
                     )
             );
@@ -67,8 +55,5 @@ public class EndingController extends SceneController {
     @Override
     public String getFXMLFileName() {
         return "ending";
-    }
-
-    private record ScorePlacement(String player, int points, int placement) {
     }
 }

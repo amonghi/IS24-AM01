@@ -2,10 +2,8 @@ package it.polimi.ingsw.am01.client.gui.controller.component;
 
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.client.ViewUtils;
 import javafx.scene.layout.AnchorPane;
-
-import static it.polimi.ingsw.am01.client.gui.controller.Constants.*;
-import static it.polimi.ingsw.am01.client.gui.controller.Constants.GOLD_PURPLE;
 
 public abstract class CardController extends AnchorPane implements ComponentController {
 
@@ -25,32 +23,11 @@ public abstract class CardController extends AnchorPane implements ComponentCont
     }
 
     public String setBackImage() {
-        String formattedId = "0" + getFixedId() + ".png";
+        String formattedId = "0" + ViewUtils.getFixedId(cardId) + ".png";
         formattedId = formattedId.substring(formattedId.length() - SUFFIX_CARD_ID_LENGTH);
         return Constants.BACK_CARD_PATH + formattedId;
     }
 
-    public int getFixedId() {
-        if (cardId >= 1 && cardId <= 10)
-            return RES_RED;
-        else if (cardId >= 11 && cardId <= 20)
-            return RES_GREEN;
-        else if (cardId >= 21 && cardId <= 30)
-            return RES_BLUE;
-        else if (cardId >= 31 && cardId <= 40)
-            return RES_PURPLE;
-        else if (cardId >= 41 && cardId <= 50)
-            return GOLD_RED;
-        else if (cardId >= 51 && cardId <= 60)
-            return GOLD_GREEN;
-        else if (cardId >= 61 && cardId <= 70)
-            return GOLD_BLUE;
-        else if (cardId >= 71 && cardId <= 80)
-            return GOLD_PURPLE;
-        else if (cardId >= 81 && cardId <= 86)
-            return cardId;
-        return 0;
-    }
 
     //TODO: unify card and card_placement fxml file and use these methods to set dimensions
     public void setWidth(int width) {

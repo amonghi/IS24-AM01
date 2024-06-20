@@ -8,7 +8,7 @@ import it.polimi.ingsw.am01.model.game.PlayArea;
  * An objective whose requirements are to have a minimum number
  * of a specific {@link Collectible}
  */
-public class SameCollectibleObjective extends Objective {
+public final class SameCollectibleObjective extends Objective {
     private final Collectible requiredCollectible;
     private final int requiredNumber;
 

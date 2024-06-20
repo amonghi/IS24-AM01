@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * ItemPoints is type of Points that gives a score for a card placement based on the amount of a specific item
  */
-public class ItemPoints implements Points {
+public final class ItemPoints implements Points {
     private final Item item;
     private final int pointsPerItem;
 
