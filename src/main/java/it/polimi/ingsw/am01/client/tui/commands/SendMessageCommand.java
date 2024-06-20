@@ -5,8 +5,8 @@ import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
-import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.GreedyTextArgumentParser;
+import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 
@@ -44,7 +44,9 @@ public class SendMessageCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.IN_GAME) || (getView().getGameStatus().equals(GameStatus.RESTORING))) {
+        if (!getView().getState().equals(ClientState.IN_GAME)
+                || (getView().getGameStatus().equals(GameStatus.RESTORING))
+                || (getView().getGameStatus().equals(GameStatus.FINISHED))) {
             throw new ValidationException();
         }
     }

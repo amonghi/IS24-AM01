@@ -44,8 +44,7 @@ public class PlaceCardCommand extends TuiCommand {
         boolean isCorrectState = getView().getState().equals(ClientState.IN_GAME) &&
                 ((getView().getGameStatus().equals(GameStatus.PLAY))
                         || (getView().getGameStatus().equals(GameStatus.SECOND_LAST_TURN))
-                        || (getView().getGameStatus().equals(GameStatus.LAST_TURN))
-                        || (getView().getGameStatus().equals(GameStatus.SUSPENDED)))
+                        || (getView().getGameStatus().equals(GameStatus.LAST_TURN)))
                 && getView().getTurnPhase().equals(TurnPhase.PLACING) && getView().getCurrentPlayer().equals(getView().getPlayerName());
 
         if (!isCorrectState) {

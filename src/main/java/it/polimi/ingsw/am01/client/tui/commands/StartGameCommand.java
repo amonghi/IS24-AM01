@@ -19,6 +19,7 @@ public class StartGameCommand extends TuiCommand {
         return SequenceBuilder
                 .literal("start_game")
                 .validatePre(this::validateState)
+                .validatePost(this::validateStartGame)
                 .executes(this::execute)
                 .end();
     }
@@ -29,6 +30,12 @@ public class StartGameCommand extends TuiCommand {
 
     private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.AWAITING_PLAYERS)) {
+            throw new ValidationException();
+        }
+    }
+
+    private void validateStartGame(CommandContext ctx) throws ValidationException {
+        if (getView().getPlayersInGame().size() < 2) {
             throw new ValidationException();
         }
     }
