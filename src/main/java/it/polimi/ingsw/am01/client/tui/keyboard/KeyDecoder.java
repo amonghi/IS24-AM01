@@ -45,47 +45,73 @@ public class KeyDecoder {
 
         if (c1 < 32) {
             char c = (char) (c1 + 96);
-            return new Key.Ctrl(c);
+            return new Key.Character(c, true, false);
         }
 
         // ascii printable characters are between 32 and 127
-        return new Key.Character(c1);
+        return new Key.Character(c1, false, false);
     }
 
     private Key parseEscapeSequence() throws IOException {
         char c2 = this.readChar();
         if (c2 != '[') {
-            return new Key.Alt(c2);
+            return new Key.Character(c2, false, true);
         }
 
         char c3 = this.readChar();
         return switch (c3) {
-            case 'A' -> new Key.Arrow(Key.Arrow.Direction.UP);
-            case 'B' -> new Key.Arrow(Key.Arrow.Direction.DOWN);
-            case 'C' -> new Key.Arrow(Key.Arrow.Direction.RIGHT);
-            case 'D' -> new Key.Arrow(Key.Arrow.Direction.LEFT);
+            case 'A' -> new Key.Arrow(Key.Arrow.Direction.UP, false, false);
+            case 'B' -> new Key.Arrow(Key.Arrow.Direction.DOWN, false, false);
+            case 'C' -> new Key.Arrow(Key.Arrow.Direction.RIGHT, false, false);
+            case 'D' -> new Key.Arrow(Key.Arrow.Direction.LEFT, false, false);
             case 'H' -> new Key.Home();
             case 'F' -> new Key.End();
 
             case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                int c4 = System.in.read();
-                if (c4 != '~') {
-                    yield null;
-                }
+                int c4 = this.readChar();
 
-                yield switch (c3) {
-                    case '1', '7':
-                        yield new Key.Home();
-                    case '3':
-                        yield new Key.Del();
-                    case '4', '8':
-                        yield new Key.End();
-                    case '5':
-                        yield new Key.PageUp();
-                    case '6':
-                        yield new Key.PageDown();
-                    default:
-                        yield null;
+                yield switch (c4) {
+                    case ';' -> {
+                        int c5 = this.readChar();
+                        yield switch (c5) {
+                            case '3' -> {
+                                int c6 = this.readChar();
+                                yield switch (c6) {
+                                    case 'A' -> new Key.Arrow(Key.Arrow.Direction.UP, false, true);
+                                    case 'B' -> new Key.Arrow(Key.Arrow.Direction.DOWN, false, true);
+                                    case 'C' -> new Key.Arrow(Key.Arrow.Direction.RIGHT, false, true);
+                                    case 'D' -> new Key.Arrow(Key.Arrow.Direction.LEFT, false, true);
+                                    default -> null;
+                                };
+                            }
+                            case '5' -> {
+                                int c6 = this.readChar();
+                                yield switch (c6) {
+                                    case 'A' -> new Key.Arrow(Key.Arrow.Direction.UP, true, false);
+                                    case 'B' -> new Key.Arrow(Key.Arrow.Direction.DOWN, true, false);
+                                    case 'C' -> new Key.Arrow(Key.Arrow.Direction.RIGHT, true, false);
+                                    case 'D' -> new Key.Arrow(Key.Arrow.Direction.LEFT, true, false);
+                                    default -> null;
+                                };
+                            }
+                            default -> null;
+                        };
+                    }
+                    case '~' -> switch (c3) {
+                        case '1', '7':
+                            yield new Key.Home();
+                        case '3':
+                            yield new Key.Del();
+                        case '4', '8':
+                            yield new Key.End();
+                        case '5':
+                            yield new Key.PageUp();
+                        case '6':
+                            yield new Key.PageDown();
+                        default:
+                            yield null;
+                    };
+                    default -> null;
                 };
             }
 

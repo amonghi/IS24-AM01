@@ -78,25 +78,33 @@ public class TuiView extends BaseTuiView {
 
         // listen to keyboard
         this.keyboardRegistrations = List.of(
-                keyboard.on(Key.Alt.class, onRenderThread(key -> {
+                keyboard.on(Key.Character.class, onRenderThread(key -> {
                     // ALT+D toggles debug
-                    if (key.character() == 'd') {
+                    if (key.isAlt() && key.character() == 'd') {
                         this.toggleDebug();
+                        return;
                     }
-                })),
-                keyboard.on(Key.Ctrl.class, onRenderThread(key -> {
+
                     // CTRL+C or CTRL+Q or CTRL+D quits the application
-                    switch (key.character()) {
-                        case 'c', 'q', 'd' -> this.quitApplication();
+                    if (key.isCtrl()) {
+                        switch (key.character()) {
+                            case 'c', 'q', 'd' -> this.quitApplication();
+                        }
+                        return;
                     }
+
+                    this.writeChar(key.character());
                 })),
-                keyboard.on(Key.Character.class, onRenderThread(key -> this.writeChar(key.character()))),
                 keyboard.on(Key.Backspace.class, onRenderThread(event -> this.eraseChar())),
                 keyboard.on(Key.Del.class, onRenderThread(event -> this.eraseChar())),
                 keyboard.on(Key.Tab.class, onRenderThread(key -> this.writeCompletion())),
                 keyboard.on(Key.Enter.class, onRenderThread(key -> this.runCommand())),
 
-                keyboard.on(Key.Arrow.class, onRenderThread(event -> this.movePlayArea(event.direction())))
+                keyboard.on(Key.Arrow.class, onRenderThread(event -> {
+                    if (event.isAlt()) {
+                        this.movePlayArea(event.direction());
+                    }
+                }))
         );
 
         // start rendering
