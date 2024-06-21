@@ -8,26 +8,27 @@ import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 
 import java.util.List;
 
+import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
+
 public class LobbyController extends SceneController {
     @FXML
     private HBox playerList;
-
     @FXML
     private Label gameId;
-
     @FXML
     private Button startButton;
     @FXML
     private AnchorPane chatPane;
     @FXML
-    private Button openChatButton;
+    private ImageView openChatIcon;
     @FXML
-    private Button closeChatButton;
+    private ImageView closeChatIcon;
     private ChatBoxController chatBoxController;
 
     public LobbyController(View view) {
@@ -36,10 +37,10 @@ public class LobbyController extends SceneController {
 
     @FXML
     private void initialize() {
-        chatPane.setVisible(false);
+        chatPane.setVisible(true);
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
-        closeChatButton.setVisible(false);
+        closeChatIcon.setVisible(false);
 
         gameId.setText("In game #" + view.getGameId());
     }
@@ -80,15 +81,15 @@ public class LobbyController extends SceneController {
 
     @FXML
     private void openChat() {
-        chatPane.setVisible(true);
-        openChatButton.setVisible(false);
-        closeChatButton.setVisible(true);
+        movePane(0, chatPane);
+        openChatIcon.setVisible(false);
+        closeChatIcon.setVisible(true);
     }
 
     @FXML
     private void closeChat() {
-        chatPane.setVisible(false);
-        openChatButton.setVisible(true);
-        closeChatButton.setVisible(false);
+        movePane(400, chatPane);
+        openChatIcon.setVisible(true);
+        closeChatIcon.setVisible(false);
     }
 }

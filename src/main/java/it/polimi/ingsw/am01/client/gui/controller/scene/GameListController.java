@@ -6,14 +6,17 @@ import it.polimi.ingsw.am01.client.gui.controller.popup.GameCreationPopupControl
 import it.polimi.ingsw.am01.client.gui.event.GameListChangedEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 public class GameListController extends SceneController {
     @FXML
     private VBox box;
-
     @FXML
     private Label playerNameLabel;
+    @FXML
+    private ImageView newGameIcon;
 
     public GameListController(View view) {
         super(view);
@@ -21,6 +24,7 @@ public class GameListController extends SceneController {
 
     @FXML
     private void initialize() {
+        Tooltip.install(newGameIcon, new Tooltip("Click here to create a new game"));
         playerNameLabel.setText("Logged as " + view.getPlayerName());
         box.getChildren().clear();
         for (Integer gameID : view.getGames().keySet()) {
