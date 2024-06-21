@@ -11,12 +11,15 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
 
 public class SelectPlayerColorController extends SceneController {
 
@@ -30,7 +33,7 @@ public class SelectPlayerColorController extends SceneController {
     @FXML
     private Label titleLabel;
     @FXML
-    private VBox playersBox;
+    private HBox playersBox;
     @FXML
     private Button yelloButton;
     @FXML
@@ -50,9 +53,11 @@ public class SelectPlayerColorController extends SceneController {
     @FXML
     private AnchorPane chatPane;
     @FXML
-    private Button openChatButton;
+    private ImageView openChatIcon;
     @FXML
-    private Button closeChatButton;
+    private ImageView closeChatIcon;
+    @FXML
+    private ImageView maxIcon;
     private ChatBoxController chatBoxController;
 
     private PlayerColor colorChoice;
@@ -66,11 +71,11 @@ public class SelectPlayerColorController extends SceneController {
         chatPane.setVisible(false);
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
-        closeChatButton.setVisible(false);
+        closeChatIcon.setVisible(false);
 
         colorChoiceControllers.clear();
         colorChoice = null;
-        gameId.setText("In game #" + view.getGameId());
+        gameId.setText(view.getPlayerName() + " - You are in game #" + view.getGameId());
         view.getPlayersInGame().forEach(player -> {
             ColorChoiceController controller = new ColorChoiceController(player);
             playersBox.getChildren().add(
@@ -78,6 +83,8 @@ public class SelectPlayerColorController extends SceneController {
             );
             colorChoiceControllers.add(controller);
         });
+
+        maxIcon.setOnMouseClicked(this::setFullScreen);
     }
 
     @Override
@@ -104,16 +111,16 @@ public class SelectPlayerColorController extends SceneController {
 
     @FXML
     private void openChat() {
-        chatPane.setVisible(true);
-        openChatButton.setVisible(false);
-        closeChatButton.setVisible(true);
+        movePane(0, chatPane);
+        openChatIcon.setVisible(false);
+        closeChatIcon.setVisible(true);
     }
 
     @FXML
     private void closeChat() {
-        chatPane.setVisible(false);
-        openChatButton.setVisible(true);
-        closeChatButton.setVisible(false);
+        movePane(400, chatPane);
+        openChatIcon.setVisible(true);
+        closeChatIcon.setVisible(false);
     }
 
     @FXML

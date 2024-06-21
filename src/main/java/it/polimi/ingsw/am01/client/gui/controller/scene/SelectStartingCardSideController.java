@@ -8,7 +8,6 @@ import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayAreaEvent;
 import it.polimi.ingsw.am01.model.card.Side;
-import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,22 +15,24 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
+
 public class SelectStartingCardSideController extends SceneController {
 
-    private final static String BUTTONS_STYLE = "-fx-background-color:  CF624B";
+    private final static String BUTTONS_STYLE = "-fx-background-color:  BLACK; -fx-background-radius:  20";
     private final List<SideChoiceController> choiceControllers = new ArrayList<>();
     @FXML
     private Label gameId;
     @FXML
     private Label titleLabel;
     @FXML
-    private VBox playersBox;
+    private HBox playersBox;
     @FXML
     private Button frontButton;
     @FXML
@@ -45,25 +46,27 @@ public class SelectStartingCardSideController extends SceneController {
     @FXML
     private AnchorPane chatPane;
     @FXML
-    private Button openChatButton;
+    private ImageView openChatIcon;
     @FXML
-    private Button closeChatButton;
+    private ImageView closeChatIcon;
+    @FXML
+    private ImageView maxIcon;
     private Side choosenSide;
     private ChatBoxController chatBoxController;
 
-    public SelectStartingCardSideController(View view){
+    public SelectStartingCardSideController(View view) {
         super(view);
     }
 
     @FXML
     private void initialize() {
-        chatPane.setVisible(false);
+        chatPane.setVisible(true);
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
-        closeChatButton.setVisible(false);
+        closeChatIcon.setVisible(false);
 
         choiceControllers.clear();
-        gameId.setText("In game #" + view.getGameId());
+        gameId.setText(view.getPlayerName() + " - You are in game #" + view.getGameId());
         frontImage.setImage(new Image(Objects.requireNonNull(SelectStartingCardSideController.class.getResource(
                 Constants.FRONT_CARD_PATH + view.getStartingCardId() + Constants.IMAGE_EXTENSION
         )).toString()));
@@ -81,6 +84,8 @@ public class SelectStartingCardSideController extends SceneController {
         });
 
         choosenSide = Side.FRONT;
+
+        maxIcon.setOnMouseClicked(this::setFullScreen);
     }
 
 
@@ -89,12 +94,12 @@ public class SelectStartingCardSideController extends SceneController {
         if (event.getSource() == frontButton) {
             choosenSide = Side.FRONT;
             frontButton.setStyle(BUTTONS_STYLE);
-            backButton.setStyle("");
+            backButton.setStyle("-fx-background-color: transparent");
 
         } else if (event.getSource() == backButton) {
             choosenSide = Side.BACK;
             backButton.setStyle(BUTTONS_STYLE);
-            frontButton.setStyle("");
+            frontButton.setStyle("-fx-background-color: transparent");
         }
     }
 
@@ -114,16 +119,16 @@ public class SelectStartingCardSideController extends SceneController {
 
     @FXML
     private void openChat() {
-        chatPane.setVisible(true);
-        openChatButton.setVisible(false);
-        closeChatButton.setVisible(true);
+        movePane(0, chatPane);
+        openChatIcon.setVisible(false);
+        closeChatIcon.setVisible(true);
     }
 
     @FXML
     private void closeChat() {
-        chatPane.setVisible(false);
-        openChatButton.setVisible(true);
-        closeChatButton.setVisible(false);
+        movePane(400, chatPane);
+        openChatIcon.setVisible(true);
+        closeChatIcon.setVisible(false);
     }
 
     private void updateChoices(UpdatePlayAreaEvent event) {

@@ -3,10 +3,10 @@ package it.polimi.ingsw.am01.client.gui.controller.component;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 
-public class ColorChoiceController extends AnchorPane implements ComponentController {
+public class ColorChoiceController extends VBox implements ComponentController {
 
     private final String playerName;
     @FXML
@@ -22,7 +22,7 @@ public class ColorChoiceController extends AnchorPane implements ComponentContro
 
     @FXML
     private void initialize() {
-        playerNameLabel.setText(playerName + ": . . .");
+        playerNameLabel.setText(playerName);
     }
 
     public void setChoice(PlayerColor playerColor) {
@@ -34,7 +34,7 @@ public class ColorChoiceController extends AnchorPane implements ComponentContro
                     case GREEN -> javafx.scene.paint.Color.GREEN;
                 });
         playerColorCircle.setVisible(true);
-        playerNameLabel.setText(playerName + ":");
+        playerNameLabel.setText(playerName);
     }
 
     public String getPlayerName() {

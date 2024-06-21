@@ -7,7 +7,6 @@ import it.polimi.ingsw.am01.client.gui.controller.component.ObjectiveChoiceContr
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdateSecretObjectiveChoiceEvent;
-import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -15,16 +14,18 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
+
 
 public class SelectObjectiveController extends SceneController {
 
-    private final static String BUTTONS_STYLE = "-fx-background-color:  CF624B";
+    private final static String BUTTONS_STYLE = "-fx-background-color:  BLACK; -fx-background-radius:  20";
 
     private final List<ObjectiveChoiceController> choiceControllers = new ArrayList<>();
 
@@ -33,7 +34,7 @@ public class SelectObjectiveController extends SceneController {
     @FXML
     private Label titleLabel;
     @FXML
-    private VBox playersBox;
+    private HBox playersBox;
     @FXML
     private Button firstObjectiveButton;
     @FXML
@@ -47,26 +48,28 @@ public class SelectObjectiveController extends SceneController {
     @FXML
     private AnchorPane chatPane;
     @FXML
-    private Button openChatButton;
+    private ImageView openChatIcon;
     @FXML
-    private Button closeChatButton;
+    private ImageView closeChatIcon;
+    @FXML
+    private ImageView maxIcon;
     private ChatBoxController chatBoxController;
 
     private int choice;
 
-    public SelectObjectiveController(View view){
+    public SelectObjectiveController(View view) {
         super(view);
     }
 
     @FXML
     private void initialize() {
-        chatPane.setVisible(false);
+        chatPane.setVisible(true);
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
-        closeChatButton.setVisible(false);
+        closeChatIcon.setVisible(false);
 
         choiceControllers.clear();
-        gameId.setText("In game #" + view.getGameId());
+        gameId.setText(view.getPlayerName() + " - You are in game #" + view.getGameId());
 
         firstObjectiveImage.setImage(new Image(Objects.requireNonNull(SelectObjectiveController.class.getResource(
                 Constants.OBJECTIVE_PATH + view.getSecretObjectivesId().getFirst() + Constants.IMAGE_EXTENSION
@@ -86,6 +89,8 @@ public class SelectObjectiveController extends SceneController {
         });
 
         choice = view.getSecretObjectivesId().getFirst();
+
+        maxIcon.setOnMouseClicked(this::setFullScreen);
     }
 
     @Override
@@ -120,16 +125,16 @@ public class SelectObjectiveController extends SceneController {
 
     @FXML
     private void openChat() {
-        chatPane.setVisible(true);
-        openChatButton.setVisible(false);
-        closeChatButton.setVisible(true);
+        movePane(0, chatPane);
+        openChatIcon.setVisible(false);
+        closeChatIcon.setVisible(true);
     }
 
     @FXML
     private void closeChat() {
-        chatPane.setVisible(false);
-        openChatButton.setVisible(true);
-        closeChatButton.setVisible(false);
+        movePane(400, chatPane);
+        openChatIcon.setVisible(true);
+        closeChatIcon.setVisible(false);
     }
 
     @FXML
@@ -137,13 +142,12 @@ public class SelectObjectiveController extends SceneController {
         if (event.getSource() == firstObjectiveButton) {
             choice = view.getSecretObjectivesId().getFirst();
             firstObjectiveButton.setStyle(BUTTONS_STYLE);
-            secondObjectiveButton.setStyle("");
+            secondObjectiveButton.setStyle("-fx-background-color: transparent");
 
         } else if (event.getSource() == secondObjectiveButton) {
             choice = view.getSecretObjectivesId().get(1);
-
             secondObjectiveButton.setStyle(BUTTONS_STYLE);
-            firstObjectiveButton.setStyle("");
+            firstObjectiveButton.setStyle("-fx-background-color: transparent");
         }
     }
 

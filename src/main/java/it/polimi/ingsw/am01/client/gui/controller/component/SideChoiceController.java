@@ -6,12 +6,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
 import java.util.Objects;
 
 
-public class SideChoiceController extends AnchorPane implements ComponentController {
+public class SideChoiceController extends VBox implements ComponentController {
 
     private final String playerName;
     @FXML
@@ -27,8 +27,7 @@ public class SideChoiceController extends AnchorPane implements ComponentControl
 
     @FXML
     private void initialize() {
-        playerNameLabel.setText(playerName + ": . . .");
-
+        playerNameLabel.setText(playerName);
     }
 
     public void setChoice(int cardId, Side side) {
@@ -51,7 +50,7 @@ public class SideChoiceController extends AnchorPane implements ComponentControl
         }
         cardImage.setImage(new Image(Objects.requireNonNull(SideChoiceController.class.getResource(path)).toString()));
         cardImage.setVisible(true);
-        playerNameLabel.setText(playerName + ":");
+        playerNameLabel.setText(playerName);
     }
 
     public String getPlayerName() {
