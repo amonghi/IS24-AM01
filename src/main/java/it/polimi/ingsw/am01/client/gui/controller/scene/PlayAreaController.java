@@ -30,6 +30,8 @@ import javafx.util.Duration;
 
 import java.util.*;
 
+import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
+
 public class PlayAreaController extends SceneController {
     private final SortedSet<CardPlacementController> placements;
     private final List<Integer> playerObjectives;
@@ -108,7 +110,6 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void openChat() {
-        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(0, chatPane);
         openChatIcon.setVisible(false);
         closeChatIcon.setVisible(true);
@@ -116,7 +117,6 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void closeChat() {
-        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(400, chatPane);
         openChatIcon.setVisible(true);
         closeChatIcon.setVisible(false);
@@ -154,13 +154,6 @@ public class PlayAreaController extends SceneController {
             movePane(-460, board);
             board.setDisable(true);
         }
-    }
-
-    private void movePane(float position, Node node) {
-        TranslateTransition tt = new TranslateTransition(Duration.seconds(1));
-        tt.setNode(node);
-        tt.setToX(position);
-        tt.play();
     }
 
     private void dragCard(DragEvent event) {
