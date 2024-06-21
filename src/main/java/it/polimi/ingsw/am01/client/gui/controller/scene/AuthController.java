@@ -6,17 +6,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 
 public class AuthController extends SceneController {
 
     @FXML
     private TextField nameField;
-
     @FXML
     private Button confirmButton;
-
     @FXML
     private Label messageLabel;
+    @FXML
+    private AnchorPane background;
 
     public AuthController(View view) {
         super(view);
