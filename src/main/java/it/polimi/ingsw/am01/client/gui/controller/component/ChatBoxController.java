@@ -7,7 +7,7 @@ import it.polimi.ingsw.am01.model.chat.MessageType;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
@@ -17,7 +17,7 @@ public class ChatBoxController extends AnchorPane implements ComponentController
     @FXML
     private VBox messagesBox;
     @FXML
-    private TextField messageInput;
+    private TextArea messageInput;
     @FXML
     private ChoiceBox<String> recipientOptionsChoiceBox;
     @FXML

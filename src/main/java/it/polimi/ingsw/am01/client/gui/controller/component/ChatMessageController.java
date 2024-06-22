@@ -1,13 +1,17 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
 import it.polimi.ingsw.am01.client.View;
+import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import it.polimi.ingsw.am01.model.chat.MessageType;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.HBox;
 
-public class ChatMessageController extends AnchorPane implements ComponentController {
+public class ChatMessageController extends HBox implements ComponentController {
 
+    private final static String baseMessageStyle = "-fx-background-color: black; -fx-background-radius: 5; -fx-text-fill: white; -fx-padding: 2";
     private final String type;
     private final String sender;
     private final String content;
@@ -15,11 +19,13 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
     private final String timestamp;
     private final View view;
     @FXML
-    private Label typeLabel;
+    private Label senderLabel;
     @FXML
-    private Label infoLabel;
+    private Label recipientLabel;
     @FXML
-    private Label contentLabel;
+    private Label timeLabel;
+    @FXML
+    private TextArea message;
 
     public ChatMessageController(String type, String sender, String recipient, String content, String timestamp, View view) {
         this.view = view;
@@ -34,20 +40,34 @@ public class ChatMessageController extends AnchorPane implements ComponentContro
 
     @FXML
     private void initialize() {
-        String recString = "";
-        String senderString = sender;
-        typeLabel.setText("[" + type.split("")[0] + "]");
+        String senderString = sender.equals(view.getPlayerName()) ? "You" : sender;
+        String recipientString = type.equals(MessageType.BROADCAST.toString())
+                ? "Everyone"
+                : recipient.equals(view.getPlayerName()) ? "You" : recipient;
 
-        if (sender.equals(view.getPlayerName())) {
-            senderString = "You";
+
+        senderLabel.setText(senderString);
+        recipientLabel.setText(recipientString);
+        timeLabel.setText(timestamp.split("T")[1].split("\\.")[0]);
+        message.setText(content);
+
+        //Define base style
+        senderLabel.setStyle(baseMessageStyle);
+        recipientLabel.setStyle(baseMessageStyle);
+
+        //Define colors, if present
+        if (view.getPlayerColor(sender) != null) {
+            senderLabel.setStyle("-fx-background-color: " + Utils.backgroundColorHex(view.getPlayerColor(sender))
+                    + ";  -fx-background-radius: 5; -fx-padding: 2");
+        }
+        if (!type.equals(MessageType.BROADCAST.toString()) && view.getPlayerColor(recipient) != null) {
+            recipientLabel.setStyle("-fx-background-color: " + Utils.backgroundColorHex(view.getPlayerColor(recipient))
+                    + ";  -fx-background-radius: 5; -fx-padding: 2");
         }
 
-        if (type.equals(MessageType.DIRECT.toString()) && sender.equals(view.getPlayerName())) {
-            recString = " --> " + recipient;
-        }
-
-        infoLabel.setText("(" + timestamp.split("T")[1].split("\\.")[0] + ") " + senderString + recString + ": ");
-        contentLabel.setText(content);
+        //Set alignment
+        if (sender.equals(view.getPlayerName()))
+            this.setAlignment(Pos.CENTER_RIGHT);
     }
 
     @Override

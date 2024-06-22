@@ -12,7 +12,6 @@ import it.polimi.ingsw.am01.model.card.CardColor;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import javafx.animation.PauseTransition;
-import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -110,6 +109,7 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void openChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(0, chatPane);
         openChatIcon.setVisible(false);
         closeChatIcon.setVisible(true);
@@ -117,6 +117,7 @@ public class PlayAreaController extends SceneController {
 
     @FXML
     private void closeChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(400, chatPane);
         openChatIcon.setVisible(true);
         closeChatIcon.setVisible(false);

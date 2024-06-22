@@ -125,6 +125,7 @@ public class SelectObjectiveController extends SceneController {
 
     @FXML
     private void openChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(0, chatPane);
         openChatIcon.setVisible(false);
         closeChatIcon.setVisible(true);
@@ -132,6 +133,7 @@ public class SelectObjectiveController extends SceneController {
 
     @FXML
     private void closeChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(400, chatPane);
         openChatIcon.setVisible(true);
         closeChatIcon.setVisible(false);

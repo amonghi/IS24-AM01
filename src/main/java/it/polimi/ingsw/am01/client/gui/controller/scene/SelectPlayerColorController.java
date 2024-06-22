@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.View;
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.ColorChoiceController;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
@@ -11,6 +12,7 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -18,6 +20,7 @@ import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
 
@@ -111,6 +114,7 @@ public class SelectPlayerColorController extends SceneController {
 
     @FXML
     private void openChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(0, chatPane);
         openChatIcon.setVisible(false);
         closeChatIcon.setVisible(true);
@@ -118,6 +122,7 @@ public class SelectPlayerColorController extends SceneController {
 
     @FXML
     private void closeChat() {
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(400, chatPane);
         openChatIcon.setVisible(true);
         closeChatIcon.setVisible(false);
