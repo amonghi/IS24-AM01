@@ -225,12 +225,17 @@ public class PlayAreaController extends SceneController {
     private void setDeck(SetDeckEvent event) {
         deck.getChildren().clear();
 
-        // TODO: placeholder for empty deck
         deck.add(new DeckSourceController(event.goldenDeck().orElse(CardColor.RED), DeckLocation.GOLDEN_CARD_DECK, this), 0, 0);
         deck.add(new DeckSourceController(event.resourceDeck().orElse(CardColor.RED), DeckLocation.RESOURCE_CARD_DECK, this), 1, 0);
 
-        deck.getChildren().get(0).setDisable(event.goldenDeck().isEmpty());
-        deck.getChildren().get(1).setDisable(event.resourceDeck().isEmpty());
+        if (event.goldenDeck().isEmpty()) {
+            deck.getChildren().get(0).setDisable(true);
+            deck.getChildren().get(0).setOpacity(0.5);
+        }
+        if (event.resourceDeck().isEmpty()) {
+            deck.getChildren().get(1).setDisable(true);
+            deck.getChildren().get(1).setOpacity(0.5);
+        }
     }
 
     private void setHand(SetHandEvent event) {
