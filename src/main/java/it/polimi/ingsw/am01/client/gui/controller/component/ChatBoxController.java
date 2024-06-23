@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
@@ -59,6 +60,12 @@ public class ChatBoxController extends AnchorPane implements ComponentController
                     )
             );
         }
+
+        //Event handling
+        messageInput.setOnKeyPressed(event -> {
+            if (event.getCode().equals(KeyCode.ENTER))
+                sendMessage();
+        });
     }
 
     @FXML
