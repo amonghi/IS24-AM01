@@ -36,15 +36,6 @@ public class Constants {
     public static final double POPUP_WIDTH = 400;
     public static final double POPUP_HEIGHT = 250;
 
-    //Back Ids
-    public static final int RES_RED = 1;
-    public static final int RES_GREEN = 11;
-    public static final int RES_BLUE = 21;
-    public static final int RES_PURPLE = 31;
-    public static final int GOLD_RED = 41;
-    public static final int GOLD_GREEN = 51;
-    public static final int GOLD_BLUE = 66;
-    public static final int GOLD_PURPLE = 73;
 
     //Connection
     public static final String DEFAULT_HOSTNAME = "0.0.0.0";

@@ -51,11 +51,7 @@ public class ChatBoxController extends AnchorPane implements ComponentController
         for (View.Message message : view.getMessages()) {
             messagesBox.getChildren().add(
                     new ChatMessageController(
-                            message.type().toString(),
-                            message.sender(),
-                            message.recipient(),
-                            message.content(),
-                            message.timestamp(),
+                            message,
                             view
                     )
             );
@@ -85,11 +81,7 @@ public class ChatBoxController extends AnchorPane implements ComponentController
     public void updateMessages(NewMessageEvent event) {
         messagesBox.getChildren().add(
                 new ChatMessageController(
-                        event.message().type().toString(),
-                        event.message().sender(),
-                        event.message().recipient(),
-                        event.message().content(),
-                        event.message().timestamp(),
+                        event.message(),
                         view
                 )
         );

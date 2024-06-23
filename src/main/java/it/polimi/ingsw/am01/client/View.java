@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public abstract class View implements EventEmitter<ViewEvent> {
 
@@ -40,11 +41,14 @@ public abstract class View implements EventEmitter<ViewEvent> {
     private final Map<DeckLocation, CardColor> decksColor;
     private final Map<String, SortedSet<Placement>> playAreas;
     private final List<String> playersInGame;
+    private final List<Position> playablePositions;
     private final Map<String, PlayerColor> playerColors;
     private final Map<String, Integer> scores;
     private final List<Integer> secretObjectivesId;
     private final Map<String, Boolean> connections;
     private final List<Message> messages;
+    private final List<String> playersHaveChosenSecretObjective;
+    private final Map<String, Integer> finalScores;
     private Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private Map<Integer, UpdateGameListS2C.GameStat> games;
     private String playerName;
@@ -69,6 +73,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
         this.gameStatus = null;
         this.secretObjectivesId = new ArrayList<>();
         this.commonObjectivesId = new ArrayList<>();
+        this.playablePositions = new ArrayList<>();
         this.hand = new HashSet<>();
         this.faceUpCards = new HashSet<>();
         this.decksColor = new HashMap<>();
@@ -76,6 +81,8 @@ public abstract class View implements EventEmitter<ViewEvent> {
         this.playerColors = new HashMap<>();
         this.connections = new HashMap<>();
         this.messages = new ArrayList<>();
+        this.finalScores = new HashMap<>();
+        this.playersHaveChosenSecretObjective = new ArrayList<>();
         this.state = ClientState.NOT_CONNECTED;
     }
 
@@ -129,15 +136,17 @@ public abstract class View implements EventEmitter<ViewEvent> {
     }
 
     public void handleMessage(SetPlayablePositionsS2C message) {
-        List<Position> playablePositions = message
+        playablePositions.clear();
+        playablePositions.addAll(message
                 .playablePositions()
                 .stream()
                 .map(playablePosition -> new Position(playablePosition.i(), playablePosition.j()))
-                .toList();
+                .toList());
         emitter.emit(new UpdatePlayablePositionsEvent(playablePositions));
     }
 
     public void handleMessage(UpdatePlayAreaS2C message) {
+        playablePositions.clear();
         if (!playAreas.containsKey(message.playerName()))
             playAreas.put(message.playerName(), new TreeSet<>());
 
@@ -202,8 +211,8 @@ public abstract class View implements EventEmitter<ViewEvent> {
         decksColor.replace(DeckLocation.RESOURCE_CARD_DECK, message.resourceDeckColor());
         decksColor.replace(DeckLocation.GOLDEN_CARD_DECK, message.goldenDeckColor());
         emitter.emit(new SetDeckEvent(
-                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
-                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
+                Optional.ofNullable(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                Optional.ofNullable(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
         ));
     }
 
@@ -226,11 +235,11 @@ public abstract class View implements EventEmitter<ViewEvent> {
     }
 
     public void handleMessage(UpdatePlayerListS2C m) {
-        emitter.emit(new PlayerListChangedEvent(m.playerList()));
         playersInGame.clear();
         playersInGame.addAll(m.playerList());
         connections.clear();
         playersInGame.forEach(p -> connections.put(p, true));
+        emitter.emit(new PlayerListChangedEvent(m.playerList()));
     }
 
     public void handleMessage(SetStartingCardS2C m) {
@@ -262,6 +271,8 @@ public abstract class View implements EventEmitter<ViewEvent> {
     }
 
     public void handleMessage(UpdateObjectiveSelectedS2C m) {
+        playersHaveChosenSecretObjective.clear();
+        playersHaveChosenSecretObjective.addAll(m.playersHaveChosen());
         emitter.emit(new UpdateSecretObjectiveChoiceEvent(
                 m.playersHaveChosen().stream().toList()
         ));
@@ -281,6 +292,8 @@ public abstract class View implements EventEmitter<ViewEvent> {
 
     public void handleMessage(GameFinishedS2C m) {
         changeGameStatus(GameStatus.FINISHED);
+        finalScores.clear();
+        finalScores.putAll(m.finalScores());
         emitter.emit(new SetFinalScoresEvent(m.finalScores(), playerColors));
         clearData();
     }
@@ -404,6 +417,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
 
     public void exitFinishedGame() {
         changeState(ClientState.AUTHENTICATED);
+        finalScores.clear();
     }
 
     public String getPlayerName() {
@@ -431,6 +445,27 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return playAreas.get(player);
     }
 
+    public Map<String, Placement> getStartingCardPlacements() {
+        return playAreas.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+                entry -> entry.getValue().getFirst()
+        ));
+    }
+
+    public SortedMap<String, Integer> getFinalPlacements() {
+        SortedMap<String, Integer> finalPlacements = new TreeMap<>();
+
+        List<Map.Entry<String, Integer>> orderedScores = finalScores.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).toList();
+        for (int i = 0; i < orderedScores.size(); i++) {
+            String player = orderedScores.get(i).getKey();
+            int points = orderedScores.get(i).getValue();
+            int placement = i > 0 && finalPlacements.values().stream().toList().get(i - 1) == points
+                    ? finalPlacements.values().stream().toList().get(i - 1)
+                    : i + 1;
+            finalPlacements.put(player, placement);
+        }
+        return finalPlacements;
+    }
+
     public void removeLastPlacement(String player) {
         playAreas.get(player).removeLast();
     }
@@ -440,12 +475,24 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return scores.get(player);
     }
 
+    public List<String> getPlayersHaveChosenSecretObjective() {
+        return playersHaveChosenSecretObjective;
+    }
+
+    public Map<String, Integer> getFinalScores() {
+        return finalScores;
+    }
+
     public Map<Integer, UpdateGameListS2C.GameStat> getGames() {
         return games;
     }
 
     public PlayerColor getPlayerColor(String player) {
         return playerColors.get(player);
+    }
+
+    public Map<String, PlayerColor> getPlayerColors() {
+        return playerColors;
     }
 
     public int getMaxPlayers() {
@@ -468,20 +515,63 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return messages;
     }
 
-    private void clearData() {
+    public ClientState getState() {
+        return state;
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
+    }
+
+    public TurnPhase getTurnPhase() {
+        return turnPhase;
+    }
+
+    public String getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public List<Position> getPlayablePositions() {
+        return playablePositions;
+    }
+
+    public Map<DeckLocation, CardColor> getDecksColor() {
+        return Collections.unmodifiableMap(decksColor);
+    }
+
+    public boolean isDeckEmpty(DeckLocation deckLocation) {
+        return (decksColor.get(deckLocation) == null);
+    }
+
+    public List<Integer> getHand() {
+        return hand.stream().toList();
+    }
+
+    public List<Integer> getFaceUpCards() {
+        return faceUpCards.stream().toList();
+    }
+
+    public List<Integer> getCommonObjectivesId() {
+        return commonObjectivesId;
+    }
+
+    public int getSecretObjectiveChoiceId() {
+        return secretObjectiveChoiceId;
+    }
+
+    protected void clearData() {
         faceUpCards.clear();
         hand.clear();
         decksColor.clear();
         playAreas.clear();
         playersInGame.clear();
         playerColors.clear();
+        playablePositions.clear();
         scores.clear();
         secretObjectivesId.clear();
         connections.clear();
-        gameStatus = null;
-        turnPhase = null;
-        currentPlayer = null;
         commonObjectivesId.clear();
+        playersHaveChosenSecretObjective.clear();
         messages.clear();
     }
 
@@ -585,7 +675,6 @@ public abstract class View implements EventEmitter<ViewEvent> {
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
     }
-
 
     public enum ConnectionType {
         TCP,

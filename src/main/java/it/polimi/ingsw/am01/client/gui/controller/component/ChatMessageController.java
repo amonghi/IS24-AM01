@@ -18,6 +18,7 @@ public class ChatMessageController extends HBox implements ComponentController {
     private final String recipient;
     private final String timestamp;
     private final View view;
+  
     @FXML
     private Label senderLabel;
     @FXML
@@ -27,13 +28,9 @@ public class ChatMessageController extends HBox implements ComponentController {
     @FXML
     private TextArea message;
 
-    public ChatMessageController(String type, String sender, String recipient, String content, String timestamp, View view) {
+    public ChatMessageController(View.Message message, View view) {
         this.view = view;
-        this.sender = sender;
-        this.recipient = recipient;
-        this.type = type;
-        this.content = content;
-        this.timestamp = timestamp;
+        this.message = message;
 
         loadComponent();
     }

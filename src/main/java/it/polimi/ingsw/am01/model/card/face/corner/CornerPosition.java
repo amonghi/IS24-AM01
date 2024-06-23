@@ -16,10 +16,26 @@ import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
  */
 
 public enum CornerPosition {
-    TOP_RIGHT,
-    TOP_LEFT,
-    BOTTOM_LEFT,
-    BOTTOM_RIGHT;
+    TOP_RIGHT(true, false),
+    TOP_LEFT(true, true),
+    BOTTOM_LEFT(false, true),
+    BOTTOM_RIGHT(false, false);
+
+    private final boolean top;
+    private final boolean left;
+
+    CornerPosition(boolean top, boolean left) {
+        this.top = top;
+        this.left = left;
+    }
+
+    public boolean isTop() {
+        return top;
+    }
+
+    public boolean isLeft() {
+        return left;
+    }
 
     public CornerPosition getOpposite() {
         return switch (this) {

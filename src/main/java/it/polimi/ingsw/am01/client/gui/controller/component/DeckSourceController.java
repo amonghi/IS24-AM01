@@ -3,6 +3,7 @@ package it.polimi.ingsw.am01.client.gui.controller.component;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
 import it.polimi.ingsw.am01.controller.DeckLocation;
+import it.polimi.ingsw.am01.client.ViewUtils;
 import it.polimi.ingsw.am01.model.card.CardColor;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -29,7 +30,7 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
         this.color = color;
         this.deckLocation = deckLocation;
         this.playAreaController = playAreaController;
-        this.id = getIdFromColorAndDeckLocation();
+        this.id = ViewUtils.getIdFromColorAndDeckLocation(deckLocation, color);
         loadComponent();
     }
 
@@ -52,37 +53,6 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
         String formattedId = "0" + id + ".png";
         formattedId = formattedId.substring(formattedId.length() - SUFFIX_CARD_ID_LENGTH);
         return Constants.BACK_CARD_PATH + formattedId;
-    }
-
-    private int getIdFromColorAndDeckLocation() {
-        int id = 0;
-        switch (deckLocation) {
-            case RESOURCE_CARD_DECK -> id = switch (color) {
-                case RED:
-                    yield RES_RED;
-                case GREEN:
-                    yield RES_GREEN;
-                case BLUE:
-                    yield RES_BLUE;
-                case PURPLE:
-                    yield RES_PURPLE;
-                case NEUTRAL:
-                    yield 0;
-            };
-            case GOLDEN_CARD_DECK -> id = switch (color) {
-                case RED:
-                    yield GOLD_RED;
-                case GREEN:
-                    yield GOLD_GREEN;
-                case BLUE:
-                    yield GOLD_BLUE;
-                case PURPLE:
-                    yield GOLD_PURPLE;
-                case NEUTRAL:
-                    yield 0;
-            };
-        }
-        return id;
     }
 
     @Override

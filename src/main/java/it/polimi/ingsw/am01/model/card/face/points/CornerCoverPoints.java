@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * CornerCoverPoints is a type of Points that gives an amount of points per every corner covered by placing the card
  */
-public class CornerCoverPoints implements Points {
+public final class CornerCoverPoints implements Points {
     private final int pointsPerCorner;
 
     /**

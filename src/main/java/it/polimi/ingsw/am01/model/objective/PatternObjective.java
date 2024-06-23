@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  *
  * @see it.polimi.ingsw.am01.model.objective.Objective
  */
-public class PatternObjective extends Objective {
+public final class PatternObjective extends Objective {
     private final Map<PlayArea.Position, CardColor> pattern;
     private final Set<Set<PlayArea.CardPlacement>> matches;
 
