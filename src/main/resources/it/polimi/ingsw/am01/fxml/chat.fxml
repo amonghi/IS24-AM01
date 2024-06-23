@@ -1,28 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<fx:root fx:id="chatPane" type="AnchorPane" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <ScrollPane fx:id="scrollPane" prefHeight="497.0" prefWidth="383.0" AnchorPane.bottomAnchor="25.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <content>
-            <VBox fx:id="messagesBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefWidth="381.0" />
-         </content>
-      </ScrollPane>
-      <TextField fx:id="messageInput" layoutY="497.0" onAction="#sendMessage" prefHeight="25.0" prefWidth="203.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="42.0" />
-      <Button layoutX="211.0" layoutY="496.0" mnemonicParsing="false" onAction="#sendMessage" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-      <ChoiceBox fx:id="recipientOptionsChoiceBox" layoutY="496.0" prefHeight="25.0" prefWidth="113.0" AnchorPane.bottomAnchor="1.0" AnchorPane.rightAnchor="245.0" />
-      <Label layoutX="5.0" layoutY="498.0" text="To:" AnchorPane.bottomAnchor="4.0" AnchorPane.rightAnchor="364.0">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Label>
-   </children>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<fx:root fx:id="chatPane" maxWidth="400.0" minWidth="400.0" prefWidth="400.0"
+         style="-fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 30 0 0 30;" stylesheets="@../css/chat.css"
+         type="AnchorPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ScrollPane fx:id="scrollPane" hbarPolicy="NEVER" prefHeight="500.0" prefWidth="380.0"
+                    AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
+                    AnchorPane.topAnchor="0.0">
+            <content>
+                <VBox fx:id="messagesBox" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308"
+                      maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefWidth="360.0" spacing="20.0"/>
+            </content>
+            <padding>
+                <Insets right="10.0"/>
+            </padding>
+        </ScrollPane>
+        <TextArea fx:id="messageInput" layoutX="130.0" layoutY="475.0" maxHeight="60.0" minHeight="60.0"
+                  prefHeight="60.0" prefWidth="380.0" scrollTop="3.0" style="-fx-border-color: black;" wrapText="true"
+                  AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="55.0"/>
+        <Button layoutX="339.0" layoutY="522.0" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0"
+                mnemonicParsing="false" onAction="#sendMessage" prefHeight="40.0" prefWidth="40.0"
+                style="-fx-background-color: black; -fx-background-radius: 50%;" AnchorPane.bottomAnchor="20.0"
+                AnchorPane.rightAnchor="10.0">
+            <graphic>
+                <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../icons/send.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <ChoiceBox fx:id="recipientOptionsChoiceBox" layoutX="110.0" layoutY="474.0" maxWidth="200.0" minWidth="200.0"
+                   prefWidth="200.0"
+                   style="-fx-border-style: none; -fx-border-color: transparent; -fx-border-width: 0; -fx-background-radius: 10 10 0 0; -fx-background-color: black;"
+                   stylesheets="@../css/player-choicebox.css" AnchorPane.bottomAnchor="70.0"
+                   AnchorPane.leftAnchor="10.0"/>
+    </children>
+    <padding>
+        <Insets bottom="20.0" top="20.0"/>
+    </padding>
 </fx:root>

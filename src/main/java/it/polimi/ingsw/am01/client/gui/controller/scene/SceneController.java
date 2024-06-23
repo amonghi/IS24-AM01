@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.client.gui.controller.popup.PopupController;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -44,6 +45,10 @@ public abstract class SceneController implements GUIElement {
         stage.setTitle(Constants.WINDOW_TITLE);
         stage.setScene(scene);
         stage.show();
+    }
+
+    protected void setFullScreen(MouseEvent event) {
+        primaryStage.setFullScreen(!primaryStage.isFullScreen());
     }
 
     protected void openPopup(PopupController popupController) {

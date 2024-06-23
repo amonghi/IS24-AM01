@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.View;
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.PlayerSlotController;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
@@ -8,26 +9,29 @@ import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 
 import java.util.List;
+import java.util.Objects;
+
+import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
 
 public class LobbyController extends SceneController {
     @FXML
     private HBox playerList;
-
     @FXML
     private Label gameId;
-
     @FXML
     private Button startButton;
     @FXML
     private AnchorPane chatPane;
     @FXML
-    private Button openChatButton;
+    private ImageView openChatIcon;
     @FXML
-    private Button closeChatButton;
+    private ImageView closeChatIcon;
     private ChatBoxController chatBoxController;
 
     public LobbyController(View view) {
@@ -36,10 +40,10 @@ public class LobbyController extends SceneController {
 
     @FXML
     private void initialize() {
-        chatPane.setVisible(false);
+        chatPane.setVisible(true);
         chatBoxController = new ChatBoxController(view);
         chatPane.getChildren().add(chatBoxController);
-        closeChatButton.setVisible(false);
+        closeChatIcon.setVisible(false);
 
         gameId.setText("In game #" + view.getGameId());
     }
@@ -80,15 +84,17 @@ public class LobbyController extends SceneController {
 
     @FXML
     private void openChat() {
-        chatPane.setVisible(true);
-        openChatButton.setVisible(false);
-        closeChatButton.setVisible(true);
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
+        movePane(0, chatPane);
+        openChatIcon.setVisible(false);
+        closeChatIcon.setVisible(true);
     }
 
     @FXML
     private void closeChat() {
-        chatPane.setVisible(false);
-        openChatButton.setVisible(true);
-        closeChatButton.setVisible(false);
+        openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
+        movePane(400, chatPane);
+        openChatIcon.setVisible(true);
+        closeChatIcon.setVisible(false);
     }
 }

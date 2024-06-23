@@ -2,13 +2,16 @@ package it.polimi.ingsw.am01.client.gui.controller.component;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 
-public class ObjectiveChoiceController extends AnchorPane implements ComponentController {
+public class ObjectiveChoiceController extends VBox implements ComponentController {
 
     private final String playerName;
     @FXML
     private Label playerNameLabel;
+    @FXML
+    private ImageView selectedIcon;
 
     public ObjectiveChoiceController(String playerName) {
         this.playerName = playerName;
@@ -18,11 +21,12 @@ public class ObjectiveChoiceController extends AnchorPane implements ComponentCo
 
     @FXML
     private void initialize() {
-        playerNameLabel.setText(playerName + ": . . .");
+        selectedIcon.setVisible(false);
+        playerNameLabel.setText(playerName);
     }
 
     public void setChoice() {
-        playerNameLabel.setText(playerName + ": chosen");
+        selectedIcon.setVisible(true);
     }
 
     public String getPlayerName() {

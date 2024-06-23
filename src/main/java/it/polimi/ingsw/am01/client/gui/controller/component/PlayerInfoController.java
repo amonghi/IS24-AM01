@@ -1,27 +1,30 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
+import it.polimi.ingsw.am01.client.gui.controller.Constants;
+import it.polimi.ingsw.am01.client.gui.controller.Utils;
 import it.polimi.ingsw.am01.client.gui.controller.scene.PlayAreaController;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Text;
+
+import java.util.Objects;
 
 public class PlayerInfoController extends AnchorPane implements ComponentController {
 
+    private final PlayAreaController playAreaController;
     private String name;
     private PlayerColor color;
     private int score;
     private boolean connected;
-    private final PlayAreaController playAreaController;
     @FXML
-    private Button playerColor;
+    private Text playerName;
     @FXML
-    private Label playerName;
+    private Text playerScore;
     @FXML
-    private Label points;
-    @FXML
-    private Label connectionState;
+    private ImageView connectionState;
 
     public PlayerInfoController(String name, PlayerColor color, int score, boolean connected, PlayAreaController playAreaController) {
         this.name = name;
@@ -34,34 +37,12 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
 
     @FXML
     private void initialize() {
-        playerColor.setStyle("-fx-background-color: " + getColor() + "; -fx-background-radius: 50%");
-        points.setText(String.valueOf(score));
+        this.setStyle("-fx-background-color: " + Utils.backgroundColorHex(color) + "; -fx-background-radius: 20;");
+        playerScore.setText(String.valueOf(score));
         playerName.setText(name);
-        connectionState.setText(connected ? "connected" : "disconnected");
-        initializeButtons();
-    }
-
-    private String getColor() {
-        return switch (color) {
-            case RED -> {
-                yield "red";
-            }
-            case GREEN -> {
-                yield "green";
-            }
-            case BLUE -> {
-                yield "blue";
-            }
-            case YELLOW -> {
-                yield "yellow";
-            }
-        };
-    }
-
-    private void initializeButtons() {
-        playerColor.setOnAction(event -> {
-            playAreaController.setCurrentView(playerName.getText());
-        });
+        String state = connected ? "online" : "offline";
+        connectionState.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + state + Constants.IMAGE_EXTENSION)).toString()));
+        this.setOnMouseClicked(event -> playAreaController.setCurrentView(playerName.getText()));
     }
 
     public String getName() {
@@ -70,7 +51,7 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
 
     public void setScore(int newScore) {
         score = newScore;
-        points.setText(String.valueOf(score));
+        playerScore.setText(String.valueOf(score));
     }
 
     @Override

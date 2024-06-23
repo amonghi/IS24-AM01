@@ -1,7 +1,10 @@
 package it.polimi.ingsw.am01.client.gui.controller;
 
 import it.polimi.ingsw.am01.model.player.PlayerColor;
+import javafx.animation.TranslateTransition;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 import static it.polimi.ingsw.am01.client.gui.controller.Constants.*;
 
@@ -12,6 +15,15 @@ public class Utils {
             case YELLOW -> Color.YELLOW.brighter().brighter().brighter();
             case BLUE -> Color.BLUE.brighter().brighter().brighter();
             case GREEN -> Color.GREEN.brighter().brighter().brighter();
+        };
+    }
+
+    public static String backgroundColorHex(PlayerColor playerColor) {
+        return switch (playerColor) {
+            case RED -> "#ff8080";
+            case YELLOW -> "#ffe680";
+            case BLUE -> "#8080ff";
+            case GREEN -> "#99e699";
         };
     }
 
@@ -45,5 +57,12 @@ public class Utils {
             yPos = yPos - OFFSET_Y * j;
         }
         return yPos;
+    }
+
+    public static void movePane(float position, Node node) {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(1));
+        tt.setNode(node);
+        tt.setToX(position);
+        tt.play();
     }
 }
