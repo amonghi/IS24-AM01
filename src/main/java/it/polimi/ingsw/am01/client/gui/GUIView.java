@@ -9,6 +9,36 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
+/**
+ * The specific class for the graphical user interface.
+ * It handles scenes changes, based on both the {@link GameStatus} and the {@link ClientState}.
+ * It keeps references to all the scene-specific controllers:
+ * <ul>
+ *      <li> CONNECTION_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#NOT_CONNECTED}</li>
+ *      <li> AUTH_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#NOT_AUTHENTICATED} </li>
+ *      <li> GAME_LIST_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#AUTHENTICATED} </li>
+ *      <li> LOBBY_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#IN_GAME}
+ *           and the {@link GameStatus} is {@link GameStatus#AWAITING_PLAYERS}</li>
+ *      <li> STARTING_CARD_SIDE_CHOICE_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#IN_GAME}
+ *           and the {@link GameStatus} is {@link GameStatus#SETUP_STARTING_CARD_SIDE}</li>
+ *      <li> PLAYER_COLOR_CHOICE_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#IN_GAME}
+ *           and the {@link GameStatus} is {@link GameStatus#SETUP_COLOR}</li>
+ *      <li> OBJECTIVE_CHOICE_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#IN_GAME}
+ *           and the {@link GameStatus} is {@link GameStatus#SETUP_OBJECTIVE}</li>
+ *      <li> PLAY_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#IN_GAME}
+ *           and the {@link GameStatus} can be: </li>
+ *              <ul>
+ *                  <li> {@link GameStatus#PLAY} </li>
+ *                  <li> {@link GameStatus#SECOND_LAST_TURN} </li>
+ *                  <li> {@link GameStatus#LAST_TURN} </li>
+ *                  <li> {@link GameStatus#SUSPENDED} </li>
+ *              </ul>
+ *      <li> RESTORING_LOBBY_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#IN_GAME}
+ *           and the {@link GameStatus} is {@link GameStatus#RESTORING}</li>
+ *      <li> ENDING_CONTROLLER: it handles the scene when the {@link ClientState} is {@link ClientState#IN_GAME}
+ *           and the {@link GameStatus} is {@link GameStatus#FINISHED}</li>
+ * </ul>
+ */
 public class GUIView extends View {
     public final ConnectionController CONNECTION_CONTROLLER;
     public final AuthController AUTH_CONTROLLER;
@@ -23,6 +53,11 @@ public class GUIView extends View {
     private final Stage stage;
     private SceneController currentSceneController;
 
+    /**
+     * It constructs a new GUIView initializing all the scene-specific controllers.
+     *
+     * @param stage The main stage
+     */
     public GUIView(Stage stage) {
         this.CONNECTION_CONTROLLER = new ConnectionController(this);
         this.AUTH_CONTROLLER = new AuthController(this);
@@ -45,16 +80,29 @@ public class GUIView extends View {
         currentSceneController = CONNECTION_CONTROLLER;
     }
 
+    /**
+     * It permits to run the specified {@link Runnable} on the {@code JavaFX} thread.
+     *
+     * @param runnable The {@link Runnable} that has to be run on a different thread.
+     */
     @Override
     public void runLater(Runnable runnable) {
         Platform.runLater(runnable);
     }
 
+    /**
+     * It shows an error message, in case of connection problems
+     *
+     * @param message The error message to be shown.
+     */
     @Override
     protected void showConnectionErrorMessage(String message) {
         CONNECTION_CONTROLLER.setErrorMessage(message);
     }
 
+    /**
+     * It shows a popup message when, during the setup phase, only one player remains in the game
+     */
     @Override
     protected void kickPlayer() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -62,6 +110,12 @@ public class GUIView extends View {
         alert.show();
     }
 
+    /**
+     * It handles the changing of the scene for the main stage
+     *
+     * @param state      The current {@link ClientState} received from the server
+     * @param gameStatus The current {@link GameStatus} received from the server
+     */
     @Override
     protected void changeStage(ClientState state, GameStatus gameStatus) {
         currentSceneController.getViewRegistrations().forEach(this::unregister);
