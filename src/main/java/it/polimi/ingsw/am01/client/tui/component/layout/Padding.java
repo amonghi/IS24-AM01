@@ -32,7 +32,9 @@ public class Padding extends SingleChildLayout {
         this.child().layout(constraint.shrinkMax(left + right, top + bottom));
         this.child().setPosition(Position.of(this.left, this.top));
 
-        Dimensions d = this.child().dimensions().grow(left + right, top + bottom);
+        Dimensions d = this.child().dimensions()
+                .grow(left + right, top + bottom)
+                .constrain(constraint);
         this.setDimensions(d);
     }
 }

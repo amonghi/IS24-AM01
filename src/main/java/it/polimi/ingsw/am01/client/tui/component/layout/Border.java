@@ -21,7 +21,9 @@ public class Border extends SingleChildLayout {
         this.child().layout(constraint.shrinkMax(2, 2));
         this.child().setPosition(Position.of(1, 1));
 
-        Dimensions d = this.child().dimensions().grow(2, 2);
+        Dimensions d = this.child().dimensions()
+                .grow(2, 2)
+                .constrain(constraint);
         this.setDimensions(d);
     }
 
