@@ -20,6 +20,7 @@ import it.polimi.ingsw.am01.client.tui.terminal.Terminal;
 import it.polimi.ingsw.am01.model.card.Side;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -52,6 +53,7 @@ public class TuiView extends BaseTuiView {
     private final List<Registration> keyboardRegistrations;
     private final List<Side> visibleSides;
     private String input = "";
+    private int cursorIdx = 0;
     private boolean chatVisible = false;
     private boolean isBoardVisible = false;
     private boolean areObjectivesVisible = false;
@@ -103,7 +105,10 @@ public class TuiView extends BaseTuiView {
                 keyboard.on(Key.Arrow.class, onRenderThread(event -> {
                     if (event.isAlt()) {
                         this.movePlayArea(event.direction());
+                        return;
                     }
+
+                    this.moveCursor(event.direction());
                 }))
         );
 
@@ -126,24 +131,42 @@ public class TuiView extends BaseTuiView {
         this.render();
     }
 
+    private void moveCursor(Key.Arrow.Direction direction) {
+        switch (direction) {
+            case LEFT -> this.cursorIdx = Math.max(0, this.cursorIdx - 1);
+            case RIGHT -> this.cursorIdx = Math.min(this.input.length(), this.cursorIdx + 1);
+        }
+        this.render();
+    }
+
     private void writeChar(char c) {
-        this.input += c;
+        this.input = this.input.substring(0, this.cursorIdx) + c + this.input.substring(this.cursorIdx);
+        this.cursorIdx++;
         this.render();
     }
 
     private void eraseChar() {
-        if (!this.input.isEmpty()) {
-            this.input = this.input.substring(0, this.input.length() - 1);
+        if (this.cursorIdx > 0) {
+            this.input = this.input.substring(0, this.cursorIdx - 1) + this.input.substring(this.cursorIdx);
+            this.cursorIdx--;
         }
         this.render();
     }
 
     private void writeCompletion() {
+        if (this.cursorIdx < this.input.length()) {
+            this.cursorIdx = this.input.length();
+
+            this.render();
+            return;
+        }
+
         String autocompletableString = this.parseInput().getCompletions().stream()
                 .findFirst()
                 .map(completion -> completion.text().substring(0, completion.autoWritableChars()))
                 .orElse("");
         this.input = this.input + autocompletableString;
+        this.cursorIdx = this.input.length();
         this.render();
     }
 
@@ -193,14 +216,6 @@ public class TuiView extends BaseTuiView {
     }
 
     public Component compose() {
-        CommandNode.Result parseResult = this.parseInput();
-        String whitePart = this.input.substring(0, parseResult.getConsumed());
-        String redPart = this.input.substring(parseResult.getConsumed());
-        String completion = parseResult.getCompletions().stream()
-                .findFirst()
-                .map(Parser.Completion::text)
-                .orElse("");
-
         List<FlexChild> children = new ArrayList<>();
 
         // top part of screen
@@ -224,30 +239,79 @@ public class TuiView extends BaseTuiView {
         );
         // bottom input
         children.add(
-                new FlexChild.Fixed(new Border(Line.Style.DEFAULT,
-                        Flex.row(List.of(
-                                new FlexChild.Fixed(new Text(
-                                        GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE),
-                                        "> " + whitePart
-                                )),
-                                new FlexChild.Fixed(new Text(
-                                        GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.RED),
-                                        redPart
-                                )),
-                                new FlexChild.Fixed(new Cursor()),
-                                new FlexChild.Flexible(1, new Text(
-                                        GraphicalRendition.DEFAULT
-                                                .withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE)
-                                                .withWeight(GraphicalRenditionProperty.Weight.DIM),
-                                        completion
-                                ))
-                        ))
-                ))
+                new FlexChild.Fixed(this.composeInput())
         );
 
         return Flex.column(children);
+    }
+
+    private static final GraphicalRendition CONSUMED_PART_RENDTION = GraphicalRendition.DEFAULT
+            .withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE);
+    private static final GraphicalRendition UNCONSUMED_PART_RENDITION = GraphicalRendition.DEFAULT
+            .withForeground(GraphicalRenditionProperty.ForegroundColor.RED);
+    private static final GraphicalRendition COMPLETION_RENDITION = GraphicalRendition.DEFAULT
+            .withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE)
+            .withWeight(GraphicalRenditionProperty.Weight.DIM);
+
+    private Component composeInput() {
+        CommandNode.Result parseResult = this.parseInput();
+
+        String completion = parseResult.getCompletions().stream()
+                .findFirst()
+                .map(Parser.Completion::text)
+                .orElse("");
+        String[] pieces = splitAtIndexes(this.input, parseResult.getConsumed(), cursorIdx);
+
+        List<Component> components = new ArrayList<>();
+
+        components.add(new Text(
+                CONSUMED_PART_RENDTION,
+                "> " + pieces[0]
+        ));
+
+        if (this.cursorIdx <= parseResult.getConsumed()) {
+            components.add(new Cursor());
+        }
+
+        components.add(new Text(
+                this.cursorIdx <= parseResult.getConsumed() ? CONSUMED_PART_RENDTION : UNCONSUMED_PART_RENDITION,
+                pieces[1]
+        ));
+
+        if (this.cursorIdx > parseResult.getConsumed()) {
+            components.add(new Cursor());
+        }
+
+        components.add(new Text(
+                UNCONSUMED_PART_RENDITION,
+                pieces[2]
+        ));
+
+        components.add(new Text(
+                COMPLETION_RENDITION,
+                completion
+        ));
+
+        return new Border(Line.Style.DEFAULT,
+                Flex.row(
+                        components.stream()
+                                .map((Component child) -> (FlexChild) new FlexChild.Fixed(child))
+                                .toList()
+                )
+        );
+    }
+
+    private static String[] splitAtIndexes(String str, int... indexes) {
+        Arrays.sort(indexes);
+
+        String[] result = new String[indexes.length + 1];
+        int start = 0;
+        for (int i = 0; i < indexes.length; i++) {
+            result[i] = str.substring(start, indexes[i]);
+            start = indexes[i];
+        }
+        result[indexes.length] = str.substring(start);
+        return result;
     }
 
     public boolean areObjectivesVisible() {
