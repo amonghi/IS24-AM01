@@ -174,6 +174,7 @@ public class TuiView extends BaseTuiView {
         Optional<Runnable> runnable = this.parseInput().getCommandRunnable();
         if (runnable.isPresent()) {
             runnable.get().run();
+            this.cursorIdx = 0;
             this.input = "";
         }
         this.render();
