@@ -71,28 +71,6 @@ public class DrawArea {
     }
 
     /**
-     * Gets a subarea of this DrawArea.
-     * <p>
-     * The subarea is specified in the current drawing area space.
-     * The subarea must be fully contained in the current drawing area.
-     *
-     * @param offset     the offset of the subarea, relative to the top-left corner of the drawing area
-     * @param dimensions the dimensions of the subarea
-     * @return a new DrawArea that covers the subarea
-     * @throws IllegalArgumentException if the subarea is not fully contained in the current drawing area
-     */
-    public DrawArea getSubarea(Position offset, Dimensions dimensions) {
-        Rectangle subArea = new Rectangle(this.area.tl().add(Point.from(offset)), dimensions);
-        if (!this.area.contains(subArea)) {
-            throw new IllegalArgumentException("subarea must be enclosed in current drawing area.");
-        }
-
-        Rectangle cropArea = this.cropArea.intersect(subArea).orElse(Rectangle.ZERO);
-
-        return new DrawArea(this.drawBuffer, cropArea, subArea);
-    }
-
-    /**
      * Gets a new DrawArea with a position relative to this one.
      * <p>
      * The new area is specified in the current drawing area space.
