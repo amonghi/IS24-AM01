@@ -353,8 +353,8 @@ public abstract class View implements EventEmitter<ViewEvent> {
         emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
         emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
         emitter.emit(new SetDeckEvent(
-                Optional.of(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
-                Optional.of(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
+                Optional.ofNullable(decksColor.get(DeckLocation.GOLDEN_CARD_DECK)),
+                Optional.ofNullable(decksColor.get(DeckLocation.RESOURCE_CARD_DECK))
         ));
         emitter.emit(new SetHandEvent(hand));
     }
@@ -422,10 +422,6 @@ public abstract class View implements EventEmitter<ViewEvent> {
 
     public String getPlayerName() {
         return playerName;
-    }
-
-    public String getCurrentPlayer() {
-        return currentPlayer;
     }
 
     public int getStartingCardId() {

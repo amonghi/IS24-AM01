@@ -30,7 +30,11 @@ public class ChatMessageController extends HBox implements ComponentController {
 
     public ChatMessageController(View.Message message, View view) {
         this.view = view;
-        this.message = message;
+        this.type = message.type().toString();
+        this.sender = message.sender();
+        this.content = message.content();
+        this.recipient = message.recipient();
+        this.timestamp = message.timestamp();
 
         loadComponent();
     }
