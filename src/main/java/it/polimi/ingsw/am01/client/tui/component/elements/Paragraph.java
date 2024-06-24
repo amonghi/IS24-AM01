@@ -4,16 +4,23 @@ import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.rendering.Constraint;
 import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
+import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
 
 import java.util.ArrayList;
 
 public class Paragraph extends Component {
+    private final GraphicalRendition rendition;
     private final String text;
     private ArrayList<String> lines;
 
     public Paragraph(String text) {
+        this(GraphicalRendition.DEFAULT, text);
+    }
+
+    public Paragraph(GraphicalRendition rendition, String text) {
+        this.rendition = rendition;
         this.text = text;
     }
 
@@ -85,6 +92,7 @@ public class Paragraph extends Component {
 
     @Override
     public void draw(RenderingContext ctx, DrawArea a) {
+        a.setRendition(this.rendition);
         if (lines == null) {
             throw new IllegalStateException("Paragraph not laid out");
         }
