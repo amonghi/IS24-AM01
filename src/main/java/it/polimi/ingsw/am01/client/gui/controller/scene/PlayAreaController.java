@@ -663,6 +663,9 @@ public class PlayAreaController extends SceneController {
         ));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "playarea";
