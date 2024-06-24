@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayAreaEvent;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.game.GameStatus;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -54,6 +55,15 @@ public class SelectStartingCardSideController extends SceneController {
     private Side choosenSide;
     private ChatBoxController chatBoxController;
 
+    /**
+     * The main controller for the scene associated to these {@link GameStatus} and {@link it.polimi.ingsw.am01.client.ClientState}:
+     * <ul>
+     *     <li> {@link GameStatus#SETUP_STARTING_CARD_SIDE} </li>
+     *     <li> {@link it.polimi.ingsw.am01.client.ClientState#IN_GAME} </li>
+     * </ul>
+     *
+     * @see SceneController
+     */
     public SelectStartingCardSideController(View view) {
         super(view);
     }
@@ -88,7 +98,12 @@ public class SelectStartingCardSideController extends SceneController {
         maxIcon.setOnMouseClicked(this::setFullScreen);
     }
 
-
+    /**
+     * It selects the starting card side the player want to choose
+     *
+     * @param event The event associated with the mouse click on the button with the
+     *              selected starting card side
+     */
     @FXML
     private void selectChoice(Event event) {
         if (event.getSource() == frontButton) {
@@ -103,6 +118,9 @@ public class SelectStartingCardSideController extends SceneController {
         }
     }
 
+    /**
+     * It confirms the choice done by the player, setting his or her starting card side
+     */
     @FXML
     private void confirm() {
         view.selectStartingCardSide(choosenSide);
@@ -117,6 +135,9 @@ public class SelectStartingCardSideController extends SceneController {
         }
     }
 
+    /**
+     * It opens the pane showing the chat
+     */
     @FXML
     private void openChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -125,6 +146,9 @@ public class SelectStartingCardSideController extends SceneController {
         closeChatIcon.setVisible(true);
     }
 
+    /**
+     * It closes the pane showing the chat
+     */
     @FXML
     private void closeChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -133,6 +157,12 @@ public class SelectStartingCardSideController extends SceneController {
         closeChatIcon.setVisible(false);
     }
 
+    /**
+     * It shows the players who have already chosen the side of their starting card
+     *
+     * @param event The event received from the {@link View} containing the update of the playarea
+     *              after the placement of the starting card
+     */
     private void updateChoices(UpdatePlayAreaEvent event) {
         for (SideChoiceController controller : choiceControllers) {
             if (controller.getPlayerName().equals(event.playerName())) {
@@ -141,15 +171,11 @@ public class SelectStartingCardSideController extends SceneController {
         }
     }
 
-    @Override
-    protected void registerListeners() {
-        getViewRegistrations().addAll(List.of(
-                view.on(UpdatePlayAreaEvent.class, this::updateChoices),
-                view.on(PlayerListChangedEvent.class, this::updatePlayersList),
-                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
-        ));
-    }
-
+    /**
+     * It shows the list of the players currently in game
+     *
+     * @param event The event received from the {@link View} containing the list of players currently in the game
+     */
     private void updatePlayersList(PlayerListChangedEvent event) {
         playersBox.getChildren().clear();
 
@@ -163,6 +189,21 @@ public class SelectStartingCardSideController extends SceneController {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerListeners() {
+        getViewRegistrations().addAll(List.of(
+                view.on(UpdatePlayAreaEvent.class, this::updateChoices),
+                view.on(PlayerListChangedEvent.class, this::updatePlayersList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+        ));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "starting_card_side_choice";

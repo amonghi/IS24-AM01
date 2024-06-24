@@ -102,7 +102,7 @@ public class PlayAreaController extends SceneController {
      *     <li> {@code statusText}: the text to be shown in the game status bar</li>
      * </ul>
      *
-     * @param view The reference to the common view
+     * @param view The main {@link View} class, containing the local and reduced copy of server data
      */
     public PlayAreaController(View view) {
         super(view);
@@ -133,6 +133,9 @@ public class PlayAreaController extends SceneController {
         positionLayer.setOnDragDropped(this::dropCard);
     }
 
+    /**
+     * It opens the pane showing the chat
+     */
     @FXML
     private void openChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -141,6 +144,9 @@ public class PlayAreaController extends SceneController {
         closeChatIcon.setVisible(true);
     }
 
+    /**
+     * It closes the pane showing the chat
+     */
     @FXML
     private void closeChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -584,29 +590,6 @@ public class PlayAreaController extends SceneController {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void registerListeners() {
-        getViewRegistrations().addAll(List.of(
-                view.on(UpdatePlayablePositionsEvent.class, this::updatePlayablePositions),
-                view.on(UpdatePlayAreaEvent.class, this::updatePlayArea),
-                view.on(InvalidPlacementEvent.class, this::invalidPlacement),
-                view.on(RemoveLastPlacementEvent.class, this::removePlacement),
-                view.on(SetFaceUpCardsEvent.class, this::setFaceUpCards),
-                view.on(SetDeckEvent.class, this::setDeck),
-                view.on(SetHandEvent.class, this::setHand),
-                view.on(SetObjectives.class, this::setObjectives),
-                view.on(UpdateGameTurnEvent.class, this::handleTurn),
-                view.on(SetPlayStatusEvent.class, this::updatePlayStatus),
-                view.on(SetPlayAreaEvent.class, this::setPlayArea),
-                view.on(GamePausedEvent.class, this::pauseGame),
-                view.on(GameResumedEvent.class, this::resumeGame),
-                view.on(NewMessageEvent.class, this::updateMessages)
-        ));
-    }
-
-    /**
      * It calls the {@link ChatBoxController#updateMessages(NewMessageEvent)} method
      *
      * @param event The event received from the {@link View}, containing the new message to add to the ChatBox
@@ -655,6 +638,29 @@ public class PlayAreaController extends SceneController {
      */
     private void resumeGame(GameResumedEvent event) {
         playarea.setDisable(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerListeners() {
+        getViewRegistrations().addAll(List.of(
+                view.on(UpdatePlayablePositionsEvent.class, this::updatePlayablePositions),
+                view.on(UpdatePlayAreaEvent.class, this::updatePlayArea),
+                view.on(InvalidPlacementEvent.class, this::invalidPlacement),
+                view.on(RemoveLastPlacementEvent.class, this::removePlacement),
+                view.on(SetFaceUpCardsEvent.class, this::setFaceUpCards),
+                view.on(SetDeckEvent.class, this::setDeck),
+                view.on(SetHandEvent.class, this::setHand),
+                view.on(SetObjectives.class, this::setObjectives),
+                view.on(UpdateGameTurnEvent.class, this::handleTurn),
+                view.on(SetPlayStatusEvent.class, this::updatePlayStatus),
+                view.on(SetPlayAreaEvent.class, this::setPlayArea),
+                view.on(GamePausedEvent.class, this::pauseGame),
+                view.on(GameResumedEvent.class, this::resumeGame),
+                view.on(NewMessageEvent.class, this::updateMessages)
+        ));
     }
 
     @Override

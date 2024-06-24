@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.client.gui.controller.component.ObjectiveChoiceContr
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdateSecretObjectiveChoiceEvent;
+import it.polimi.ingsw.am01.model.game.GameStatus;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -22,7 +23,15 @@ import java.util.Objects;
 
 import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
 
-
+/**
+ * The main controller for the scene associated to these {@link GameStatus} and {@link it.polimi.ingsw.am01.client.ClientState}:
+ * <ul>
+ *     <li> {@link GameStatus#SETUP_OBJECTIVE} </li>
+ *     <li> {@link it.polimi.ingsw.am01.client.ClientState#IN_GAME} </li>
+ * </ul>
+ *
+ * @see SceneController
+ */
 public class SelectObjectiveController extends SceneController {
 
     private final static String BUTTONS_STYLE = "-fx-background-color:  BLACK; -fx-background-radius:  20";
@@ -57,6 +66,11 @@ public class SelectObjectiveController extends SceneController {
 
     private int choice;
 
+    /**
+     * It constructs a new SelectObjectiveController, calling the constructor of {@link SceneController}
+     *
+     * @param view The main {@link View} class, containing the local and reduced copy of server data
+     */
     public SelectObjectiveController(View view) {
         super(view);
     }
@@ -93,15 +107,11 @@ public class SelectObjectiveController extends SceneController {
         maxIcon.setOnMouseClicked(this::setFullScreen);
     }
 
-    @Override
-    protected void registerListeners() {
-        getViewRegistrations().addAll(List.of(
-                view.on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices),
-                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
-                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
-        ));
-    }
-
+    /**
+     * It shows the list of the players currently in game
+     *
+     * @param event The event received from the {@link View} containing the list of players currently in the game
+     */
     private void updatePlayerList(PlayerListChangedEvent event) {
         playersBox.getChildren().clear();
 
@@ -115,6 +125,12 @@ public class SelectObjectiveController extends SceneController {
         }
     }
 
+    /**
+     * It shows the players who have already chosen their secret objectives
+     *
+     * @param event The event received from the {@link View} containing the list of players who have already
+     *              chosen their secret objectives
+     */
     private void updateChoices(UpdateSecretObjectiveChoiceEvent event) {
         for (ObjectiveChoiceController controller : choiceControllers) {
             if (event.playersChosen().contains(controller.getPlayerName())) {
@@ -123,6 +139,9 @@ public class SelectObjectiveController extends SceneController {
         }
     }
 
+    /**
+     * It opens the pane showing the chat
+     */
     @FXML
     private void openChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -131,6 +150,9 @@ public class SelectObjectiveController extends SceneController {
         closeChatIcon.setVisible(true);
     }
 
+    /**
+     * It closes the pane showing the chat
+     */
     @FXML
     private void closeChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -139,6 +161,11 @@ public class SelectObjectiveController extends SceneController {
         closeChatIcon.setVisible(false);
     }
 
+    /**
+     * It selects the objective the player want to choose
+     *
+     * @param event The event associated with the mouse click on the selected objective
+     */
     @FXML
     private void selectChoice(Event event) {
         if (event.getSource() == firstObjectiveButton) {
@@ -153,6 +180,9 @@ public class SelectObjectiveController extends SceneController {
         }
     }
 
+    /**
+     * It confirms the choice done by the player, setting his or her secret objective
+     */
     @FXML
     private void confirm() {
         view.setSecretObjectiveChoiceId(choice);
@@ -169,6 +199,21 @@ public class SelectObjectiveController extends SceneController {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerListeners() {
+        getViewRegistrations().addAll(List.of(
+                view.on(UpdateSecretObjectiveChoiceEvent.class, this::updateChoices),
+                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+        ));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "secret_objective_choice";
