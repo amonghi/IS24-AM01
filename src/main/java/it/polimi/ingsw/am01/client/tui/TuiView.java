@@ -409,6 +409,12 @@ public class TuiView extends BaseTuiView {
         renderErrorMessage("You were kicked from game because there weren't enough players connected");
     }
 
+    @Override
+    public void connectionLost(){
+        super.connectionLost();
+        renderErrorMessage("Connection lost");
+    }
+
     public void flipCard(int cardIndex) {
         Side newSide = switch (visibleSides.get(cardIndex)) {
             case FRONT -> Side.BACK;
