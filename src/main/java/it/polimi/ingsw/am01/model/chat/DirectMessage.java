@@ -67,7 +67,7 @@ public class DirectMessage extends Message {
     public String toString() {
         return "DirectMessage{"
                 + getTimestamp().toLocalTime().truncatedTo(ChronoUnit.SECONDS)
-                + " (" + getSender().getName() + " -> " + recipient.getName() + "):"
+                + " (" + getSender().name() + " -> " + recipient.name() + "):"
                 + getContent()
                 + "}";
     }

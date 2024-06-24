@@ -73,7 +73,7 @@ public class VirtualView implements Runnable {
         gameManagerRegistrations.forEach(gameManager::unregister);
         if (this.playerProfile != null) {
             //If the player is authenticated, I have to remove the player from playerManager
-            playerManager.getProfile(this.playerProfile.getName()).ifPresent(playerManager::removeProfile);
+            playerManager.getProfile(this.playerProfile.name()).ifPresent(playerManager::removeProfile);
         }
         if (this.game != null) {
             //If the game is not null, I have to handle player re-connection
@@ -204,7 +204,7 @@ public class VirtualView implements Runnable {
             connection.send(new NewMessageS2C(
                     event.message().getMessageType(),
                     event.message().getTimestamp().toString(),
-                    event.message().getSender().getName(),
+                    event.message().getSender().name(),
                     event.message().getContent()
             ));
         }
@@ -213,7 +213,7 @@ public class VirtualView implements Runnable {
     private void updatePlayArea(CardPlacedEvent event) throws NetworkException {
         connection.send(
                 new UpdatePlayAreaS2C(
-                        event.player().getName(),
+                        event.player().name(),
                         event.cardPlacement().getPosition().i(),
                         event.cardPlacement().getPosition().j(),
                         event.cardPlacement().getCard().id(),
@@ -227,7 +227,7 @@ public class VirtualView implements Runnable {
     private void updatePlayAreaAfterUndo(UndoPlacementEvent event) throws SendNetworkException {
         connection.send(
                 new UpdatePlayAreaAfterUndoS2C(
-                        event.pp().getName(),
+                        event.pp().name(),
                         event.position().i(),
                         event.position().j(),
                         event.score(),
@@ -242,7 +242,7 @@ public class VirtualView implements Runnable {
                 new UpdateGameStatusAndTurnS2C(
                         status,
                         event.turnPhase(),
-                        event.currentPlayer().getName())
+                        event.currentPlayer().name())
         );
         if (event.currentPlayer().equals(playerProfile) && event.turnPhase() == TurnPhase.PLACING) {
             connection.send(
@@ -261,7 +261,7 @@ public class VirtualView implements Runnable {
         connection.send(
                 new GameFinishedS2C(
                         event.playersScores().entrySet().stream()
-                                .collect(Collectors.toMap(e -> e.getKey().getName(), Map.Entry::getValue))
+                                .collect(Collectors.toMap(e -> e.getKey().name(), Map.Entry::getValue))
                 )
         );
 
@@ -294,7 +294,7 @@ public class VirtualView implements Runnable {
     private void updatePlayerColor(PlayerChangedColorChoiceEvent event) throws NetworkException {
         connection.send(
                 new UpdatePlayerColorS2C(
-                        event.player().getName(),
+                        event.player().name(),
                         event.playerColor()
                 )
         );
@@ -332,7 +332,7 @@ public class VirtualView implements Runnable {
         connection.send(
                 new UpdateObjectiveSelectedS2C(
                         event.playersHaveChosen().stream()
-                                .map(PlayerProfile::getName)
+                                .map(PlayerProfile::name)
                                 .collect(Collectors.toSet())
                 )
         );
@@ -344,7 +344,7 @@ public class VirtualView implements Runnable {
                 .filter(fuc -> fuc.getCard().isPresent())
                 .map(fuc -> fuc.getCard().get().id())
                 .collect(Collectors.toSet());
-        Set<Integer> hand = event.hands().get(this.playerProfile).getHand().stream().map(Card::id).collect(Collectors.toSet());
+        Set<Integer> hand = event.hands().get(this.playerProfile).hand().stream().map(Card::id).collect(Collectors.toSet());
 
         connection.send(
                 new SetBoardAndHandS2C(
@@ -413,7 +413,7 @@ public class VirtualView implements Runnable {
                 new UpdateGameStatusAndTurnS2C(
                         event.status(),
                         event.turnPhase(),
-                        event.currentPlayer().getName())
+                        event.currentPlayer().name())
         );
         if (event.currentPlayer().equals(playerProfile) && event.turnPhase() == TurnPhase.PLACING) {
             connection.send(
@@ -447,7 +447,7 @@ public class VirtualView implements Runnable {
             if (game.equals(event.game())) {
                 connection.send(
                         new UpdatePlayerListS2C(
-                                game.getPlayerProfiles().stream().map(PlayerProfile::getName).collect(Collectors.toList())
+                                game.getPlayerProfiles().stream().map(PlayerProfile::name).collect(Collectors.toList())
                         )
                 );
             }
@@ -476,7 +476,7 @@ public class VirtualView implements Runnable {
         } else if (game.equals(event.game())) {
             connection.send(
                     new UpdatePlayerListS2C(
-                            game.getPlayerProfiles().stream().map(PlayerProfile::getName).collect(Collectors.toList())
+                            game.getPlayerProfiles().stream().map(PlayerProfile::name).collect(Collectors.toList())
                     )
             );
         }
@@ -484,19 +484,19 @@ public class VirtualView implements Runnable {
 
     private void playerDisconnected(PlayerDisconnectedEvent event) throws SendNetworkException {
         if (!event.pp().equals(playerProfile)) {
-            connection.send(new PlayerDisconnectedS2C(event.pp().getName()));
+            connection.send(new PlayerDisconnectedS2C(event.pp().name()));
         }
     }
 
     private void playerReconnected(PlayerReconnectedEvent event) throws SendNetworkException {
         if (!event.pp().equals(playerProfile)) {
-            connection.send(new PlayerReconnectedS2C(event.pp().getName()));
+            connection.send(new PlayerReconnectedS2C(event.pp().name()));
         } else {
             try {
                 connection.send(new SetupAfterReconnectionS2C(
                         game.getPlayerProfiles().stream()
                                 .collect(Collectors.toMap(
-                                                PlayerProfile::getName,
+                                        PlayerProfile::name,
                                                 p -> game.getPlayArea(p).getCards().entrySet().stream()
                                                         .collect(Collectors.toMap(
                                                                         Map.Entry::getKey,
@@ -510,16 +510,16 @@ public class VirtualView implements Runnable {
                                                         )
                                         )
                                 ),
-                        game.getCurrentPlayer().getName(),
+                        game.getCurrentPlayer().name(),
                         game.getTurnPhase(),
                         game.getStatus(),
-                        game.getPlayerData(playerProfile).getHand().stream().map(Card::id).collect(Collectors.toList()),
+                        game.getPlayerData(playerProfile).hand().stream().map(Card::id).collect(Collectors.toList()),
                         game.getPlayerProfiles().stream()
                                 .collect(Collectors.toMap(
-                                        PlayerProfile::getName,
-                                        player -> game.getPlayerData(player).getColorChoice()
+                                        PlayerProfile::name,
+                                        player -> game.getPlayerData(player).color()
                                 )),
-                        game.getPlayerData(playerProfile).getObjectiveChoice().getId(),
+                        game.getPlayerData(playerProfile).objective().getId(),
                         game.getCommonObjectives().stream().map(Objective::getId).collect(Collectors.toList()),
                         game.getBoard().getResourceCardDeck().getVisibleColor().orElse(null),
                         game.getBoard().getGoldenCardDeck().getVisibleColor().orElse(null),
@@ -528,14 +528,14 @@ public class VirtualView implements Runnable {
                                 .map(fuc -> fuc.getCard().get().id())
                                 .collect(Collectors.toList()),
                         game.getPlayerProfiles().stream().collect(Collectors.toMap(
-                                PlayerProfile::getName,
+                                PlayerProfile::name,
                                 player -> game.isConnected(player)
                         )),
                         game.getChatManager().getMailbox(playerProfile).stream()
                                 .map(message -> new SetupAfterReconnectionS2C.Message(
                                         message.getMessageType(),
-                                        message.getSender().getName(),
-                                        message.getRecipient().map(PlayerProfile::getName).orElse(null),
+                                        message.getSender().name(),
+                                        message.getRecipient().map(PlayerProfile::name).orElse(null),
                                         message.getContent(),
                                         message.getTimestamp().toString()
                                 )).toList()
@@ -555,7 +555,7 @@ public class VirtualView implements Runnable {
             PlayerProfile profile = controller.authenticate(message.playerName());
             setPlayerProfile(profile);
             connection.send(
-                    new SetPlayerNameS2C(profile.getName())
+                    new SetPlayerNameS2C(profile.name())
             );
             connection.send(
                     new UpdateGameListS2C(this.getGameManager().getGames().stream().filter(game -> game.getStatus().equals(GameStatus.AWAITING_PLAYERS))
@@ -571,7 +571,7 @@ public class VirtualView implements Runnable {
 
     public void handleMessage(CreateGameAndJoinC2S message) throws IllegalMoveException, NetworkException {
         try {
-            controller.createAndJoinGame(message.maxPlayers(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
+            controller.createAndJoinGame(message.maxPlayers(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name());
         } catch (InvalidMaxPlayersException e) {
             connection.send(new InvalidMaxPlayersS2C(message.maxPlayers()));
         }
@@ -580,7 +580,7 @@ public class VirtualView implements Runnable {
 
     public void handleMessage(DrawCardFromDeckC2S message) throws IllegalMoveException, NetworkException {
         try {
-            controller.drawCardFromDeck(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.deckLocation());
+            controller.drawCardFromDeck(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(), message.deckLocation());
         } catch (PlayerNotInGameException e) {
             connection.send(new PlayerNotInGameS2C());
         } catch (GameNotFoundException e) {
@@ -590,7 +590,7 @@ public class VirtualView implements Runnable {
 
     public void handleMessage(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException, NetworkException {
         try {
-            controller.drawCardFromFaceUpCards(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.cardId());
+            controller.drawCardFromFaceUpCards(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(), message.cardId());
         } catch (PlayerNotInGameException e) {
             connection.send(new PlayerNotInGameS2C());
         } catch (GameNotFoundException e) {
@@ -602,7 +602,7 @@ public class VirtualView implements Runnable {
 
     public void handleMessage(JoinGameC2S message) throws IllegalMoveException, NetworkException {
         try {
-            controller.joinGame(message.gameId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName());
+            controller.joinGame(message.gameId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name());
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(message.gameId()));
         } catch (IllegalGameStateException e) {
@@ -614,7 +614,7 @@ public class VirtualView implements Runnable {
         try {
             controller.placeCard(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
-                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(),
                     message.cardId(), message.side(), message.i(), message.j()
             );
         } catch (GameNotFoundException e) {
@@ -632,7 +632,7 @@ public class VirtualView implements Runnable {
         try {
             controller.selectPlayerColor(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
-                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(),
                     message.color()
             );
         } catch (PlayerNotInGameException e) {
@@ -644,7 +644,7 @@ public class VirtualView implements Runnable {
 
     public void handleMessage(SelectSecretObjectiveC2S message) throws IllegalMoveException, NetworkException {
         try {
-            controller.selectSecretObjective(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(), message.objective());
+            controller.selectSecretObjective(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(), message.objective());
         } catch (GameNotFoundException e) {
             connection.send(new GameNotFoundS2C(Objects.requireNonNull(this.getGame().orElse(null)).getId()));
         } catch (PlayerNotInGameException e) {
@@ -660,7 +660,7 @@ public class VirtualView implements Runnable {
         try {
             controller.selectStartingCardSide(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
-                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(),
                     message.side()
             );
         } catch (PlayerNotInGameException e) {
@@ -688,12 +688,12 @@ public class VirtualView implements Runnable {
         try {
             Message chatMsg = controller.sendBroadcastMessage(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
-                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(),
                     message.content()
             );
 
             connection.send(new BroadcastMessageSentS2C(
-                    chatMsg.getSender().getName(),
+                    chatMsg.getSender().name(),
                     chatMsg.getContent(),
                     chatMsg.getTimestamp().toString()
             ));
@@ -708,13 +708,13 @@ public class VirtualView implements Runnable {
         try {
             Message chatMsg = controller.sendDirectMessage(
                     this.getGame().orElseThrow(PlayerNotInGameException::new).getId(),
-                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).getName(),
+                    this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(),
                     message.recipientPlayerName(),
                     message.content()
             );
 
             connection.send(new DirectMessageSentS2C(
-                    chatMsg.getSender().getName(),
+                    chatMsg.getSender().name(),
                     message.recipientPlayerName(),
                     chatMsg.getContent(),
                     chatMsg.getTimestamp().toString()

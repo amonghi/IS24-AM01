@@ -47,7 +47,7 @@ public class BroadcastMessage extends Message {
     public String toString() {
         return "BroadcastMessage{"
                 + getTimestamp().toLocalTime().truncatedTo(ChronoUnit.SECONDS)
-                + " (" + getSender().getName() + "):"
+                + " (" + getSender().name() + "):"
                 + getContent()
                 + "}";
     }

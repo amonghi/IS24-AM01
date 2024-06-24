@@ -45,7 +45,7 @@ class ControllerTest {
                 assertFalse(pm.getProfile("Alice").isPresent());
 
                 PlayerProfile aProfile = controller.authenticate("Alice");
-                assertEquals("Alice", aProfile.getName());
+                assertEquals("Alice", aProfile.name());
 
                 assertTrue(pm.getProfile("Alice").isPresent());
             });
@@ -152,11 +152,11 @@ class ControllerTest {
 
             // place a card so now we can draw
             PlayerProfile currentPlayer = game.getCurrentPlayer();
-            Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
+            Card aCard = game.getPlayerData(currentPlayer).hand().getFirst();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
 
-            controller.placeCard(game.getId(), currentPlayer.getName(), aCard.id(), Side.FRONT, position.i(), position.j());
+            controller.placeCard(game.getId(), currentPlayer.name(), aCard.id(), Side.FRONT, position.i(), position.j());
             assertEquals(GameStatus.PLAY, game.getStatus());
             assertEquals(TurnPhase.DRAWING, game.getTurnPhase());
         }
@@ -392,11 +392,11 @@ class ControllerTest {
         @Test
         void canPlaceCard() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidCardException, IllegalPlacementException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
-            Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
+            Card aCard = game.getPlayerData(currentPlayer).hand().getFirst();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
 
-            controller.placeCard(game.getId(), currentPlayer.getName(), aCard.id(), Side.FRONT, position.i(), position.j());
+            controller.placeCard(game.getId(), currentPlayer.name(), aCard.id(), Side.FRONT, position.i(), position.j());
             assertEquals(GameStatus.PLAY, game.getStatus());
             assertEquals(TurnPhase.DRAWING, game.getTurnPhase());
         }
@@ -404,18 +404,18 @@ class ControllerTest {
         @Test
         void cannotPlaceCardInNonexistentGame() throws IllegalGameStateException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
-            Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
+            Card aCard = game.getPlayerData(currentPlayer).hand().getFirst();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
 
             assertThrows(GameNotFoundException.class,
-                    () -> controller.placeCard(1234, currentPlayer.getName(), aCard.id(), Side.BACK, position.i(), position.j()));
+                    () -> controller.placeCard(1234, currentPlayer.name(), aCard.id(), Side.BACK, position.i(), position.j()));
         }
 
         @Test
         void nonexistentPlayerCannotPlaceCard() throws IllegalGameStateException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
-            Card aCard = game.getPlayerData(currentPlayer).getHand().getFirst();
+            Card aCard = game.getPlayerData(currentPlayer).hand().getFirst();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
 
@@ -426,13 +426,13 @@ class ControllerTest {
         @Test
         void cannotPlaceCardThatIsNotInHand() throws IllegalGameStateException {
             PlayerProfile currentPlayer = game.getCurrentPlayer();
-            List<Card> hand = game.getPlayerData(currentPlayer).getHand();
+            List<Card> hand = game.getPlayerData(currentPlayer).hand();
             PlayArea.Position position = game.getPlayArea(currentPlayer).getPlayablePositions().stream().findAny()
                     .orElseThrow();
             Card notInHandCard = getCardOutsideOf(hand);
 
             assertThrows(GameNotFoundException.class,
-                    () -> controller.placeCard(1234, currentPlayer.getName(), notInHandCard.id(), Side.BACK, position.i(), position.j()));
+                    () -> controller.placeCard(1234, currentPlayer.name(), notInHandCard.id(), Side.BACK, position.i(), position.j()));
         }
     }
 
@@ -451,7 +451,7 @@ class ControllerTest {
         @Test
         void canDrawFromDeck() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException {
             PlayerProfile player = game.getCurrentPlayer();
-            controller.drawCardFromDeck(game.getId(), player.getName(), DeckLocation.RESOURCE_CARD_DECK);
+            controller.drawCardFromDeck(game.getId(), player.name(), DeckLocation.RESOURCE_CARD_DECK);
             assertEquals(GameStatus.PLAY, game.getStatus());
             assertEquals(TurnPhase.PLACING, game.getTurnPhase());
             assertNotEquals(player, game.getCurrentPlayer());
@@ -467,7 +467,7 @@ class ControllerTest {
         void cannotDrawFromDeckInNonexistentGame() throws IllegalGameStateException {
             PlayerProfile player = game.getCurrentPlayer();
             assertThrows(GameNotFoundException.class,
-                    () -> controller.drawCardFromDeck(1234, player.getName(), DeckLocation.GOLDEN_CARD_DECK));
+                    () -> controller.drawCardFromDeck(1234, player.name(), DeckLocation.GOLDEN_CARD_DECK));
         }
 
         @Test
@@ -475,7 +475,7 @@ class ControllerTest {
             PlayerProfile player = game.getCurrentPlayer();
             FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
 
-            controller.drawCardFromFaceUpCards(game.getId(), player.getName(), faceUpCard.getCard().orElseThrow().id());
+            controller.drawCardFromFaceUpCards(game.getId(), player.name(), faceUpCard.getCard().orElseThrow().id());
 
             assertEquals(GameStatus.PLAY, game.getStatus());
             assertEquals(TurnPhase.PLACING, game.getTurnPhase());
@@ -494,7 +494,7 @@ class ControllerTest {
             PlayerProfile player = game.getCurrentPlayer();
             FaceUpCard faceUpCard = game.getBoard().getFaceUpCards().stream().findAny().orElseThrow();
             assertThrows(GameNotFoundException.class,
-                    () -> controller.drawCardFromFaceUpCards(1234, player.getName(), faceUpCard.getCard().orElseThrow().id()));
+                    () -> controller.drawCardFromFaceUpCards(1234, player.name(), faceUpCard.getCard().orElseThrow().id()));
         }
 
         @Test
@@ -506,7 +506,7 @@ class ControllerTest {
             Card notAvailable = getCardOutsideOf(availableCards);
 
             assertThrows(InvalidCardException.class,
-                    () -> controller.drawCardFromFaceUpCards(game.getId(), player.getName(), notAvailable.id()));
+                    () -> controller.drawCardFromFaceUpCards(game.getId(), player.name(), notAvailable.id()));
         }
     }
 }

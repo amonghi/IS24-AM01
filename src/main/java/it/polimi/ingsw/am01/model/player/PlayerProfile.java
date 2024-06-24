@@ -3,26 +3,7 @@ package it.polimi.ingsw.am01.model.player;
 /**
  * PlayerProfile represents a player entity
  */
-public class PlayerProfile {
-    private final String name;
-
-    /**
-     * Constructs a PlayerProfile and sets name
-     *
-     * @param name The name of the player
-     */
-    public PlayerProfile(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Provides the name of player
-     *
-     * @return The name of player
-     */
-    public String getName() {
-        return name;
-    }
+public record PlayerProfile(String name) {
 
     /**
      * {@inheritDoc}
@@ -35,14 +16,6 @@ public class PlayerProfile {
         PlayerProfile that = (PlayerProfile) o;
 
         return name.equals(that.name);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return name.hashCode();
     }
 
     /**
