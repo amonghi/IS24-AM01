@@ -15,6 +15,9 @@ import it.polimi.ingsw.am01.network.message.s2c.*;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * GSON factory for {@link NetworkMessage} class
+ */
 public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
 
     Map<String, Class<? extends NetworkMessage>> idToType = Map.ofEntries(
@@ -118,7 +121,6 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
 
                 jsonReader.beginObject();
 
-                // TODO: allow properties to be in different order
                 String name = jsonReader.nextName();
                 if (!name.equals("id")) {
                     throw new JsonParseException("Expected 'id' but found " + name);
