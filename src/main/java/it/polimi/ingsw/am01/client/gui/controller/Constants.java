@@ -1,5 +1,13 @@
 package it.polimi.ingsw.am01.client.gui.controller;
 
+/**
+ * Utility class containing the common constants needed to:
+ * <ul>
+ *     <li> Show cards images </li>
+ *     <li> Place cards in the playarea </li>
+ *     <li> Handle connection </li>
+ * </ul>
+ */
 public class Constants {
     public static final String RESOURCES_PATH = "/it/polimi/ingsw/am01/";
 
