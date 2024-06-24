@@ -4,6 +4,7 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.component.layout.Border;
+import it.polimi.ingsw.am01.client.tui.component.layout.Centered;
 import it.polimi.ingsw.am01.client.tui.component.layout.Column;
 import it.polimi.ingsw.am01.client.tui.component.layout.Padding;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
@@ -31,7 +32,10 @@ public class ChatBox extends Composition {
     @Override
     protected Component compose() {
         return new Border(Line.Style.DEFAULT,
-                messagesComponents.isEmpty() ? new Text("No messages yet") : new Column(messagesComponents)
+                new Column(List.of(
+                        Centered.horizontally(Padding.hv(0, 1, new Text("Chat"))),
+                        messagesComponents.isEmpty() ? new Text("No messages yet") : new Column(messagesComponents)
+                ))
         );
     }
 }

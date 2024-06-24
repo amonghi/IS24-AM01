@@ -31,7 +31,7 @@ public class LobbyScene extends Composition {
         List<FlexChild> children = new ArrayList<>();
 
         children.add(
-                new FlexChild.Flexible(1,
+                new FlexChild.Flexible(5,
                         Flex.column(List.of(
                                 new FlexChild.Fixed(
                                         Padding.hv(1, 1,
@@ -73,7 +73,7 @@ public class LobbyScene extends Composition {
 
         if (view.isChatVisible()) {
             children.add(
-                    new FlexChild.Fixed(new ChatBox(view))
+                    new FlexChild.Flexible(1, new ChatBox(view))
             );
         }
 

@@ -149,7 +149,7 @@ public class PlayAreaScene extends Composition {
 
 
         children.add(
-                new FlexChild.Flexible(1,
+                new FlexChild.Flexible(5,
                         Flex.column(
                                 List.of(
                                         new FlexChild.Fixed(
@@ -181,7 +181,7 @@ public class PlayAreaScene extends Composition {
 
         if (view.isChatVisible()) {
             children.add(
-                    new FlexChild.Fixed(
+                    new FlexChild.Flexible(1,
                             new ChatBox(view)
                     )
             );
