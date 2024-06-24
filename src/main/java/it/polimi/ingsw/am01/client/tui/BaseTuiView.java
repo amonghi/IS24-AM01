@@ -116,16 +116,6 @@ public abstract class BaseTuiView extends View {
     }
 
     @Override
-    protected void kickPlayer() {
-        this.render();
-    }
-
-    @Override
-    protected void showConnectionErrorMessage(String errorMessage) {
-        this.render();
-    }
-
-    @Override
     public void runLater(Runnable runnable) {
         this.executorService.submit(runnable);
     }

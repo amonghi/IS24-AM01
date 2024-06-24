@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am01.client.tui;
 
+import it.polimi.ingsw.am01.client.gui.event.InvalidPlacementEvent;
+import it.polimi.ingsw.am01.client.gui.event.NameAlreadyTakenEvent;
 import it.polimi.ingsw.am01.client.tui.command.CommandBuilder;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.parser.Parser;
@@ -60,6 +62,9 @@ public class TuiView extends BaseTuiView {
     private String focusedPlayer = null;
     private int playAreaScrollX = 0;
     private int playAreaScrollY = 0;
+    private boolean showErrorMessage = false;
+    private String errorMessage = "";
+    private final List<Registration> registrations;
 
     public TuiView(Terminal terminal) {
         super(terminal);
@@ -112,13 +117,28 @@ public class TuiView extends BaseTuiView {
                 }))
         );
 
+
+        registrations = List.of(
+                this.on(NameAlreadyTakenEvent.class, this::showNameAlreadyTakenMessage),
+                this.on(InvalidPlacementEvent.class, this::showInvalidPlacementMessage)
+        );
+
         // start rendering
         this.runLater(this::render);
+    }
+
+    private void showNameAlreadyTakenMessage(NameAlreadyTakenEvent nameAlreadyTakenEvent) {
+        renderErrorMessage("Name already taken");
+    }
+
+    private void showInvalidPlacementMessage(InvalidPlacementEvent invalidPlacementEvent) {
+        renderErrorMessage("You have not enough resources to place the card");
     }
 
     @Override
     protected void onShutdown() {
         this.keyboardRegistrations.forEach(keyboard::unregister);
+        registrations.forEach(this::unregister);
         super.onShutdown();
     }
 
@@ -178,6 +198,7 @@ public class TuiView extends BaseTuiView {
             this.input = "";
         }
         this.render();
+        this.showErrorMessage = false;
     }
 
     private CommandNode.Result parseInput() {
@@ -238,6 +259,19 @@ public class TuiView extends BaseTuiView {
                         }
                 )
         );
+
+        //error message
+        if (showErrorMessage) {
+            children.add(
+                    new FlexChild.Fixed(
+                            new Text(
+                                    GraphicalRendition.DEFAULT.withForeground(GraphicalRenditionProperty.ForegroundColor.RED),
+                                    errorMessage
+                            )
+                    )
+            );
+        }
+
         // bottom input
         children.add(
                 new FlexChild.Fixed(this.composeInput())
@@ -357,6 +391,22 @@ public class TuiView extends BaseTuiView {
     public void hideChat() {
         chatVisible = false;
         render();
+    }
+
+    public void renderErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+        this.showErrorMessage = true;
+        render();
+    }
+
+    @Override
+    protected void showConnectionErrorMessage(String errorMessage) {
+        renderErrorMessage(errorMessage);
+    }
+
+    @Override
+    protected void kickPlayer() {
+        renderErrorMessage("You were kicked from game because there weren't enough players connected");
     }
 
     public void flipCard(int cardIndex) {
