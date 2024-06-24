@@ -41,11 +41,11 @@ public class GameAssets {
      */
     private GameAssets() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Corner.class, new CornerSerDes());
-        gsonBuilder.registerTypeAdapter(Points.class, new PointsSerDes());
+        gsonBuilder.registerTypeAdapter(Corner.class, new CornerDeserializer());
+        gsonBuilder.registerTypeAdapter(Points.class, new PointsDeserializer());
         gsonBuilder.registerTypeAdapter(Collectible.class, new CollectibleDeserializer());
-        gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintSerDes());
-        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveSerDes());
+        gsonBuilder.registerTypeAdapter(PlacementConstraint.class, new PlacementConstraintDeserializer());
+        gsonBuilder.registerTypeAdapter(Objective.class, new ObjectiveDeserializer());
         gsonBuilder.registerTypeAdapter(PatternObjective.class, new PatternObjectiveDeserializer());
         Gson gson = gsonBuilder.create();
 
