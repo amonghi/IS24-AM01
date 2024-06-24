@@ -4,11 +4,14 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.controller.component.GameController;
 import it.polimi.ingsw.am01.client.gui.controller.popup.GameCreationPopupController;
 import it.polimi.ingsw.am01.client.gui.event.GameListChangedEvent;
+import it.polimi.ingsw.am01.network.message.s2c.UpdateGameListS2C;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+
+import java.util.Map;
 
 public class GameListController extends SceneController {
     @FXML
@@ -17,6 +20,8 @@ public class GameListController extends SceneController {
     private Label playerNameLabel;
     @FXML
     private ImageView newGameIcon;
+    @FXML
+    private Label messageLabel;
 
     public GameListController(View view) {
         super(view);
@@ -26,18 +31,7 @@ public class GameListController extends SceneController {
     private void initialize() {
         Tooltip.install(newGameIcon, new Tooltip("Click here to create a new game"));
         playerNameLabel.setText("Logged as " + view.getPlayerName());
-        box.getChildren().clear();
-        for (Integer gameID : view.getGames().keySet()) {
-            if (view.getGames().get(gameID).currentPlayersConnected() != view.getGames().get(gameID).maxPlayers()) {
-                box.getChildren().add(
-                        new GameController(gameID,
-                                view.getGames().get(gameID).maxPlayers(),
-                                view.getGames().get(gameID).currentPlayersConnected(),
-                                view
-                        )
-                );
-            }
-        }
+        updateListOnView(view.getGames());
     }
 
     @Override
@@ -47,17 +41,28 @@ public class GameListController extends SceneController {
         );
     }
 
-    public void updateGameList(GameListChangedEvent event) {
+    private void updateListOnView(Map<Integer, UpdateGameListS2C.GameStat> gameStatMap) {
         box.getChildren().clear();
-        for (Integer gameID : event.gameStatMap().keySet()) {
+
+        if (gameStatMap.isEmpty()) {
+            messageLabel.setVisible(true);
+            return;
+        }
+
+        messageLabel.setVisible(false);
+        for (Integer gameID : gameStatMap.keySet()) {
             box.getChildren().add(
                     new GameController(gameID,
-                            event.gameStatMap().get(gameID).maxPlayers(),
-                            event.gameStatMap().get(gameID).currentPlayersConnected(),
+                            gameStatMap.get(gameID).maxPlayers(),
+                            gameStatMap.get(gameID).currentPlayersConnected(),
                             view
                     )
             );
         }
+    }
+
+    public void updateGameList(GameListChangedEvent event) {
+        updateListOnView(event.gameStatMap());
     }
 
     public void newGame() {
