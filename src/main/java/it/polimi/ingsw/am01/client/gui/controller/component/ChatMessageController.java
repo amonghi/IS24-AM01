@@ -9,6 +9,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 
+import java.time.LocalDateTime;
+
 public class ChatMessageController extends HBox implements ComponentController {
 
     private final static String baseMessageStyle = "-fx-background-color: black; -fx-background-radius: 5; -fx-text-fill: white; -fx-padding: 2";
@@ -18,7 +20,7 @@ public class ChatMessageController extends HBox implements ComponentController {
     private final String recipient;
     private final String timestamp;
     private final View view;
-  
+
     @FXML
     private Label senderLabel;
     @FXML
@@ -41,6 +43,11 @@ public class ChatMessageController extends HBox implements ComponentController {
 
     @FXML
     private void initialize() {
+        LocalDateTime localDateTime = LocalDateTime.parse(timestamp);
+        String hour = "%s%d".formatted(localDateTime.getHour() < 10 ? "0" : "", localDateTime.getHour());
+        String minute = "%s%d".formatted(localDateTime.getMinute() < 10 ? "0" : "", localDateTime.getMinute());
+        String second = "%s%d".formatted(localDateTime.getSecond() < 10 ? "0" : "", localDateTime.getSecond());
+
         String senderString = sender.equals(view.getPlayerName()) ? "You" : sender;
         String recipientString = type.equals(MessageType.BROADCAST.toString())
                 ? "Everyone"
@@ -49,7 +56,7 @@ public class ChatMessageController extends HBox implements ComponentController {
 
         senderLabel.setText(senderString);
         recipientLabel.setText(recipientString);
-        timeLabel.setText(timestamp.split("T")[1].split("\\.")[0]);
+        timeLabel.setText(hour + ":" + minute + ":" + second);
         message.setText(content);
 
         //Define base style

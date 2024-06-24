@@ -246,6 +246,7 @@ public class PlayAreaController extends SceneController {
     }
 
     private void setObjectives(SetObjectives event) {
+        this.playerObjectives.clear();
         this.playerObjectives.addAll(event.objectives());
         this.playerObjectives.add(event.secretObjective());
 
