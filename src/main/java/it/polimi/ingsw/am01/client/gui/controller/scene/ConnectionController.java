@@ -8,6 +8,14 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 
+/**
+ * The main controller for the scene associated to this {@link it.polimi.ingsw.am01.client.ClientState}:
+ * <ul>
+ *     <li> {@link it.polimi.ingsw.am01.client.ClientState#NOT_CONNECTED} </li>
+ * </ul>
+ *
+ * @see SceneController
+ */
 public class ConnectionController extends SceneController {
     @FXML
     private RadioButton tcpRadioButton;
@@ -21,6 +29,11 @@ public class ConnectionController extends SceneController {
     private Label messageLabel;
     private ToggleGroup toggleGroup;
 
+    /**
+     * It constructs a new ConnectionController, calling the constructor of {@link SceneController}
+     *
+     * @param view The main {@link View} class, containing the local and reduced copy of server data
+     */
     public ConnectionController(View view) {
         super(view);
     }
@@ -36,6 +49,9 @@ public class ConnectionController extends SceneController {
         messageLabel.setVisible(false);
     }
 
+    /**
+     * It sets the default port number for RMI or TCP, based on the choice of the player
+     */
     @FXML
     private void setConnectionType() {
         if (toggleGroup.getSelectedToggle() == tcpRadioButton) {
@@ -45,6 +61,10 @@ public class ConnectionController extends SceneController {
         }
     }
 
+    /**
+     * It calls the {@link View#connect(View.ConnectionType, String, int)} method using the
+     * network information, ip address and port, given by the player
+     */
     @FXML
     private void confirm() {
         View.ConnectionType connectionType;
@@ -62,17 +82,28 @@ public class ConnectionController extends SceneController {
 
     }
 
+    /**
+     * It shows an error message, if a connection problem occur
+     *
+     * @param message The error message to show
+     */
     @FXML
     public void setErrorMessage(String message) {
         messageLabel.setText(message);
         messageLabel.setVisible(true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void registerListeners() {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "connect_client";

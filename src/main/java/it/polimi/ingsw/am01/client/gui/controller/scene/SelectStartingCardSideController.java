@@ -24,6 +24,15 @@ import java.util.Objects;
 
 import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
 
+/**
+ * The main controller for the scene associated to these {@link GameStatus} and {@link it.polimi.ingsw.am01.client.ClientState}:
+ * <ul>
+ *     <li> {@link GameStatus#SETUP_STARTING_CARD_SIDE} </li>
+ *     <li> {@link it.polimi.ingsw.am01.client.ClientState#IN_GAME} </li>
+ * </ul>
+ *
+ * @see SceneController
+ */
 public class SelectStartingCardSideController extends SceneController {
 
     private final static String BUTTONS_STYLE = "-fx-background-color:  BLACK; -fx-background-radius:  20";
@@ -56,13 +65,9 @@ public class SelectStartingCardSideController extends SceneController {
     private ChatBoxController chatBoxController;
 
     /**
-     * The main controller for the scene associated to these {@link GameStatus} and {@link it.polimi.ingsw.am01.client.ClientState}:
-     * <ul>
-     *     <li> {@link GameStatus#SETUP_STARTING_CARD_SIDE} </li>
-     *     <li> {@link it.polimi.ingsw.am01.client.ClientState#IN_GAME} </li>
-     * </ul>
+     * It constructs a new SelectStartingCardSideController, calling the constructor of {@link SceneController}
      *
-     * @see SceneController
+     * @param view The main {@link View} class, containing the local and reduced copy of server data
      */
     public SelectStartingCardSideController(View view) {
         super(view);
@@ -99,10 +104,9 @@ public class SelectStartingCardSideController extends SceneController {
     }
 
     /**
-     * It selects the starting card side the player want to choose
+     * It selects the starting card side the player wants to choose
      *
-     * @param event The event associated with the mouse click on the button with the
-     *              selected starting card side
+     * @param event The event associated with the mouse click on the selected starting card side
      */
     @FXML
     private void selectChoice(Event event) {
