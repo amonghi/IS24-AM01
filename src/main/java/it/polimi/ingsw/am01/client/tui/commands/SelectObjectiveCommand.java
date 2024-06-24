@@ -36,6 +36,7 @@ public class SelectObjectiveCommand extends TuiCommand {
             case RIGHT -> getView().getSecretObjectivesId().getLast();
         };
 
+        getView().setSecretObjectiveChoiceId(objectiveId);
         getView().selectSecretObjective(objectiveId);
     }
 
