@@ -1107,6 +1107,8 @@ class GameTest {
         assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
         assertEquals(2, shortGame4.getPlayerData(second).hand().size());
 
+        assertNotNull(shortGame4.toString());
+
         // THIRD PLAYER
         assertEquals(third, shortGame4.getCurrentPlayer());
         Card c31 = shortGame4.getPlayerData(third).hand().getFirst(); // resource card
