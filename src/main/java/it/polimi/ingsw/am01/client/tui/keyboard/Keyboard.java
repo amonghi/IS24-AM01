@@ -5,8 +5,12 @@ import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Keyboard implements EventEmitter<Key> {
+    private static final Logger LOGGER = Logger.getLogger(Keyboard.class.getName());
+
     private static Keyboard instance;
 
     public static Keyboard getInstance() {
@@ -32,7 +36,7 @@ public class Keyboard implements EventEmitter<Key> {
                 Key key = this.decoder.nextKey();
                 this.emitter.emit(key);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Error while reading from keyboard. Terminating keyboard thread.", e);
                 return;
             }
         }
