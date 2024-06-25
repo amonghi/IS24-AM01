@@ -12,6 +12,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base class for RMI connections.
@@ -22,6 +24,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class BaseRMIConnection<S extends NetworkMessage, R extends NetworkMessage>
         extends UnicastRemoteObject
         implements Connection<S, R>, Receiver<R> {
+
+    private static final Logger LOGGER = Logger.getLogger(BaseRMIConnection.class.getName());
 
     private final ExecutorService executorService;
     private final BlockingQueue<S> sendQueue;
@@ -95,10 +99,9 @@ public abstract class BaseRMIConnection<S extends NetworkMessage, R extends Netw
                 this.receiveClosed = true;
                 return;
             } catch (RemoteException e) {
-                //connection errors are ok
+                // connection errors are to be expected, so we don't log them
                 if (!(e instanceof ConnectException) && !(e instanceof ConnectIOException)) {
-                    // TODO: better logging
-                    e.printStackTrace();
+                    LOGGER.log(Level.WARNING, "Unexpected error while sending message", e);
                 }
 
                 // something went wrong while sending, close everything and stop
