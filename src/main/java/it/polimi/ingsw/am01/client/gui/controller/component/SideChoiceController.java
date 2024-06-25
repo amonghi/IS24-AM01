@@ -10,7 +10,12 @@ import javafx.scene.layout.VBox;
 
 import java.util.Objects;
 
-
+/**
+ * The controller for the component used to show if a player has chosen his or her
+ * starting card {@link Side}
+ *
+ * @see it.polimi.ingsw.am01.client.gui.controller.scene.SelectStartingCardSideController
+ */
 public class SideChoiceController extends VBox implements ComponentController {
 
     private final String playerName;
@@ -19,6 +24,12 @@ public class SideChoiceController extends VBox implements ComponentController {
     @FXML
     private ImageView cardImage;
 
+    /**
+     * It constructs a new SideChoiceController.
+     * It also calls the {@link CardController#loadComponent()} method
+     *
+     * @param playerName The name of the player who has chosen his or her starting card side
+     */
     public SideChoiceController(String playerName) {
         this.playerName = playerName;
 
@@ -30,6 +41,13 @@ public class SideChoiceController extends VBox implements ComponentController {
         playerNameLabel.setText(playerName);
     }
 
+    /**
+     * It shows the name of the player along with the chosen starting card side, setting its image
+     *
+     * @param cardId The id of the card
+     * @param side   The chosen side
+     * @see it.polimi.ingsw.am01.client.gui.controller.scene.SelectStartingCardSideController
+     */
     public void setChoice(int cardId, Side side) {
         String path = null;
         switch (side) {
@@ -53,11 +71,16 @@ public class SideChoiceController extends VBox implements ComponentController {
         playerNameLabel.setText(playerName);
     }
 
+    /**
+     * @return The name of the player who has chosen his or her starting card side
+     */
     public String getPlayerName() {
         return playerName;
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "side_choice";
