@@ -84,6 +84,8 @@ public class GameListController extends SceneController {
 
     /**
      * It shows a popup to create a new game
+     *
+     * @see it.polimi.ingsw.am01.client.gui.controller.popup.PopupController
      */
     public void newGame() {
         openPopup(new GameCreationPopupController());
