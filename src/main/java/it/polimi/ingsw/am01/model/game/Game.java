@@ -985,7 +985,6 @@ public class Game implements EventEmitter<GameEvent> {
      */
     @Override
     public synchronized String toString() {
-        // TODO: override toString in SelectionPhase to have a proper visualization
         return "Game{" +
                 "\n\tid=" + id +
                 ",\n\tplayerProfiles=" + playerProfiles +
