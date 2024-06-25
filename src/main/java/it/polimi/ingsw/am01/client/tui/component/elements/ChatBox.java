@@ -33,7 +33,7 @@ public class ChatBox extends Composition {
                 new Column(List.of(
                         Centered.horizontally(Padding.hv(0, 1, new Text("Chat"))),
                         messagesComponents.isEmpty()
-                                ? new Text("No messages yet")
+                                ? Centered.both(new Text("No messages yet"))
                                 : new ChatScrollable(messagesComponents)
                 ))
         );
