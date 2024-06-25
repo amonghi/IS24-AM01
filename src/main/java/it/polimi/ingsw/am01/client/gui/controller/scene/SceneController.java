@@ -56,7 +56,8 @@ public abstract class SceneController implements GUIElement {
         try {
             scene = new Scene(fxmlLoader.load(), width, height);
         } catch (IOException e) {
-            throw new RuntimeException(e); //TODO: manage
+            // this is unrecoverable
+            throw new Error(e);
         }
 
         registerListeners();

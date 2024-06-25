@@ -29,7 +29,8 @@ public interface ComponentController extends GUIElement {
         try {
             fxmlLoader.load();
         } catch (IOException e) {
-            throw new RuntimeException(e); //TODO: handle
+            // this is unrecoverable
+            throw new Error(e);
         }
     }
 }
