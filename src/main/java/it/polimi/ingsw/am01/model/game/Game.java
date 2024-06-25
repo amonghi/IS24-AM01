@@ -917,7 +917,8 @@ public class Game implements EventEmitter<GameEvent> {
             }
 
         } catch (IllegalGameStateException | InterruptedException | NotUndoableOperationException e) {
-            throw new RuntimeException(e); // TODO: handle exception
+            // this should never happen
+            throw new RuntimeException(e);
         }
     }
 

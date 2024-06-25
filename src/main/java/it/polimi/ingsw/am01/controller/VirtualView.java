@@ -122,8 +122,9 @@ public class VirtualView implements Runnable {
         ).findFirst().ifPresent(game -> {
             setGame(game);
             try {
-                game.handleReconnection(playerProfile); // TODO: handle exceptions
+                game.handleReconnection(playerProfile);
             } catch (PlayerNotInGameException | PlayerAlreadyConnectedException e) {
+                // this should never happen
                 throw new RuntimeException(e);
             }
         });
@@ -749,7 +750,8 @@ public class VirtualView implements Runnable {
                                 )).toList()
                 ));
             } catch (IllegalMoveException e) {
-                throw new RuntimeException(e); // TODO: handle exception
+                // this should never happen
+                throw new RuntimeException(e);
             }
         }
     }
