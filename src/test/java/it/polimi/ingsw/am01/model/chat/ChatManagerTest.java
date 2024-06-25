@@ -35,4 +35,15 @@ class ChatManagerTest {
         assertTrue(manager.getMailbox(pp4).contains(m));
         assertEquals("Message for everyone!", m.getContent());
     }
+
+    @Test
+    void equality() throws MessageSentToThemselvesException {
+        ChatManager chatManager1 = new ChatManager();
+        ChatManager chatManager2 = new ChatManager();
+        chatManager1.send(new BroadcastMessage(pp4, "Message for everyone!"));
+        chatManager2.send(new BroadcastMessage(pp4, "Message for everyone!"));
+        chatManager1.send(new DirectMessage(pp1, pp2, "Message from Alice to Bob"));
+        chatManager2.send(new DirectMessage(pp1, pp2, "Message from Alice to Bob"));
+        assertEquals(chatManager1, chatManager2);
+    }
 }

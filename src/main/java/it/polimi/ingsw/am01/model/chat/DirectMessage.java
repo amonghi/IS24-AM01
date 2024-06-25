@@ -83,8 +83,7 @@ public class DirectMessage extends Message {
         DirectMessage that = (DirectMessage) o;
         return recipient.equals(that.recipient) &&
                 getSender().equals(that.getSender()) &&
-                getContent().equals(that.getContent()) &&
-                getTimestamp().equals(that.getTimestamp());
+                getContent().equals(that.getContent());
     }
 
     /**

@@ -7,6 +7,8 @@ import it.polimi.ingsw.am01.model.card.face.BackCardFace;
 import it.polimi.ingsw.am01.model.card.face.FrontCardFace;
 import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
+import it.polimi.ingsw.am01.model.chat.BroadcastMessage;
+import it.polimi.ingsw.am01.model.chat.DirectMessage;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import it.polimi.ingsw.am01.model.exception.*;
 import it.polimi.ingsw.am01.model.objective.Objective;
@@ -982,7 +984,7 @@ class GameTest {
     }
 
     @Test
-    public void testEndGameTwentyPointsWithEarlyStart() throws InvalidMaxPlayersException, IllegalMoveException, PlayerNotInGameException, NotEnoughPlayersException, DoubleChoiceException, InvalidObjectiveException {
+    public void testEndGameTwentyPointsWithEarlyStart() throws InvalidMaxPlayersException, IllegalMoveException, PlayerNotInGameException, NotEnoughPlayersException, DoubleChoiceException, InvalidObjectiveException, MessageSentToThemselvesException {
         List<Card> cards = new ArrayList<>();
 
         for (int i = 90; i < 120; i++) {
@@ -1106,6 +1108,9 @@ class GameTest {
 
         assertEquals(TurnPhase.PLACING, shortGame4.getTurnPhase());
         assertEquals(2, shortGame4.getPlayerData(second).hand().size());
+
+        shortGame4.getChatManager().send(new DirectMessage(first, second, "a"));
+        shortGame4.getChatManager().send(new BroadcastMessage(first, "a"));
 
         assertNotNull(shortGame4.toString());
 

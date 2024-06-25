@@ -62,8 +62,7 @@ public class BroadcastMessage extends Message {
 
         BroadcastMessage that = (BroadcastMessage) o;
         return getSender().equals(that.getSender()) &&
-                getContent().equals(that.getContent()) &&
-                getTimestamp().equals(that.getTimestamp());
+                getContent().equals(that.getContent());
     }
 
     /**
