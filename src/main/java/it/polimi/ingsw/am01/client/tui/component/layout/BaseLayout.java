@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am01.client.tui.component.layout;
 
 import it.polimi.ingsw.am01.client.tui.component.Component;
-import it.polimi.ingsw.am01.client.tui.rendering.Position;
 import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 
@@ -25,12 +24,11 @@ public abstract class BaseLayout extends Component {
     @Override
     public void draw(RenderingContext ctx, DrawArea a) {
         for (Component child : this.children()) {
-            Position offs = ctx.local().getOffset().add(child.position());
             RenderingContext newCtx = new RenderingContext(
                     ctx.global(),
-                    new RenderingContext.Local(offs)
+                    new RenderingContext.Local(ctx.local().getOffset().add(child.position()))
             );
-            DrawArea da = a.getRelativeArea(offs.x(), offs.y(), child.dimensions());
+            DrawArea da = a.getSubarea(child.position(), child.dimensions());
 
             child.draw(newCtx, da);
         }
