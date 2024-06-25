@@ -3,7 +3,6 @@ package it.polimi.ingsw.am01.model.chat;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -71,18 +70,5 @@ public abstract class Message {
      */
     public Optional<PlayerProfile> getRecipient() {
         return Optional.empty();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Message message = (Message) o;
-        return Objects.equals(sender, message.sender) && Objects.equals(content, message.content);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(sender, content, timestamp);
     }
 }
