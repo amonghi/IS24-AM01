@@ -83,9 +83,6 @@ public class DrawArea {
      */
     public DrawArea getSubarea(Position offset, Dimensions dimensions) {
         Rectangle subArea = new Rectangle(this.area.tl().add(Point.from(offset)), dimensions);
-        if (!this.area.contains(subArea)) {
-            throw new IllegalArgumentException("subarea must be enclosed in current drawing area.");
-        }
 
         Rectangle cropArea = this.cropArea.intersect(subArea).orElse(Rectangle.ZERO);
 
