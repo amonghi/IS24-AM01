@@ -35,7 +35,7 @@ public class ChatBoxController extends AnchorPane implements ComponentController
 
     /**
      * It constructs a new ChatBoxController.
-     * It also calls the {@link CardController#loadComponent()} method
+     * It also calls the {@link ComponentController#loadComponent()} method
      *
      * @param view The main {@link View} class, containing the local and reduced copy of server data
      */

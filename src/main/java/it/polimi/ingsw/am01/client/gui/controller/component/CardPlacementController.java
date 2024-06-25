@@ -28,7 +28,7 @@ public class CardPlacementController extends CardController implements Comparabl
 
     /**
      * It constructs a new CardPlacementController, calling the constructor of {@link CardController}
-     * It also calls the {@link CardController#loadComponent()} method
+     * It also calls the {@link ComponentController#loadComponent()} method
      *
      * @param id   The id of the card component
      * @param side The side of the card component

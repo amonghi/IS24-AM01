@@ -26,7 +26,7 @@ public class SideChoiceController extends VBox implements ComponentController {
 
     /**
      * It constructs a new SideChoiceController.
-     * It also calls the {@link CardController#loadComponent()} method
+     * It also calls the {@link ComponentController#loadComponent()} method
      *
      * @param playerName The name of the player who has chosen his or her starting card side
      */

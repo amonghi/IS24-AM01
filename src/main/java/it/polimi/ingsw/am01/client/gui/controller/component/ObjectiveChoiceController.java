@@ -22,7 +22,7 @@ public class ObjectiveChoiceController extends VBox implements ComponentControll
 
     /**
      * It constructs a new ObjectiveChoiceController.
-     * It also calls the {@link CardController#loadComponent()} method
+     * It also calls the {@link ComponentController#loadComponent()} method
      *
      * @param playerName The name of the player who has chosen his or her secret objective
      */

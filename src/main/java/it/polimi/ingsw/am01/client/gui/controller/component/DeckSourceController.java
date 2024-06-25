@@ -34,7 +34,7 @@ public class DeckSourceController extends AnchorPane implements ComponentControl
 
     /**
      * It constructs a new DeckSourceController.
-     * It also calls the {@link CardController#loadComponent()} method
+     * It also calls the {@link ComponentController#loadComponent()} method
      *
      * @param color              The color of the top card, i.e. the one to draw
      * @param deckLocation       The type of the deck

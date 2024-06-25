@@ -40,7 +40,7 @@ public class ChatMessageController extends HBox implements ComponentController {
      * It constructs a new ChatMessageController initializing all the components of the message, based on the
      * {@link it.polimi.ingsw.am01.client.View.Message} received as parameter
      * <p>
-     * It also calls the {@link CardController#loadComponent()} method
+     * It also calls the {@link ComponentController#loadComponent()} method
      *
      * @param message The {@link it.polimi.ingsw.am01.client.View.Message} to add to the chat box
      * @param view    The main {@link View} class, containing the local and reduced copy of server data

@@ -28,7 +28,7 @@ public class FaceUpSourceController extends CardController implements ComponentC
      * It constructs a new FaceUpSourceController, calling the constructor of {@link CardController} forcing the
      * side to be {@link Side#FRONT}, i.e. the visible face of the face up card on the play area
      * <p>
-     * It also calls the {@link CardController#loadComponent()} method
+     * It also calls the {@link ComponentController#loadComponent()} method
      *
      * @param id                 The id of the face up card to draw
      * @param playAreaController The controller of the playarea, i.e. the scene where this component is used

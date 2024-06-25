@@ -30,7 +30,7 @@ public class HandCardController extends CardController implements ComponentContr
     /**
      * It constructs a new HandCardController, calling the constructor of {@link CardController}
      * <p>
-     * It also calls the {@link CardController#loadComponent()} method
+     * It also calls the {@link ComponentController#loadComponent()} method
      *
      * @param id                 The id of the card to place
      * @param side               The side of the card to place
