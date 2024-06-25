@@ -27,7 +27,10 @@ public class SetChatVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("show")
-                        .validatePre(this::validateState)
+                        .validatePre(() -> {
+                            this.validateState();
+                            this.validateShow();
+                        })
                         .thenWhitespace()
                         .thenLiteral("chat")
                         .executes(this::show)
@@ -37,7 +40,10 @@ public class SetChatVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("hide")
-                        .validatePre(this::validateState)
+                        .validatePre(() -> {
+                            this.validateState();
+                            this.validateHide();
+                        })
                         .thenWhitespace()
                         .thenLiteral("chat")
                         .executes(this::hide)
@@ -52,6 +58,18 @@ public class SetChatVisibilityCommand extends TuiCommand {
                 || (getView().getGameStatus().equals(GameStatus.RESTORING))
                 || (getView().getGameStatus().equals(GameStatus.FINISHED))
                 || getView().isManualVisible()) {
+            throw new ValidationException();
+        }
+    }
+
+    private void validateShow() throws ValidationException {
+        if (getView().isChatVisible()) {
+            throw new ValidationException();
+        }
+    }
+
+    private void validateHide() throws ValidationException {
+        if (!getView().isChatVisible()) {
             throw new ValidationException();
         }
     }

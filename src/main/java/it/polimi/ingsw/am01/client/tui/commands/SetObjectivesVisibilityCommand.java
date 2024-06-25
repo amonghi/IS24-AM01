@@ -27,7 +27,10 @@ public class SetObjectivesVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("show")
-                        .validatePre(this::validateState)
+                        .validatePre(() -> {
+                            this.validateState();
+                            this.validateShow();
+                        })
                         .thenWhitespace()
                         .thenLiteral("objectives")
                         .executes(this::show)
@@ -37,7 +40,10 @@ public class SetObjectivesVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("hide")
-                        .validatePre(this::validateState)
+                        .validatePre(() -> {
+                            this.validateState();
+                            this.validateHide();
+                        })
                         .thenWhitespace()
                         .thenLiteral("objectives")
                         .executes(this::hide)
@@ -54,6 +60,18 @@ public class SetObjectivesVisibilityCommand extends TuiCommand {
                         && (!getView().getGameStatus().equals(GameStatus.LAST_TURN))
                         && (!getView().getGameStatus().equals(GameStatus.SUSPENDED)))
                 || getView().isManualVisible()) {
+            throw new ValidationException();
+        }
+    }
+
+    private void validateShow() throws ValidationException {
+        if (getView().areObjectivesVisible()) {
+            throw new ValidationException();
+        }
+    }
+
+    private void validateHide() throws ValidationException {
+        if (!getView().areObjectivesVisible()) {
             throw new ValidationException();
         }
     }

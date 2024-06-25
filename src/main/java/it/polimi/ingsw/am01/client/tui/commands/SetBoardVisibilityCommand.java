@@ -27,7 +27,10 @@ public class SetBoardVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("show")
-                        .validatePre(this::validateState)
+                        .validatePre(() -> {
+                            this.validateState();
+                            this.validateShow();
+                        })
                         .thenWhitespace()
                         .thenLiteral("board")
                         .executes(this::show)
@@ -37,7 +40,10 @@ public class SetBoardVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("hide")
-                        .validatePre(this::validateState)
+                        .validatePre(() -> {
+                            this.validateState();
+                            this.validateHide();
+                        })
                         .thenWhitespace()
                         .thenLiteral("board")
                         .executes(this::hide)
@@ -45,6 +51,18 @@ public class SetBoardVisibilityCommand extends TuiCommand {
         );
 
         return builder.build();
+    }
+
+    private void validateShow() throws ValidationException {
+        if (getView().isBoardVisible()) {
+            throw new ValidationException();
+        }
+    }
+
+    private void validateHide() throws ValidationException {
+        if (!getView().isBoardVisible()) {
+            throw new ValidationException();
+        }
     }
 
     private void validateState() throws ValidationException {

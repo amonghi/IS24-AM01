@@ -5,6 +5,7 @@ import it.polimi.ingsw.am01.client.tui.command.CommandBuilder;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
+import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
 import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 
 public class SetManualVisibilityCommand extends TuiCommand {
@@ -24,6 +25,7 @@ public class SetManualVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("show")
+                        .validatePre(this::validateShow)
                         .thenWhitespace()
                         .thenLiteral("manual")
                         .executes(this::show)
@@ -33,6 +35,7 @@ public class SetManualVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("hide")
+                        .validatePre(this::validateHide)
                         .thenWhitespace()
                         .thenLiteral("manual")
                         .executes(this::hide)
@@ -40,6 +43,18 @@ public class SetManualVisibilityCommand extends TuiCommand {
         );
 
         return builder.build();
+    }
+
+    private void validateShow() throws ValidationException {
+        if (getView().isManualVisible()) {
+            throw new ValidationException();
+        }
+    }
+
+    private void validateHide() throws ValidationException {
+        if (!getView().isManualVisible()) {
+            throw new ValidationException();
+        }
     }
 
     private void hide(CommandContext ctx) {
