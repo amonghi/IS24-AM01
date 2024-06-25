@@ -28,6 +28,8 @@ import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +52,7 @@ import java.util.stream.Collectors;
  * @see it.polimi.ingsw.am01.client.tui.TuiView
  */
 public abstract class View implements EventEmitter<ViewEvent> {
+    private static final Logger LOGGER = Logger.getLogger(View.class.getName());
 
     private final ExecutorService executorService;
     private final EventEmitterImpl<ViewEvent> emitter;
@@ -170,7 +173,7 @@ public abstract class View implements EventEmitter<ViewEvent> {
             try {
                 connection.close();
             } catch (CloseNetworkException e) {
-                throw new RuntimeException(e); //TODO: handle
+                LOGGER.log(Level.WARNING, "Exception while closing connection", e);
             }
         }
     }
