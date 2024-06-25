@@ -6,14 +6,19 @@ import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
-import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.EnumParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.IntParser;
+import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 
 public class ConnectCommand extends TuiCommand {
     public ConnectCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("connect <connectionType> <hostname> <port>", "Connect to the server");
     }
 
     @Override
@@ -40,7 +45,7 @@ public class ConnectCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.NOT_CONNECTED)) {
+        if (!getView().getState().equals(ClientState.NOT_CONNECTED) || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }

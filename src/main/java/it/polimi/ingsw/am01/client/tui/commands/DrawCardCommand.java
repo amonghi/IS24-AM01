@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.EnumParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.IntParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
@@ -18,6 +19,10 @@ public class DrawCardCommand extends TuiCommand {
 
     public DrawCardCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("draw from <deckType> / draw from face_up <faceUpNumber", "Draw card from deck/faceup cards");
     }
 
     @Override
@@ -53,7 +58,7 @@ public class DrawCardCommand extends TuiCommand {
                         || (getView().getGameStatus().equals(GameStatus.LAST_TURN)))
                 && getView().getTurnPhase().equals(TurnPhase.DRAWING) && getView().getCurrentPlayer().equals(getView().getPlayerName());
 
-        if (!isCorrectState) {
+        if (!isCorrectState || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }
@@ -86,5 +91,4 @@ public class DrawCardCommand extends TuiCommand {
 
         getView().drawCardFromFaceUpCards(cardId);
     }
-
 }

@@ -47,6 +47,7 @@ public class TuiView extends BaseTuiView {
             SetChatVisibilityCommand::new,
             SendMessageCommand::new,
             ChangeFocusedPlayerCommand::new,
+            SetManualVisibilityCommand::new,
             QuitCommand::new
     );
 
@@ -65,6 +66,7 @@ public class TuiView extends BaseTuiView {
     private boolean showErrorMessage = false;
     private String errorMessage = "";
     private final List<Registration> registrations;
+    private boolean manualVisible = false;
 
     public TuiView(Terminal terminal) {
         super(terminal);
@@ -240,23 +242,31 @@ public class TuiView extends BaseTuiView {
     public Component compose() {
         List<FlexChild> children = new ArrayList<>();
 
+        Component scene;
+
+        if(manualVisible){
+            scene = new ManualScene(this);
+        }else{
+            scene = switch (this.getState()) {
+                case NOT_CONNECTED -> new WelcomeScene();
+                case NOT_AUTHENTICATED -> new AuthScene();
+                case AUTHENTICATED -> new GamesListScene(this);
+                case IN_GAME -> switch (getGameStatus()) {
+                    case AWAITING_PLAYERS -> new LobbyScene(this);
+                    case SETUP_STARTING_CARD_SIDE -> new SelectStartingCardSideScene(this);
+                    case SETUP_COLOR -> new SelectColorScene(this);
+                    case SETUP_OBJECTIVE -> new SelectObjectiveScene(this);
+                    case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED -> new PlayAreaScene(this);
+                    case FINISHED -> new EndingScene(this);
+                    case RESTORING -> new RestoringScene(this);
+                };
+            };
+        }
+
         // top part of screen
         children.add(
                 new FlexChild.Flexible(1,
-                        switch (this.getState()) {
-                            case NOT_CONNECTED -> new WelcomeScene();
-                            case NOT_AUTHENTICATED -> new AuthScene();
-                            case AUTHENTICATED -> new GamesListScene(this);
-                            case IN_GAME -> switch (getGameStatus()) {
-                                case AWAITING_PLAYERS -> new LobbyScene(this);
-                                case SETUP_STARTING_CARD_SIDE -> new SelectStartingCardSideScene(this);
-                                case SETUP_COLOR -> new SelectColorScene(this);
-                                case SETUP_OBJECTIVE -> new SelectObjectiveScene(this);
-                                case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED -> new PlayAreaScene(this);
-                                case FINISHED -> new EndingScene(this);
-                                case RESTORING -> new RestoringScene(this);
-                            };
-                        }
+                        scene
                 )
         );
 
@@ -391,6 +401,20 @@ public class TuiView extends BaseTuiView {
     public void hideChat() {
         chatVisible = false;
         render();
+    }
+
+    public void showManual(){
+        manualVisible = true;
+        render();
+    }
+
+    public void hideManual(){
+        manualVisible = false;
+        render();
+    }
+
+    public boolean isManualVisible(){
+        return manualVisible;
     }
 
     public void renderErrorMessage(String errorMessage) {

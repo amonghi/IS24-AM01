@@ -6,12 +6,17 @@ import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 
 public class StartGameCommand extends TuiCommand {
 
     public StartGameCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("start_game", "Start a game before the maximum player number is reached");
     }
 
     @Override
@@ -29,7 +34,7 @@ public class StartGameCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.AWAITING_PLAYERS)) {
+        if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.AWAITING_PLAYERS) || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }

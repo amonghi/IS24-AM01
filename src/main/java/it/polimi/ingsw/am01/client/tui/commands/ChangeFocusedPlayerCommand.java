@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 
 import java.util.List;
@@ -27,6 +28,10 @@ public class ChangeFocusedPlayerCommand extends TuiCommand {
                         gameStatus.equals(GameStatus.SECOND_LAST_TURN) ||
                         gameStatus.equals(GameStatus.LAST_TURN) ||
                         gameStatus.equals(GameStatus.SUSPENDED));
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("focus reset / focus player <playerName>", "Focus on other players' play areas");
     }
 
     @Override
@@ -59,7 +64,7 @@ public class ChangeFocusedPlayerCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!isCorrectState(this.getView())) {
+        if (!isCorrectState(this.getView()) || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }

@@ -8,6 +8,7 @@ import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.GreedyTextArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 
 import java.util.List;
@@ -16,6 +17,10 @@ public class SendMessageCommand extends TuiCommand {
 
     public SendMessageCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("send direct <recipient> <content> / send broadcast <content>", "Send a direct/broadcast message");
     }
 
     @Override
@@ -46,7 +51,8 @@ public class SendMessageCommand extends TuiCommand {
     private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME)
                 || (getView().getGameStatus().equals(GameStatus.RESTORING))
-                || (getView().getGameStatus().equals(GameStatus.FINISHED))) {
+                || (getView().getGameStatus().equals(GameStatus.FINISHED))
+                || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }

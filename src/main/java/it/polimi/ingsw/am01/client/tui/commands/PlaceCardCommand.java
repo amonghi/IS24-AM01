@@ -9,6 +9,7 @@ import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.EnumParser;
 import it.polimi.ingsw.am01.client.tui.command.parser.IntParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.game.TurnPhase;
@@ -17,6 +18,10 @@ public class PlaceCardCommand extends TuiCommand {
 
     public PlaceCardCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("place card <cardNumber> <side> <i> <j>", "Place a card");
     }
 
     @Override
@@ -47,7 +52,7 @@ public class PlaceCardCommand extends TuiCommand {
                         || (getView().getGameStatus().equals(GameStatus.LAST_TURN)))
                 && getView().getTurnPhase().equals(TurnPhase.PLACING) && getView().getCurrentPlayer().equals(getView().getPlayerName());
 
-        if (!isCorrectState) {
+        if (!isCorrectState || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }

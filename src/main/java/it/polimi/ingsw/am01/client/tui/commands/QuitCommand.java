@@ -4,10 +4,15 @@ import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 
 public class QuitCommand extends TuiCommand {
     public QuitCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("quit", "Quit the application");
     }
 
     @Override

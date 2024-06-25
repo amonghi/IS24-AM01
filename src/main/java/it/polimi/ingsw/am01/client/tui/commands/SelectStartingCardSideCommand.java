@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.EnumParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 import it.polimi.ingsw.am01.model.card.Side;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 
@@ -14,6 +15,10 @@ public class SelectStartingCardSideCommand extends TuiCommand {
 
     public SelectStartingCardSideCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("select side <side>", "Select starting card side");
     }
 
     @Override
@@ -37,10 +42,10 @@ public class SelectStartingCardSideCommand extends TuiCommand {
     private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME)
                 || !getView().getGameStatus().equals(GameStatus.SETUP_STARTING_CARD_SIDE)
-                || getView().getStartingCardPlacements().containsKey(getView().getPlayerName())) {
+                || getView().getStartingCardPlacements().containsKey(getView().getPlayerName())
+                || getView().isManualVisible()) {
 
             throw new ValidationException();
         }
     }
-
 }

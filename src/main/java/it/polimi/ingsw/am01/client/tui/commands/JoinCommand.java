@@ -7,11 +7,16 @@ import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.IntParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 
 public class JoinCommand extends TuiCommand {
 
     public JoinCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("join <gameId>", "Join a game");
     }
 
     @Override
@@ -41,7 +46,7 @@ public class JoinCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.AUTHENTICATED)) {
+        if (!getView().getState().equals(ClientState.AUTHENTICATED) || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }

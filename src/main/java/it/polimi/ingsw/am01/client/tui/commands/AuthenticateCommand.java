@@ -7,10 +7,15 @@ import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.WordArgumentParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 
 public class AuthenticateCommand extends TuiCommand {
     public AuthenticateCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("authenticate <playerName>", "User login");
     }
 
     @Override
@@ -30,7 +35,7 @@ public class AuthenticateCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.NOT_AUTHENTICATED)) {
+        if (!getView().getState().equals(ClientState.NOT_AUTHENTICATED) || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }

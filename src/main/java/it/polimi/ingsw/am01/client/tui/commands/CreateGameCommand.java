@@ -7,10 +7,15 @@ import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.IntParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 
 public class CreateGameCommand extends TuiCommand {
     public CreateGameCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("create_game <maxPlayers>", "Create a new game with a capacity of 'maxPlayers'");
     }
 
     @Override
@@ -39,7 +44,7 @@ public class CreateGameCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.AUTHENTICATED)) {
+        if (!getView().getState().equals(ClientState.AUTHENTICATED) || getView().isManualVisible()) {
             throw new ValidationException();
         }
     }

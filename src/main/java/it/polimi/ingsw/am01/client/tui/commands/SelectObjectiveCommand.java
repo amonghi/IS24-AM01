@@ -7,12 +7,17 @@ import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.parser.EnumParser;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
+import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
 import it.polimi.ingsw.am01.model.game.GameStatus;
 
 public class SelectObjectiveCommand extends TuiCommand {
 
     public SelectObjectiveCommand(TuiView view) {
         super(view);
+    }
+
+    public static ManualScene.CommandDetail getCommandDetail() {
+        return new ManualScene.CommandDetail("select objective <objectiveChoice>", "Select secret objective");
     }
 
     @Override
@@ -43,7 +48,8 @@ public class SelectObjectiveCommand extends TuiCommand {
     private void validateState() throws ValidationException {
         if (!getView().getState().equals(ClientState.IN_GAME)
                 || !getView().getGameStatus().equals(GameStatus.SETUP_OBJECTIVE)
-                || getView().getPlayersHaveChosenSecretObjective().contains(getView().getPlayerName())) {
+                || getView().getPlayersHaveChosenSecretObjective().contains(getView().getPlayerName())
+                || getView().isManualVisible()) {
 
             throw new ValidationException();
         }

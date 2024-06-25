@@ -13,8 +13,8 @@ public class WelcomeScene extends Composition {
     public Component compose() {
         return Centered.both(
                 new Column(List.of(
-                        new Text("Welcome to Codex Naturalis."),
-                        new Text("Use the connect command to connect to a server.")
+                        Centered.horizontally(new Text("Welcome to Codex Naturalis.")),
+                        Centered.horizontally(new Text("Use the connect command to connect to a server. Type 'show manual' for commands detail"))
                 ))
         );
     }
