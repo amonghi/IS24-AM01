@@ -12,6 +12,13 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
+/**
+ * The controller for the chat
+ * It has methods for sending and showing new messages
+ *
+ * @see ChatMessageController
+ * @see it.polimi.ingsw.am01.client.View.Message
+ */
 public class ChatBoxController extends AnchorPane implements ComponentController {
 
     private final View view;
@@ -26,6 +33,12 @@ public class ChatBoxController extends AnchorPane implements ComponentController
     @FXML
     private AnchorPane chatPane;
 
+    /**
+     * It constructs a new ChatBoxController.
+     * It also calls the {@link CardController#loadComponent()} method
+     *
+     * @param view The main {@link View} class, containing the local and reduced copy of server data
+     */
     public ChatBoxController(View view) {
         this.view = view;
         loadComponent();
@@ -64,6 +77,14 @@ public class ChatBoxController extends AnchorPane implements ComponentController
         });
     }
 
+    /**
+     * It calls:
+     * <ul>
+     *     <li> {@link View#sendDirectMessage(String, String)} </li>
+     *     <li> {@link View#sendBroadcastMessage(String)} </li>
+     * </ul>
+     * to send a message, if the {@link TextArea} is not empty
+     */
     @FXML
     private void sendMessage() {
         if (messageInput.getText().isEmpty()) {
@@ -78,6 +99,11 @@ public class ChatBoxController extends AnchorPane implements ComponentController
         messageInput.setText("");
     }
 
+    /**
+     * It shows the new message in the chat box
+     *
+     * @param event The event received from the {@link View} containing the new {@link it.polimi.ingsw.am01.client.View.Message}
+     */
     public void updateMessages(NewMessageEvent event) {
         messagesBox.getChildren().add(
                 new ChatMessageController(
@@ -87,6 +113,12 @@ public class ChatBoxController extends AnchorPane implements ComponentController
         );
     }
 
+    /**
+     * It fills the {@link ChoiceBox} with the list of the player currently in the game, i.e. all the possible
+     * recipient of a message
+     *
+     * @param event The event received from the {@link View} containing the list of players currently in the game
+     */
     public void updatePlayersList(PlayerListChangedEvent event) {
         String oldValue = recipientOptionsChoiceBox.getValue();
 
@@ -110,6 +142,10 @@ public class ChatBoxController extends AnchorPane implements ComponentController
         }
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "chat";
