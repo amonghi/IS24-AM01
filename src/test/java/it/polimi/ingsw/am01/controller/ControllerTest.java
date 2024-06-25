@@ -108,35 +108,36 @@ class ControllerTest {
         void prepare_AWAITING_PLAYERS() throws NameAlreadyTakenException, NotAuthenticatedException, InvalidMaxPlayersException, IllegalGameStateException, PlayerAlreadyPlayingException {
             this.alice = controller.authenticate("Alice");
             this.bob = controller.authenticate("Bob");
-            this.game = controller.createAndJoinGame(2, "Alice");
+            this.game = controller.createAndJoinGame(3, "Alice");
             assertEquals(1, gm.getGames().size());
             assertEquals(1, game.getPlayerProfiles().size());
             assertEquals(GameStatus.AWAITING_PLAYERS, game.getStatus());
         }
 
-        void prepare_SETUP_STARTING_CARD_SIDE() throws NotAuthenticatedException, InvalidMaxPlayersException, NameAlreadyTakenException, IllegalGameStateException, PlayerAlreadyPlayingException, GameNotFoundException {
+        void prepare_SETUP_STARTING_CARD_SIDE() throws NotAuthenticatedException, InvalidMaxPlayersException, NameAlreadyTakenException, IllegalGameStateException, PlayerAlreadyPlayingException, GameNotFoundException, NotEnoughPlayersException {
             this.prepare_AWAITING_PLAYERS();
             controller.joinGame(this.game.getId(), "Bob");
+            controller.startGame(this.game.getId());
             assertEquals(2, game.getPlayerProfiles().size());
             assertEquals(GameStatus.SETUP_STARTING_CARD_SIDE, game.getStatus());
 
         }
 
-        void prepare_SETUP_COLOR() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void prepare_SETUP_COLOR() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException, NotEnoughPlayersException {
             this.prepare_SETUP_STARTING_CARD_SIDE();
             controller.selectStartingCardSide(this.game.getId(), "Alice", Side.FRONT);
             controller.selectStartingCardSide(this.game.getId(), "Bob", Side.BACK);
             assertEquals(GameStatus.SETUP_COLOR, game.getStatus());
         }
 
-        void prepare_SETUP_OBJECTIVE() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void prepare_SETUP_OBJECTIVE() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException, NotEnoughPlayersException {
             this.prepare_SETUP_COLOR();
             controller.selectPlayerColor(game.getId(), "Alice", PlayerColor.RED);
             controller.selectPlayerColor(game.getId(), "Bob", PlayerColor.BLUE);
             assertEquals(GameStatus.SETUP_OBJECTIVE, game.getStatus());
         }
 
-        void prepare_PLAY_PLACING() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidObjectiveException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void prepare_PLAY_PLACING() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidObjectiveException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException, NotEnoughPlayersException {
             this.prepare_SETUP_OBJECTIVE();
 
             controller.selectSecretObjective(game.getId(), "Alice",
@@ -147,7 +148,7 @@ class ControllerTest {
             assertEquals(TurnPhase.PLACING, game.getTurnPhase());
         }
 
-        void prepare_PLAY_DRAWING() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException {
+        void prepare_PLAY_DRAWING() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, NotEnoughPlayersException {
             this.prepare_PLAY_PLACING();
 
             // place a card so now we can draw
@@ -199,6 +200,17 @@ class ControllerTest {
         }
 
         @Test
+        void canJoinGameAndStart() throws NameAlreadyTakenException {
+            PlayerProfile carlos = controller.authenticate("Carlos");
+            assertDoesNotThrow(() -> {
+                controller.joinGame(game.getId(), "Bob");
+                controller.joinGame(game.getId(), "Carlos");
+                assertEquals(3, game.getPlayerProfiles().size());
+            });
+            assertEquals(game.getStatus(), GameStatus.SETUP_STARTING_CARD_SIDE);
+        }
+
+        @Test
         void nonexistentPlayerCannotJoinGame() {
             assertTrue(pm.getProfile("Carlos").isEmpty());
 
@@ -228,7 +240,7 @@ class ControllerTest {
     class SelectStartingCardSide extends WithUtils {
 
         @BeforeEach
-        void init() throws NotAuthenticatedException, InvalidMaxPlayersException, NameAlreadyTakenException, IllegalGameStateException, PlayerAlreadyPlayingException, GameNotFoundException {
+        void init() throws NotAuthenticatedException, InvalidMaxPlayersException, NameAlreadyTakenException, IllegalGameStateException, PlayerAlreadyPlayingException, GameNotFoundException, NotEnoughPlayersException {
             this.prepare_SETUP_STARTING_CARD_SIDE();
         }
 
@@ -267,7 +279,7 @@ class ControllerTest {
     class SelectPlayerColor extends WithUtils {
 
         @BeforeEach
-        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException, NotEnoughPlayersException {
             this.prepare_SETUP_COLOR();
         }
 
@@ -328,7 +340,7 @@ class ControllerTest {
     class SelectSecretObjective extends WithUtils {
 
         @BeforeEach
-        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException, NotEnoughPlayersException {
             this.prepare_SETUP_OBJECTIVE();
         }
 
@@ -385,7 +397,7 @@ class ControllerTest {
     class PlaceCard extends WithUtils {
 
         @BeforeEach
-        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException {
+        void init() throws IllegalGameStateException, PlayerNotInGameException, NotAuthenticatedException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidMaxPlayersException, NameAlreadyTakenException, PlayerAlreadyPlayingException, NotEnoughPlayersException {
             this.prepare_PLAY_PLACING();
         }
 
@@ -444,14 +456,23 @@ class ControllerTest {
     class DrawCard extends WithUtils {
 
         @BeforeEach
-        void init() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException {
+        void init() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, NotEnoughPlayersException {
             this.prepare_PLAY_DRAWING();
+        }
+
+        @Test
+        void canDrawFromResourceDeck() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException {
+            PlayerProfile player = game.getCurrentPlayer();
+            controller.drawCardFromDeck(game.getId(), player.name(), DeckLocation.RESOURCE_CARD_DECK);
+            assertEquals(GameStatus.PLAY, game.getStatus());
+            assertEquals(TurnPhase.PLACING, game.getTurnPhase());
+            assertNotEquals(player, game.getCurrentPlayer());
         }
 
         @Test
         void canDrawFromDeck() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException {
             PlayerProfile player = game.getCurrentPlayer();
-            controller.drawCardFromDeck(game.getId(), player.name(), DeckLocation.RESOURCE_CARD_DECK);
+            controller.drawCardFromDeck(game.getId(), player.name(), DeckLocation.GOLDEN_CARD_DECK);
             assertEquals(GameStatus.PLAY, game.getStatus());
             assertEquals(TurnPhase.PLACING, game.getTurnPhase());
             assertNotEquals(player, game.getCurrentPlayer());
@@ -508,5 +529,72 @@ class ControllerTest {
             assertThrows(InvalidCardException.class,
                     () -> controller.drawCardFromFaceUpCards(game.getId(), player.name(), notAvailable.id()));
         }
+    }
+
+    /**
+     * Tests related to {@link Controller#sendDirectMessage(int, String, String, String)}
+     * and {@link Controller#sendBroadcastMessage(int, String, String)}}
+     */
+    @Nested
+    class SendMessage extends WithUtils {
+
+        @BeforeEach
+        void init() throws IllegalMoveException, PlayerNotInGameException, GameNotFoundException, InvalidObjectiveException, DoubleChoiceException, InvalidCardException, IllegalPlacementException, InvalidMaxPlayersException, NameAlreadyTakenException, NotEnoughPlayersException {
+            this.prepare_PLAY_DRAWING();
+        }
+
+        @Test
+        void canSendDirectMessage() throws NotAuthenticatedException, MessageSentToThemselvesException, PlayerNotInGameException, InvalidRecipientException, GameNotFoundException {
+            controller.sendDirectMessage(this.game.getId(), alice.name(), bob.name(), "Hi!");
+            assertEquals(1, game.getChatManager().getMailbox(alice).size());
+        }
+
+        @Test
+        void canSendBroadcastMessage() throws NotAuthenticatedException, PlayerNotInGameException, GameNotFoundException {
+            controller.sendBroadcastMessage(this.game.getId(), alice.name(), "Hi!");
+            assertEquals(1, game.getChatManager().getMailbox(bob).size());
+        }
+
+        @Test
+        void nonexistentPlayerCannotSendDirectMessage() {
+            assertThrows(NotAuthenticatedException.class,
+                    () -> controller.sendDirectMessage(this.game.getId(), "carlos", bob.name(), "Hi!"));
+        }
+
+        @Test
+        void cannotSendDirectMessageToNonexistentPlayer() {
+            assertThrows(InvalidRecipientException.class,
+                    () -> controller.sendDirectMessage(this.game.getId(), bob.name(), "carlos", "Hi!"));
+        }
+
+        @Test
+        void cannotSendDirectMessageToPlayerNotInGame() throws NameAlreadyTakenException {
+            PlayerProfile carlos = controller.authenticate("Carlos");
+            assertThrows(InvalidRecipientException.class,
+                    () -> controller.sendDirectMessage(this.game.getId(), bob.name(), carlos.name(), "Hi!"));
+        }
+
+        @Test
+        void cannotSendDirectMessageToAnotherGame() throws NameAlreadyTakenException, NotAuthenticatedException, InvalidMaxPlayersException, IllegalGameStateException, PlayerAlreadyPlayingException {
+            PlayerProfile carlos = controller.authenticate("Carlos");
+            controller.createAndJoinGame(2, carlos.name());
+            assertThrows(PlayerNotInGameException.class,
+                    () -> controller.sendDirectMessage(this.game.getId(), carlos.name(), bob.name(), "Hi!"));
+        }
+
+        @Test
+        void cannotSendBroadcastMessageToAnotherGame() throws NameAlreadyTakenException, NotAuthenticatedException, InvalidMaxPlayersException, IllegalGameStateException, PlayerAlreadyPlayingException {
+            PlayerProfile carlos = controller.authenticate("Carlos");
+            controller.createAndJoinGame(2, carlos.name());
+            assertThrows(PlayerNotInGameException.class,
+                    () -> controller.sendBroadcastMessage(this.game.getId(), carlos.name(), "Hi!"));
+        }
+
+        @Test
+        void nonexistentPlayerCannotSendBroadcastMessage() {
+            assertThrows(NotAuthenticatedException.class,
+                    () -> controller.sendBroadcastMessage(this.game.getId(), "carlos", "Hi!"));
+        }
+
     }
 }
