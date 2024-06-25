@@ -1,6 +1,9 @@
 package it.polimi.ingsw.am01.model.game;
 
+import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.chat.BroadcastMessage;
+import it.polimi.ingsw.am01.model.chat.DirectMessage;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
@@ -47,7 +50,7 @@ class GameManagerTest {
                             game.join(p);
                         }
                         for (PlayerProfile p : playerProfiles) {
-                            game.selectStartingCardSide(p, Side.FRONT);
+                            game.selectStartingCardSide(p, Side.BACK);
                         }
                         game.selectColor(a, PlayerColor.RED);
                         game.selectColor(b, PlayerColor.BLUE);
@@ -56,6 +59,13 @@ class GameManagerTest {
                         for (PlayerProfile p : playerProfiles) {
                             game.selectObjective(p, game.getObjectiveOptions(p).stream().toList().getFirst());
                         }
+                        game.getChatManager().send(new BroadcastMessage(a, "a"));
+                        game.getChatManager().send(new DirectMessage(a, b, "a to b"));
+
+                        PlayerProfile currentPlayer = game.getCurrentPlayer();
+                        Card card = game.getPlayerData(currentPlayer).hand().getFirst();
+                        game.placeCard(currentPlayer, card, Side.BACK, 0, 1);
+
                     });
                 }
         );

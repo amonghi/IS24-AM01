@@ -63,9 +63,9 @@ public class CardFaceComponent extends Element {
         }
 
         String pointsString = switch (this.face.getPoints().get()) {
-            case SimplePoints p -> Integer.toString(p.getPoints());
-            case ItemPoints p -> p.getPointsPerItem() + Utils.getItemEmoji(p.getItem());
-            case CornerCoverPoints p -> p.getPointsPerCorner() + " " + CORNER_COVER_POINTS_SYMBOL;
+            case SimplePoints p -> Integer.toString(p.points());
+            case ItemPoints p -> p.pointsPerItem() + Utils.getItemEmoji(p.item());
+            case CornerCoverPoints p -> p.pointsPerCorner() + " " + CORNER_COVER_POINTS_SYMBOL;
         };
 
         a.setRendition(GOLDEN_RENDITION);

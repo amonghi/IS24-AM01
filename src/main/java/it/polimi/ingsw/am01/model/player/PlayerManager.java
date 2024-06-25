@@ -47,10 +47,10 @@ public class PlayerManager {
      * @throws NoSuchElementException if the specified player is not registered in this {@link PlayerManager}
      */
     public synchronized void removeProfile(PlayerProfile profile) {
-        if (!this.profiles.containsKey(profile.getName())) {
+        if (!this.profiles.containsKey(profile.name())) {
             throw new NoSuchElementException();
         }
 
-        this.profiles.remove(profile.getName());
+        this.profiles.remove(profile.name());
     }
 }

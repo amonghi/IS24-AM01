@@ -2,19 +2,21 @@ package it.polimi.ingsw.am01.model.objective;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.collectible.Resource;
 import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SameCollectibleObjectiveTest {
 
     //GameAsset
     GameAssets assets = GameAssets.getInstance();
 
-    //Objective 11: 3 INSECTS
-    Objective objectiveResources = assets.getObjectives().get(11);
+    //Objective 12: 3 INSECTS
+    Objective objectiveResources = assets.getObjectiveById(12).orElseThrow();
 
     Card card83 = assets.getStarterCards().get(2);
     Card card15 = assets.getResourceCards().get(14);
@@ -25,6 +27,12 @@ class SameCollectibleObjectiveTest {
 
     //Define the PlayArea
     PlayArea pa = new PlayArea(card83, Side.FRONT);
+
+    @Test
+    void canConstructObjective() {
+        SameCollectibleObjective obj = new SameCollectibleObjective(12, 3, Resource.INSECT, 3);
+        assertEquals(objectiveResources, obj);
+    }
 
     @Test
     void noSufficientResources() throws IllegalPlacementException {

@@ -9,7 +9,7 @@ import it.polimi.ingsw.am01.model.collectible.Item;
 
 import java.lang.reflect.Type;
 
-public class PointsSerDes implements JsonDeserializer<Points>, JsonSerializer<Points> {
+public class PointsDeserializer implements JsonDeserializer<Points> {
     @Override
     public Points deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -24,27 +24,5 @@ public class PointsSerDes implements JsonDeserializer<Points>, JsonSerializer<Po
             case "simple" -> new SimplePoints(pointsAmount);
             default -> throw new JsonParseException("Unknown Points type: " + type);
         };
-    }
-
-    @Override
-    public JsonElement serialize(Points points, Type type, JsonSerializationContext context) {
-        JsonObject jsonObject = new JsonObject();
-        switch (points) {
-            case SimplePoints simplePoints -> {
-                jsonObject.addProperty("type", "simple");
-                jsonObject.addProperty("number", simplePoints.getPoints());
-            }
-            case CornerCoverPoints cornerCoverPoints -> {
-                jsonObject.addProperty("type", "corner");
-                jsonObject.addProperty("number", cornerCoverPoints.getPointsPerCorner());
-            }
-            case ItemPoints itemPoints -> {
-                jsonObject.addProperty("type", "item");
-                jsonObject.addProperty("item", itemPoints.getItem().toString());
-                jsonObject.addProperty("number", itemPoints.getPointsPerItem());
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + points);
-        }
-        return jsonObject;
     }
 }

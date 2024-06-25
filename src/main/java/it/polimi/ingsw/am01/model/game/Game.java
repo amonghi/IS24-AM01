@@ -427,8 +427,8 @@ public class Game implements EventEmitter<GameEvent> {
         if (status != GameStatus.AWAITING_PLAYERS) {
             throw new IllegalGameStateException();
         }
-        if (playerProfiles.stream().anyMatch(p -> p.getName().equals(pp.getName()))) {
-            throw new PlayerAlreadyPlayingException(pp.getName());
+        if (playerProfiles.stream().anyMatch(p -> p.name().equals(pp.name()))) {
+            throw new PlayerAlreadyPlayingException(pp.name());
         }
 
         playerProfiles.add(pp);
@@ -604,13 +604,13 @@ public class Game implements EventEmitter<GameEvent> {
         }
 
         Optional<Card> card = ds.draw();
-        card.ifPresent(c -> playersData.get(pp).getHand().add(c));
+        card.ifPresent(c -> playersData.get(pp).hand().add(c));
         if (card.isEmpty()) {
             getEmitter().emit(new CardDrawnFromEmptySourceEvent(ds));
             return DrawResult.EMPTY;
         }
 
-        getEmitter().emit(new HandChangedEvent(pp, new HashSet<>(playersData.get(pp).getHand())));
+        getEmitter().emit(new HandChangedEvent(pp, new HashSet<>(playersData.get(pp).hand())));
         getEmitter().emit(new CardDrawnFromDeckEvent(getBoard().getResourceCardDeck(), getBoard().getGoldenCardDeck()));
 
         switch (status) {
@@ -681,7 +681,7 @@ public class Game implements EventEmitter<GameEvent> {
         if (currentPlayer != playerProfiles.indexOf(pp)) {
             throw new IllegalTurnException();
         }
-        if (!playersData.get(pp).getHand().contains(c)) {
+        if (!playersData.get(pp).hand().contains(c)) {
             throw new CardNotInHandException();
         }
 
@@ -691,9 +691,9 @@ public class Game implements EventEmitter<GameEvent> {
         getEmitter().emit(new CardPlacedEvent(pp, cardPlacement));
 
         //delete card from hand
-        playersData.get(pp).getHand().remove(c);
+        playersData.get(pp).hand().remove(c);
 
-        getEmitter().emit(new HandChangedEvent(pp, new HashSet<>(playersData.get(pp).getHand())));
+        getEmitter().emit(new HandChangedEvent(pp, new HashSet<>(playersData.get(pp).hand())));
 
         switch (status) {
             case GameStatus.PLAY:
@@ -774,7 +774,7 @@ public class Game implements EventEmitter<GameEvent> {
         Map<PlayerProfile, Integer> r = new HashMap<>();
         playAreas.forEach((player, playArea) ->
                 r.put(player, playArea.getScore()
-                        + playersData.get(player).getObjectiveChoice().getEarnedPoints(playArea)
+                        + playersData.get(player).objective().getEarnedPoints(playArea)
                         + commonObjectives.stream().mapToInt(objective -> objective.getEarnedPoints(playArea)).sum()) // points earned from play area plus points earned from objective cards
         );
         return r;
@@ -800,7 +800,7 @@ public class Game implements EventEmitter<GameEvent> {
 
     public void undoLastPlacement(PlayerProfile pp) throws NotUndoableOperationException {
         PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
-        playersData.get(pp).getHand().add(lastPlacement.getCard());
+        playersData.get(pp).hand().add(lastPlacement.getCard());
         getEmitter().emit(new UndoPlacementEvent(pp, lastPlacement.getPosition(),
                 playAreas.get(pp).getScore(), playAreas.get(pp).getSeq()));
         setTurnPhase(TurnPhase.PLACING);
@@ -872,7 +872,7 @@ public class Game implements EventEmitter<GameEvent> {
                 // If current player has disconnected, skip to the next connected player
                 if (getCurrentPlayer().equals(pp)) {
                     // If current player was in the middle of the turn, undo the last move
-                    if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).getHand().size() < HAND_CARDS) {
+                    if (getTurnPhase() == TurnPhase.DRAWING && playersData.get(pp).hand().size() < HAND_CARDS) {
                         undoLastPlacement(pp);
                     }
                     changeCurrentPlayer();

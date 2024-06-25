@@ -13,6 +13,6 @@ public class PlayerProfileSerDes implements JsonDeserializer<PlayerProfile>, Jso
 
     @Override
     public JsonElement serialize(PlayerProfile playerProfile, Type type, JsonSerializationContext context) {
-        return new JsonPrimitive(playerProfile.getName());
+        return new JsonPrimitive(playerProfile.name());
     }
 }

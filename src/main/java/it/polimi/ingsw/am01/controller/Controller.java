@@ -41,7 +41,7 @@ public class Controller {
 
     private void ensureNotInGame(PlayerProfile player) throws PlayerAlreadyPlayingException {
         if (this.gameManager.getGameWhereIsPlaying(player).isPresent()) {
-            throw new PlayerAlreadyPlayingException(player.getName());
+            throw new PlayerAlreadyPlayingException(player.name());
         }
     }
 
@@ -102,7 +102,7 @@ public class Controller {
 
         PlayerProfile recipientPlayerProfile = game.getPlayerProfiles()
                 .stream()
-                .filter(playerProfile -> playerProfile.getName().equals(recipient))
+                .filter(playerProfile -> playerProfile.name().equals(recipient))
                 .findFirst().orElseThrow(InvalidRecipientException::new);
 
         DirectMessage directMessage = new DirectMessage(senderPlayerProfile, recipientPlayerProfile, content);
@@ -303,7 +303,7 @@ public class Controller {
      * @param gameId     the ID of the game in which the player is playing
      * @param playerName the name of the player that is placing the card
      * @param cardId     the id of the card that should be placed.
-     *                   Must be the ID of one of the cards that the player has in their {@link PlayerData#getHand()}
+     *                   Must be the ID of one of the cards that the player has in their {@link PlayerData#hand()}
      * @param side       specifies on which side to place the card
      * @param i          the {@code i} coordinate on which to place the card
      * @param j          the {@code j} coordinate on which to place the card

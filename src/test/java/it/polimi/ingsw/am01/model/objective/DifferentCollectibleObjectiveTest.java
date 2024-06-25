@@ -2,17 +2,21 @@ package it.polimi.ingsw.am01.model.objective;
 
 import it.polimi.ingsw.am01.model.card.Card;
 import it.polimi.ingsw.am01.model.card.Side;
+import it.polimi.ingsw.am01.model.collectible.Item;
 import it.polimi.ingsw.am01.model.exception.IllegalPlacementException;
 import it.polimi.ingsw.am01.model.game.GameAssets;
 import it.polimi.ingsw.am01.model.game.PlayArea;
 import org.junit.jupiter.api.Test;
+
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DifferentCollectibleObjectiveTest {
     GameAssets assets = GameAssets.getInstance();
 
-    //Objective 12: 3 DIFFERENT ITEMS
-    Objective objective = assets.getObjectives().get(12);
+    //Objective 13: 3 DIFFERENT ITEMS
+    Objective objective = assets.getObjectiveById(13).orElseThrow();
     Card card83 = assets.getStarterCards().get(2);
     //1 QUILL
     Card card5 = assets.getResourceCards().get(4);
@@ -29,6 +33,12 @@ class DifferentCollectibleObjectiveTest {
     //1 QUILL
     Card card25 = assets.getResourceCards().get(24);
     PlayArea pa = new PlayArea(card83, Side.BACK);
+
+    @Test
+    void canConstructObjective() {
+        DifferentCollectibleObjective obj = new DifferentCollectibleObjective(13, 3, Set.of(Item.INKWELL, Item.MANUSCRIPT, Item.QUILL));
+        assertEquals(objective, obj);
+    }
 
     @Test
     void noItems() {

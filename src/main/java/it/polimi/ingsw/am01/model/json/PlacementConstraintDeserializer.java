@@ -8,7 +8,7 @@ import it.polimi.ingsw.am01.model.collectible.Resource;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-public class PlacementConstraintSerDes implements JsonDeserializer<PlacementConstraint>, JsonSerializer<PlacementConstraint> {
+public class PlacementConstraintDeserializer implements JsonDeserializer<PlacementConstraint> {
     @Override
     public PlacementConstraint deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -17,8 +17,4 @@ public class PlacementConstraintSerDes implements JsonDeserializer<PlacementCons
         return new PlacementConstraint(resources);
     }
 
-    @Override
-    public JsonElement serialize(PlacementConstraint placementConstraint, Type type, JsonSerializationContext context) {
-        return context.serialize(placementConstraint.getRequiredResources());
-    }
 }

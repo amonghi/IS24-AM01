@@ -4,13 +4,15 @@ import it.polimi.ingsw.am01.model.card.face.corner.Corner;
 import it.polimi.ingsw.am01.model.card.face.corner.CornerPosition;
 import it.polimi.ingsw.am01.model.card.face.placement.PlacementConstraint;
 import it.polimi.ingsw.am01.model.card.face.points.CornerCoverPoints;
-import it.polimi.ingsw.am01.model.card.face.points.Points;
 import it.polimi.ingsw.am01.model.card.face.points.SimplePoints;
 import it.polimi.ingsw.am01.model.collectible.Item;
 import it.polimi.ingsw.am01.model.collectible.Resource;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -68,5 +70,19 @@ class FrontCardFaceTest {
         assertEquals(Collections.emptyMap(), front.getCenterResources());
         assertEquals(Optional.empty(), front.getPoints());
         assertEquals(Optional.empty(), front.getPlacementConstraint());
+    }
+
+    @Test
+    void equality(){
+        SimplePoints simplePoints = new SimplePoints(2);
+        Map<Resource, Integer> requiredResources = new EnumMap<>(Map.of(Resource.PLANT, 2));
+        PlacementConstraint placementConstraint = new PlacementConstraint(requiredResources);
+        Corner tr = Corner.filled(Resource.INSECT);
+        Corner tl = Corner.missing();
+        Corner br = Corner.filled(Resource.INSECT);
+        Corner bl = Corner.empty();
+        BaseCardFace front1 = new FrontCardFace(tr, tl, br, bl, placementConstraint, simplePoints);
+        BaseCardFace front2 = new FrontCardFace(tr, tl, br, bl, placementConstraint, simplePoints);
+        assertEquals(front1, front2);
     }
 }

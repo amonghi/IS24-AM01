@@ -43,4 +43,17 @@ class CardTest {
     void canGetFrontFace() {
         assertEquals(aCardFF, aCard.getFace(Side.FRONT));
     }
+
+    @Test
+    void equality(){
+        Card card = new Card(
+                1,
+                CardColor.RED,
+                true,
+                false,
+                aCardFF,
+                aCardBF
+        );
+        assertEquals(aCard, card);
+    }
 }

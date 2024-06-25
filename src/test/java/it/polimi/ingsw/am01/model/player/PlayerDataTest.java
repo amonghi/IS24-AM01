@@ -20,8 +20,8 @@ class PlayerDataTest {
 
         PlayerData playerData = new PlayerData(hand, objective, playerColor);
 
-        assertEquals(hand, playerData.getHand());
-        assertEquals(objective, playerData.getObjectiveChoice());
-        assertEquals(playerColor, playerData.getColorChoice());
+        assertEquals(hand, playerData.hand());
+        assertEquals(objective, playerData.objective());
+        assertEquals(playerColor, playerData.color());
     }
 }

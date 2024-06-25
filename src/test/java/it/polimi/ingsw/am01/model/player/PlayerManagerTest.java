@@ -15,7 +15,7 @@ class PlayerManagerTest {
         assertFalse(pm.getProfile("Alice").isPresent());
         assertDoesNotThrow(() -> {
             PlayerProfile aProfile = pm.createProfile("Alice");
-            assertEquals("Alice", aProfile.getName());
+            assertEquals("Alice", aProfile.name());
 
         });
         assertTrue(pm.getProfile("Alice").isPresent());
