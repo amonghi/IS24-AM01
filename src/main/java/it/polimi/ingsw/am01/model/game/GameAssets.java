@@ -62,7 +62,8 @@ public class GameAssets {
                 System.err.println("File not found: cards.json");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // unrecoverable error
+            throw new Error("could not read cards list (cards.json)", e);
         }
 
         // Read and parse objectives.json
@@ -75,7 +76,8 @@ public class GameAssets {
                 System.err.println("File not found: objectives.json");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // unrecoverable error
+            throw new Error("could not read objectives list (objectives.json)", e);
         }
         resourceCardList = Stream.of(cardArray).filter(card -> !card.isStarter() && !card.isGold()).toList();
         goldenCardList = Stream.of(cardArray).filter(Card::isGold).toList();
