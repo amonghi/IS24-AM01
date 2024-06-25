@@ -48,7 +48,6 @@ public class ConnectionWrapper {
                 message = connection.receive();
             } catch (ReceiveNetworkException e) {
                 view.connectionLost();
-                //TODO: try to reconnect
                 return;
             }
 
