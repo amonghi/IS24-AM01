@@ -12,6 +12,15 @@ import javafx.scene.text.Text;
 
 import java.util.Objects;
 
+/**
+ * The controller for the component that show the information of a player in the game:
+ * <ul>
+ *     <li> The player name </li>
+ *     <li> The player score </li>
+ *     <li> The player color </li>
+ *     <li> The connection status of the player </li>
+ * </ul>
+ */
 public class PlayerInfoController extends AnchorPane implements ComponentController {
 
     private final PlayAreaController playAreaController;
@@ -26,6 +35,16 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
     @FXML
     private ImageView connectionState;
 
+    /**
+     * It constructs a new PlayerInfoController.
+     * It also calls the {@link ComponentController#loadComponent()} method
+     *
+     * @param name               The player name
+     * @param color              The player color
+     * @param score              The player score
+     * @param connected          The player's connection status
+     * @param playAreaController The controller of the play area, i.e. the scene where this component is placed
+     */
     public PlayerInfoController(String name, PlayerColor color, int score, boolean connected, PlayAreaController playAreaController) {
         this.name = name;
         this.color = color;
@@ -45,15 +64,26 @@ public class PlayerInfoController extends AnchorPane implements ComponentControl
         this.setOnMouseClicked(event -> playAreaController.setCurrentView(playerName.getText()));
     }
 
+    /**
+     * @return The name of the player
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * It sets and shows the new player score
+     *
+     * @param newScore The new score of the player, obtained after a placement
+     */
     public void setScore(int newScore) {
         score = newScore;
         playerScore.setText(String.valueOf(score));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "player_info";
