@@ -35,7 +35,10 @@ public class SelectStartingCardSideCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.SETUP_STARTING_CARD_SIDE)) {
+        if (!getView().getState().equals(ClientState.IN_GAME)
+                || !getView().getGameStatus().equals(GameStatus.SETUP_STARTING_CARD_SIDE)
+                || getView().getStartingCardPlacements().containsKey(getView().getPlayerName())) {
+
             throw new ValidationException();
         }
     }

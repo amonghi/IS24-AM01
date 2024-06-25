@@ -41,7 +41,10 @@ public class SelectObjectiveCommand extends TuiCommand {
     }
 
     private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.IN_GAME) || !getView().getGameStatus().equals(GameStatus.SETUP_OBJECTIVE)) {
+        if (!getView().getState().equals(ClientState.IN_GAME)
+                || !getView().getGameStatus().equals(GameStatus.SETUP_OBJECTIVE)
+                || getView().getPlayersHaveChosenSecretObjective().contains(getView().getPlayerName())) {
+
             throw new ValidationException();
         }
     }
