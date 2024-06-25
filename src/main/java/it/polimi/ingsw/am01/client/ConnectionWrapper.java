@@ -6,6 +6,10 @@ import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
 /**
  * The main purpose is to receive network messages from the server.
  * In response to these messages the appropriate methods in the {@link View} class are invoked.
@@ -15,6 +19,8 @@ import it.polimi.ingsw.am01.network.message.s2c.*;
  * @see Connection
  */
 public class ConnectionWrapper {
+    private static final Logger LOGGER = Logger.getLogger(ConnectionWrapper.class.getName());
+
     private final Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private final View view;
 
@@ -84,7 +90,7 @@ public class ConnectionWrapper {
                     case DirectMessageSentS2C m -> view.handleMessage(m);
                     case PingS2C m -> {
                     }
-                    default -> throw new IllegalStateException("Unexpected value: " + message); //TODO: manage
+                    default -> LOGGER.log(Level.WARNING, "Unexpected message", message);
                 }
             });
         }

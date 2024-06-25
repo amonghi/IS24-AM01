@@ -8,6 +8,7 @@ module it.polimi.ingsw.am01 {
     requires jdk.unsupported;
     requires java.desktop;
     requires jdk.jfr;
+    requires java.logging;
 
     opens it.polimi.ingsw.am01 to javafx.fxml;
     opens it.polimi.ingsw.am01.model.card to com.google.gson;
