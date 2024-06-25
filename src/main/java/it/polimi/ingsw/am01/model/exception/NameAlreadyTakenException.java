@@ -1,6 +1,9 @@
 package it.polimi.ingsw.am01.model.exception;
 
-public class NameAlreadyTakenException extends Exception{
+/**
+ * @see it.polimi.ingsw.am01.model.player.PlayerManager#createProfile(String)
+ */
+public class NameAlreadyTakenException extends Exception {
     private final String refusedName;
 
     public NameAlreadyTakenException(String refusedName) {
@@ -8,6 +11,9 @@ public class NameAlreadyTakenException extends Exception{
         this.refusedName = refusedName;
     }
 
+    /**
+     * @return the refused name
+     */
     public String getRefusedName() {
         return refusedName;
     }
