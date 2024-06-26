@@ -6,10 +6,10 @@ import it.polimi.ingsw.am01.model.game.GameManager;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
+import it.polimi.ingsw.am01.network.Server;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.rmi.server.RMIServer;
-import it.polimi.ingsw.am01.network.Server;
 import it.polimi.ingsw.am01.network.tcp.server.TCPServer;
 
 import java.io.IOException;
@@ -21,8 +21,8 @@ import java.util.concurrent.Executors;
 
 public class ServerMain {
 
-    private static final int TCP_PORT = 8888;
-    private static final int RMI_PORT = 7777;
+    private static final int DEFAULT_TCP_PORT = 8888;
+    private static final int DEFAULT_RMI_PORT = 7777;
     private static final String HOSTNAME = "0.0.0.0";
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {
@@ -32,13 +32,23 @@ public class ServerMain {
         Controller controller = new Controller(playerManager, gameManager);
         ExecutorService executorService = Executors.newCachedThreadPool();
 
-        TCPServer tcpServer = new TCPServer(InetAddress.getByName(HOSTNAME), TCP_PORT);
+        int tcp_port = DEFAULT_TCP_PORT;
+        int rmi_port = DEFAULT_RMI_PORT;
+
+        if (args.length > 0) {
+            tcp_port = Integer.parseInt(args[0]);
+        }
+        if (args.length > 1) {
+            rmi_port = Integer.parseInt(args[1]);
+        }
+
+        TCPServer tcpServer = new TCPServer(InetAddress.getByName(HOSTNAME), tcp_port);
         new Thread(() -> acceptConnections(tcpServer, executorService, controller, gameManager, playerManager)).start();
 
-        RMIServer rmiServer = new RMIServer(RMI_PORT);
+        RMIServer rmiServer = new RMIServer(rmi_port);
         new Thread(() -> acceptConnections(rmiServer, executorService, controller, gameManager, playerManager)).start();
 
-        System.out.println("Server started.");
+        System.out.println("Server started.\nListening on ports: " + tcp_port + "(TCP) and " + rmi_port + "(RMI).");
     }
 
     private static void acceptConnections(Server server,
