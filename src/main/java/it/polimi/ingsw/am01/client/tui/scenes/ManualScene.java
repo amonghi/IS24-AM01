@@ -68,70 +68,70 @@ public class ManualScene extends Composition {
         return switch (view.getState()) {
             case NOT_CONNECTED -> List.of(
                     ConnectCommand.getCommandDetail(),
-                    QuitCommand.getCommandDetail(),
-                    SetManualVisibilityCommand.getCommandDetail()
+                    SetManualVisibilityCommand.getCommandDetail(),
+                    QuitCommand.getCommandDetail()
             );
             case NOT_AUTHENTICATED -> List.of(
                     AuthenticateCommand.getCommandDetail(),
-                    QuitCommand.getCommandDetail(),
-                    SetManualVisibilityCommand.getCommandDetail()
+                    SetManualVisibilityCommand.getCommandDetail(),
+                    QuitCommand.getCommandDetail()
             );
             case AUTHENTICATED -> List.of(
                     CreateGameCommand.getCommandDetail(),
                     JoinCommand.getCommandDetail(),
-                    QuitCommand.getCommandDetail(),
-                    SetManualVisibilityCommand.getCommandDetail()
+                    SetManualVisibilityCommand.getCommandDetail(),
+                    QuitCommand.getCommandDetail()
             );
             case IN_GAME -> switch (view.getGameStatus()) {
                 case AWAITING_PLAYERS -> List.of(
                         StartGameCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
                         SendMessageCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail()
+                        SetManualVisibilityCommand.getCommandDetail(),
+                        QuitCommand.getCommandDetail()
                 );
                 case SETUP_STARTING_CARD_SIDE -> List.of(
+                        SelectStartingCardSideCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
                         SendMessageCommand.getCommandDetail(),
-                        SelectStartingCardSideCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail()
+                        SetManualVisibilityCommand.getCommandDetail(),
+                        QuitCommand.getCommandDetail()
                 );
                 case SETUP_COLOR -> List.of(
+                        SelectColorCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
                         SendMessageCommand.getCommandDetail(),
-                        SelectColorCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail()
+                        SetManualVisibilityCommand.getCommandDetail(),
+                        QuitCommand.getCommandDetail()
                 );
                 case SETUP_OBJECTIVE -> List.of(
+                        SelectObjectiveCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
                         SendMessageCommand.getCommandDetail(),
-                        SelectObjectiveCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail()
+                        SetManualVisibilityCommand.getCommandDetail(),
+                        QuitCommand.getCommandDetail()
                 );
                 case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED -> List.of(
-                        SetObjectivesVisibilityCommand.getCommandDetail(),
-                        SetVisibleCardSideCommand.getCommandDetail(),
-                        SetChatVisibilityCommand.getCommandDetail(),
-                        SetBoardVisibilityCommand.getCommandDetail(),
-                        SendMessageCommand.getCommandDetail(),
-                        ChangeFocusedPlayerCommand.getCommandDetail(),
-                        DrawCardCommand.getCommandDetail(),
                         PlaceCardCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail()
+                        DrawCardCommand.getCommandDetail(),
+                        ChangeFocusedPlayerCommand.getCommandDetail(),
+                        SetVisibleCardSideCommand.getCommandDetail(),
+                        SetObjectivesVisibilityCommand.getCommandDetail(),
+                        SetChatVisibilityCommand.getCommandDetail(),
+                        SendMessageCommand.getCommandDetail(),
+                        SetBoardVisibilityCommand.getCommandDetail(),
+                        SetManualVisibilityCommand.getCommandDetail(),
+                        QuitCommand.getCommandDetail()
                 );
                 case FINISHED -> List.of(
                         ExitFinishedGameCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail()
+                        SetManualVisibilityCommand.getCommandDetail(),
+                        QuitCommand.getCommandDetail()
                 );
                 case RESTORING -> List.of(
                         ResumeGameCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail()
+                        SetManualVisibilityCommand.getCommandDetail(),
+                        QuitCommand.getCommandDetail()
                 );
             };
         };
