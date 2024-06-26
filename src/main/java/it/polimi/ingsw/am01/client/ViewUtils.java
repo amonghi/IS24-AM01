@@ -3,6 +3,9 @@ package it.polimi.ingsw.am01.client;
 import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.model.card.CardColor;
 
+/**
+ * Utility class containing common methods for defining card file paths
+ */
 public class ViewUtils {
     //Back Ids
     public static final int RES_RED = 1;
@@ -14,6 +17,11 @@ public class ViewUtils {
     public static final int GOLD_BLUE = 66;
     public static final int GOLD_PURPLE = 73;
 
+    /**
+     * @param deckLocation The deck source, either {@link DeckLocation#RESOURCE_CARD_DECK} or {@link DeckLocation#GOLDEN_CARD_DECK}
+     * @param color        The {@link CardColor} of the first card in the deck
+     * @return The card id that corresponds to the stored image file path
+     */
     public static int getIdFromColorAndDeckLocation(DeckLocation deckLocation, CardColor color) {
         int id = 0;
         switch (deckLocation) {
@@ -45,6 +53,10 @@ public class ViewUtils {
         return id;
     }
 
+    /**
+     * @param cardId The id of the selected card
+     * @return The card id that corresponds to the stored image file path
+     */
     public static int getFixedId(int cardId) {
         if (cardId >= 1 && cardId <= 10)
             return RES_RED;

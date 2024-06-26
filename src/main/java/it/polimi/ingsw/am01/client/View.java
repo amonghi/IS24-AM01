@@ -18,6 +18,7 @@ import it.polimi.ingsw.am01.network.Connection;
 import it.polimi.ingsw.am01.network.OpenConnectionNetworkException;
 import it.polimi.ingsw.am01.network.SendNetworkException;
 import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
+import it.polimi.ingsw.am01.network.message.NetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.c2s.*;
 import it.polimi.ingsw.am01.network.message.s2c.*;
@@ -31,6 +32,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+/**
+ * The common view for both graphical user interface and textual user interface.
+ * It keeps a reduced and local copy of model data.
+ * <p>
+ * It is the client-side point to manage communication with the server:
+ * <ul>
+ *     <li> It handles the network messages received from the server and captured by
+ *          the {@link ConnectionWrapper} class
+ *     </li>
+ *     <li> It sends network messages to the server, based on the interaction of
+ *          the user with the GUI or the TUI
+ *     </li>
+ * </ul>
+ *
+ * @see ConnectionWrapper
+ * @see EventEmitter
+ * @see it.polimi.ingsw.am01.client.gui.GUIView
+ * @see it.polimi.ingsw.am01.client.tui.TuiView
+ */
 public abstract class View implements EventEmitter<ViewEvent> {
 
     private final ExecutorService executorService;
@@ -61,6 +81,9 @@ public abstract class View implements EventEmitter<ViewEvent> {
     private int secretObjectiveChoiceId;
     private List<Integer> commonObjectivesId;
 
+    /**
+     * It constructs a new View initializing all the data
+     */
     public View() {
         this.emitter = new EventEmitterImpl<>();
         this.executorService = Executors.newCachedThreadPool();
@@ -86,12 +109,39 @@ public abstract class View implements EventEmitter<ViewEvent> {
         this.state = ClientState.NOT_CONNECTED;
     }
 
+    /**
+     * It handles the changing of the scene for the main stage
+     *
+     * @param state      The current {@link ClientState}
+     * @param gameStatus The current {@link GameStatus}
+     */
     protected abstract void changeStage(ClientState state, GameStatus gameStatus);
 
+    /**
+     * It kicks a player from the game
+     */
     protected abstract void kickPlayer();
 
+    /**
+     * It shows an error message, in case of connection problems
+     *
+     * @param errorMessage The error message to be shown.
+     */
     protected abstract void showConnectionErrorMessage(String errorMessage);
 
+    /**
+     * It calls the {@link ClientTCPConnection#connect(InetAddress, int)} or
+     * {@link ClientRMIConnection#connect(ExecutorService, String, int)} method
+     * according to the specified {@link ConnectionType}.
+     * <p>
+     * It also instantiates a new {@link ConnectionWrapper} to receive the network
+     * message from the server
+     *
+     * @param connectionType The {@link ConnectionType} selected by the player.
+     *                       It can be either {@link ConnectionType#TCP} or {@link ConnectionType#RMI}
+     * @param hostname       The ip address of the server
+     * @param port           The port of the server according to the selected {@link ConnectionType}
+     */
     public void connect(ConnectionType connectionType, String hostname, int port) {
         try {
             this.connection = switch (connectionType) {
@@ -108,6 +158,10 @@ public abstract class View implements EventEmitter<ViewEvent> {
         }
     }
 
+    /**
+     * It calls the {@link ExecutorService#shutdown()} and also closes the
+     * connection, calling the {@link Connection#close()} method
+     */
     public void closeConnection() {
         if (connection != null) {
             executorService.shutdown();
@@ -119,22 +173,54 @@ public abstract class View implements EventEmitter<ViewEvent> {
         }
     }
 
+    /**
+     * It permits to run the specified {@link Runnable} on a different thread
+     *
+     * @param runnable The {@link Runnable} that has to be run on a different thread.
+     */
     public abstract void runLater(Runnable runnable);
 
+    /**
+     * It handles the specified message, updating the local model
+     * and calling the {@link #changeState(ClientState)} method
+     *
+     * @param message The message received from the server
+     * @see SetPlayerNameS2C
+     */
     public void handleMessage(SetPlayerNameS2C message) {
         this.playerName = message.playerName();
         changeState(ClientState.AUTHENTICATED);
     }
 
+    /**
+     * It handles the specified message emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see NameAlreadyTakenS2C
+     */
     public void handleMessage(NameAlreadyTakenS2C message) {
         emitter.emit(new NameAlreadyTakenEvent(message.refusedName()));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see UpdateGameListS2C
+     */
     public void handleMessage(UpdateGameListS2C message) {
         this.games = message.gamesStatMap();
         emitter.emit(new GameListChangedEvent(games));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see SetPlayablePositionsS2C
+     */
     public void handleMessage(SetPlayablePositionsS2C message) {
         playablePositions.clear();
         playablePositions.addAll(message
@@ -145,6 +231,13 @@ public abstract class View implements EventEmitter<ViewEvent> {
         emitter.emit(new UpdatePlayablePositionsEvent(playablePositions));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see UpdatePlayAreaS2C
+     */
     public void handleMessage(UpdatePlayAreaS2C message) {
         playablePositions.clear();
         if (!playAreas.containsKey(message.playerName()))
@@ -164,15 +257,35 @@ public abstract class View implements EventEmitter<ViewEvent> {
         ));
     }
 
+    /**
+     * It handles the specified message emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see InvalidPlacementS2C
+     */
     public void handleMessage(InvalidPlacementS2C message) {
         emitter.emit(new InvalidPlacementEvent());
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see UpdatePlayAreaAfterUndoS2C
+     */
     public void handleMessage(UpdatePlayAreaAfterUndoS2C message) {
         scores.replace(message.profile(), message.score());
         emitter.emit(new RemoveLastPlacementEvent(message.profile()));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting events to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see SetBoardAndHandS2C
+     */
     public void handleMessage(SetBoardAndHandS2C message) {
         //Set Objectives:
         commonObjectivesId = new ArrayList<>(message.commonObjectives());
@@ -201,12 +314,26 @@ public abstract class View implements EventEmitter<ViewEvent> {
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see UpdatePlayerHandS2C
+     */
     public void handleMessage(UpdatePlayerHandS2C message) {
         hand.clear();
         hand.addAll(message.currentHand());
         emitter.emit(new SetHandEvent(hand));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see UpdateDeckStatusS2C
+     */
     public void handleMessage(UpdateDeckStatusS2C message) {
         decksColor.replace(DeckLocation.RESOURCE_CARD_DECK, message.resourceDeckColor());
         decksColor.replace(DeckLocation.GOLDEN_CARD_DECK, message.goldenDeckColor());
@@ -216,6 +343,13 @@ public abstract class View implements EventEmitter<ViewEvent> {
         ));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see UpdateGameStatusAndTurnS2C
+     */
     public void handleMessage(UpdateGameStatusAndTurnS2C message) {
         this.currentPlayer = message.currentPlayerName();
         this.gameStatus = message.gameStatus();
@@ -223,17 +357,38 @@ public abstract class View implements EventEmitter<ViewEvent> {
         emitter.emit(new UpdateGameTurnEvent(playerName, currentPlayer, turnPhase.toString(), gameStatus.toString()));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param message The message received from the server
+     * @see UpdateFaceUpCardsS2C
+     */
     public void handleMessage(UpdateFaceUpCardsS2C message) {
         faceUpCards.clear();
         faceUpCards.addAll(message.faceUpCards());
         emitter.emit(new SetFaceUpCardsEvent(faceUpCards.stream().toList()));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and calling the {@link #changeGameStatus(GameStatus)} method
+     *
+     * @param message The message received from the server
+     * @see GameJoinedS2C
+     */
     public void handleMessage(GameJoinedS2C message) {
         gameId = message.gameId();
         changeGameStatus(GameStatus.AWAITING_PLAYERS);
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see UpdatePlayerListS2C
+     */
     public void handleMessage(UpdatePlayerListS2C m) {
         playersInGame.clear();
         playersInGame.addAll(m.playerList());
@@ -242,17 +397,37 @@ public abstract class View implements EventEmitter<ViewEvent> {
         emitter.emit(new PlayerListChangedEvent(m.playerList()));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and calling the {@link #changeGameStatus(GameStatus)} method
+     *
+     * @param m The message received from the server
+     * @see SetStartingCardS2C
+     */
     public void handleMessage(SetStartingCardS2C m) {
         startingCardId = m.startingCardId();
         changeGameStatus(GameStatus.SETUP_STARTING_CARD_SIDE);
     }
 
+    /**
+     * It handles the specified message calling the {@link #changeGameStatus(GameStatus)} method
+     *
+     * @param m The message received from the server
+     * @see UpdateGameStatusS2C
+     */
     public void handleMessage(UpdateGameStatusS2C m) {
         if (m.gameStatus().equals(GameStatus.SETUP_COLOR)) {
             changeGameStatus(GameStatus.SETUP_COLOR);
         }
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see UpdatePlayerColorS2C
+     */
     public void handleMessage(UpdatePlayerColorS2C m) {
         playerColors.put(m.player(), m.color());
         emitter.emit(new UpdatePlayerColorEvent(
@@ -261,6 +436,13 @@ public abstract class View implements EventEmitter<ViewEvent> {
         ));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see UpdateGameStatusAndSetupObjectiveS2C
+     */
     public void handleMessage(UpdateGameStatusAndSetupObjectiveS2C m) {
         secretObjectivesId.addAll(
                 List.of(
@@ -270,6 +452,13 @@ public abstract class View implements EventEmitter<ViewEvent> {
         changeGameStatus(GameStatus.SETUP_OBJECTIVE);
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see UpdateObjectiveSelectedS2C
+     */
     public void handleMessage(UpdateObjectiveSelectedS2C m) {
         playersHaveChosenSecretObjective.clear();
         playersHaveChosenSecretObjective.addAll(m.playersHaveChosen());
@@ -278,6 +467,13 @@ public abstract class View implements EventEmitter<ViewEvent> {
         ));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see PlayerDisconnectedS2C
+     */
     public void handleMessage(PlayerDisconnectedS2C m) {
         if (connections.get(m.playerName()) != null) {
             connections.replace(m.playerName(), false);
@@ -285,11 +481,25 @@ public abstract class View implements EventEmitter<ViewEvent> {
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see PlayerReconnectedS2C
+     */
     public void handleMessage(PlayerReconnectedS2C m) {
         connections.replace(m.playerName(), true);
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
+    /**
+     * It handles the specified message, calling the {@link #changeGameStatus(GameStatus)},
+     * updating the local model and emitting an event to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see GameFinishedS2C
+     */
     public void handleMessage(GameFinishedS2C m) {
         changeGameStatus(GameStatus.FINISHED);
         finalScores.clear();
@@ -298,6 +508,14 @@ public abstract class View implements EventEmitter<ViewEvent> {
         clearData();
     }
 
+    /**
+     * It handles the specified message setting all the data of local model based on
+     * the information received from the server.
+     * It also emits events to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see SetupAfterReconnectionS2C
+     */
     public void handleMessage(SetupAfterReconnectionS2C m) {
         currentPlayer = m.currentPlayer();
         playersInGame.addAll(m.playAreas().keySet());
@@ -348,6 +566,10 @@ public abstract class View implements EventEmitter<ViewEvent> {
         emitter.emit(new SetPlayStatusEvent(playersInGame, playerColors, scores, connections));
     }
 
+    /**
+     * It emits all the necessary events to update the board of the player,
+     * based on the local model
+     */
     private void setupBoard() {
         changeGameStatus(GameStatus.PLAY);
         emitter.emit(new SetObjectives(commonObjectivesId, secretObjectiveChoiceId));
@@ -359,11 +581,25 @@ public abstract class View implements EventEmitter<ViewEvent> {
         emitter.emit(new SetHandEvent(hand));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting an event to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see SetGamePauseS2C
+     */
     public void handleMessage(SetGamePauseS2C m) {
         gameStatus = m.getGameStatus();
         emitter.emit(new GamePausedEvent());
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting events to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see GameResumedS2C
+     */
     public void handleMessage(GameResumedS2C m) {
         if (gameStatus == GameStatus.RESTORING) {
             setupBoard();
@@ -374,79 +610,153 @@ public abstract class View implements EventEmitter<ViewEvent> {
         }
     }
 
+    /**
+     * It handles the specified message, calling he {@link #changeState(ClientState)} method
+     * and clearing all the data related to game just deleted
+     *
+     * @param m The message received from the server
+     * @see KickedFromGameS2C
+     */
     public void handleMessage(KickedFromGameS2C m) {
         changeState(ClientState.AUTHENTICATED);
-        //clear all data related to game just deleted
         clearData();
         kickPlayer();
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting events to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see NewMessageS2C
+     * @see Message
+     */
     public void handleMessage(NewMessageS2C m) {
         Message newMessage = new Message(m.messageType(), m.sender(), playerName, m.content(), m.timestamp());
         messages.add(newMessage);
         emitter.emit(new NewMessageEvent(newMessage));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting events to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see BroadcastMessageSentS2C
+     * @see Message
+     */
     public void handleMessage(BroadcastMessageSentS2C m) {
         Message newMessage = new Message(MessageType.BROADCAST, m.sender(), playerName, m.content(), m.timestamp());
         messages.add(newMessage);
         emitter.emit(new NewMessageEvent(newMessage));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and emitting events to notify the interested classes
+     *
+     * @param m The message received from the server
+     * @see DirectMessageSentS2C
+     * @see Message
+     */
     public void handleMessage(DirectMessageSentS2C m) {
         Message newMessage = new Message(MessageType.DIRECT, m.sender(), m.recipient(), m.content(), m.timestamp());
         messages.add(newMessage);
         emitter.emit(new NewMessageEvent(newMessage));
     }
 
+    /**
+     * It handles the specified message, updating the local model
+     * and calling the {@link #changeStage(ClientState, GameStatus)} method
+     *
+     * @param newState The new state of the client
+     * @see ClientState
+     */
     private void changeState(ClientState newState) {
         this.state = newState;
         changeStage(state, gameStatus);
     }
 
-    public void connectionLost(){
+    /**
+     * It set the {@link ClientState} to {@link ClientState#NOT_CONNECTED}
+     *
+     * @see #runLater(Runnable)
+     * @see #clearData()
+     */
+    public void connectionLost() {
         runLater(() -> changeState(ClientState.NOT_CONNECTED));
         clearData();
     }
 
+    /**
+     * It updates the current {@link GameStatus}.
+     * It also calls the {@link #changeStage(ClientState, GameStatus)}
+     *
+     * @param newStatus the new {@link GameStatus} to set
+     */
     private void changeGameStatus(GameStatus newStatus) {
         this.state = ClientState.IN_GAME;
         this.gameStatus = newStatus;
         changeStage(state, gameStatus);
     }
 
+    /**
+     * It updates the current {@link ClientState}.
+     */
     public void exitFinishedGame() {
         changeState(ClientState.AUTHENTICATED);
         finalScores.clear();
     }
 
+    /**
+     * @return The name of the owner of the view
+     */
     public String getPlayerName() {
         return playerName;
     }
 
+    /**
+     * @return The id of the starting card
+     */
     public int getStartingCardId() {
         return startingCardId;
     }
 
+    /**
+     * @return The list of the players who have joined the game
+     */
     public List<String> getPlayersInGame() {
         return playersInGame;
     }
 
+    /**
+     * @return The ids of the choose-able secret objectives
+     */
     public List<Integer> getSecretObjectivesId() {
         return secretObjectivesId;
     }
 
+    /**
+     * @param player The player whose play area you want to see. It has to be a player in the game
+     * @return The set of {@link Placement}, sorted by their sequence number
+     */
     public SortedSet<Placement> getPlacements(String player) {
         //player part of the game as a pre-condition
         return playAreas.get(player);
     }
 
+    /**
+     * @return The starting card placement for every player
+     */
     public Map<String, Placement> getStartingCardPlacements() {
         return playAreas.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
                 entry -> entry.getValue().getFirst()
         ));
     }
 
+    /**
+     * @return the final ranking, when the game is over
+     */
     public SortedMap<String, Integer> getFinalPlacements() {
         SortedMap<String, Integer> finalPlacements = new TreeMap<>();
 
@@ -462,99 +772,177 @@ public abstract class View implements EventEmitter<ViewEvent> {
         return finalPlacements;
     }
 
+    /**
+     * It removes the last placement from the play area of the specified player
+     *
+     * @param player The player whose placement you want to remove. It has to be a player in the game
+     */
     public void removeLastPlacement(String player) {
         playAreas.get(player).removeLast();
     }
 
+    /**
+     * @param player The player name. It has to be a player in the game
+     * @return the score of the specified player
+     */
     public int getScore(String player) {
         //player part of the game as a pre-condition
         return scores.get(player);
     }
 
+    /**
+     * @return The list of the players who have already chosen their secret objectives
+     */
     public List<String> getPlayersHaveChosenSecretObjective() {
         return playersHaveChosenSecretObjective;
     }
 
+    /**
+     * @return The final score of each player
+     */
     public Map<String, Integer> getFinalScores() {
         return finalScores;
     }
 
+    /**
+     * @return The list of all the available games
+     */
     public Map<Integer, UpdateGameListS2C.GameStat> getGames() {
         return games;
     }
 
+    /**
+     * @param player The player name. It has to be a player in the game
+     * @return the {@link PlayerColor} of the specified player
+     */
     public PlayerColor getPlayerColor(String player) {
         return playerColors.get(player);
     }
 
+    /**
+     * @return The {@link PlayerColor} chosen by each player
+     */
     public Map<String, PlayerColor> getPlayerColors() {
         return playerColors;
     }
 
+    /**
+     * @return The maximum number of player allowed in the game
+     */
     public int getMaxPlayers() {
         return games.get(gameId).maxPlayers();
     }
 
+    /**
+     * @return The id of the current game
+     */
     public int getGameId() {
         return gameId;
     }
 
-    public void setSecretObjectiveChoiceId(int secretObjectiveChoiceId) {
-        this.secretObjectiveChoiceId = secretObjectiveChoiceId;
-    }
-
+    /**
+     * @param player The player name. It has to be a player in the game
+     * @return Whether a player is connected or not
+     */
     public boolean isConnected(String player) {
         return connections.get(player);
     }
 
+    /**
+     * @return The list of all the chat messages
+     */
     public List<Message> getMessages() {
         return messages;
     }
 
+    /**
+     * @return The current {@link ClientState}
+     */
     public ClientState getState() {
         return state;
     }
 
+    /**
+     * @return The current {@link GameStatus}
+     */
     public GameStatus getGameStatus() {
         return gameStatus;
     }
 
+    /**
+     * @return The current {@link TurnPhase}
+     */
     public TurnPhase getTurnPhase() {
         return turnPhase;
     }
 
+    /**
+     * @return The name of the player who is currently playing
+     */
     public String getCurrentPlayer() {
         return currentPlayer;
     }
 
+    /**
+     * @return The list of all the playable positions
+     */
     public List<Position> getPlayablePositions() {
         return playablePositions;
     }
 
+    /**
+     * @return The color of the top card of each deck
+     */
     public Map<DeckLocation, CardColor> getDecksColor() {
         return Collections.unmodifiableMap(decksColor);
     }
 
+    /**
+     * @param deckLocation The deck source, either {@link DeckLocation#GOLDEN_CARD_DECK} or {@link DeckLocation#RESOURCE_CARD_DECK}
+     * @return Whether the specified deck is empty or not
+     */
     public boolean isDeckEmpty(DeckLocation deckLocation) {
         return (decksColor.get(deckLocation) == null);
     }
 
+    /**
+     * @return The list of the cards in the hand of the player
+     */
     public List<Integer> getHand() {
         return hand.stream().toList();
     }
 
+    /**
+     * @return The ids of the visible face up cards
+     */
     public List<Integer> getFaceUpCards() {
         return faceUpCards.stream().toList();
     }
 
+    /**
+     * @return The ids of the common objectives
+     */
     public List<Integer> getCommonObjectivesId() {
         return commonObjectivesId;
     }
 
+    /**
+     * @return The id of the secret objective chosen by the player
+     */
     public int getSecretObjectiveChoiceId() {
         return secretObjectiveChoiceId;
     }
 
+    /**
+     * @param secretObjectiveChoiceId The id of the secret objective chosen by the player
+     */
+    public void setSecretObjectiveChoiceId(int secretObjectiveChoiceId) {
+        this.secretObjectiveChoiceId = secretObjectiveChoiceId;
+    }
+
+    /**
+     * It clears all the data related to this game
+     */
     protected void clearData() {
         faceUpCards.clear();
         hand.clear();
@@ -571,6 +959,11 @@ public abstract class View implements EventEmitter<ViewEvent> {
         messages.clear();
     }
 
+    /**
+     * It calls the {@link Connection#send(NetworkMessage)}
+     *
+     * @param message The {@link C2SNetworkMessage} message to send to the server
+     */
     private void sendMessage(C2SNetworkMessage message) {
         try {
             connection.send(message);
@@ -579,36 +972,69 @@ public abstract class View implements EventEmitter<ViewEvent> {
         }
     }
 
+    /**
+     * It sends a message to the server to authenticate the player
+     *
+     * @param playerName The name chosen by the player
+     */
     public void authenticate(String playerName) {
         sendMessage(new AuthenticateC2S(
                 playerName
         ));
     }
 
+    /**
+     * It sends a message to the server to create a new game
+     *
+     * @param maxPlayers The maximum number of players allowed in the game
+     */
     public void createGameAndJoin(int maxPlayers) {
         sendMessage(new CreateGameAndJoinC2S(
                 maxPlayers
         ));
     }
 
+    /**
+     * It sends a message to the draw a card from the specified deck location
+     *
+     * @param deckLocation The deck source from which draw a card
+     */
     public void drawCardFromDeck(DeckLocation deckLocation) {
         sendMessage(new DrawCardFromDeckC2S(
                 deckLocation
         ));
     }
 
+    /**
+     * It sends a message to the server to draw the specified face up card
+     *
+     * @param cardId The id of the card to draw
+     */
     public void drawCardFromFaceUpCards(int cardId) {
         sendMessage(new DrawCardFromFaceUpCardsC2S(
                 cardId
         ));
     }
 
+    /**
+     * It sends a message to the server to join a game
+     *
+     * @param gameId The id of the game to join
+     */
     public void joinGame(int gameId) {
         sendMessage(new JoinGameC2S(
                 gameId
         ));
     }
 
+    /**
+     * It sends a message to the server to place a card in the play area
+     *
+     * @param cardId The id of the card to place
+     * @param side   The side of the card to place
+     * @param i      The i-coordinate of the position where the card has to be placed
+     * @param j      The j-coordinate of the position where the card has to be placed
+     */
     public void placeCard(int cardId, Side side, int i, int j) {
         sendMessage(new PlaceCardC2S(
                 cardId,
@@ -618,34 +1044,63 @@ public abstract class View implements EventEmitter<ViewEvent> {
         ));
     }
 
+    /**
+     * It sends a message to the server to resume the game
+     */
     public void resumeGame() {
         sendMessage(new ResumeGameC2S());
     }
 
+    /**
+     * It sends a message to select the specified color
+     *
+     * @param color The {@link PlayerColor} the player wants to choose
+     */
     public void selectColor(PlayerColor color) {
         sendMessage(new SelectColorC2S(
                 color
         ));
     }
 
+    /**
+     * It sends a message to select the specified secret objective
+     *
+     * @param objective The id of the objective the player wants to choose
+     */
     public void selectSecretObjective(int objective) {
         sendMessage(new SelectSecretObjectiveC2S(
                 objective
         ));
     }
 
+    /**
+     * It sends a message to select the side of the starting card
+     *
+     * @param side The {@link Side} the player wants to choose
+     */
     public void selectStartingCardSide(Side side) {
         sendMessage(new SelectStartingCardSideC2S(
                 side
         ));
     }
 
+    /**
+     * It sends a message to send a new broadcast message
+     *
+     * @param content The content of the message to send to all the other players
+     */
     public void sendBroadcastMessage(String content) {
         sendMessage(new SendBroadcastMessageC2S(
                 content
         ));
     }
 
+    /**
+     * It sends a message to send a new direct message
+     *
+     * @param content             The content of the message to send to the specified player
+     * @param recipientPlayerName The recipient of the message
+     */
     public void sendDirectMessage(String recipientPlayerName, String content) {
         sendMessage(new SendDirectMessageC2S(
                 recipientPlayerName,
@@ -653,20 +1108,32 @@ public abstract class View implements EventEmitter<ViewEvent> {
         ));
     }
 
+    /**
+     * It sends a message to start the current game
+     */
     public void startGame() {
         sendMessage(new StartGameC2S());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Registration onAny(EventListener<ViewEvent> listener) {
         return emitter.onAny(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends ViewEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return emitter.on(eventClass, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
@@ -677,6 +1144,15 @@ public abstract class View implements EventEmitter<ViewEvent> {
         RMI
     }
 
+    /**
+     * A chat message
+     *
+     * @param type      The type of the message, either {@link MessageType#BROADCAST} or {@link MessageType#DIRECT}
+     * @param sender    The sender of the message
+     * @param recipient The recipient of the message
+     * @param content   The content of the message
+     * @param timestamp The time the player sent the message
+     */
     public record Message(MessageType type, String sender, String recipient, String content, String timestamp) {
     }
 }
