@@ -6,10 +6,25 @@ import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
+/**
+ * The main purpose is to receive network messages from the server.
+ * In response to these messages the appropriate methods in the {@link View} class are invoked.
+ *
+ * @see View
+ * @see S2CNetworkMessage
+ * @see Connection
+ */
 public class ConnectionWrapper {
     private final Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private final View view;
 
+    /**
+     * It starts a new thread, responsible for receiving network messages from the server
+     *
+     * @param connection The open {@link Connection} between client and server
+     * @param view       The main {@link View} class, containing the local and reduced copy of server data
+     *                   and the methods to invoke in response to the network message
+     */
     public ConnectionWrapper(Connection<C2SNetworkMessage, S2CNetworkMessage> connection, View view) {
         this.connection = connection;
         this.view = view;
@@ -17,6 +32,15 @@ public class ConnectionWrapper {
         new Thread(this::poll).start();
     }
 
+    /**
+     * It receives network messages from the server and calls the handler method
+     * in the {@link View} class, based on the type of the received message.
+     * <p>
+     * The handler method is run on a different thread.
+     * <p>
+     * If it catches a {@link ReceiveNetworkException} it informs the {@link View}
+     * that the connection has been lost.
+     */
     private void poll() {
         while (true) {
             S2CNetworkMessage message;
