@@ -111,10 +111,7 @@ public class GUIView extends View {
     }
 
     /**
-     * It handles the changing of the scene for the main stage
-     *
-     * @param state      The current {@link ClientState} received from the server
-     * @param gameStatus The current {@link GameStatus} received from the server
+     * {@inheritDoc}
      */
     @Override
     protected void changeStage(ClientState state, GameStatus gameStatus) {
