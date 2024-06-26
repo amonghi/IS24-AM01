@@ -72,6 +72,10 @@ public abstract class BaseTCPConnection<S extends NetworkMessage, R extends Netw
     public R receive() throws ReceiveNetworkException {
         try {
             String json = in.readLine();
+            if (json == null) {
+                throw new ReceiveNetworkException("Connection closed");
+            }
+
             return gson.fromJson(json, receiveType);
         } catch (IOException | JsonParseException e) {
             throw new ReceiveNetworkException(e);
