@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * A component that renders an objective card in-game.
+ */
 public class ObjectiveComponent extends Element {
 
     public static final int OBJECTIVE_W = 25;
@@ -29,6 +32,11 @@ public class ObjectiveComponent extends Element {
     public static final int OBJECTIVE_INNER_CARD_H = 2;
     private final Objective objective;
 
+    /**
+     * Creates a new objective component for the given objective.
+     *
+     * @param objective the objective that this component represents
+     */
     public ObjectiveComponent(Objective objective) {
         super(Dimensions.of(OBJECTIVE_W, OBJECTIVE_H));
         this.objective = objective;

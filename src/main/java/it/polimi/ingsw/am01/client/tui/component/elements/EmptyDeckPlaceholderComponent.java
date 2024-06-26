@@ -11,7 +11,13 @@ import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
 import static it.polimi.ingsw.am01.client.tui.component.elements.CardFaceComponent.CARD_H;
 import static it.polimi.ingsw.am01.client.tui.component.elements.CardFaceComponent.CARD_W;
 
+/**
+ * A placeholder component that is displayed when the deck is empty instead of the top card.
+ */
 public class EmptyDeckPlaceholderComponent extends Element {
+    /**
+     * Creates a new empty deck placeholder component.
+     */
     public EmptyDeckPlaceholderComponent() {
         super(Dimensions.of(CARD_W, CARD_H));
     }

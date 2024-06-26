@@ -15,12 +15,25 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.stream.Stream;
 
+/**
+ * A component that represents the play area of the game.
+ * It contains the cards that are currently in play, and the positions where the player can place a card.
+ * The play area is scrollable in case it does not fit the screen.
+ */
 public class PlayAreaComponent extends Composition {
     private final int xScroll;
     private final int yScroll;
     private final SortedSet<Placement> playArea;
     private final List<it.polimi.ingsw.am01.client.Position> playablePositions;
 
+    /**
+     * Create a new PlayAreaComponent.
+     *
+     * @param xScroll           the horizontal scroll offset
+     * @param yScroll           the vertical scroll offset
+     * @param playArea          the cards that are currently placed in the play area
+     * @param playablePositions the positions where the player can place a card
+     */
     public PlayAreaComponent(
             int xScroll,
             int yScroll,

@@ -12,10 +12,18 @@ import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Component that contains the chat messages.
+ */
 public class ChatBox extends Composition {
 
     private final List<Component> messagesComponents;
 
+    /**
+     * Creates a new ChatBox.
+     *
+     * @param view The view containing the messages to display.
+     */
     public ChatBox(TuiView view) {
         this.messagesComponents = new ArrayList<>();
         for (View.Message m : view.getMessages()) {

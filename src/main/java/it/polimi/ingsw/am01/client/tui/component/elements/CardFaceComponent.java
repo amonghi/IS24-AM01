@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * A component that renders a card face.
+ */
 public class CardFaceComponent extends Element {
     public static final int CARD_W = 25;
     public static final int CARD_H = 9;
@@ -39,6 +42,12 @@ public class CardFaceComponent extends Element {
     private final CardColor cardColor;
     private final boolean isGolden;
 
+    /**
+     * Renders the face of a card that is on the given side.
+     *
+     * @param card the card
+     * @param side the side
+     */
     public CardFaceComponent(Card card, Side side) {
         super(Dimensions.of(CARD_W, CARD_H));
         this.face = card.getFace(side);

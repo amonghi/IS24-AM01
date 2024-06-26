@@ -11,11 +11,22 @@ import it.polimi.ingsw.am01.model.chat.MessageType;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Component that contains a chat message.
+ *
+ * @see ChatBox
+ */
 public class ChatMessage extends Composition {
 
     private final TuiView view;
     private final View.Message message;
 
+    /**
+     * Creates a new ChatMessage.
+     *
+     * @param message The message to display.
+     * @param view    The view containing the message.
+     */
     public ChatMessage(View.Message message, TuiView view) {
         this.message = message;
         this.view = view;
