@@ -7,6 +7,7 @@ import it.polimi.ingsw.am01.client.gui.controller.component.ColorChoiceControlle
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
 import it.polimi.ingsw.am01.client.gui.event.UpdatePlayerColorEvent;
+import it.polimi.ingsw.am01.model.game.GameStatus;
 import it.polimi.ingsw.am01.model.player.PlayerColor;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -24,6 +25,15 @@ import java.util.Objects;
 
 import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
 
+/**
+ * The main controller for the scene associated to these {@link GameStatus} and {@link it.polimi.ingsw.am01.client.ClientState}:
+ * <ul>
+ *     <li> {@link GameStatus#SETUP_COLOR} </li>
+ *     <li> {@link it.polimi.ingsw.am01.client.ClientState#IN_GAME} </li>
+ * </ul>
+ *
+ * @see SceneController
+ */
 public class SelectPlayerColorController extends SceneController {
 
     private static final int HIGHER_STROKE_WIDTH = 8;
@@ -65,6 +75,11 @@ public class SelectPlayerColorController extends SceneController {
 
     private PlayerColor colorChoice;
 
+    /**
+     * It constructs a new SelectPlayerColorController, calling the constructor of {@link SceneController}
+     *
+     * @param view The main {@link View} class, containing the local and reduced copy of server data
+     */
     public SelectPlayerColorController(View view) {
         super(view);
     }
@@ -90,15 +105,11 @@ public class SelectPlayerColorController extends SceneController {
         maxIcon.setOnMouseClicked(this::setFullScreen);
     }
 
-    @Override
-    protected void registerListeners() {
-        getViewRegistrations().addAll(List.of(
-                view.on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
-                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
-                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
-        ));
-    }
-
+    /**
+     * It shows the list of the players currently in game
+     *
+     * @param event The event received from the {@link View} containing the list of players currently in the game
+     */
     private void updatePlayerList(PlayerListChangedEvent event) {
         playersBox.getChildren().clear();
 
@@ -112,6 +123,9 @@ public class SelectPlayerColorController extends SceneController {
         }
     }
 
+    /**
+     * It opens the pane showing the chat
+     */
     @FXML
     private void openChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -120,6 +134,9 @@ public class SelectPlayerColorController extends SceneController {
         closeChatIcon.setVisible(true);
     }
 
+    /**
+     * It closes the pane showing the chat
+     */
     @FXML
     private void closeChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -128,6 +145,11 @@ public class SelectPlayerColorController extends SceneController {
         closeChatIcon.setVisible(false);
     }
 
+    /**
+     * It calls the {@link View#selectColor(PlayerColor)}
+     *
+     * @param event The event associated with the mouse click on the selected color
+     */
     @FXML
     private void confirm(Event event) {
         if (event.getSource().equals(yelloButton)) {
@@ -166,6 +188,11 @@ public class SelectPlayerColorController extends SceneController {
         view.selectColor(colorChoice);
     }
 
+    /**
+     * It sets the style of the four {@link Circle} corresponding to the four {@link PlayerColor}
+     *
+     * @param selectedCircle The {@link Circle} corresponding to the color selected by the player
+     */
     private void setCirclesStrokes(Circle selectedCircle) {
         yelloCircle.setStrokeWidth(LOWER_STROKE_WIDTH);
         blueCircle.setStrokeWidth(LOWER_STROKE_WIDTH);
@@ -175,6 +202,12 @@ public class SelectPlayerColorController extends SceneController {
         selectedCircle.setStrokeWidth(HIGHER_STROKE_WIDTH);
     }
 
+    /**
+     * It shows the players who have already chosen their {@link PlayerColor}
+     *
+     * @param event The event received from the {@link View} containing the {@link PlayerColor}
+     *              chosen by a certain player
+     */
     private void updatePlayersColor(UpdatePlayerColorEvent event) {
         for (ColorChoiceController controller : colorChoiceControllers) {
             if (controller.getPlayerName().equals(event.playerName())) {
@@ -183,6 +216,21 @@ public class SelectPlayerColorController extends SceneController {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerListeners() {
+        getViewRegistrations().addAll(List.of(
+                view.on(UpdatePlayerColorEvent.class, this::updatePlayersColor),
+                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+        ));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "color_choice_phase";

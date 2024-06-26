@@ -6,8 +6,18 @@ import javafx.fxml.FXMLLoader;
 
 import java.io.IOException;
 
+/**
+ * The main controller for a component.
+ * A component is a {@link GUIElement} that exists only as part of a scene
+ *
+ * @see GUIElement
+ */
 public interface ComponentController extends GUIElement {
 
+    /**
+     * It tries to load the component from its fxml file.
+     * It also sets itself as root and controller
+     */
     default void loadComponent() {
         FXMLLoader fxmlLoader = new FXMLLoader(ComponentController.class.getResource(
                 Constants.FXML_PATH + getFXMLFileName() + Constants.FXML_EXTENSION

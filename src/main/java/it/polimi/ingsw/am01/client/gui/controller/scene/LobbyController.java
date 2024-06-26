@@ -6,6 +6,7 @@ import it.polimi.ingsw.am01.client.gui.controller.component.ChatBoxController;
 import it.polimi.ingsw.am01.client.gui.controller.component.PlayerSlotController;
 import it.polimi.ingsw.am01.client.gui.event.NewMessageEvent;
 import it.polimi.ingsw.am01.client.gui.event.PlayerListChangedEvent;
+import it.polimi.ingsw.am01.model.game.GameStatus;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,6 +20,15 @@ import java.util.Objects;
 
 import static it.polimi.ingsw.am01.client.gui.controller.Utils.movePane;
 
+/**
+ * The main controller for the scene associated to these {@link GameStatus} and {@link it.polimi.ingsw.am01.client.ClientState}:
+ * <ul>
+ *     <li> {@link GameStatus#AWAITING_PLAYERS} </li>
+ *     <li> {@link it.polimi.ingsw.am01.client.ClientState#IN_GAME} </li>
+ * </ul>
+ *
+ * @see SceneController
+ */
 public class LobbyController extends SceneController {
     @FXML
     private HBox playerList;
@@ -34,6 +44,11 @@ public class LobbyController extends SceneController {
     private ImageView closeChatIcon;
     private ChatBoxController chatBoxController;
 
+    /**
+     * It constructs a new LobbyController, calling the constructor of {@link SceneController}
+     *
+     * @param view The main {@link View} class, containing the local and reduced copy of server data
+     */
     public LobbyController(View view) {
         super(view);
     }
@@ -48,14 +63,11 @@ public class LobbyController extends SceneController {
         gameId.setText("In game #" + view.getGameId());
     }
 
-    @Override
-    protected void registerListeners() {
-        getViewRegistrations().addAll(List.of(
-                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
-                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
-        ));
-    }
-
+    /**
+     * It shows the list of the players currently in the lobby
+     *
+     * @param event The event received from the {@link View} containing the list of players currently in the lobby
+     */
     private void updatePlayerList(PlayerListChangedEvent event) {
         playerList.getChildren().clear();
 
@@ -72,16 +84,18 @@ public class LobbyController extends SceneController {
         }
     }
 
-    @Override
-    public String getFXMLFileName() {
-        return "lobby";
-    }
-
+    /**
+     * It calls the {@link View#startGame()} method to start the game.
+     * This method can be called only when there are at least two players in the game
+     */
     @FXML
     private void start() {
         view.startGame();
     }
 
+    /**
+     * It opens the pane showing the chat
+     */
     @FXML
     private void openChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
@@ -90,11 +104,33 @@ public class LobbyController extends SceneController {
         closeChatIcon.setVisible(true);
     }
 
+    /**
+     * It closes the pane showing the chat
+     */
     @FXML
     private void closeChat() {
         openChatIcon.setImage(new Image(Objects.requireNonNull(getClass().getResource(Constants.ICONS_PATH + "chat" + Constants.IMAGE_EXTENSION)).toString()));
         movePane(400, chatPane);
         openChatIcon.setVisible(true);
         closeChatIcon.setVisible(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerListeners() {
+        getViewRegistrations().addAll(List.of(
+                view.on(PlayerListChangedEvent.class, this::updatePlayerList),
+                view.on(NewMessageEvent.class, event -> chatBoxController.updateMessages(event))
+        ));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getFXMLFileName() {
+        return "lobby";
     }
 }

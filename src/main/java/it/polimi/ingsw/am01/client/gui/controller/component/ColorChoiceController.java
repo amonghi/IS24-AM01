@@ -6,6 +6,13 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 
+/**
+ * The controller for the component used to show the {@link PlayerColor}
+ * chosen by the players
+ *
+ * @see PlayerColor
+ * @see it.polimi.ingsw.am01.client.gui.controller.scene.SelectPlayerColorController
+ */
 public class ColorChoiceController extends VBox implements ComponentController {
 
     private final String playerName;
@@ -14,6 +21,12 @@ public class ColorChoiceController extends VBox implements ComponentController {
     @FXML
     private Circle playerColorCircle;
 
+    /**
+     * It constructs a new ColorChoiceController.
+     * It also calls the {@link ComponentController#loadComponent()} method
+     *
+     * @param playerName The name of the player who has chosen his or her color
+     */
     public ColorChoiceController(String playerName) {
         this.playerName = playerName;
 
@@ -25,6 +38,12 @@ public class ColorChoiceController extends VBox implements ComponentController {
         playerNameLabel.setText(playerName);
     }
 
+    /**
+     * It shows the name of the player along with the chosen color
+     *
+     * @param playerColor The color the player has just chosen
+     * @see it.polimi.ingsw.am01.client.gui.controller.scene.SelectPlayerColorController
+     */
     public void setChoice(PlayerColor playerColor) {
         playerColorCircle.setFill(
                 switch (playerColor) {
@@ -37,10 +56,16 @@ public class ColorChoiceController extends VBox implements ComponentController {
         playerNameLabel.setText(playerName);
     }
 
+    /**
+     * @return The name of the player who has chosen his or her color
+     */
     public String getPlayerName() {
         return playerName;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "player_color_choice";

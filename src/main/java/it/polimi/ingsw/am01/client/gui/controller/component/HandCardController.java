@@ -14,6 +14,12 @@ import javafx.scene.layout.AnchorPane;
 
 import java.util.Objects;
 
+/**
+ * The controller for a hand card.
+ * A hand card is a placeable card of which you can see both the front and the back face
+ *
+ * @see CardController
+ */
 public class HandCardController extends CardController implements ComponentController {
     private final PlayAreaController playAreaController;
     @FXML
@@ -21,6 +27,16 @@ public class HandCardController extends CardController implements ComponentContr
     @FXML
     private AnchorPane card;
 
+    /**
+     * It constructs a new HandCardController, calling the constructor of {@link CardController}
+     * <p>
+     * It also calls the {@link ComponentController#loadComponent()} method
+     *
+     * @param id                 The id of the card to place
+     * @param side               The side of the card to place
+     * @param playAreaController The controller of the play area, i.e. the scene where this component is used
+     * @see CardController
+     */
     public HandCardController(int id, Side side, PlayAreaController playAreaController) {
         super(id, side);
         this.playAreaController = playAreaController;
@@ -50,10 +66,22 @@ public class HandCardController extends CardController implements ComponentContr
         });
     }
 
+    /**
+     * It calls the {@link PlayAreaController#setCardPlacement(int, Side)} method
+     */
     private void selectCardToPlace() {
         playAreaController.setCardPlacement(super.cardId, super.side);
     }
 
+    /**
+     * It flips the card showing:
+     * <ul>
+     *     <li> The back face, if the front is currently visible </li>
+     *     <li> The front face, if the back is currently visible </li>
+     * </ul>
+     *
+     * @param event The {@link MouseEvent} generated when the hand card is clicked
+     */
     private void swapSide(MouseEvent event) {
         super.side = super.side.equals(Side.FRONT) ? Side.BACK : Side.FRONT;
         imageView.getImage().cancel();
@@ -61,6 +89,9 @@ public class HandCardController extends CardController implements ComponentContr
         imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(path)).toString()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "card";

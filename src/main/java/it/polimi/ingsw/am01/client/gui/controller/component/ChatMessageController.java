@@ -11,6 +11,12 @@ import javafx.scene.layout.HBox;
 
 import java.time.LocalDateTime;
 
+/**
+ * The controller for the message component
+ *
+ * @see ChatBoxController
+ * @see it.polimi.ingsw.am01.client.View.Message
+ */
 public class ChatMessageController extends HBox implements ComponentController {
 
     private final static String baseMessageStyle = "-fx-background-color: black; -fx-background-radius: 5; -fx-text-fill: white; -fx-padding: 2";
@@ -30,6 +36,15 @@ public class ChatMessageController extends HBox implements ComponentController {
     @FXML
     private TextArea message;
 
+    /**
+     * It constructs a new ChatMessageController initializing all the components of the message, based on the
+     * {@link it.polimi.ingsw.am01.client.View.Message} received as parameter
+     * <p>
+     * It also calls the {@link ComponentController#loadComponent()} method
+     *
+     * @param message The {@link it.polimi.ingsw.am01.client.View.Message} to add to the chat box
+     * @param view    The main {@link View} class, containing the local and reduced copy of server data
+     */
     public ChatMessageController(View.Message message, View view) {
         this.view = view;
         this.type = message.type().toString();
@@ -78,6 +93,9 @@ public class ChatMessageController extends HBox implements ComponentController {
             this.setAlignment(Pos.CENTER_RIGHT);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "chat_message";

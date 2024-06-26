@@ -9,6 +9,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+/**
+ * The controller for the component that show the information of the players in the game,
+ * once they want to restore the game
+ * <ul>
+ *     <li> The player name </li>
+ *     <li> The player color </li>
+ *     <li> The connection status of the player </li>
+ * </ul>
+ */
 public class RestoringPlayerSlotController extends VBox implements ComponentController {
     private final String player;
     private final PlayerColor playerColor;
@@ -21,7 +30,15 @@ public class RestoringPlayerSlotController extends VBox implements ComponentCont
     @FXML
     Label connectionLabel;
 
-
+    /**
+     * It constructs a new RestoringPlayerSlotController.
+     * It also calls the {@link ComponentController#loadComponent()} method
+     *
+     * @param player      The player name
+     * @param playerColor The player color
+     * @param isConnected The player's connection status
+     * @param view        The main {@link View} class, containing the local and reduced copy of server data
+     */
     public RestoringPlayerSlotController(String player, PlayerColor playerColor, Boolean isConnected, View view) {
         this.view = view;
         this.player = player;
@@ -44,6 +61,9 @@ public class RestoringPlayerSlotController extends VBox implements ComponentCont
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFXMLFileName() {
         return "restoring_player_slot";
