@@ -12,6 +12,11 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * The controller for a generic customized popup
+ *
+ * @see GameCreationPopupController
+ */
 public abstract class PopupController implements GUIElement {
 
     protected View view;
@@ -19,6 +24,13 @@ public abstract class PopupController implements GUIElement {
     private double width = Constants.POPUP_WIDTH;
     private double height = Constants.POPUP_HEIGHT;
 
+    /**
+     * It tries to load the popup component from its fxml file.
+     * It also sets itself as controller
+     *
+     * @param primaryStage The main stage
+     * @param view         The main {@link View} class, containing the local and reduced copy of server data
+     */
     public void loadPopup(Stage primaryStage, View view) {
         this.view = view;
         FXMLLoader fxmlLoader = new FXMLLoader(ComponentController.class.getResource(
@@ -48,18 +60,16 @@ public abstract class PopupController implements GUIElement {
         }
     }
 
-    protected void setWidth(double width) {
-        this.width = width;
-    }
-
-    protected void setHeight(double height) {
-        this.height = height;
-    }
-
+    /**
+     * It closes the popup stage
+     */
     protected void closePopup() {
         popupStage.close();
     }
 
+    /**
+     * @return The title of the popup
+     */
     protected String getPopupTitle() {
         return "";
     }

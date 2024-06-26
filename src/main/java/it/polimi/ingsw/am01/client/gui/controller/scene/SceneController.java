@@ -67,7 +67,7 @@ public abstract class SceneController implements GUIElement {
     }
 
     /**
-     * It set the {@link Stage#fullScreenProperty()} to:
+     * It sets the {@link Stage#fullScreenProperty()} to:
      * <ul>
      *      <li> true, if the stage is not maximized </li>
      *      <li> false, if the stage is maximized </li>
