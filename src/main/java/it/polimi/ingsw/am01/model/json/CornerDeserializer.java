@@ -6,8 +6,13 @@ import it.polimi.ingsw.am01.model.collectible.Collectible;
 
 import java.lang.reflect.Type;
 
-
+/**
+ * GSON deserializer for {@link Corner}
+ */
 public class CornerDeserializer implements JsonDeserializer<Corner> {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Corner deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         String value = jsonElement.getAsString();

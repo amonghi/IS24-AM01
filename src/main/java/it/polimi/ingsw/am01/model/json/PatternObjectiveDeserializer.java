@@ -9,7 +9,13 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * GSON deserializer for {@link PatternObjective}
+ */
 public class PatternObjectiveDeserializer implements JsonDeserializer<PatternObjective> {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PatternObjective deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -36,6 +42,12 @@ public class PatternObjectiveDeserializer implements JsonDeserializer<PatternObj
         return new PatternObjective(id, points, patternMap);
     }
 
+    /**
+     * Parse a character that represents a color into a {@link CardColor}
+     *
+     * @param color the character representing the color between (R, G, B, P)
+     * @return the corresponding {@link CardColor}
+     */
     private static CardColor parseColor(char color) {
         return switch (Character.toUpperCase(color)) {
             case 'R' -> CardColor.RED;

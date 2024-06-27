@@ -7,8 +7,14 @@ import it.polimi.ingsw.am01.model.chat.Message;
 
 import java.lang.reflect.Type;
 
+/**
+ * GSON serializer and deserializer for {@link Message}
+ */
 public class ChatMessageSerDes implements JsonDeserializer<Message>, JsonSerializer<Message> {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Message deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
@@ -23,7 +29,9 @@ public class ChatMessageSerDes implements JsonDeserializer<Message>, JsonSeriali
         };
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonElement serialize(Message msg, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject result = new JsonObject();

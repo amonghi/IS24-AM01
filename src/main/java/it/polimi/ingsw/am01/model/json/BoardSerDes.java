@@ -7,7 +7,14 @@ import it.polimi.ingsw.am01.model.game.Deck;
 import java.lang.reflect.Type;
 import java.util.stream.Collectors;
 
+/**
+ * GSON serializer and deserializer for {@link Board}
+ */
 public class BoardSerDes implements JsonSerializer<Board>, JsonDeserializer<Board> {
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonElement serialize(Board board, Type type, JsonSerializationContext context) {
         JsonObject jsonObject = new JsonObject();
@@ -32,6 +39,9 @@ public class BoardSerDes implements JsonSerializer<Board>, JsonDeserializer<Boar
         return jsonObject;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Board deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         return new Board(

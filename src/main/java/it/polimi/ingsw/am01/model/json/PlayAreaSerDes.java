@@ -9,7 +9,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * GSON serializer and deserializer for {@link PlayArea}
+ */
 public class PlayAreaSerDes implements JsonSerializer<PlayArea>, JsonDeserializer<PlayArea> {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PlayArea deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -41,6 +47,9 @@ public class PlayAreaSerDes implements JsonSerializer<PlayArea>, JsonDeserialize
         return playArea;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public JsonElement serialize(PlayArea playArea, Type type, JsonSerializationContext context) {
         JsonObject jsonObject = new JsonObject();
