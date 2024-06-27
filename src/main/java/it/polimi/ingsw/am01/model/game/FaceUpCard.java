@@ -106,16 +106,25 @@ public class FaceUpCard implements DrawSource, EventEmitter<FaceUpCardReplacedEv
         return Objects.hash(card, mainSource, auxiliarySource);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Registration onAny(EventListener<FaceUpCardReplacedEvent> listener) {
         return getEmitter().onAny(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends FaceUpCardReplacedEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return getEmitter().on(eventClass, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean unregister(Registration registration) {
         return getEmitter().unregister(registration);

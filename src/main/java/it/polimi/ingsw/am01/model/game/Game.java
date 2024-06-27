@@ -1025,16 +1025,25 @@ public class Game implements EventEmitter<GameEvent> {
         return Objects.hash(id);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Registration onAny(EventListener<GameEvent> listener) {
         return getEmitter().onAny(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends GameEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return getEmitter().on(eventClass, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean unregister(Registration registration) {
         return getEmitter().unregister(registration);

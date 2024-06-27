@@ -292,16 +292,25 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         return gson.fromJson(json, Game.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Registration onAny(EventListener<GameManagerEvent> listener) {
         return emitter.onAny(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends GameManagerEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return emitter.on(eventClass, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);
