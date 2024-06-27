@@ -23,6 +23,17 @@ import it.polimi.ingsw.am01.network.message.s2c.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * This class handles {@link it.polimi.ingsw.am01.network.message.NetworkMessage NetworkMessage} between client and server:
+ * <li>send message to the client when events are emitted;</li>
+ * <li>receive client message and manage them by calling {@link Controller}, {@link PlayerManager} and {@link GameManager} classes.</li>
+ * To each player is associated an instance of this class.
+ * This class is {@link Runnable} and it is executed by a different thread.
+ *
+ * @see it.polimi.ingsw.am01.network.message.NetworkMessage
+ * @see Controller
+ * @see PlayerManager
+ */
 public class VirtualView implements Runnable {
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
@@ -33,6 +44,15 @@ public class VirtualView implements Runnable {
     private Game game;
     private PlayerProfile playerProfile;
 
+    /**
+     * Constructs a new instance of {@link VirtualView} with the given parameters.
+     * It also makes this object listen to {@link GameManager} events.
+     *
+     * @param controller    the controller classes that permit to modify the model
+     * @param connection    the connection between client and server
+     * @param gameManager   the game handler
+     * @param playerManager the player handler
+     */
     public VirtualView(Controller controller, Connection<S2CNetworkMessage, C2SNetworkMessage> connection, GameManager gameManager, PlayerManager playerManager) {
         this.controller = controller;
         this.connection = connection;
@@ -53,6 +73,11 @@ public class VirtualView implements Runnable {
         startCheckingClientConnection();
     }
 
+    /**
+     * This method detects clients disconnection.
+     *
+     * @see Game#handleDisconnection(PlayerProfile)
+     */
     private void startCheckingClientConnection() {
         Timer ping = new Timer();
         ping.schedule(new TimerTask() {
@@ -69,6 +94,10 @@ public class VirtualView implements Runnable {
         }, 0, 500);
     }
 
+    /**
+     * This method handles the disconnection of the relative client.
+     * It removes the player from the game and from the playerManager.
+     */
     private void handleDisconnection() {
         gameManagerRegistrations.forEach(gameManager::unregister);
         if (this.playerProfile != null) {
@@ -83,6 +112,10 @@ public class VirtualView implements Runnable {
         setPlayerProfile(null);
     }
 
+    /**
+     * This method handles the reconnection of a client.
+     * It set the game to the one in which the player was playing before the disconnection.
+     */
     private void handleReconnection() {
         gameManager.getGames().stream().filter(
                 game -> game.getPlayerProfiles().contains(playerProfile) && !game.isConnected(playerProfile)
@@ -96,18 +129,25 @@ public class VirtualView implements Runnable {
         });
     }
 
+    /**
+     * @return the game manager
+     */
     public GameManager getGameManager() {
         return this.gameManager;
     }
 
-    public PlayerManager getPlayerManager() {
-        return this.playerManager;
-    }
-
+    /**
+     * @return the game in which the player is in
+     */
     public Optional<Game> getGame() {
         return Optional.ofNullable(game);
     }
 
+    /**
+     * It sets the game to the given one and make the {@link VirtualView} listens to its events.
+     *
+     * @param game the game to set
+     */
     private void setGame(Game game) {
         if (this.game != null) {
             gameRegistrations.forEach(this.game::unregister);
@@ -142,14 +182,25 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * @return the player profile associated to this {@link VirtualView} instance
+     */
     public Optional<PlayerProfile> getPlayerProfile() {
         return Optional.ofNullable(playerProfile);
     }
 
+    /**
+     * It sets the player profile to the given one.
+     *
+     * @param playerProfile the player profile to set
+     */
     private void setPlayerProfile(PlayerProfile playerProfile) {
         this.playerProfile = playerProfile;
     }
 
+    /**
+     * This method receives a message from the client and manages it.
+     */
     @Override
     public void run() {
         while (true) {
@@ -179,6 +230,9 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method closes the connection
+     */
     private void disconnect() {
         try {
             this.connection.close();
@@ -188,6 +242,15 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * A helper method that wraps a {@link NetworkEventListener} in a {@link EventListener} that catches {@link NetworkException}
+     * <p>
+     * This is needed because event listeners cannot throw exceptions.
+     *
+     * @param listener the listener
+     * @param <E>      the type of event
+     * @return the wrapped listener
+     */
     private <E extends Event> EventListener<E> exceptionFilter(NetworkEventListener<E> listener) {
         return (E event) -> {
             try {
@@ -199,6 +262,12 @@ public class VirtualView implements Runnable {
         };
     }
 
+    /**
+     * It handles the {@link NewMessageIncomingEvent}
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void newMessage(NewMessageIncomingEvent event) throws NetworkException {
         if (event.message().isRecipient(playerProfile)) {
             connection.send(new NewMessageS2C(
@@ -210,6 +279,12 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * It handles the {@link CardPlacedEvent}
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void updatePlayArea(CardPlacedEvent event) throws NetworkException {
         connection.send(
                 new UpdatePlayAreaS2C(
@@ -224,6 +299,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link UndoPlacementEvent}
+     *
+     * @param event The event received from {@link Game}
+     * @throws SendNetworkException if there are connection problems
+     */
     private void updatePlayAreaAfterUndo(UndoPlacementEvent event) throws SendNetworkException {
         connection.send(
                 new UpdatePlayAreaAfterUndoS2C(
@@ -236,6 +317,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link UpdateGameStatusAndTurnEvent}
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void updateGameStatusAndTurn(UpdateGameStatusAndTurnEvent event) throws NetworkException {
         GameStatus status = event.gameStatus() == GameStatus.SECOND_LAST_TURN ? GameStatus.PLAY : event.gameStatus();
         connection.send(
@@ -257,6 +344,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * It handles the {@link GameFinishedEvent}.
+     * It also sets the current game to {@code null}
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void leaveGame(GameFinishedEvent event) throws NetworkException {
         connection.send(
                 new GameFinishedS2C(
@@ -268,6 +362,13 @@ public class VirtualView implements Runnable {
         setGame(null);
     }
 
+    /**
+     * It handles the {@link GameAbortedEvent}.
+     * It also sets the current game to {@code null}
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void kickAllPlayers(GameAbortedEvent event) throws NetworkException {
         connection.send(
                 new KickedFromGameS2C()
@@ -275,12 +376,25 @@ public class VirtualView implements Runnable {
         setGame(null);
     }
 
+    /**
+     * It handles the {@link PlayerKickedEvent}.
+     * It also sets the current game to {@code null}, if this player is the kicked one
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void kickPlayer(PlayerKickedEvent event) throws NetworkException {
         if (event.player().equals(playerProfile)) {
             setGame(null);
         }
     }
 
+    /**
+     * It handles the {@link AllColorChoicesSettledEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void updateGameStatusAndSetupObjective(AllColorChoicesSettledEvent event) throws NetworkException {
         List<Objective> objectiveOptions = new ArrayList<>(game.getObjectiveOptions(playerProfile));
         connection.send(
@@ -291,6 +405,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link PlayerChangedColorChoiceEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void updatePlayerColor(PlayerChangedColorChoiceEvent event) throws NetworkException {
         connection.send(
                 new UpdatePlayerColorS2C(
@@ -300,6 +420,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link FaceUpCardReplacedEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void updateFaceUpCards(FaceUpCardReplacedEvent event) throws NetworkException {
         connection.send(
                 new UpdateFaceUpCardsS2C(
@@ -311,6 +437,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link CardDrawnFromDeckEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void updateDeckStatus(CardDrawnFromDeckEvent event) throws NetworkException {
         connection.send(
                 new UpdateDeckStatusS2C(
@@ -320,6 +452,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link CardDrawnFromEmptySourceEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void notifyOfEmptySource(CardDrawnFromEmptySourceEvent event) throws NetworkException {
         connection.send(
                 new EmptySourceS2C(
@@ -328,6 +466,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link SecretObjectiveChosenEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void updateChosenObjectiveList(SecretObjectiveChosenEvent event) throws NetworkException {
         connection.send(
                 new UpdateObjectiveSelectedS2C(
@@ -338,6 +482,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link SetUpPhaseFinishedEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void setBoardAndHand(SetUpPhaseFinishedEvent event) throws NetworkException {
         Set<Integer> commonObjectives = event.commonObjective().stream().map(Objective::getId).collect(Collectors.toSet());
         Set<Integer> faceUpCards = event.faceUpCards().stream()
@@ -357,6 +507,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link HandChangedEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void updatePlayerHand(HandChangedEvent event) throws NetworkException {
         if (event.playerProfile().equals(playerProfile)) {
             connection.send(
@@ -367,6 +523,12 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * It handles the {@link GameManagerEvent}.
+     *
+     * @param event The event received from {@link GameManager}
+     * @throws NetworkException if there are connection problems
+     */
     private void gameListChanged(GameManagerEvent event) throws NetworkException {
         if (game != null || playerProfile == null) {
             return;
@@ -385,6 +547,12 @@ public class VirtualView implements Runnable {
         ));
     }
 
+    /**
+     * It handles the {@link AllPlayersChoseStartingCardSideEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void allPlayersChoseSide(AllPlayersChoseStartingCardSideEvent event) throws NetworkException {
         connection.send(
                 new UpdateGameStatusS2C(
@@ -393,6 +561,12 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link AllPlayersJoinedEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void allPlayersJoined(AllPlayersJoinedEvent event) throws NetworkException {
         connection.send(
                 new SetStartingCardS2C(
@@ -401,12 +575,24 @@ public class VirtualView implements Runnable {
         );
     }
 
+    /**
+     * It handles the {@link GamePausedEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void gamePaused(GamePausedEvent event) throws NetworkException {
         connection.send(
                 new SetGamePauseS2C()
         );
     }
 
+    /**
+     * It handles the {@link GameResumedEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws NetworkException if there are connection problems
+     */
     private void gameResumed(GameResumedEvent event) throws NetworkException {
         connection.send(new GameResumedS2C());
         connection.send(
@@ -428,6 +614,12 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * It handles the {@link PlayerJoinedInGameEvent}.
+     *
+     * @param event The event received from {@link GameManager}
+     * @throws NetworkException if there are connection problems
+     */
     private void playerJoined(PlayerJoinedInGameEvent event) throws NetworkException {
         if (playerProfile == null) {
             return;
@@ -461,6 +653,12 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * It handles the {@link PlayerLeftFromGameEvent}.
+     *
+     * @param event The event received from {@link GameManager}
+     * @throws NetworkException if there are connection problems
+     */
     private void playerLeft(PlayerLeftFromGameEvent event) throws NetworkException {
         if (playerProfile == null) {
             return;
@@ -482,12 +680,24 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * It handles the {@link PlayerDisconnectedEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws SendNetworkException if there are connection problems
+     */
     private void playerDisconnected(PlayerDisconnectedEvent event) throws SendNetworkException {
         if (!event.pp().equals(playerProfile)) {
             connection.send(new PlayerDisconnectedS2C(event.pp().name()));
         }
     }
 
+    /**
+     * It handles the {@link PlayerReconnectedEvent}.
+     *
+     * @param event The event received from {@link Game}
+     * @throws SendNetworkException if there are connection problems
+     */
     private void playerReconnected(PlayerReconnectedEvent event) throws SendNetworkException {
         if (!event.pp().equals(playerProfile)) {
             connection.send(new PlayerReconnectedS2C(event.pp().name()));
@@ -496,7 +706,7 @@ public class VirtualView implements Runnable {
                 connection.send(new SetupAfterReconnectionS2C(
                         game.getPlayerProfiles().stream()
                                 .collect(Collectors.toMap(
-                                        PlayerProfile::name,
+                                                PlayerProfile::name,
                                                 p -> game.getPlayArea(p).getCards().entrySet().stream()
                                                         .collect(Collectors.toMap(
                                                                         Map.Entry::getKey,
@@ -546,6 +756,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link AuthenticateC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(AuthenticateC2S message) throws IllegalMoveException, NetworkException {
         if (playerProfile != null) {
             return;
@@ -569,6 +786,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link CreateGameAndJoinC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(CreateGameAndJoinC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.createAndJoinGame(message.maxPlayers(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name());
@@ -577,7 +801,13 @@ public class VirtualView implements Runnable {
         }
     }
 
-
+    /**
+     * This method manages {@link DrawCardFromDeckC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(DrawCardFromDeckC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.drawCardFromDeck(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(), message.deckLocation());
@@ -588,6 +818,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link DrawCardFromFaceUpCardsC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(DrawCardFromFaceUpCardsC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.drawCardFromFaceUpCards(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(), message.cardId());
@@ -600,6 +837,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link JoinGameC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(JoinGameC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.joinGame(message.gameId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name());
@@ -610,6 +854,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link PlaceCardC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(PlaceCardC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.placeCard(
@@ -628,6 +879,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link SelectColorC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(SelectColorC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectPlayerColor(
@@ -642,6 +900,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link SelectSecretObjectiveC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(SelectSecretObjectiveC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectSecretObjective(this.getGame().orElseThrow(PlayerNotInGameException::new).getId(), this.getPlayerProfile().orElseThrow(NotAuthenticatedException::new).name(), message.objective());
@@ -656,6 +921,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link SelectStartingCardSideC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(SelectStartingCardSideC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.selectStartingCardSide(
@@ -672,6 +944,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link StartGameC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(StartGameC2S message) throws IllegalMoveException, NetworkException {
         try {
             controller.startGame(this.getGame().orElseThrow(PlayerNotInGameException::new).getId());
@@ -684,6 +963,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link SendBroadcastMessageC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(SendBroadcastMessageC2S message) throws IllegalMoveException, NetworkException {
         try {
             Message chatMsg = controller.sendBroadcastMessage(
@@ -704,6 +990,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link SendDirectMessageC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(SendDirectMessageC2S message) throws IllegalMoveException, NetworkException {
         try {
             Message chatMsg = controller.sendDirectMessage(
@@ -730,6 +1023,13 @@ public class VirtualView implements Runnable {
         }
     }
 
+    /**
+     * This method manages {@link ResumeGameC2S} message
+     *
+     * @param message the message sent by the client
+     * @throws IllegalMoveException if message is sent during wrong {@link GameStatus}
+     * @throws NetworkException     if there are connection problems
+     */
     public void handleMessage(ResumeGameC2S message) throws IllegalMoveException, NetworkException {
         if (game.getStatus() != GameStatus.RESTORING)
             throw new IllegalGameStateException();
@@ -745,9 +1045,12 @@ public class VirtualView implements Runnable {
         }
     }
 
-
+    /**
+     * A functional interface that represents a listener for network events.
+     *
+     * @param <E> the type of event
+     */
     private interface NetworkEventListener<E extends Event> {
         void onEvent(E event) throws NetworkException;
     }
-
 }
