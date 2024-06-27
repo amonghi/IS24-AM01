@@ -11,102 +11,90 @@ Components:
 
 ## Repository map
 
-- :file_folder: `deliverables`: artifacts to be turned in
-- :file_folder: `docs`: documentation
-  - `docs/conventions.md`: conventions that we decided to follow for the development of this project
-- :file_folder: `src`: source code
+- :file_folder: `deliverables`
+    - :file_folder: `javadocs`
+    - :file_folder: `UML`
+        - :file_folder: `high-level`
+        - :file_folder: `detail` (auto generated)
+    - :file_folder: `sequence-diagrams`
+    - :file_folder: `peer-reviews`
+        - :file_folder: `delivered-for-reviews`
+            - :file_folder: `UML`
+            - :file_folder: `sequence-diagram`
+        - :file_folder: `reviews`
+            - :page_facing_up: `UML-review.md`
+            - :page_facing_up: `sequence-diagram-review.md`
+- :file_folder: `docs`
+    - :page_facing_up: `conventions.md`: conventions that we decided to follow for the development of this project
+- :file_folder: `src`: source code, unit tests and resources
+- :page_facing_up: `tui.sh` and :page_facing_up: `tui.bat`: helper scripts, made to aid in the development of the TUI
+
+## Functionalities
+
+| Feature        |   Status    |
+|----------------|:-----------:|
+| Basic rules    | Implemented |
+| Advanced rules | Implemented |
+| Socket         | Implemented |
+| RMI            | Implemented |
+| TUI            | Implemented |
+| GUI            | Implemented |
 
 ## Advanced features
 
-| Feature                      | Status  |
-|------------------------------|:-------:|
-| Concurrent games             | Planned |
-| Persistence                  | Planned |
-| Resilience to disconnections | Planned |
-| Chat                         | Planned |
+| Feature                      |   Status    |
+|------------------------------|:-----------:|
+| Concurrent games             | Implemented |
+| Persistence                  | Implemented |
+| Resilience to disconnections | Implemented |
+| Chat                         | Implemented |
 
-## Implementation progress
+## How to run the application
 
-|        Emoji         | Meaning          |
-|:--------------------:|------------------|
-| :white_large_square: | Not completed    |
-|    :construction:    | Work in progress |
-|  :white_check_mark:  | Completed        |
-|       `empty`        | N/A              |
+### Server
 
-### Card
+To run the server, you can use the following command:
 
-|                                     | Class               |    Implemented     |     Documented     |       Tested       |
-|-------------------------------------|---------------------|:------------------:|:------------------:|:------------------:|
-|                                     | Card                | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| ![Enum](img/enum.svg)               | CardColor           | :white_check_mark: | :white_check_mark: |                    |
-| ![Enum](img/enum.svg)               | Side                | :white_check_mark: | :white_check_mark: |                    |
-| ![Interface](img/interface.svg)     | CardFace            | :white_check_mark: | :white_check_mark: |                    |
-| ![Abstract class](img/abstract.svg) | BaseCardFace        | :white_check_mark: | :white_check_mark: |                    |
-|                                     | BackCardFace        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                     | FrontCardFace       | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                     | Corner              | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| ![Enum](img/enum.svg)               | CornerPosition      | :white_check_mark: | :white_check_mark: |                    |
-|                                     | PlacementConstraint | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| ![Interface](img/interface.svg)     | Points              | :white_check_mark: | :white_check_mark: |                    |
-|                                     | SimplePoints        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                     | ItemPoints          | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                     | CornerCoverPoints   | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+```shell
+java -jar AM01-1.0-SNAPSHOT-server.jar <TCP_PORT> <RMI_PORT> 
+```
 
-### Chat
+Default ports: `8888` for TCP and `7777` for RMI.
 
-|                                     | Class            |    Implemented     |     Documented     |       Tested       |
-|-------------------------------------|------------------|:------------------:|:------------------:|:------------------:|
-|                                     | ChatManager      | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| ![Abstract class](img/abstract.svg) | Message          | :white_check_mark: | :white_check_mark: |                    |
-|                                     | DirectMessage    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                     | BroadcastMessage | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+### Client
 
-### Choice
+#### GUI
 
-|                       | Class           |    Implemented     |      Documented      |       Tested       |
-|-----------------------|-----------------|:------------------:|:--------------------:|:------------------:|
-|                       | Choice          | :white_check_mark: |  :white_check_mark:  | :white_check_mark: |
-|                       | MultiChoice     | :white_check_mark: | :white_large_square: | :white_check_mark: |
-| ![Enum](img/enum.svg) | SelectionResult | :white_check_mark: | :white_large_square: |                    |
+To run the client with the GUI, you can use the following command:
 
-### Collectible
+```shell
+java -jar AM01-1.0-SNAPSHOT-client-gui.jar
+```
 
-|                                 | Class       |    Implemented     |     Documented     | Tested |
-|---------------------------------|-------------|:------------------:|:------------------:|:------:|
-| ![Interface](img/interface.svg) | Collectible | :white_check_mark: | :white_check_mark: |        |
-| ![Enum](img/enum.svg)           | Item        | :white_check_mark: | :white_check_mark: |        |
-| ![Enum](img/enum.svg)           | Resource    | :white_check_mark: | :white_check_mark: |        |
+#### TUI
 
-### Objective
+##### Unix
 
-|                                     | Class                         |    Implemented     |     Documented     |       Tested       |
-|-------------------------------------|-------------------------------|:------------------:|:------------------:|:------------------:|
-| ![Abstract class](img/abstract.svg) | Objective                     | :white_check_mark: | :white_check_mark: |                    |
-|                                     | SameCollectibleObjective      | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                     | DifferentCollectibleObjective | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                     | PatternObjective              | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+To run the client with the TUI on Unix systems, you can use the following command:
 
-### Player
+```shell
+java -jar AM01-1.0-SNAPSHOT-client-tui.jar
+```
 
-|                       | Class         |      Implemented      |     Documented     |       Tested       |
-|-----------------------|---------------|:---------------------:|:------------------:|:------------------:|
-|                       | PlayerProfile |  :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-|                       | PlayerData    |  :white_check_mark:   | :white_check_mark: | :white_check_mark: |
-| ![Enum](img/enum.svg) | PlayerColor   |  :white_check_mark:   | :white_check_mark: |                    |
+##### Windows
 
-### Game
+To run the client with the TUI on Windows systems, it is required to enable Unicode support in the terminal.
+To do that:
 
-|                                 | Class       |    Implemented     |     Documented     |       Tested       |
-|---------------------------------|-------------|:------------------:|:------------------:|:------------------:|
-|                                 | Game        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| ![Enum](img/enum.svg)           | GameStatus  | :white_check_mark: | :white_check_mark: |                    |
-| ![Enum](img/enum.svg)           | TurnPhase   | :white_check_mark: | :white_check_mark: |                    |
-|                                 | GameManager | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                 | PlayArea    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                 | Board       | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                 | Deck        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|                                 | FaceUpCard  | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| ![Interface](img/interface.svg) | DrawSource  | :white_check_mark: | :white_check_mark: |                    |
-| ![Enum](img/enum.svg)           | DrawResult  | :white_check_mark: | :white_check_mark: |                    |
-|                                 | GameAssets  | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+1. Use the [Windows Terminal](https://apps.microsoft.com/detail/9n0dx20hk701)
+2. Run the following command: `chcp 65001`
+
+Then you can run the client with the TUI using the following command:
+
+```shell
+java -jar AM01-1.0-SNAPSHOT-client-tui.jar
+```
+
+##### MacOS
+
+MacOS is not supported for the TUI client.

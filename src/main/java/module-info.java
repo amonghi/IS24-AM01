@@ -41,7 +41,19 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.client.tui.terminal to com.sun.jna;
 
     exports it.polimi.ingsw.am01;
-    exports it.polimi.ingsw.am01.network to java.rmi;
+    exports it.polimi.ingsw.am01.client;
+    exports it.polimi.ingsw.am01.controller;
+    exports it.polimi.ingsw.am01.eventemitter;
+    exports it.polimi.ingsw.am01.model.card;
+    exports it.polimi.ingsw.am01.model.chat;
+    exports it.polimi.ingsw.am01.model.collectible;
+    exports it.polimi.ingsw.am01.model.event;
+    exports it.polimi.ingsw.am01.model.exception;
+    exports it.polimi.ingsw.am01.model.game;
+    exports it.polimi.ingsw.am01.model.json;
+    exports it.polimi.ingsw.am01.model.objective;
+    exports it.polimi.ingsw.am01.model.player;
+    exports it.polimi.ingsw.am01.network;
     exports it.polimi.ingsw.am01.network.rmi to java.rmi;
     exports it.polimi.ingsw.am01.network.rmi.server to java.rmi;
     exports it.polimi.ingsw.am01.network.rmi.client to java.rmi;
@@ -52,8 +64,6 @@ module it.polimi.ingsw.am01 {
     exports it.polimi.ingsw.am01.client.gui.controller.scene to javafx.graphics;
     exports it.polimi.ingsw.am01.client.gui.controller.component to javafx.graphics;
     exports it.polimi.ingsw.am01.client.gui.event to javafx.graphics;
-    exports it.polimi.ingsw.am01.eventemitter to javafx.graphics;
     exports it.polimi.ingsw.am01.client.gui.controller to javafx.graphics;
     exports it.polimi.ingsw.am01.client.gui.controller.popup to javafx.graphics;
-    exports it.polimi.ingsw.am01.client;
 }
