@@ -3,16 +3,18 @@ package it.polimi.ingsw.am01.client.tui.keyboard;
 import it.polimi.ingsw.am01.eventemitter.Event;
 
 public sealed interface Key extends Event {
-    record Character(char character) implements Key {
+    interface WithCtrl {
+        boolean isCtrl();
     }
 
-    record Ctrl(char character) implements Key {
+    interface WithAlt {
+        boolean isAlt();
     }
 
-    record Alt(char character) implements Key {
+    record Character(char character, boolean isCtrl, boolean isAlt) implements Key, WithAlt, WithCtrl {
     }
 
-    record Arrow(Direction direction) implements Key {
+    record Arrow(Direction direction, boolean isCtrl, boolean isAlt) implements Key, WithAlt, WithCtrl {
         public enum Direction {
             UP, DOWN, LEFT, RIGHT
         }

@@ -80,9 +80,9 @@ public class Line {
      */
     public static void rectangle(DrawArea a, Position tl, Dimensions dim, Line.Style style) {
         int t = tl.y();
-        int b = tl.y() + dim.height() - 1;
+        int b = Math.max(0, tl.y() + dim.height() - 1);
         int l = tl.x();
-        int r = tl.x() + dim.width() - 1;
+        int r = Math.max(0, tl.x() + dim.width() - 1);
 
         // These positions represent where the angles of the box are
         // but .tr, .tl, ecc... in Line.Style represent what part of the line is "connected".

@@ -4,16 +4,39 @@ import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.rendering.Constraint;
 import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
+import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
 
 import java.util.ArrayList;
 
+/**
+ * Renders a paragraph of text. The text is word-wrapped to fit the given width.
+ *
+ * @see it.polimi.ingsw.am01.client.tui.component.elements.Text
+ */
 public class Paragraph extends Component {
+    private final GraphicalRendition rendition;
     private final String text;
     private ArrayList<String> lines;
 
+    /**
+     * Creates a new paragraph element with the given text and default rendition.
+     *
+     * @param text the text to render
+     */
     public Paragraph(String text) {
+        this(GraphicalRendition.DEFAULT, text);
+    }
+
+    /**
+     * Creates a new paragraph element with the given text and rendition.
+     *
+     * @param rendition the rendition to use
+     * @param text      the text to render
+     */
+    public Paragraph(GraphicalRendition rendition, String text) {
+        this.rendition = rendition;
         this.text = text;
     }
 
@@ -85,6 +108,7 @@ public class Paragraph extends Component {
 
     @Override
     public void draw(RenderingContext ctx, DrawArea a) {
+        a.setRendition(this.rendition);
         if (lines == null) {
             throw new IllegalStateException("Paragraph not laid out");
         }

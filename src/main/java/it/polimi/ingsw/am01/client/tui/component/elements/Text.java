@@ -5,14 +5,33 @@ import it.polimi.ingsw.am01.client.tui.rendering.RenderingContext;
 import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.DrawArea;
 
+/**
+ * Renders a text string.
+ * The text must be a single line.
+ * <p>
+ * This element has a fixed size equal to the length of the text and a height of 1.
+ *
+ * @see it.polimi.ingsw.am01.client.tui.component.elements.Paragraph
+ */
 public class Text extends Element {
     private final GraphicalRendition rendition;
     private final String text;
 
+    /**
+     * Creates a new text element with the given text and default rendition.
+     *
+     * @param text the text to render
+     */
     public Text(String text) {
         this(GraphicalRendition.DEFAULT, text);
     }
 
+    /**
+     * Creates a new text element with the given text and rendition.
+     *
+     * @param rendition the rendition to use
+     * @param text      the text to render
+     */
     public Text(GraphicalRendition rendition, String text) {
         super(Dimensions.of(text.length(), 1));
         this.rendition = rendition;

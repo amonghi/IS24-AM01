@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This scene is shown when the player joins
+ * a game and has to wait for other players before starting the game.
+ */
 public class LobbyScene extends Composition {
 
     private final TuiView view;
@@ -22,6 +26,10 @@ public class LobbyScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Component compose() {
         List<String> playerSlots = new ArrayList<>(view.getPlayersInGame());
         for (int i = 0; i < view.getMaxPlayers() - view.getPlayersInGame().size(); i++) {
@@ -31,7 +39,7 @@ public class LobbyScene extends Composition {
         List<FlexChild> children = new ArrayList<>();
 
         children.add(
-                new FlexChild.Flexible(1,
+                new FlexChild.Flexible(5,
                         Flex.column(List.of(
                                 new FlexChild.Fixed(
                                         Padding.hv(1, 1,
@@ -73,7 +81,7 @@ public class LobbyScene extends Composition {
 
         if (view.isChatVisible()) {
             children.add(
-                    new FlexChild.Fixed(new ChatBox(view))
+                    new FlexChild.Flexible(1, new ChatBox(view))
             );
         }
 

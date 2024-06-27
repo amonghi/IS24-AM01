@@ -116,7 +116,11 @@ public abstract class View implements EventEmitter<ViewEvent> {
     protected abstract void changeStage(ClientState state, GameStatus gameStatus);
 
     /**
-     * It kicks a player from the game
+     * Gets called to notify that the player has been kicked from the game.
+     * <p>
+     * The only reason why this would happen is
+     * that there aren't enough players connected during the initial selection phase,
+     * so the game is canceled.
      */
     protected abstract void kickPlayer();
 

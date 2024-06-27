@@ -15,6 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This scene is shown when a player reconnects following a crash server
+ * and has to wait for other players before he can resume the game.
+ *
+ * @see it.polimi.ingsw.am01.model.game.GameStatus
+ */
 public class RestoringScene extends Composition {
 
     private final TuiView view;
@@ -23,6 +29,9 @@ public class RestoringScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Component compose() {
         List<String> playerSlots = new ArrayList<>(view.getPlayersInGame());

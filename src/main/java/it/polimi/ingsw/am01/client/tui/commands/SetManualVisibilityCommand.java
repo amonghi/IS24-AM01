@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am01.client.tui.commands;
 
-import it.polimi.ingsw.am01.client.ClientState;
 import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.command.CommandBuilder;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
@@ -8,14 +7,15 @@ import it.polimi.ingsw.am01.client.tui.command.CommandNode;
 import it.polimi.ingsw.am01.client.tui.command.SequenceBuilder;
 import it.polimi.ingsw.am01.client.tui.command.validator.ValidationException;
 import it.polimi.ingsw.am01.client.tui.scenes.ManualScene;
-import it.polimi.ingsw.am01.model.game.GameStatus;
 
 /**
- * This command allows players to show/hide the game's chat.
+ * This command allows players to show/hide the application's manual.
+ *
+ * @see ManualScene
  */
-public class SetChatVisibilityCommand extends TuiCommand {
+public class SetManualVisibilityCommand extends TuiCommand {
 
-    public SetChatVisibilityCommand(TuiView view) {
+    public SetManualVisibilityCommand(TuiView view) {
         super(view);
     }
 
@@ -26,7 +26,7 @@ public class SetChatVisibilityCommand extends TuiCommand {
      * @see it.polimi.ingsw.am01.client.tui.scenes.ManualScene.CommandDetail
      */
     public static ManualScene.CommandDetail getCommandDetail() {
-        return new ManualScene.CommandDetail("show chat / hide chat", "Show/hide game chat");
+        return new ManualScene.CommandDetail("show manual / hide manual", "Show/hide the manual that contains detail about available commands");
     }
 
     /**
@@ -39,12 +39,9 @@ public class SetChatVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("show")
-                        .validatePre(() -> {
-                            this.validateState();
-                            this.validateShow();
-                        })
+                        .validatePre(this::validateShow)
                         .thenWhitespace()
-                        .thenLiteral("chat")
+                        .thenLiteral("manual")
                         .executes(this::show)
                         .end()
         );
@@ -52,12 +49,9 @@ public class SetChatVisibilityCommand extends TuiCommand {
         builder.branch(
                 SequenceBuilder
                         .literal("hide")
-                        .validatePre(() -> {
-                            this.validateState();
-                            this.validateHide();
-                        })
+                        .validatePre(this::validateHide)
                         .thenWhitespace()
-                        .thenLiteral("chat")
+                        .thenLiteral("manual")
                         .executes(this::hide)
                         .end()
         );
@@ -66,37 +60,23 @@ public class SetChatVisibilityCommand extends TuiCommand {
     }
 
     /**
-     * This method checks the client's state.
+     * This method checks if manual is already shown on the screen.
      *
-     * @throws ValidationException if state is not correct. In this case the command is invalid
-     */
-    private void validateState() throws ValidationException {
-        if (!getView().getState().equals(ClientState.IN_GAME)
-                || (getView().getGameStatus().equals(GameStatus.RESTORING))
-                || (getView().getGameStatus().equals(GameStatus.FINISHED))
-                || getView().isManualVisible()) {
-            throw new ValidationException();
-        }
-    }
-
-    /**
-     * This method checks if chat box is already shown on the screen.
-     *
-     * @throws ValidationException if chat box is already shown on the screen.
+     * @throws ValidationException if manual is already shown on the screen.
      */
     private void validateShow() throws ValidationException {
-        if (getView().isChatVisible()) {
+        if (getView().isManualVisible()) {
             throw new ValidationException();
         }
     }
 
     /**
-     * This method checks if chat box is closed.
+     * This method checks if manual is closed.
      *
-     * @throws ValidationException if chat box is already closed
+     * @throws ValidationException if manual is already closed
      */
     private void validateHide() throws ValidationException {
-        if (!getView().isChatVisible()) {
+        if (!getView().isManualVisible()) {
             throw new ValidationException();
         }
     }
@@ -107,7 +87,7 @@ public class SetChatVisibilityCommand extends TuiCommand {
      * @param ctx the context of the command
      */
     private void show(CommandContext ctx) {
-        getView().showChat();
+        getView().showManual();
     }
 
     /**
@@ -116,6 +96,6 @@ public class SetChatVisibilityCommand extends TuiCommand {
      * @param ctx the context of the command
      */
     private void hide(CommandContext ctx) {
-        getView().hideChat();
+        getView().hideManual();
     }
 }

@@ -15,6 +15,9 @@ import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This scene shows the list of available games.
+ */
 public class GamesListScene extends Composition {
 
     private final TuiView view;
@@ -23,6 +26,9 @@ public class GamesListScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Component compose() {
         return Flex.column(List.of(
@@ -47,6 +53,7 @@ public class GamesListScene extends Composition {
                                                 })
                                                 .collect(Collectors.toList())
                         )
-                )));
+                )
+        ));
     }
 }

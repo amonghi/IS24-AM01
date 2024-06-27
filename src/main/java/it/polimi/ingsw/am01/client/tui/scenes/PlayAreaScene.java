@@ -19,9 +19,11 @@ import it.polimi.ingsw.am01.model.game.GameStatus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * This scene contains all the elements in order to play the turn-based phase of the game.
+ */
 public class PlayAreaScene extends Composition {
 
     private final TuiView view;
@@ -30,15 +32,12 @@ public class PlayAreaScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Component compose() {
         List<FlexChild> children = new ArrayList<>();
-        Map<DeckLocation, Card> decks = view.getDecksColor().entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> GameAssets.getInstance().getCardById(
-                        ViewUtils.getIdFromColorAndDeckLocation(entry.getKey(), entry.getValue())
-                ).orElseThrow())
-        );
 
         List<Card> faceUpCards = view.getFaceUpCards().stream().map(id -> GameAssets.getInstance().getCardById(id).orElseThrow()).toList();
 
@@ -87,17 +86,11 @@ public class PlayAreaScene extends Composition {
                         List.of(
                                 new Column(List.of(
                                         new Text("Golden deck"),
-                                        new CardFaceComponent(
-                                                decks.get(DeckLocation.GOLDEN_CARD_DECK),
-                                                Side.BACK
-                                        )
+                                        getDeckTop(DeckLocation.GOLDEN_CARD_DECK)
                                 )),
                                 new Column(List.of(
                                         new Text("Resource deck"),
-                                        new CardFaceComponent(
-                                                decks.get(DeckLocation.RESOURCE_CARD_DECK),
-                                                Side.BACK
-                                        )
+                                        getDeckTop(DeckLocation.RESOURCE_CARD_DECK)
                                 ))
                         )
                 )),
@@ -149,7 +142,7 @@ public class PlayAreaScene extends Composition {
 
 
         children.add(
-                new FlexChild.Flexible(1,
+                new FlexChild.Flexible(5,
                         Flex.column(
                                 List.of(
                                         new FlexChild.Fixed(
@@ -181,14 +174,14 @@ public class PlayAreaScene extends Composition {
 
         if (view.isChatVisible()) {
             children.add(
-                    new FlexChild.Fixed(
+                    new FlexChild.Flexible(1,
                             new ChatBox(view)
                     )
             );
         }
 
         return Flex.column(List.of(
-                new FlexChild.Fixed(new Border(Line.Style.DEFAULT, Flex.row(List.of(
+                        new FlexChild.Fixed(new Border(Line.Style.DEFAULT, Flex.row(List.of(
                                 new FlexChild.Fixed(
                                         new Text("Logged as %s".formatted(view.getPlayerName()))
                                 ),
@@ -201,11 +194,31 @@ public class PlayAreaScene extends Composition {
                                                 )
                                         )
                                 )
-                )))),
+                        )))),
                         new FlexChild.Flexible(1,
                                 Flex.row(children)
                         )
                 )
+        );
+    }
+
+    /**
+     * @param deckLocation the deck type
+     * @return a {@link Component} that represents a deck (empty or not)
+     * @see EmptyDeckPlaceholderComponent
+     */
+    private Component getDeckTop(DeckLocation deckLocation) {
+        if (view.isDeckEmpty(deckLocation)) {
+            return new EmptyDeckPlaceholderComponent();
+        }
+
+        int id = ViewUtils.getIdFromColorAndDeckLocation(deckLocation, view.getDecksColor().get(deckLocation));
+        Card card = GameAssets.getInstance()
+                .getCardById(id)
+                .orElseThrow();
+        return new CardFaceComponent(
+                card,
+                Side.BACK
         );
     }
 }

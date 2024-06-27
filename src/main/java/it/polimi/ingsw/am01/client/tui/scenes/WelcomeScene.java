@@ -8,13 +8,21 @@ import it.polimi.ingsw.am01.client.tui.component.layout.Column;
 
 import java.util.List;
 
+/**
+ * This is the first scene that is shown to the player.
+ * Allows the player to connect to the server.
+ */
 public class WelcomeScene extends Composition {
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Component compose() {
         return Centered.both(
                 new Column(List.of(
-                        new Text("Welcome to Codex Naturalis."),
-                        new Text("Use the connect command to connect to a server.")
+                        Centered.horizontally(new Text("Welcome to Codex Naturalis.")),
+                        Centered.horizontally(new Text("Use the connect command to connect to a server. Type 'show manual' for commands detail"))
                 ))
         );
     }

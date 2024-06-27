@@ -9,18 +9,49 @@ import it.polimi.ingsw.am01.client.tui.rendering.Position;
 import java.util.List;
 import java.util.function.ToIntFunction;
 
+/**
+ * A layout that arranges its children in a row or column and allows for "flexible" children.
+ * A flexible child is a child that can grow to fill the remaining space in the layout.
+ * The children that are not flexible are called "fixed" children.
+ * <p>
+ * This layout does not take {@link Component}s as children directly, but rather takes {@link FlexChild}s.
+ * This is because each child must be marked as either "fixed" or "flexible".
+ * <p>
+ * This layout will first calculate the dimensions of all fixed children
+ * and then distribute the remaining space among the flexible children.
+ * Each flexible child is assigned a "grow factor" proportional to the amount of space it should take up.
+ *
+ * @see FlexChild.Fixed
+ * @see FlexChild.Flexible
+ */
 public class Flex extends BaseLayout {
     private final Direction direction;
     private final List<FlexChild> children;
 
+    /**
+     * Create a new Flex layout that arranges its children in a row.
+     *
+     * @param children The children of the layout.
+     */
     public static Flex row(List<FlexChild> children) {
         return new Flex(Direction.ROW, children);
     }
 
+    /**
+     * Create a new Flex layout that arranges its children in a column.
+     *
+     * @param children The children of the layout.
+     */
     public static Flex column(List<FlexChild> children) {
         return new Flex(Direction.COLUMN, children);
     }
 
+    /**
+     * Create a new Flex layout.
+     *
+     * @param direction The direction in which the children should be arranged.
+     * @param children  The children of the layout.
+     */
     public Flex(Direction direction, List<FlexChild> children) {
         this.direction = direction;
         this.children = children;
@@ -35,16 +66,16 @@ public class Flex extends BaseLayout {
     public void layout(Constraint constraint) {
         // calculate dimensions of fixed children
         int growSum = 0;
-        Dimensions maxDimensions = constraint.max();
+        Dimensions remainingSpace = constraint.max();
 
-        for (int i = 0; i < this.children.size(); i++) {
-            switch (this.children.get(i)) {
+        for (FlexChild flexChild : this.children) {
+            switch (flexChild) {
                 case FlexChild.Fixed(Component child) -> {
-                    child.layout(Constraint.max(maxDimensions));
+                    child.layout(Constraint.max(remainingSpace));
 
-                    maxDimensions = switch (this.direction) {
-                        case ROW -> maxDimensions.shrink(child.dimensions().width(), 0);
-                        case COLUMN -> maxDimensions.shrink(0, child.dimensions().height());
+                    remainingSpace = switch (this.direction) {
+                        case ROW -> remainingSpace.shrink(child.dimensions().width(), 0);
+                        case COLUMN -> remainingSpace.shrink(0, child.dimensions().height());
                     };
                 }
 
@@ -57,18 +88,18 @@ public class Flex extends BaseLayout {
         // place both fixed children and flexible children
 
         int flexSpace = switch (this.direction) {
-            case ROW -> maxDimensions.width();
-            case COLUMN -> maxDimensions.height();
+            case ROW -> remainingSpace.width();
+            case COLUMN -> remainingSpace.height();
         };
         int offs = 0;
 
-        for (int i = 0; i < this.children.size(); i++) {
+        for (FlexChild flexChild : this.children) {
             Position position = switch (this.direction) {
                 case ROW -> Position.of(offs, 0);
                 case COLUMN -> Position.of(0, offs);
             };
 
-            switch (this.children.get(i)) {
+            switch (flexChild) {
                 // place fixed child
                 case FlexChild.Fixed(Component child) -> {
                     child.setPosition(position);

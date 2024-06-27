@@ -10,6 +10,8 @@ import it.polimi.ingsw.am01.client.tui.rendering.Dimensions;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;
 import it.polimi.ingsw.am01.eventemitter.EventListener;
 
+import java.time.Duration;
+
 /**
  * A terminal implementation for Windows systems.
  */
@@ -22,8 +24,32 @@ public class WindowsTerminal implements Terminal {
      * Creates a new {@code WindowsTerminal}.
      */
     public WindowsTerminal() {
-        // TODO: actually detect terminal resize and emit events
         emitter = new EventEmitterImpl<>();
+
+        Thread thread = new Thread(new Runnable() {
+            private Dimensions prevDimensions;
+
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(Duration.ofMillis(200));
+                    } catch (InterruptedException e) {
+                        // if we get interrupted while sleeping it's not a problem
+                        // we can simply continue
+                    }
+
+                    Dimensions dimensions = WindowsTerminal.this.getDimensions();
+                    if (!dimensions.equals(prevDimensions)) {
+                        prevDimensions = dimensions;
+
+                        WindowsTerminal.this.emitter.emit(new ResizeEvent());
+                    }
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
 
     /**
@@ -63,10 +89,10 @@ public class WindowsTerminal implements Terminal {
         int inMode;
         inMode = this.inMode.getValue() & ~(
                 Kernel32.ENABLE_ECHO_INPUT
-                        | Kernel32.ENABLE_LINE_INPUT
-                        | Kernel32.ENABLE_MOUSE_INPUT
-                        | Kernel32.ENABLE_WINDOW_INPUT
-                        | Kernel32.ENABLE_PROCESSED_INPUT
+                | Kernel32.ENABLE_LINE_INPUT
+                | Kernel32.ENABLE_MOUSE_INPUT
+                | Kernel32.ENABLE_WINDOW_INPUT
+                | Kernel32.ENABLE_PROCESSED_INPUT
         );
 
         inMode |= Kernel32.ENABLE_VIRTUAL_TERMINAL_INPUT;

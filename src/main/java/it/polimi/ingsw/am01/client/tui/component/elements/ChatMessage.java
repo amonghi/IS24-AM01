@@ -4,15 +4,29 @@ import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.component.layout.Column;
+import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRendition;
+import it.polimi.ingsw.am01.client.tui.rendering.ansi.GraphicalRenditionProperty;
 import it.polimi.ingsw.am01.model.chat.MessageType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Component that contains a chat message.
+ *
+ * @see ChatBox
+ */
 public class ChatMessage extends Composition {
 
     private final TuiView view;
     private final View.Message message;
 
+    /**
+     * Creates a new ChatMessage.
+     *
+     * @param message The message to display.
+     * @param view    The view containing the message.
+     */
     public ChatMessage(View.Message message, TuiView view) {
         this.message = message;
         this.view = view;
@@ -20,15 +34,30 @@ public class ChatMessage extends Composition {
 
     @Override
     protected Component compose() {
-        String recipient = message.type() == MessageType.DIRECT
-                ? message.recipient()
-                : "everyone";
+        LocalDateTime localDateTime = LocalDateTime.parse(message.timestamp());
+        String hour = "%s%d".formatted(localDateTime.getHour() < 10 ? "0" : "", localDateTime.getHour());
+        String minute = "%s%d".formatted(localDateTime.getMinute() < 10 ? "0" : "", localDateTime.getMinute());
+        String second = "%s%d".formatted(localDateTime.getSecond() < 10 ? "0" : "", localDateTime.getSecond());
 
-        // TODO: show date
+        String header = message.type() == MessageType.DIRECT
+                ? (
+                message.recipient().equals(view.getPlayerName())
+                        ? message.sender() + " to you"
+                        : "You to " + message.recipient()
+        )
+                : message.sender();
+
+
+        GraphicalRendition directRendition = GraphicalRendition.DEFAULT
+                .withForeground(GraphicalRenditionProperty.ForegroundColor.WHITE)
+                .withWeight(GraphicalRenditionProperty.Weight.DIM)
+                .withItalics(GraphicalRenditionProperty.Italics.ON);
+
 
         return new Column(List.of(
-                new Text(message.sender() + " to " + recipient + ":"),
-                new Text(message.content())
+                message.type() == MessageType.DIRECT
+                        ? new Paragraph(directRendition, "(" + hour + ":" + minute + ":" + second + ") " + header + ": " + message.content())
+                        : new Paragraph("(" + hour + ":" + minute + ":" + second + ") " + header + ": " + message.content())
         ));
     }
 }

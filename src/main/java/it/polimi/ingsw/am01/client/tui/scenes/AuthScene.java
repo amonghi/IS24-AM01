@@ -8,12 +8,19 @@ import it.polimi.ingsw.am01.client.tui.component.layout.Column;
 
 import java.util.List;
 
+/**
+ * This scene permits players to authenticate with the server.
+ */
 public class AuthScene extends Composition {
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Component compose() {
         return Centered.both(
                 new Column(List.of(
-                        new Text("Use the auth command to choose a username.")
+                        new Text("Use the authenticate command to choose a username.")
                 ))
         );
     }
