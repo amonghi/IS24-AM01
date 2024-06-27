@@ -27,6 +27,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * The specific class for the text user interface.
+ * It handles the rendering of the TUI and the input from the keyboard.
+ * <p>
+ * It contains the state of the application and {@link #compose() composes} the component tree based on it.
+ */
 public class TuiView extends BaseTuiView {
     private static final List<Function<TuiView, TuiCommand>> CMD_CONSTRUCTORS = List.of(
             ConnectCommand::new,
@@ -68,6 +74,11 @@ public class TuiView extends BaseTuiView {
     private final List<Registration> registrations;
     private boolean manualVisible = false;
 
+    /**
+     * Creates a new TUI view.
+     *
+     * @param terminal the terminal to use
+     */
     public TuiView(Terminal terminal) {
         super(terminal);
         this.keyboard = Keyboard.getInstance();
@@ -137,6 +148,9 @@ public class TuiView extends BaseTuiView {
         renderErrorMessage("You have not enough resources to place the card");
     }
 
+    /**
+     * Clean up resources
+     */
     @Override
     protected void onShutdown() {
         this.keyboardRegistrations.forEach(keyboard::unregister);
@@ -144,6 +158,11 @@ public class TuiView extends BaseTuiView {
         super.onShutdown();
     }
 
+    /**
+     * Quits the application.
+     * <p>
+     * Terminates the JVM with status code 0.
+     */
     public void quitApplication() {
         System.exit(0);
     }
@@ -239,14 +258,18 @@ public class TuiView extends BaseTuiView {
         this.render();
     }
 
+    /**
+     * Composes the component tree as a function of the current state.
+     */
+    @Override
     public Component compose() {
         List<FlexChild> children = new ArrayList<>();
 
         Component scene;
 
-        if(manualVisible){
+        if (manualVisible) {
             scene = new ManualScene(this);
-        }else{
+        } else {
             scene = switch (this.getState()) {
                 case NOT_CONNECTED -> new WelcomeScene();
                 case NOT_AUTHENTICATED -> new AuthScene();
@@ -359,86 +382,144 @@ public class TuiView extends BaseTuiView {
         return result;
     }
 
+    /**
+     * @return whether the chat is visible
+     */
     public boolean areObjectivesVisible() {
         return areObjectivesVisible;
     }
 
+    /**
+     * @return whether the board is visible
+     */
     public boolean isBoardVisible() {
         return isBoardVisible;
     }
 
+    /**
+     * @return whether the chat is visible
+     */
     public boolean isChatVisible() {
         return chatVisible;
     }
 
+    /**
+     * Makes the objectives visible
+     */
     public void showObjectives() {
         this.areObjectivesVisible = true;
         this.isBoardVisible = false;
         render();
     }
 
+    /**
+     * Makes the objectives not visible
+     */
     public void hideObjectives() {
         this.areObjectivesVisible = false;
         render();
     }
 
+    /**
+     * Makes the board visible
+     */
     public void showBoard() {
         this.areObjectivesVisible = false;
         this.isBoardVisible = true;
         render();
     }
 
+    /**
+     * Makes the board not visible
+     */
     public void hideBoard() {
         this.isBoardVisible = false;
         render();
     }
 
+    /**
+     * Makes the chat visible
+     */
     public void showChat() {
         chatVisible = true;
         render();
     }
 
+    /**
+     * Makes the chat not visible
+     */
     public void hideChat() {
         chatVisible = false;
         render();
     }
 
-    public void showManual(){
+    /**
+     * Makes the manual visible
+     */
+    public void showManual() {
         manualVisible = true;
         render();
     }
 
-    public void hideManual(){
+    /**
+     * Makes the manual not visible
+     */
+    public void hideManual() {
         manualVisible = false;
         render();
     }
 
-    public boolean isManualVisible(){
+    /**
+     * @return whether the manual is visible
+     */
+    public boolean isManualVisible() {
         return manualVisible;
     }
 
+    /**
+     * Renders an error message on screen.
+     *
+     * @param errorMessage the error message to render
+     */
     public void renderErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
         this.showErrorMessage = true;
         render();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void showConnectionErrorMessage(String errorMessage) {
         renderErrorMessage(errorMessage);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void kickPlayer() {
         renderErrorMessage("You were kicked from game because there weren't enough players connected");
     }
 
+    /**
+     * {@inheritDoc}
+     * It also renders an error message.
+     */
     @Override
-    public void connectionLost(){
+    public void connectionLost() {
         super.connectionLost();
         renderErrorMessage("Connection lost");
     }
 
+    /**
+     * Flips the card at the given index in the hand of the player.
+     * <p>
+     * Flipping means switching the visible side of the card between {@link Side#FRONT} and {@link Side#BACK}.
+     *
+     * @param cardIndex the index of the card to flip
+     */
     public void flipCard(int cardIndex) {
         Side newSide = switch (visibleSides.get(cardIndex)) {
             case FRONT -> Side.BACK;
@@ -449,10 +530,17 @@ public class TuiView extends BaseTuiView {
         render();
     }
 
+    /**
+     * @param cardIndex the index of the card
+     * @return the visible side of the card at the given index
+     */
     public Side getVisibleSideOf(int cardIndex) {
         return visibleSides.get(cardIndex);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void clearData() {
         super.clearData();
         chatVisible = false;
