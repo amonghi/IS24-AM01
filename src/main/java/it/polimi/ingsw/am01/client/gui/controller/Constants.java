@@ -46,7 +46,7 @@ public class Constants {
 
 
     //Connection
-    public static final String DEFAULT_HOSTNAME = "0.0.0.0";
+    public static final String DEFAULT_HOSTNAME = "127.0.0.1";
     public static final int DEFAULT_TCP_PORT = 8888;
     public static final int DEFAULT_RMI_PORT = 7777;
 }

@@ -2,6 +2,7 @@ package it.polimi.ingsw.am01.client.gui.controller.scene;
 
 import it.polimi.ingsw.am01.client.View;
 import it.polimi.ingsw.am01.client.gui.event.NameAlreadyTakenEvent;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -39,6 +40,7 @@ public class AuthController extends SceneController {
     @FXML
     private void initialize() {
         messageLabel.setVisible(false);
+        confirmButton.disableProperty().bind(Bindings.isEmpty(nameField.textProperty()));
     }
 
     /**
