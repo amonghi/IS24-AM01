@@ -8,7 +8,13 @@ import it.polimi.ingsw.am01.model.collectible.Resource;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+/**
+ * GSON deserializer for {@link PlacementConstraint}
+ */
 public class PlacementConstraintDeserializer implements JsonDeserializer<PlacementConstraint> {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PlacementConstraint deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();

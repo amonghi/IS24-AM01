@@ -81,7 +81,9 @@ public class NetworkMessageTypeAdapterFactory implements TypeAdapterFactory {
             Map.entry(UpdatePlayerListS2C.ID, UpdatePlayerListS2C.class)
     );
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken) {
         if (!NetworkMessage.class.isAssignableFrom(typeToken.getRawType())) {

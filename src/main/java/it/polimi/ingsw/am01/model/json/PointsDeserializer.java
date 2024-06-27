@@ -9,7 +9,13 @@ import it.polimi.ingsw.am01.model.collectible.Item;
 
 import java.lang.reflect.Type;
 
+/**
+ * GSON deserializer for {@link Points}
+ */
 public class PointsDeserializer implements JsonDeserializer<Points> {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Points deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();

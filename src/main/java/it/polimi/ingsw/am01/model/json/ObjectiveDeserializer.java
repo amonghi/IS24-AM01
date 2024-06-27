@@ -10,6 +10,9 @@ import it.polimi.ingsw.am01.model.objective.SameCollectibleObjective;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+/**
+ * GSON deserializer for {@link Objective}
+ */
 public class ObjectiveDeserializer implements JsonDeserializer<Objective> {
     Map<PlayArea.Position, PlayArea.Position> positionConversionMap = Map.of(
             new PlayArea.Position(0, 1), new PlayArea.Position(0, 0),
@@ -23,6 +26,9 @@ public class ObjectiveDeserializer implements JsonDeserializer<Objective> {
             new PlayArea.Position(0, -1), new PlayArea.Position(2, 2)
     );
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Objective deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();

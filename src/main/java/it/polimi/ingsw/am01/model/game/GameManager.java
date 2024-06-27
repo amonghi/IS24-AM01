@@ -157,6 +157,12 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         return newGame;
     }
 
+    /**
+     * Emits a new {@link PlayerJoinedInGameEvent} given a player and a game
+     *
+     * @param player the player that joined the game
+     * @param game   the game where the player joined
+     */
     private void playerJoinedInGame(PlayerProfile player, Game game) {
         emitter.emit(
                 new PlayerJoinedInGameEvent(
@@ -165,12 +171,23 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         );
     }
 
+    /**
+     * Emits a new {@link GameStartedEvent} when all players joined a game
+     *
+     * @param event an {@link AllPlayersJoinedEvent} event
+     */
     private void updateGamesList(AllPlayersJoinedEvent event) {
         emitter.emit(
                 new GameStartedEvent()
         );
     }
 
+    /**
+     * Emits a new {@link PlayerLeftFromGameEvent} given a player and a game
+     *
+     * @param player the player that left the game
+     * @param game   the game where the player left
+     */
     private void playerLeftFromGame(PlayerProfile player, Game game) {
         emitter.emit(
                 new PlayerLeftFromGameEvent(
@@ -275,16 +292,25 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
         return gson.fromJson(json, Game.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Registration onAny(EventListener<GameManagerEvent> listener) {
         return emitter.onAny(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends GameManagerEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return emitter.on(eventClass, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean unregister(Registration registration) {
         return emitter.unregister(registration);

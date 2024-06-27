@@ -84,6 +84,23 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         return placeAt(position, card, side, false);
     }
 
+    /**
+     * Place a card at the specified location.
+     * <p>
+     * To be a valid placement the card must:
+     * <ol>
+     *     <li>touch at least on socket corner (that is, a corner where {@code isSocket() == true})</li>
+     *     <li>not touch any corners that are filled in (that is, a corner where {@code isSocket() == false})</li>
+     * </ol>
+     *
+     * @param position the position where to place the card
+     * @param card     the card to be placed
+     * @param side     which side to place facing up
+     * @param isFirst  whether this is the first card to be placed
+     * @return the created {@link CardPlacement}
+     * @throws IllegalPlacementException when trying to create an illegal placement
+     * @see Corner#isSocket()
+     */
     private CardPlacement placeAt(Position position, Card card, Side side, boolean isFirst) throws IllegalPlacementException {
         int seqNumber = seq++;
         CardPlacement placement = new CardPlacement(position, card, side, seqNumber);
@@ -144,6 +161,12 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         return placement;
     }
 
+    /**
+     * Undo the last placement, if possible.
+     *
+     * @return the {@link CardPlacement} that was removed
+     * @throws NotUndoableOperationException if there is no placement to undo
+     */
     public CardPlacement undoPlacement() throws NotUndoableOperationException {
         if (this.seq < 2)
             throw new NotUndoableOperationException();
@@ -158,6 +181,11 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
 
     }
 
+    /**
+     * Removes a {@link CardPlacement} from the play area.
+     * @param cardPlacement the placement to remove
+     * @return the removed placement
+     */
     private CardPlacement removePlacement(CardPlacement cardPlacement) {
         this.seq--;
         this.score -= cardPlacement.getPoints();
@@ -213,6 +241,10 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         }
     }
 
+    /**
+     * It updates the {@code Set} of playable {@link Position} when a {@link Card} is removed from the {@link PlayArea}
+     * @param cardPlacement The {@link CardPlacement} that is removed
+     */
     private void updatePlayablePositionsAfterRemoving(CardPlacement cardPlacement) {
         playablePositions.add(cardPlacement.getPosition());
         Arrays.stream(CornerPosition.values()).forEach(cornerPosition ->
@@ -220,6 +252,10 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
         );
     }
 
+    /**
+     * Provides all the {@link CardPlacement} in the {@link PlayArea}
+     * @return a {@code Map} of {@link Position} to {@link CardPlacement}
+     */
     public Map<Position, CardPlacement> getCards() {
         return Collections.unmodifiableMap(cards);
     }

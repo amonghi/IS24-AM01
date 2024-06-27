@@ -90,17 +90,25 @@ public class ChatManager implements EventEmitter<ChatEvent> {
         return messages.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Registration onAny(EventListener<ChatEvent> listener) {
         return getEmitter().onAny(listener);
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends ChatEvent> Registration on(Class<T> eventClass, EventListener<T> listener) {
         return getEmitter().on(eventClass, listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean unregister(Registration registration) {
         return getEmitter().unregister(registration);

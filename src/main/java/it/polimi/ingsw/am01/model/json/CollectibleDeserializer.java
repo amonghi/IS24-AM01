@@ -11,7 +11,13 @@ import it.polimi.ingsw.am01.model.collectible.Resource;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
+/**
+ * GSON deserializer for {@link Collectible}
+ */
 public class CollectibleDeserializer implements JsonDeserializer<Collectible> {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collectible deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
         String value = jsonElement.getAsString();
