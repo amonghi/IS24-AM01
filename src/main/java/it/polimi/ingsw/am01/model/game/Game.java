@@ -780,6 +780,11 @@ public class Game implements EventEmitter<GameEvent> {
         return r;
     }
 
+    /**
+     * This method removes a player from every data structure in the game
+     *
+     * @param pp the player to remove
+     */
     private void removePlayer(PlayerProfile pp) {
         playerProfiles.remove(pp);
         connections.remove(pp);
@@ -798,6 +803,12 @@ public class Game implements EventEmitter<GameEvent> {
         getEmitter().emit(new PlayerLeftEvent(pp));
     }
 
+    /**
+     * This method permits to undo the last placement of a player
+     *
+     * @param pp the player that wants to undo the last placement
+     * @throws NotUndoableOperationException if the player has not placed any card yet
+     */
     public void undoLastPlacement(PlayerProfile pp) throws NotUndoableOperationException {
         PlayArea.CardPlacement lastPlacement = playAreas.get(pp).undoPlacement();
         playersData.get(pp).hand().add(lastPlacement.getCard());
@@ -807,6 +818,10 @@ public class Game implements EventEmitter<GameEvent> {
 
     }
 
+    /**
+     * This method handles disconnection during each setup phase
+     * If a setup phase is concluded by a player disconnection, it makes proceed to the next phase
+     */
     private void handleDisconnectionDuringSetup() {
         if (status == GameStatus.SETUP_STARTING_CARD_SIDE && startingCardSideSelectionPhase.isConcluded()) {
             transition(GameStatus.SETUP_COLOR);
@@ -832,6 +847,11 @@ public class Game implements EventEmitter<GameEvent> {
         }
     }
 
+    /**
+     * This method handles disconnection of a player for each game phase
+     *
+     * @param pp the player that has disconnected
+     */
     public synchronized void handleDisconnection(PlayerProfile pp) {
         // Notify other players that pp has disconnected
         getEmitter().emit(new PlayerDisconnectedEvent(pp));
@@ -901,7 +921,14 @@ public class Game implements EventEmitter<GameEvent> {
         }
     }
 
-    public synchronized void handleReconnection(PlayerProfile player) throws PlayerNotInGameException, PlayerAlreadyConnectedException, IllegalGameStateException {
+    /**
+     * This method handles reconnection of a player for each game phase
+     *
+     * @param player the player that has reconnected
+     * @throws PlayerNotInGameException        if the player wasn't in this game
+     * @throws PlayerAlreadyConnectedException if the player was already connected
+     */
+    public synchronized void handleReconnection(PlayerProfile player) throws PlayerNotInGameException, PlayerAlreadyConnectedException {
         if (!playerProfiles.contains(player)) {
             throw new PlayerNotInGameException();
         }
@@ -915,18 +942,40 @@ public class Game implements EventEmitter<GameEvent> {
 
         if (status == GameStatus.SUSPENDED && playerProfiles.stream().filter(connections::get).count() >= 2) {
             // Resume game if it was suspended and has reached at least two players
-            resumeGame();
+            try {
+                // Since the game is in SUSPENDED status, the game won't throw any IllegalGameStateException
+                resumeGame();
+            } catch (IllegalGameStateException e) {
+                throw new IllegalStateException(e);
+            }
             this.notifyAll();
         } else if (status == GameStatus.RESTORING && playerProfiles.stream().filter(connections::get).count() == playerProfiles.size()) {
             // Resume game if it was awaiting players after a server crash and all players has reconnected
-            resumeGame();
+            try {
+                // Since the game is in RESTORING status, the game won't throw any IllegalGameStateException
+                resumeGame();
+            } catch (IllegalGameStateException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
+    /**
+     * This method tells if a player is connected or not
+     *
+     * @param pp the player to check
+     * @return true if the player is connected, false otherwise
+     */
     public synchronized boolean isConnected(PlayerProfile pp) {
         return playerProfiles.contains(pp) && connections.get(pp);
     }
 
+    /**
+     * This method sets the connection status of a player
+     *
+     * @param pp          the player to set the connection status
+     * @param isConnected the new connection status
+     */
     public synchronized void setPlayerConnection(PlayerProfile pp, boolean isConnected) {
         connections.replace(pp, isConnected);
     }

@@ -90,7 +90,7 @@ public class VirtualView implements Runnable {
             setGame(game);
             try {
                 game.handleReconnection(playerProfile); // TODO: handle exceptions
-            } catch (PlayerNotInGameException | PlayerAlreadyConnectedException | IllegalGameStateException e) {
+            } catch (PlayerNotInGameException | PlayerAlreadyConnectedException e) {
                 throw new RuntimeException(e);
             }
         });
