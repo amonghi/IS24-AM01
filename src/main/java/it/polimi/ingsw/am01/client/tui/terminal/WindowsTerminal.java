@@ -40,7 +40,7 @@ public class WindowsTerminal implements Terminal {
                     }
 
                     Dimensions dimensions = WindowsTerminal.this.getDimensions();
-                    if (dimensions != prevDimensions) {
+                    if (!dimensions.equals(prevDimensions)) {
                         prevDimensions = dimensions;
 
                         WindowsTerminal.this.emitter.emit(new ResizeEvent());
