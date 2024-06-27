@@ -8,4 +8,4 @@ set -e
 echo "=== running ==="
 java \
   -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 \
-  -jar ./target/AM01-1.0-SNAPSHOT-client-tui.jar
+  -jar ./target/AM01-1.0.0-client-tui.jar

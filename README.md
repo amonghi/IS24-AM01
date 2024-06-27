@@ -56,7 +56,7 @@ Components:
 To run the server, you can use the following command:
 
 ```shell
-java -jar AM01-1.0-SNAPSHOT-server.jar <TCP_PORT> <RMI_PORT> 
+java -jar AM01-1.0.0-server.jar <TCP_PORT> <RMI_PORT> 
 ```
 
 Default ports: `8888` for TCP and `7777` for RMI.
@@ -68,7 +68,7 @@ Default ports: `8888` for TCP and `7777` for RMI.
 To run the client with the GUI, you can use the following command:
 
 ```shell
-java -jar AM01-1.0-SNAPSHOT-client-gui.jar
+java -jar AM01-1.0.0-client-gui.jar
 ```
 
 #### TUI
@@ -78,7 +78,7 @@ java -jar AM01-1.0-SNAPSHOT-client-gui.jar
 To run the client with the TUI on Unix systems, you can use the following command:
 
 ```shell
-java -jar AM01-1.0-SNAPSHOT-client-tui.jar
+java -jar AM01-1.0.0-client-tui.jar
 ```
 
 ##### Windows
@@ -92,7 +92,7 @@ To do that:
 Then you can run the client with the TUI using the following command:
 
 ```shell
-java -jar AM01-1.0-SNAPSHOT-client-tui.jar
+java -jar AM01-1.0.0-client-tui.jar
 ```
 
 ##### MacOS

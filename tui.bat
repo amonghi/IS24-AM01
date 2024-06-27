@@ -21,19 +21,19 @@ echo     Print option descriptions
 GOTO QUIT
 
 :NO_ARGUMENT
-SET command="chcp 65001 && java -jar ./target/AM01-1.0-SNAPSHOT-client-tui.jar"
+SET command="chcp 65001 && java -jar ./target/AM01-1.0.0-client-tui.jar"
 GOTO DONE
 
 :ALL
-SET command="chcp 65001 && mvnw -Dmaven.test.skip=true package && java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar ./target/AM01-1.0-SNAPSHOT-client-tui.jar"
+SET command="chcp 65001 && mvnw -Dmaven.test.skip=true package && java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar ./target/AM01-1.0.0-client-tui.jar"
 GOTO DONE
 
 :COMPILE
-SET command="chcp 65001 && mvnw -Dmaven.test.skip=true package && java -jar ./target/AM01-1.0-SNAPSHOT-client-tui.jar"
+SET command="chcp 65001 && mvnw -Dmaven.test.skip=true package && java -jar ./target/AM01-1.0.0-client-tui.jar"
 GOTO DONE
 
 :DEBUG
-SET command="chcp 65001 && java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar ./target/AM01-1.0-SNAPSHOT-client-tui.jar"
+SET command="chcp 65001 && java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar ./target/AM01-1.0.0-client-tui.jar"
 GOTO DONE
 
 :DONE
