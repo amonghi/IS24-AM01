@@ -19,6 +19,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This scene permits players to select the starting card side ({@code SETUP_STARTING_CARD_SIDE} status).
+ *
+ * @see it.polimi.ingsw.am01.model.game.GameStatus
+ */
 public class SelectStartingCardSideScene extends Composition {
 
     private final TuiView view;
@@ -27,6 +32,9 @@ public class SelectStartingCardSideScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Component compose() {
         Card startingCard = GameAssets.getInstance()

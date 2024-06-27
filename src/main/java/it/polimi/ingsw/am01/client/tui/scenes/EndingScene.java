@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 
+/**
+ * This scene shows the finals scores.
+ */
 public class EndingScene extends Composition {
 
     private final TuiView view;
@@ -23,6 +26,9 @@ public class EndingScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Component compose() {
         SortedMap<String, Integer> finalPlacements = view.getFinalPlacements();

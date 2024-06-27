@@ -21,6 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This scene permits players to select the secret objective ({@code SETUP_OBJECTIVE} status).
+ *
+ * @see it.polimi.ingsw.am01.model.game.GameStatus
+ */
 public class SelectObjectiveScene extends Composition {
 
     private final TuiView view;
@@ -29,6 +34,9 @@ public class SelectObjectiveScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Component compose() {
         List<FlexChild> children = new ArrayList<>();
@@ -99,8 +107,6 @@ public class SelectObjectiveScene extends Composition {
         }
 
 
-        return
-                Flex.row(children);
-
+        return Flex.row(children);
     }
 }

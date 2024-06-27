@@ -15,6 +15,10 @@ import it.polimi.ingsw.am01.model.game.GameStatus;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This scene contains a brief description of all application's commands and interactions.
+ * It's a kind of "help" page.
+ */
 public class ManualScene extends Composition {
     private final TuiView view;
 
@@ -22,6 +26,9 @@ public class ManualScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Component compose() {
 
@@ -64,52 +71,43 @@ public class ManualScene extends Composition {
         ));
     }
 
+    /**
+     * @return a {@link List} of command's textual representations (only available commands).
+     */
     public List<CommandDetail> getCommandsDetails() {
-        return switch (view.getState()) {
+        List<CommandDetail> commands = new ArrayList<>();
+
+        commands.addAll(switch (view.getState()) {
             case NOT_CONNECTED -> List.of(
-                    ConnectCommand.getCommandDetail(),
-                    SetManualVisibilityCommand.getCommandDetail(),
-                    QuitCommand.getCommandDetail()
+                    ConnectCommand.getCommandDetail()
             );
             case NOT_AUTHENTICATED -> List.of(
-                    AuthenticateCommand.getCommandDetail(),
-                    SetManualVisibilityCommand.getCommandDetail(),
-                    QuitCommand.getCommandDetail()
+                    AuthenticateCommand.getCommandDetail()
             );
             case AUTHENTICATED -> List.of(
                     CreateGameCommand.getCommandDetail(),
-                    JoinCommand.getCommandDetail(),
-                    SetManualVisibilityCommand.getCommandDetail(),
-                    QuitCommand.getCommandDetail()
+                    JoinCommand.getCommandDetail()
             );
             case IN_GAME -> switch (view.getGameStatus()) {
                 case AWAITING_PLAYERS -> List.of(
                         StartGameCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
-                        SendMessageCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail()
+                        SendMessageCommand.getCommandDetail()
                 );
                 case SETUP_STARTING_CARD_SIDE -> List.of(
                         SelectStartingCardSideCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
-                        SendMessageCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail()
+                        SendMessageCommand.getCommandDetail()
                 );
                 case SETUP_COLOR -> List.of(
                         SelectColorCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
-                        SendMessageCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail()
+                        SendMessageCommand.getCommandDetail()
                 );
                 case SETUP_OBJECTIVE -> List.of(
                         SelectObjectiveCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
-                        SendMessageCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail()
+                        SendMessageCommand.getCommandDetail()
                 );
                 case PLAY, SECOND_LAST_TURN, LAST_TURN, SUSPENDED -> List.of(
                         PlaceCardCommand.getCommandDetail(),
@@ -119,24 +117,30 @@ public class ManualScene extends Composition {
                         SetObjectivesVisibilityCommand.getCommandDetail(),
                         SetChatVisibilityCommand.getCommandDetail(),
                         SendMessageCommand.getCommandDetail(),
-                        SetBoardVisibilityCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail()
+                        SetBoardVisibilityCommand.getCommandDetail()
                 );
                 case FINISHED -> List.of(
-                        ExitFinishedGameCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail()
+                        ExitFinishedGameCommand.getCommandDetail()
                 );
                 case RESTORING -> List.of(
-                        ResumeGameCommand.getCommandDetail(),
-                        SetManualVisibilityCommand.getCommandDetail(),
-                        QuitCommand.getCommandDetail()
+                        ResumeGameCommand.getCommandDetail()
                 );
             };
-        };
+        });
+
+        commands.addAll(List.of(
+                SetManualVisibilityCommand.getCommandDetail(),
+                QuitCommand.getCommandDetail()
+        ));
+
+        return commands;
     }
 
+    /**
+     * @param command a string that represent the command tree
+     * @param detail  a string that contains a brief command's detail
+     * @see TuiCommand
+     */
     public record CommandDetail(String command, String detail) {
     }
 }

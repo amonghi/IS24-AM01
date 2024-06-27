@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This scene permits players to select color ({@code SETUP_COLOR} status).
+ *
+ * @see it.polimi.ingsw.am01.model.game.GameStatus
+ */
 public class SelectColorScene extends Composition {
 
     private final TuiView view;
@@ -28,6 +33,9 @@ public class SelectColorScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Component compose() {
 

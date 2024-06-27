@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This scene contains all the elements in order to play the turn-based phase of the game.
+ */
 public class PlayAreaScene extends Composition {
 
     private final TuiView view;
@@ -29,6 +32,9 @@ public class PlayAreaScene extends Composition {
         this.view = view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Component compose() {
         List<FlexChild> children = new ArrayList<>();
@@ -196,6 +202,11 @@ public class PlayAreaScene extends Composition {
         );
     }
 
+    /**
+     * @param deckLocation the deck type
+     * @return a {@link Component} that represents a deck (empty or not)
+     * @see EmptyDeckPlaceholderComponent
+     */
     private Component getDeckTop(DeckLocation deckLocation) {
         if (view.isDeckEmpty(deckLocation)) {
             return new EmptyDeckPlaceholderComponent();
