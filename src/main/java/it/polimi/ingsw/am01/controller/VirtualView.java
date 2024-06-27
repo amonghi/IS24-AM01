@@ -224,7 +224,6 @@ public class VirtualView implements Runnable {
                 }
             } catch (IllegalMoveException | NetworkException e) {
                 disconnect();
-                Thread.currentThread().interrupt();
                 return;
             }
         }
@@ -236,7 +235,6 @@ public class VirtualView implements Runnable {
     private void disconnect() {
         try {
             this.connection.close();
-            Thread.currentThread().interrupt();
         } catch (CloseNetworkException e) {
             e.printStackTrace();
         }
