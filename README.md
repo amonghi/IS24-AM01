@@ -95,6 +95,6 @@ Then you can run the client with the TUI using the following command:
 java -jar AM01-1.0-SNAPSHOT-client-tui.jar
 ```
 
-#### MacOS
+##### MacOS
 
 MacOS is not supported for the TUI client.
