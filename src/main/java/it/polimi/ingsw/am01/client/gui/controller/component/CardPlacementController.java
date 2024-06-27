@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am01.client.gui.controller.component;
 
+import it.polimi.ingsw.am01.client.Position;
 import it.polimi.ingsw.am01.client.gui.controller.Constants;
 import it.polimi.ingsw.am01.client.gui.controller.Utils;
-import it.polimi.ingsw.am01.client.gui.model.Position;
 import it.polimi.ingsw.am01.model.card.Side;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;

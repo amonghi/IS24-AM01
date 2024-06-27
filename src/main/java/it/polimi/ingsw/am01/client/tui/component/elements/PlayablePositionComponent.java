@@ -9,9 +9,9 @@ import it.polimi.ingsw.am01.client.tui.rendering.draw.Line;
 import it.polimi.ingsw.am01.client.tui.rendering.draw.Text;
 
 public class PlayablePositionComponent extends Element {
-    private final it.polimi.ingsw.am01.client.gui.model.Position playablePosition;
+    private final it.polimi.ingsw.am01.client.Position playablePosition;
 
-    public PlayablePositionComponent(it.polimi.ingsw.am01.client.gui.model.Position playablePosition) {
+    public PlayablePositionComponent(it.polimi.ingsw.am01.client.Position playablePosition) {
         super(Dimensions.of(CardFaceComponent.CARD_W, CardFaceComponent.CARD_H));
         this.playablePosition = playablePosition;
     }

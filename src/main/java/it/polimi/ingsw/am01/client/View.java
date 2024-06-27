@@ -1,8 +1,6 @@
 package it.polimi.ingsw.am01.client;
 
 import it.polimi.ingsw.am01.client.gui.event.*;
-import it.polimi.ingsw.am01.client.gui.model.Placement;
-import it.polimi.ingsw.am01.client.gui.model.Position;
 import it.polimi.ingsw.am01.controller.DeckLocation;
 import it.polimi.ingsw.am01.eventemitter.EventEmitter;
 import it.polimi.ingsw.am01.eventemitter.EventEmitterImpl;

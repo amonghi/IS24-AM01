@@ -36,7 +36,6 @@ module it.polimi.ingsw.am01 {
     opens it.polimi.ingsw.am01.client.gui.controller.scene to javafx.fxml;
     opens it.polimi.ingsw.am01.client.gui.controller to javafx.fxml;
     opens it.polimi.ingsw.am01.client.gui.controller.popup to javafx.fxml;
-    opens it.polimi.ingsw.am01.client.gui.model to javafx.fxml;
 
     opens it.polimi.ingsw.am01.client.tui.terminal to com.sun.jna;
 
@@ -55,6 +54,5 @@ module it.polimi.ingsw.am01 {
     exports it.polimi.ingsw.am01.eventemitter to javafx.graphics;
     exports it.polimi.ingsw.am01.client.gui.controller to javafx.graphics;
     exports it.polimi.ingsw.am01.client.gui.controller.popup to javafx.graphics;
-    exports it.polimi.ingsw.am01.client.gui.model to javafx.graphics;
     exports it.polimi.ingsw.am01.client;
 }

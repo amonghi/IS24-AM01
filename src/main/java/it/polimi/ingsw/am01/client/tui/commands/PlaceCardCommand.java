@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am01.client.tui.commands;
 
 import it.polimi.ingsw.am01.client.ClientState;
-import it.polimi.ingsw.am01.client.gui.model.Position;
+import it.polimi.ingsw.am01.client.Position;
 import it.polimi.ingsw.am01.client.tui.TuiView;
 import it.polimi.ingsw.am01.client.tui.command.CommandContext;
 import it.polimi.ingsw.am01.client.tui.command.CommandNode;
