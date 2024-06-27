@@ -13,8 +13,6 @@ import it.polimi.ingsw.am01.model.player.PlayerData;
 import it.polimi.ingsw.am01.model.player.PlayerManager;
 import it.polimi.ingsw.am01.model.player.PlayerProfile;
 
-//TODO: tests of sendBroadcastMessage, sendDirectMessage and startGame methods
-
 /**
  * The main controller
  */

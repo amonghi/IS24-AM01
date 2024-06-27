@@ -23,12 +23,15 @@ import java.io.*;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * Manages multiple {@link Game} instances at once and allows to save the current status in a json file
  */
 public class GameManager implements EventEmitter<GameManagerEvent> {
+
+    private static final Logger LOGGER = Logger.getLogger(GameManager.class.getName());
 
     private static final Gson gson = new GsonBuilder()
             .enableComplexMapKeySerialization()
@@ -86,7 +89,8 @@ public class GameManager implements EventEmitter<GameManagerEvent> {
                 try {
                     game.setRestoringStatus();
                 } catch (IllegalGameStateException e) {
-                    throw new RuntimeException(e); // TODO: handle exception
+                    LOGGER.log(java.util.logging.Level.SEVERE, "Failed to restore game " + game.getId() + ". Skipping it.", e);
+                    continue;
                 }
 
                 games.add(game);

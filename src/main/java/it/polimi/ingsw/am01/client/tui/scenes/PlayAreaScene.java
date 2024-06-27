@@ -82,7 +82,7 @@ public class PlayAreaScene extends Composition {
 
 
         List<Component> board = new ArrayList<>(List.of(
-                new Padding(0, 0, 4, 0, new Row( // TODO: empty deck
+                new Padding(0, 0, 4, 0, new Row(
                         List.of(
                                 new Column(List.of(
                                         new Text("Golden deck"),

@@ -454,7 +454,6 @@ public class PlayArea implements Iterable<PlayArea.CardPlacement> {
          *
          * @return The PlayArea of the placement
          */
-        // TODO: decide if this is actually useful
         public PlayArea getPlayArea() {
             return PlayArea.this;
         }

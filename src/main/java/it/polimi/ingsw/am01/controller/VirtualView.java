@@ -21,6 +21,8 @@ import it.polimi.ingsw.am01.network.message.c2s.*;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +37,8 @@ import java.util.stream.Collectors;
  * @see PlayerManager
  */
 public class VirtualView implements Runnable {
+    private static final Logger LOGGER = Logger.getLogger(VirtualView.class.getName());
+
     private final Controller controller;
     private final Connection<S2CNetworkMessage, C2SNetworkMessage> connection;
     private final GameManager gameManager;
@@ -122,8 +126,9 @@ public class VirtualView implements Runnable {
         ).findFirst().ifPresent(game -> {
             setGame(game);
             try {
-                game.handleReconnection(playerProfile); // TODO: handle exceptions
+                game.handleReconnection(playerProfile);
             } catch (PlayerNotInGameException | PlayerAlreadyConnectedException e) {
+                // this should never happen
                 throw new RuntimeException(e);
             }
         });
@@ -236,7 +241,7 @@ public class VirtualView implements Runnable {
         try {
             this.connection.close();
         } catch (CloseNetworkException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Error closing connection", e);
         }
     }
 
@@ -254,7 +259,7 @@ public class VirtualView implements Runnable {
             try {
                 listener.onEvent(event);
             } catch (NetworkException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.WARNING, "Networking error", e);
                 disconnect();
             }
         };
@@ -749,7 +754,8 @@ public class VirtualView implements Runnable {
                                 )).toList()
                 ));
             } catch (IllegalMoveException e) {
-                throw new RuntimeException(e); // TODO: handle exception
+                // this should never happen
+                throw new RuntimeException(e);
             }
         }
     }
