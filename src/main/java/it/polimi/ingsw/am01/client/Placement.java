@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am01.client.gui.model;
+package it.polimi.ingsw.am01.client;
 
 import it.polimi.ingsw.am01.model.card.Side;
 

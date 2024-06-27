@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am01.client.tui.component.elements;
 
-import it.polimi.ingsw.am01.client.gui.model.Placement;
+import it.polimi.ingsw.am01.client.Placement;
 import it.polimi.ingsw.am01.client.tui.component.Component;
 import it.polimi.ingsw.am01.client.tui.component.layout.BaseLayout;
 import it.polimi.ingsw.am01.client.tui.component.layout.Scroll;
@@ -19,13 +19,13 @@ public class PlayAreaComponent extends Composition {
     private final int xScroll;
     private final int yScroll;
     private final SortedSet<Placement> playArea;
-    private final List<it.polimi.ingsw.am01.client.gui.model.Position> playablePositions;
+    private final List<it.polimi.ingsw.am01.client.Position> playablePositions;
 
     public PlayAreaComponent(
             int xScroll,
             int yScroll,
             SortedSet<Placement> playArea,
-            List<it.polimi.ingsw.am01.client.gui.model.Position> playablePositions
+            List<it.polimi.ingsw.am01.client.Position> playablePositions
     ) {
         this.xScroll = xScroll;
         this.yScroll = yScroll;
@@ -42,13 +42,13 @@ public class PlayAreaComponent extends Composition {
         private static final int X_OFFSET = CardFaceComponent.CARD_W - CardFaceComponent.CORNER_W;
         private static final int Y_OFFSET = CardFaceComponent.CARD_H - CardFaceComponent.CORNER_H;
 
-        private final List<it.polimi.ingsw.am01.client.gui.model.Position> positions;
+        private final List<it.polimi.ingsw.am01.client.Position> positions;
         private final List<Component> children;
         private Position anchor;
 
         protected PlayAreaScrollable(
                 List<Placement> playArea,
-                List<it.polimi.ingsw.am01.client.gui.model.Position> playablePositions
+                List<it.polimi.ingsw.am01.client.Position> playablePositions
         ) {
             // note: put the playable positions first, so that they are rendered below the cards
             this.positions = Stream.concat(
@@ -70,6 +70,20 @@ public class PlayAreaComponent extends Composition {
             this.children = Stream.concat(playablePositionsStream, cardsStream).toList();
         }
 
+        private static int getX(it.polimi.ingsw.am01.client.Position position) {
+            int i = position.i();
+            int j = position.j();
+
+            return i - j;
+        }
+
+        private static int getY(it.polimi.ingsw.am01.client.Position position) {
+            int i = position.i();
+            int j = position.j();
+
+            return -i - j;
+        }
+
         @Override
         public void layout(Constraint constraint) {
             int minX = this.positions.stream().mapToInt(PlayAreaScrollable::getX).min().orElse(0);
@@ -82,7 +96,7 @@ public class PlayAreaComponent extends Composition {
             int playAreaH = 0;
 
             for (int i = 0; i < positions.size(); i++) {
-                it.polimi.ingsw.am01.client.gui.model.Position cardPos = positions.get(i);
+                it.polimi.ingsw.am01.client.Position cardPos = positions.get(i);
                 Component child = children.get(i);
 
                 // since this component is private, and it gets always rendered inside a Scroll,
@@ -128,20 +142,6 @@ public class PlayAreaComponent extends Composition {
         @Override
         protected List<Component> children() {
             return this.children;
-        }
-
-        private static int getX(it.polimi.ingsw.am01.client.gui.model.Position position) {
-            int i = position.i();
-            int j = position.j();
-
-            return i - j;
-        }
-
-        private static int getY(it.polimi.ingsw.am01.client.gui.model.Position position) {
-            int i = position.i();
-            int j = position.j();
-
-            return -i - j;
         }
     }
 }
