@@ -6,6 +6,8 @@ import it.polimi.ingsw.am01.network.message.C2SNetworkMessage;
 import it.polimi.ingsw.am01.network.message.S2CNetworkMessage;
 import it.polimi.ingsw.am01.network.message.s2c.*;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +25,7 @@ public class ConnectionWrapper {
 
     private final Connection<C2SNetworkMessage, S2CNetworkMessage> connection;
     private final View view;
+    private Timer timer = new Timer();
 
     /**
      * It starts a new thread, responsible for receiving network messages from the server
@@ -89,6 +92,14 @@ public class ConnectionWrapper {
                     case BroadcastMessageSentS2C m -> view.handleMessage(m);
                     case DirectMessageSentS2C m -> view.handleMessage(m);
                     case PingS2C m -> {
+                        timer.cancel();
+                        timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                view.connectionLost();
+                            }
+                        }, 10000);
                     }
                     default -> LOGGER.log(Level.WARNING, "Unexpected message", message);
                 }
